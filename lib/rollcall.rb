@@ -8,3 +8,6 @@ end
 
 # Require the open_flash_chart init.rb
 require File.join(File.dirname(__FILE__), '..', 'vendor', 'plugins', 'open_flash_chart', 'init.rb')
+
+$expansion_list = [] unless defined?($expansion_list)
+$expansion_list.push(:rollcall) unless $expansion_list.index(:rollcall)

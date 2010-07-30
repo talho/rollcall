@@ -1,12 +1,8 @@
 # Install hook code here
 FileUtils.cp_r(File.join(File.dirname(__FILE__),'lib','workers/.'),File.join(Rails.root,'lib','workers'))
 
-Dir.glob(File.join(File.dirname(__FILE__),'public','javascripts','*.js')).each do |file|
-  link = File.join(Rails.root,'public','javascripts',File.basename(file))
-  File.symlink(file,link) unless File.exists?(link)
-end
-
-Dir.glob(File.join(File.dirname(__FILE__),'public','stylesheets','*.css')).each do |file|
-  link = File.join(Rails.root,'public','stylesheets',File.basename(file))
-  File.symlink(file,link) unless File.exists?(link)
-end
+parent_public_dir = File.join(Rails.root, "public")
+[ "javascripts", "stylesheets" ].each { |public_subdir|
+  rel_path = File.join("..","..","vendor","plugins","rollcall","public",public_subdir)
+  File.symlink(rel_path, File.join(parent_public_dir, public_subdir, "rollcall"))
+}

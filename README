@@ -3,8 +3,12 @@ Rollcall
 
 This is a plugin for openPHIN.
 1) plugins are registerd in the global array $expansion_list
-2) any javascript and stylesheet files for the plugin are registered with
-   rails register_javascript_expansion() and register_stylesheet_expansion()
+2) javascript and stylesheet files
+  - any javascript and stylesheet files for the plugin are registered with
+    rails register_javascript_expansion() and register_stylesheet_expansion()
+  - the paths must be relative to Rails.root/public
+  - the plugin install.rb must make links to the plugin js/css dirs in
+    Rails.root/public
 3) run cucumber tests for this plugin with 'rake cucumber:rollcall'
 4) run spec tests for this plugin with 'rake spec:rollcall'
 

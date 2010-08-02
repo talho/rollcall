@@ -1,5 +1,7 @@
-require File.join(File.dirname(__FILE__), 'models', 'user.rb')
-require File.join(File.dirname(__FILE__), 'models', 'jurisdiction.rb')
+# Require rollcall models
+Dir[File.join(File.dirname(__FILE__), 'models', '*.rb')].each do |f|
+  require f
+end
 
 # Add rollcall vendor/plugins/*/lib to LOAD_PATH
 Dir[File.join(File.dirname(__FILE__), '../vendor/plugins/*/lib')].each do |path|

@@ -12,6 +12,16 @@ This is a plugin for openPHIN.
 3) run cucumber tests for this plugin with 'rake cucumber:rollcall'
 4) run spec tests for this plugin with 'rake spec:rollcall'
 
+The following was done initially to setup the plugin:
+1) Copy Rails.root/spec/spec_helper.rb -> PLUGIN/spec/
+  - sets fixture path to PLUGIN/spec/fixtures/
+  - loads PLUGIN/spec/factories.rb
+2) Necessary factories were defined in PLUGIN/spec/factories.rb
+3) Edited PLUGIN/install.rb to create links in Rails.root/public to
+   vendor/plugins/rollcall/public/javascripts
+4) Defined tasks in PLUGIN/tasks/cucumber.rake & PLUGIN/tasks/rspec.rake
+5) Defined migrations in PLUGIN/tasks/rollcall_tasks.rake
+
 
 Example
 =======

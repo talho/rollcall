@@ -11,7 +11,7 @@ begin
                         "-r vendor/plugins/rollcall/features/step_definitions " +
                         " #{ARGV[1..-1].join(" ") if ARGV[1..-1]}" +
                         # add all rollcall features if none are passed in
-                        (ARGV.grep(/^vendor/).empty? ? "vendor/plugins/rollcall/features" : "")
+                        (ARGV.grep(/vendor/).empty? ? "vendor/plugins/rollcall/features" : "")
       t.fork = true
       t.profile = 'default'
     end

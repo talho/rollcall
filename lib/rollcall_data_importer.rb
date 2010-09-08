@@ -1,6 +1,6 @@
 class RollcallDataImporter
   def self.process_uploads
-    pickup_dir=File.join(File.dirname(__FILE__), "..", "tmp", "rollcall")
+    pickup_dir=File.join(Rails.root, "tmp", "rollcall")
     Dir.ensure_exists(pickup_dir)
     Dir.ensure_exists(File.join(pickup_dir, "archive"))
 

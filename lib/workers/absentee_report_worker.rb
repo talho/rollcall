@@ -28,7 +28,7 @@ class AbsenteeReportWorker < BackgrounDRb::MetaWorker
 
   def process_uploads
     logger.warn("Running AbsenteeReportWorker")
-    #RollcallDataImporter.process_uploads
+    RollcallDataImporter.process_uploads
   end
 end
 

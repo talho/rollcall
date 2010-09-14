@@ -1,5 +1,5 @@
 <div class='container'>
-<div class='rollcall_chart right_column'>
+<div class='rollcall_chart rollcall_right_column'>
   <div class='rollcall_chart_options'>
     <% form_tag rollcall_path do %>
       <%= label_tag :timespan, "Show last" %>
@@ -13,7 +13,7 @@
   <% end %>
 </div>
 
-<div class="rollcall_summary left_column">
+<div class="rollcall_summary rollcall_left_column">
   <ul class="rollcall_summary">
     <% @districts.each do |district| %>
         <li class='district_summary'>

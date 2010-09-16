@@ -49,8 +49,6 @@ if (typeof(Ext) == "undefined") {
         $(".school_selection select#school_id option:first").attr('selected', 'selected');
         $("form").submit();
       });
-      $("ul.school_alerts").hide();
-      $("ul.schools").hide();
 
       // Setup for Rollcall Main tab
       $("ul.district a.district_name").click(function(){

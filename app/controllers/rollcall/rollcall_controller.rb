@@ -37,7 +37,6 @@ class Rollcall::RollcallController < ApplicationController
       render "about"
     end
     @chart=open_flash_chart_object(600, 300, rollcall_summary_chart_path(params[:timespan]))
-
   end
 
 

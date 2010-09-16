@@ -29,7 +29,6 @@
                       <%= image_tag("/stylesheets/images/status_extreme.png", :class => 'severity') unless school.absentee_reports.for_date_range(30.days.ago, Date.today).with_severity(:high).empty? %>
                       <%= image_tag( "/stylesheets/images/status_severe.png", :class => 'severity') unless school.absentee_reports.for_date_range(30.days.ago, Date.today).with_severity(:medium).empty? %>
                       <%= image_tag( "/stylesheets/images/status_moderate.png", :class => 'severity') unless school.absentee_reports.for_date_range(30.days.ago, Date.today).with_severity(:low).empty? %>
-
                     </div>
                     <ul class='school_alerts'>
                       <% school.absentee_reports.for_date_range(30.days.ago, Date.today).recent_alerts_by_severity(4).each do |report| %>

@@ -43,7 +43,6 @@ Feature: Rollcall status screen
       | -2    | BERRY ES    | 200      | 5      |
       | -3    | BERRY ES    | 200      | 10     |
       | -4    | BERRY ES    | 200      | 10     |
-    And I set default_wait_time to 5
 
 Scenario: Accessing the Rollcall application
   Given I am logged in as "nurse.betty@example.com"
@@ -74,7 +73,7 @@ Scenario: Seeing the average absenteeism graph(s)
   Given I am logged in as "nurse.betty@example.com"
   When I go to the ext dashboard page
   And I navigate to "Rollcall > Main"
-  Then I should see "a"
+  And I wait for the "object" element to load
   Then I should see an absenteeism graph with the following:
     | data        | nil,nil,8.0,5.33,6.83,4.83,2.67 |
     | data-label  | Houston ISD                     |
@@ -85,9 +84,9 @@ Scenario: Seeing the abseentism alert summary
   Given I am logged in as "nurse.betty@example.com"
   When I go to the ext dashboard page
   And I navigate to "Rollcall > Main"
-  Then I should see "a"
+  And I wait for the "object" element to load
   Then I should see an "low" rollcall summary for "LEWIS ES" with 12.0% absenteeism
-  Then I should see an "medium" rollcall summary for "SOUTHMAYDES" with 15.0% absenteeism
+  And I should see an "medium" rollcall summary for "SOUTHMAYDES" with 15.0% absenteeism
   And I should not see a rollcall alert for "BERRY ES"
 
 Scenario: Changing the timespan of the absenteeism graph
@@ -96,6 +95,6 @@ Scenario: Changing the timespan of the absenteeism graph
   And I navigate to "Rollcall > Main"
   And I select "90" from "Show last"
   And I press "Modify graph"
-  Then I should see "a"
+  And I wait for the "object" element to load
   Then I should see an absenteeism graph with the following:
     | data        | nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,nil,8.0,5.33,6.83,4.83,2.67 |

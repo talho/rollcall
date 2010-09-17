@@ -1,4 +1,4 @@
-class Rollcall::SchoolDistrictsController < ApplicationController
+class Rollcall::SchoolDistrictsController < Rollcall::RollcallAppController
   def school
     @district = current_user.school_districts.detect{|d| d.id.to_s==params[:id]}
     if @district.nil?

@@ -19,7 +19,7 @@
 
 =end
 
-class Rollcall::RollcallController < ApplicationController
+class Rollcall::RollcallController < Rollcall::RollcallAppController
   app_toolbar "rollcall"
   helper :rollcall
 

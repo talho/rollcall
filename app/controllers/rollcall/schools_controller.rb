@@ -1,4 +1,4 @@
-class Rollcall::SchoolsController < ApplicationController
+class Rollcall::SchoolsController < Rollcall::RollcallAppController
   helper :rollcall
   before_filter :rollcall_required
   before_filter :set_toolbar, :except => :chart
@@ -6,7 +6,7 @@ class Rollcall::SchoolsController < ApplicationController
   def index
     if current_user.schools.empty?
       flash[:notice] = "You do not have access to Rollcall, or do not have any schools in your jurisdiction(s)."
-      redirect_to rollcall_path
+      redirect_to :action => "about", :controller => 'rollcall/rollcall', :format => "ext"
     else
       id = current_user.schools.first.id
       respond_to do |format|

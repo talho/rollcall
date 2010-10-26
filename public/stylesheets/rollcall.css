@@ -1,3 +1,4 @@
+body                       {font:12px tahoma,arial,helvetica,sans-serif;}
 div.container              {position:relative; width:1000px; min-height: 400px;}
 div.rollcall_right_column  {position:absolute; top:0px; left:320px;margin:20px 20px 0 0;}
 div.rollcall_left_column   {position:absolute; top:0px; left:10px; width:300px;min-height:400px;border-right:2px dotted #ccc;}
@@ -15,3 +16,4 @@ img.severity               {width:10px;}
 li.school                  {position:relative;}
 li.school span.more        {position:absolute;right:5px;bottom:0px;}
 li.school_bordered         {border:2px solid #369;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;}
+.rollcall_alarm_icon       {background:url(../images/alert.gif) 0 -2px no-repeat;}

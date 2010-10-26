@@ -1,7 +1,3 @@
-When /^I set default_wait_time to (\d+)/ do |wait_time|
-  Capybara.default_wait_time = wait_time.to_i
-end
-
 When /^I drop the following file in the rollcall directory\:$/ do |erb_file_template|
   rollcall_drop_dir=File.join(File.dirname(__FILE__), '..', '..', 'tmp', 'rollcall')
   Dir.ensure_exists(rollcall_drop_dir)
@@ -15,14 +11,21 @@ When /^the rollcall background worker processes$/ do
 end
 
 Then /^I should not see a rollcall alert for "([^\"]*)"$/ do |school|
-  within(:css, ".school") { page.should_not have_content(school) }
+  response.should_not have_selector(".school", :content => school)
 end
 
 Then /^I should see an "([^\"]*)" rollcall summary for "([^\"]*)" with (.*) absenteeism$/ do |severity, school, percent|
-  school_node = find(:css, ".rollcall_summary .school", :text => school)
-  assert school_node.find(:css, "li.#{severity} span.absence").text == percent
+  response.should have_selector(".rollcall_summary") do |elm|
+    elm.should have_selector(".school", :content => school) do |elm2|
+      elm2.should have_selector(".#{severity}") do |elm3|
+        elm3.should have_selector(".absence", :content => percent)
+      end
+    end
+  end
 end
 
 Then /^I should see school data for "([^\"]*)"$/ do |school|
-  assert find(:css, ".school_data .school", :text => school) != nil
+  response.should have_selector(".school_data") do |elm|
+    elm.should have_selector(".school", :content => school)
+  end
 end

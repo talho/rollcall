@@ -1,3 +1,6 @@
 [submodule "vendor/plugins/open_flash_chart"]
 	path = vendor/plugins/open_flash_chart
 	url = git://github.com/pullmonkey/open_flash_chart.git
+[submodule "vendor/plugins/rails_rrdtool"]
+	path = vendor/plugins/rails_rrdtool
+	url = git://github.com/talho/rails_rrdtool.git

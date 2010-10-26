@@ -11,7 +11,7 @@ Feature: School
       | Jurisdiction | Houston         |
     And Texas is the parent jurisdiction of:
       | Houston |
-    And Houston has the following school districts:
+    And Houston has the followin  g  school districts:
       | Houston ISD |
     And "Houston ISD" has the following schools:
       | Name                 | DisplayName | SchoolID | Level |

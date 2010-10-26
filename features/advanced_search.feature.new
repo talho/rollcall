@@ -1,0 +1,63 @@
+Feature: Execute Advanced Search Queries
+  In order to execute advanced search queries
+  As a Rollcall user
+  I should be able to select from a list of advanced search options, construct and execute my query
+
+Background:
+  Given the following entities exist:
+    | Role         | SchoolNurse     |
+    | Role         | Epidemiologist  |
+    | Jurisdiction | Texas           |
+    | Jurisdiction | Houston         |
+    | Jurisdiction | Tarrant         |
+  And Texas is the parent jurisdiction of:
+    | Houston | Tarrant |
+  And Houston has the following school districts:
+    | Houston ISD |
+  And "Houston ISD" has the following schools:
+    | Name        | SchoolID | Level |
+    | LEWIS ES    | 1        | ES    |
+    | SOUTHMAYDES | 2        | ES    |
+    | BERRY ES    | 3        | ES    |
+  And the following users exist:
+    | Nurse Betty  | nurse.betty@example.com | SchoolNurse    | Houston |
+    | Nurse Betty  | nurse.betty@example.com | Rollcall       | Houston |
+    | Epi Smith    | epi.smith@example.com   | Epidemiologist | Houston |
+    | Epi Smith    | epi.smith@example.com   | Rollcall       | Houston |
+    | Normal Epi   | normal.epi@example.com  | Epidemiologist | Houston |
+    | No Schools   | noschools@example.com   | Rollcall       | Tarrant |
+  And "Houston ISD" has the following current absenteeism data:
+    | Day   | SchoolName  | Enrolled | Absent |
+    | 0     | LEWIS ES    | 500      | 5      |
+    | -1    | LEWIS ES    | 500      | 10     |
+    | -2    | LEWIS ES    | 500      | 15     |
+    | -3    | LEWIS ES    | 500      | 5      |
+    | -4    | LEWIS ES    | 500      | 60     |
+    | 0     | SOUTHMAYDES | 100      | 2      |
+    | -1    | SOUTHMAYDES | 100      | 5      |
+    | -2    | SOUTHMAYDES | 100      | 15     |
+    | -3    | SOUTHMAYDES | 100      | 10     |
+    | -4    | SOUTHMAYDES | 100      | 7      |
+    | 0     | BERRY ES    | 200      | 10     |
+    | -1    | BERRY ES    | 200      | 15     |
+    | -2    | BERRY ES    | 200      | 5      |
+    | -3    | BERRY ES    | 200      | 10     |
+    | -4    | BERRY ES    | 200      | 10     |
+
+Scenario: User runs an advanced search against school type
+
+Scenario: User runs an advanced search against age
+
+Scenario: User runs an advanced search against grade
+
+Scenario: User runs an advanced search against time period
+
+Scenario: User runs an advanced search against gender
+
+Scenario: User runs an advanced search against symptoms
+
+Scenario: User runs an advanced search against school type, grade, time period, gender and symptoms to view the average data
+
+Scenario: User runs an advanced search against school type, grade, time period, gender and symptoms to view the raw data
+
+Scenario: User runs an advanced search against school type, grade, time period, gender and symptoms to view the standard deviation

@@ -1,4 +1,7 @@
 class Rollcall::SchoolDistrictsController < Rollcall::RollcallAppController
+  helper :rollcall
+  before_filter :rollcall_required
+  
   def school
     @district = current_user.school_districts.detect{|d| d.id.to_s==params[:id]}
     if @district.nil?
@@ -7,8 +10,8 @@ class Rollcall::SchoolDistrictsController < Rollcall::RollcallAppController
     else
       @school = @district.schools.find_by_id(params[:school][:id])
       respond_to do |format|
-        format.ext { redirect_to "#{school_path(@school)}.ext" }
-        format.html { redirect_to school_path(@school) }
+        format.ext { redirect_to "#{rollcall_school_path(@school)}.ext" }
+        format.html { redirect_to rollcall_school_path(@school) }
       end
     end
   end

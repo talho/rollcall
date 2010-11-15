@@ -16,6 +16,20 @@ class Rollcall::SchoolsController < Rollcall::RollcallAppController
     end
   end
 
+  def get
+    schools = current_user.schools(:order => "display_name")
+    respond_to do |format|
+      format.json do
+        original_included_root = ActiveRecord::Base.include_root_in_json
+        ActiveRecord::Base.include_root_in_json = false
+        render :json => {
+          :schools => schools.as_json
+        }
+        ActiveRecord::Base.include_root_in_json = original_included_root
+      end
+    end
+  end
+
   def show
     schools = current_user.schools(:order => "display_name")
     
@@ -27,7 +41,7 @@ class Rollcall::SchoolsController < Rollcall::RollcallAppController
 
     respond_to do |format|
       if @school && schools.include?(@school)
-        @chart=open_flash_chart_object(600, 300, school_chart_path(@school, params[:timespan]))
+        @chart=open_flash_chart_object(600, 300, rollcall_school_chart_path(@school, params[:timespan]))
         format.ext
         format.html
         format.xml { render :xml => @school }
@@ -41,7 +55,7 @@ class Rollcall::SchoolsController < Rollcall::RollcallAppController
   end
 
   def chart
-    @school = School.find(params[:school_id])
+    @school = School.find(params[:rollcall_school_id])
     render :text => create_school_chart(@school, params[:timespan])
   end
 

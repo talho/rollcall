@@ -22,7 +22,6 @@
 class Rollcall::RollcallController < Rollcall::RollcallAppController
   app_toolbar "rollcall"
   helper :rollcall
-
   before_filter :rollcall_required, :except => :about
 
   def about

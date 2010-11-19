@@ -13,6 +13,7 @@
 #  created_at    :datetime
 #  updated_at    :datetime
 #  region        :string(255)
+#  school_type   :string(255)
 #
 
 class School < ActiveRecord::Base

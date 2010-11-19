@@ -11,7 +11,8 @@ Talho.ux.rollcall.comboBoxConfig  = Ext.extend(Ext.form.ComboBox, {
   displayField:  'value'
 });
 
-Talho.ux.rollcall.optionStore = null;
+
+Talho.ux.rollcall.init_store = null;
 
 Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
   constructor: function(config)
@@ -26,11 +27,11 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
       layout:     'border',
       listeners: {
         scope: this,
-        'afterrender': function(this_panel){
-          new Ext.data.JsonStore({
+        'render': function(this_panel){
+          Talho.ux.rollcall.init_store = new Ext.data.JsonStore({
             autoLoad: true,
             root:   'options',
-            fields: ['absenteeism', 'data_functions', 'school_type', 'schools'],
+            fields: ['absenteeism', 'age', 'data_functions', 'gender', 'grade', 'school_type',   'schools', 'symptons', 'temperature', 'zipcode'],
             url:    '/rollcall/query_options',
             listeners:{
               scope: this,
@@ -38,35 +39,21 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
                 var simple_config = {};
                 var adv_config = {};
                 for(var i =0; i < record.length; i++){
-                  if(record[i].data.absenteeism != ""){
-                    simple_config.absenteeism = adv_config.absenteeism = new Array();
-                    for(var a = 0; a < record[i].data.absenteeism.length; a++){
-                      simple_config.absenteeism[a] = adv_config.absenteeism[a] = [
-                        record[i].data.absenteeism[a].id, record[i].data.absenteeism[a].value
-                      ];
-                    }
-                  }else if(record[i].data.data_functions != ""){
-                    simple_config.data_functions = adv_config.data_functions = new Array();
-                    for(var d = 0; d < record[i].data.data_functions.length; d++){
-                      simple_config.data_functions[d] = adv_config.data_functions[d] = [
-                        record[i].data.data_functions[d].id, record[i].data.data_functions[d].value
-                      ]
-                    }
-                  }else if(record[i].data.school_type != ""){
-                    simple_config.school_type = adv_config.school_type = new Array();
-                    for(var st = 0; st < record[i].data.school_type.length; st++){
-                      simple_config.school_type[st] = adv_config.school_type[st] = [
-                        record[i].data.school_type[st].id, record[i].data.school_type[st].value
-                      ]
-                    }
-                  }
-                  else if(record[i].data.schools != ""){
+                  if(record[i].data.schools != ""){
                     simple_config.schools = adv_config.schools = new Array();
                     for(var s = 0; s < record[i].data.schools.length; s++){
                       simple_config.schools[s] = adv_config.schools[s] = [
                         record[i].data.schools[s].id, record[i].data.schools[s].display_name
                       ]
                     }
+                  }else{
+                    string_eval = "simple_config."+this_store.fields.items[i].name+" = adv_config."+this_store.fields.items[i].name+" = new Array();"+
+                    "for(var a = 0; a "+"<"+" record[i].data."+this_store.fields.items[i].name+".length; a++){"+
+                        "simple_config."+this_store.fields.items[i].name+"[a] = adv_config."+this_store.fields.items[i].name+"[a] = ["+
+                          "record[i].data."+this_store.fields.items[i].name+"[a].id, record[i].data."+this_store.fields.items[i].name+"[a].value"+
+                        "];"+
+                     "}"
+                    eval(string_eval);  
                   }
                 }
                 this.getPanel().getComponent("search_panel").getComponent("query_container").add(new Talho.ux.rollcall.RollcallSimpleSearchForm(simple_config));
@@ -76,6 +63,7 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
               }
             }
           });
+
         }
       },
       defaults: {
@@ -114,9 +102,15 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
         listeners:   { scope: this},
         title:       'Search',
         itemId:      'search_panel',
+        id:          'search_panel',
         collapsible: false,
         region:      'center',
         autoScroll:  true,
+        listeners: {
+          render: function(this_comp){
+            new Ext.LoadMask(this_comp.getEl(), {msg:"Please wait...", store: Talho.ux.rollcall.init_store});  
+          }
+        },
         items:[{
           xtype:  'container',
           itemId: 'query_container',

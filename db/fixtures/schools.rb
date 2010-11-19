@@ -11,7 +11,7 @@ FasterCSV.open(File.dirname(__FILE__) + '/schools.csv') do |schools|
     puts "seeding #{row[0]}" unless School.find_by_display_name(row[0])
     School.find_or_create_by_display_name(:display_name => row[0]) {|s|
       s.district=@district
-      s.school_number=row[1]   
+      s.school_number=row[1]
       s.school_type=row[2]
       s.postal_code=row[3]
     }

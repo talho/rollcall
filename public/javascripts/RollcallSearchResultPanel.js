@@ -19,7 +19,7 @@ Talho.ux.rollcall.RollcallSearchResultPanel = Ext.extend(Ext.ux.Portal, {
         listeners:{
           scope: this
         }
-      }]
+      },]
     });
     Talho.ux.rollcall.RollcallSearchResultPanel.superclass.constructor.call(this, config);
   },
@@ -35,6 +35,9 @@ Talho.ux.rollcall.RollcallSearchResultPanel = Ext.extend(Ext.ux.Portal, {
       fields: ['id', 'value'],
       listeners: {
         scope: this,
+        'beforeload': function(this_store, config){
+
+        },
         'load': function(this_store, record){
           for(var i = 0; i < record.length; i++){
             Ext.getCmp('searchResultPanel').get('columnLeft').add({

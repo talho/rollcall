@@ -3,23 +3,13 @@ require 'fastercsv'
   district.jurisdiction=Jurisdiction.find_or_create_by_name("Harris")
 }
 
-FasterCSV.open(File.dirname(__FILE__) + '/schools.csv') do |schools|
+FasterCSV.open(File.dirname(__FILE__) + '/schools.csv', :headers => true) do |schools|
   schools.each do |row|
-    if row[0].nil?
-      puts "Could not create a school for #{row[0]}; incomplete information"
+    if row["name"].blank?
+      puts "Could not create a school for #{row["tea_id"]}; incomplete information"
       next
     end
-    puts "seeding #{row[0]}" unless School.find_by_display_name(row[0])
-    School.find_or_create_by_display_name(:display_name => row[0]) {|s|
-      s.district=@district
-      s.tea_id=row[1]
-#    s.name=school[0]
-#    s.region=school[1]
-#    s.school_number = school[3]
-#    s.display_name=school[0].strip.gsub(/(Elementary School$|Montessori$|Elementary$)/, "ES").
-#          gsub(/High School$/, "HS").
-#          gsub(/Middle School$/, "MS").
-#          gsub(/Early Childhood Education Center$/,"ECC").upcase
-    }
+    puts "seeding #{row["name"]}" unless row["tea_id"].blank? || School.find_by_tea_id(row["tea_id"].strip)
+    School.find_or_create_by_tea_id(:display_name => row["name"].strip, :tea_id => row["tea_id"], :district => @district, :school_id => row["school_id"].strip)
   end
 end

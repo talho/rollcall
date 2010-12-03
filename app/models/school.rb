@@ -45,6 +45,11 @@ class School < ActiveRecord::Base
     end
   end
 
+  def self.search(search)
+    search_condition = "%" + search + "%"
+    find(:all, :conditions => ['display_name LIKE ? OR postal_code LIKE ? OR school_type LIKE ?', search_condition, search_condition, search_condition])
+  end
+
   private
   def set_display_name
     self.display_name = self.name if self.display_name.nil? || self.display_name.strip.blank?

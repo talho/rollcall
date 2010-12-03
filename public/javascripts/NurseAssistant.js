@@ -1,6 +1,6 @@
-Ext.ns("Talho");
+Ext.ns("Talho.Rollcall");
 
-Talho.NurseAssistant = Ext.extend(function(){}, {
+Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
   constructor: function(config){
     var store = new Ext.data.JsonStore({
       fields:['name', 'symptoms', 'action', {name:'visit_date', type:'date'}, 'id'],
@@ -113,9 +113,9 @@ Talho.NurseAssistant = Ext.extend(function(){}, {
   }
 });
 
-Talho.NurseAssistant.initialize = function(config){
-  var na = new Talho.NurseAssistant(config);
+Talho.Rollcall.NurseAssistant.initialize = function(config){
+  var na = new Talho.Rollcall.NurseAssistant(config);
   return na.getPanel();
 };
 
-Talho.ScriptManager.reg('Talho.NurseAssistant', Talho.NurseAssistant, Talho.NurseAssistant.initialize);
+Talho.ScriptManager.reg('Talho.Rollcall.NurseAssistant', Talho.Rollcall.NurseAssistant, Talho.Rollcall.NurseAssistant.initialize);

@@ -42,7 +42,7 @@ Talho.Rollcall.result_store = new Ext.data.JsonStore({
   }
 });
 
-Talho.Rollcall.RollcallSearchResultPanel = Ext.extend(Ext.ux.Portal, {
+Talho.Rollcall.SearchResultPanel = Ext.extend(Ext.ux.Portal, {
   constructor: function(config){
     Ext.applyIf(config,{
       hidden: true,
@@ -63,7 +63,7 @@ Talho.Rollcall.RollcallSearchResultPanel = Ext.extend(Ext.ux.Portal, {
         }
       }]
     });
-    Talho.Rollcall.RollcallSearchResultPanel.superclass.constructor.call(this, config);
+    Talho.Rollcall.SearchResultPanel.superclass.constructor.call(this, config);
   },
 
   processQuery: function(json_result)

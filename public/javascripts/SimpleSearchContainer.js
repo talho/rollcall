@@ -1,7 +1,7 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
-Talho.Rollcall.RollcallSimpleSearchContainer = Ext.extend(Ext.Container, {
+Talho.Rollcall.SimpleSearchContainer = Ext.extend(Ext.Container, {
   constructor: function(config)
   {
     Ext.applyIf(config, {
@@ -93,6 +93,6 @@ Talho.Rollcall.RollcallSimpleSearchContainer = Ext.extend(Ext.Container, {
           }
         }]
     });
-    Talho.Rollcall.RollcallSimpleSearchContainer.superclass.constructor.call(this, config);
+    Talho.Rollcall.SimpleSearchContainer.superclass.constructor.call(this, config);
   }
 });

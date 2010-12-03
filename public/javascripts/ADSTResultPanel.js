@@ -1,51 +1,6 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
-Talho.Rollcall.result_store = new Ext.data.JsonStore({
-  idProperty: 'id',
-  totalProperty: 'total_results',
-  root:   'results',
-  fields: ['id', 'value'],
-  listeners: {
-    scope: this,
-    'load': function(this_store, record){
-      var item_id = null;
-      var graphImageConfig = null;
-      var result_obj = null;
-      for(var i = 0; i < record.length; i++){
-        item_id = 'query_result_'+i;
-        graphImageConfig = {
-          title: 'Query Result',
-          style:'margin:5px',
-          itemId: item_id,
-          tools: [{
-            id:'plus',
-            qtip: 'Save Query',
-            handler: function(e, targetEl, panel, tc){
-              Ext.getCmp('ADSTResultPanel')._showAlarmConsole();
-            }
-          },{
-            id:'close',
-            handler: function(e, target, panel){
-              panel.ownerCt.remove(panel, true);
-            }
-          }],
-          height: 230,
-          html: '<div style="text-align:center"><img src="/images/Ajax-loader.gif" /></div>'
-        };
-
-        if(i == 0 || i%2 == 0){
-          result_obj = Ext.getCmp('ADSTResultPanel').get('columnRight').add(graphImageConfig);
-        }else{
-          result_obj = Ext.getCmp('ADSTResultPanel').get('columnLeft').add(graphImageConfig);
-        }
-        Ext.getCmp('ADSTResultPanel').get('columnLeft').doLayout();
-        Ext.getCmp('ADSTResultPanel').get('columnRight').doLayout();
-        Ext.getCmp('ADSTResultPanel').renderGraphs(record[i].data.value, result_obj);
-      }
-    }
-  }
-});
 
 Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   constructor: function(config){
@@ -68,12 +23,60 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         }
       }]
     });
+    var result_store = new Ext.data.JsonStore({
+      idProperty: 'id',
+      totalProperty: 'total_results',
+      root:   'results',
+      fields: ['id', 'value'],
+      listeners: {
+        scope: this,
+        'load': function(this_store, record){
+          var item_id = null;
+          var graphImageConfig = null;
+          var result_obj = null;
+          for(var i = 0; i < record.length; i++){
+            item_id = 'query_result_'+i;
+            graphImageConfig = {
+              title: 'Query Result',
+              style:'margin:5px',
+              itemId: item_id,
+              tools: [{
+                id:'plus',
+                qtip: 'Save Query',
+                handler: function(e, targetEl, panel, tc){
+                  this._showAlarmConsole();
+                }
+              },{
+                id:'close',
+                handler: function(e, target, panel){
+                  panel.ownerCt.remove(panel, true);
+                }
+              }],
+              height: 230,
+              html: '<div style="text-align:center"><img src="/images/Ajax-loader.gif" /></div>'
+            };
+
+            if(i == 0 || i%2 == 0){
+              result_obj = this.get('columnRight').add(graphImageConfig);
+            }else{
+              result_obj = this.get('columnLeft').add(graphImageConfig);
+            }
+            this.get('columnLeft').doLayout();
+            this.get('columnRight').doLayout();
+            this.renderGraphs(record[i].data.value, result_obj);
+          }
+        }
+      }
+    });
+    this.getStore = function(){
+      return result_store;
+    }
     Talho.Rollcall.ADSTResultPanel.superclass.constructor.call(this, config);
   },
 
   processQuery: function(json_result)
   {
-    Talho.Rollcall.result_store.loadData(json_result);
+    this.getStore().loadData(json_result);
   },
 
   _showAlarmConsole: function()

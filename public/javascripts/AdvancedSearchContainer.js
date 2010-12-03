@@ -34,14 +34,14 @@ Talho.Rollcall.AdvancedSearchContainer = Ext.extend(Ext.Container, {
         }
       },
       items: [{
-        items: new Talho.Rollcall.ux.comboBoxConfig({
+        items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'Absenteeism',
             emptyText:  'Gross',
             id: 'absent_adv',
             store: config.absenteeism
           })
         },{
-          items: new Talho.Rollcall.ux.comboBoxConfig({
+          items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel:    'Age',
             emptyText:     'Select Age...',
             id: 'age_adv',
@@ -49,28 +49,28 @@ Talho.Rollcall.AdvancedSearchContainer = Ext.extend(Ext.Container, {
             store: config.age
           })
         },{
-          items: new Talho.Rollcall.ux.comboBoxConfig({
+          items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'Gender',
             emptyText:  'Select Gender...',
             id: 'gender_adv',
             store: config.gender
           })
         },{
-          items: new Talho.Rollcall.ux.comboBoxConfig({
+          items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'Grade',
             emptyText:  'Select Grade...',
             id: 'grade_adv',
             store: config.grade
           })
         },{
-          items: new Talho.Rollcall.ux.comboBoxConfig({
+          items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'School',
             emptyText:  'Select School...',
             id: 'school_adv',
             store: config.schools
           })
         },{
-          items: new Talho.Rollcall.ux.comboBoxConfig({
+          items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'School Type',
             emptyText:  'Select School Type...',
             id: 'school_type_adv',
@@ -99,28 +99,28 @@ Talho.Rollcall.AdvancedSearchContainer = Ext.extend(Ext.Container, {
             ctCls: 'ux-combo-box-cls'
           }
         },{
-          items: new Talho.Rollcall.ux.comboBoxConfig({
+          items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'Symptoms',
             emptyText:  'Select Symptoms...',
             id: 'symptoms_adv',
             store: config.symptons
           })
         },{
-          items: new Talho.Rollcall.ux.comboBoxConfig({
+          items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'Temperature',
             emptyText:  'Select Temperature...',
             id: 'temp_adv',
             store: config.temperature
           })
         },{
-          items: new Talho.Rollcall.ux.comboBoxConfig({
+          items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'Zipcode',
             emptyText:  'Select Zipcode...',
             id: 'zip_adv',
             store: config.zipcode
           })
         },{
-          items: new Talho.Rollcall.ux.comboBoxConfig({
+          items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'Data Function',
             emptyText:  'Raw',
             id: 'data_func_adv',

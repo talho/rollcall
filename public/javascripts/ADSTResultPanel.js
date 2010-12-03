@@ -4,25 +4,31 @@ Ext.namespace('Talho.Rollcall.ux');
 
 Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   constructor: function(config){
+    var leftColumn = new Ext.Container({
+      columnWidth: .50,
+      itemId: 'columnLeft',
+      listeners:{
+        scope: this
+      }
+    });
+
+    var rightColumn = new Ext.Container({
+      columnWidth: .50,
+      id: 'columnRight',
+      listeners:{
+        scope: this
+      }
+    });
+
     Ext.applyIf(config,{
       hidden: true,
       id:     'ADSTResultPanel',
       itemId: 'portalId',
-      items:[{
-        columnWidth: .50,
-        id: 'columnLeft',
-        listeners:{
-          scope: this
-        }
-      },
-      {
-        columnWidth: .50,
-        id: 'columnRight',
-        listeners:{
-          scope: this
-        }
-      }]
+      items:[leftColumn, rightColumn],
+      leftColumn: leftColumn,
+      rightColumn: rightColumn
     });
+
     var result_store = new Ext.data.JsonStore({
       idProperty: 'id',
       totalProperty: 'total_results',
@@ -57,12 +63,12 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
             };
 
             if(i == 0 || i%2 == 0){
-              result_obj = this.get('columnRight').add(graphImageConfig);
+              result_obj = this.rightColumn.add(graphImageConfig);
             }else{
-              result_obj = this.get('columnLeft').add(graphImageConfig);
+              result_obj = this.leftColumn.add(graphImageConfig);
             }
-            this.get('columnLeft').doLayout();
-            this.get('columnRight').doLayout();
+            this.leftColumn.doLayout();
+            this.rightColumn.doLayout();
             this.renderGraphs(record[i].data.value, result_obj);
           }
         }
@@ -71,6 +77,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     this.getStore = function(){
       return result_store;
     }
+
     Talho.Rollcall.ADSTResultPanel.superclass.constructor.call(this, config);
   },
 
@@ -246,14 +253,14 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
     alarm_console.show();
   },
-  renderGraphs: function(image, obj)
-  {
+  renderGraphs: function(image, obj) {
     Ext.Ajax.request({
       url: image,
+      scope: this,
       success: function(){
         obj.add({html:'<div style="text-align:center"><img src="'+image+'" /></div>'});
-        Ext.getCmp('ADSTResultPanel').get('columnLeft').doLayout();
-        Ext.getCmp('ADSTResultPanel').get('columnRight').doLayout();
+        this.leftColumn.doLayout();
+        this.rightColumn.doLayout();
       },
       failure: function(result, opts){
         Ext.Ajax.request(opts);

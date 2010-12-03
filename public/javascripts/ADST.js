@@ -56,7 +56,9 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
             new Ext.LoadMask(this_comp.getEl(), {msg:"Please wait...", store: this.ownerCt.init_store});
           }
         },
-        resultPanel: resultPanel,
+        getResultPanel: function() {
+          return resultPanel;
+        },
         items:[{
           xtype:  'container',
           itemId: 'query_container',
@@ -74,14 +76,13 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
               text: "Submit",
               scope: this,
               handler: function(buttonEl, eventObj){
-                this.submit({
-                  scope: this,
+                buttonEl.findParentByType('form').getForm().submit({
                   waitMsg: "Please wait...",
                   waitTitle: "Loading",
                   success: function(form, action)
                   {
-                    this.ownerCt.ownerCt.resultPanel.show();
-                    this.ownerCt.ownerCt.resultPanel.processQuery(action.result);
+                    form.ownerCt.ownerCt.getResultPanel().show();
+                    form.ownerCt.ownerCt.getResultPanel().processQuery(action.result);
                   },
                   failure: function(form, action)
                   {

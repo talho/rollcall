@@ -11,6 +11,7 @@ Talho.Rollcall.result_store = new Ext.data.JsonStore({
     'load': function(this_store, record){
       var item_id = null;
       var graphImageConfig = null;
+      var result_obj = null;
       for(var i = 0; i < record.length; i++){
         item_id = 'query_result_'+i;
         graphImageConfig = {
@@ -30,14 +31,17 @@ Talho.Rollcall.result_store = new Ext.data.JsonStore({
             }
           }],
           height: 230,
-          html: '<div style="text-align:center">Loading...</div>'
+          html: '<div style="text-align:center"><img src="/images/Ajax-loader.gif" /></div>'
         };
-        if(i == 0 || i%2 == 0)Ext.getCmp('searchResultPanel').get('columnRight').add(graphImageConfig);
-        else Ext.getCmp('searchResultPanel').get('columnLeft').add(graphImageConfig);
+        if(i == 0 || i%2 == 0){
+          result_obj = Ext.getCmp('searchResultPanel').get('columnRight').add(graphImageConfig);
+        }else{
+          result_obj = Ext.getCmp('searchResultPanel').get('columnLeft').add(graphImageConfig);
+        }
         Ext.getCmp('searchResultPanel').get('columnLeft').doLayout();
         Ext.getCmp('searchResultPanel').get('columnRight').doLayout();
+        Ext.getCmp('searchResultPanel').renderGraphs(record[i].data.value, result_obj);
       }
-      Ext.getCmp('searchResultPanel').renderGraphs(record, 0);
     }
   }
 });
@@ -238,21 +242,14 @@ Talho.Rollcall.SearchResultPanel = Ext.extend(Ext.ux.Portal, {
     });
     alarm_console.show();
   },
-  renderGraphs: function(image_array, cnt)
+  renderGraphs: function(image, obj)
   {
-    var item_id = 'query_result_'+cnt;
     Ext.Ajax.request({
-      url: image_array[cnt].data.value,
+      url: image,
       success: function(){
-        try{
-          Ext.getCmp('searchResultPanel').get("columnRight").getComponent(item_id).add({html:'<div style="text-align:center"><img name="'+cnt+'" src="'+image_array[cnt].data.value+'" /></div>'});
-        }catch(e){
-          Ext.getCmp('searchResultPanel').get("columnLeft").getComponent(item_id).add({html:'<div style="text-align:center"><img name="'+cnt+'" src="'+image_array[cnt].data.value+'" /></div>'});
-        }
+        obj.add({html:'<div style="text-align:center"><img src="'+image+'" /></div>'});
         Ext.getCmp('searchResultPanel').get('columnLeft').doLayout();
         Ext.getCmp('searchResultPanel').get('columnRight').doLayout();
-        cnt++;
-        if(image_array.length != cnt) Ext.getCmp('searchResultPanel').renderGraphs(image_array, cnt);
       },
       failure: function(result, opts){
         Ext.Ajax.request(opts);

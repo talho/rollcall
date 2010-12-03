@@ -1,18 +1,6 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
-Talho.Rollcall.ux.ComboBox = Ext.extend(Ext.form.ComboBox, {
-  typeAhead:     true,
-  triggerAction: 'all',
-  mode:          'local',
-  lazyRender:    true,
-  autoSelect:    true,
-  selectOnFocus: true,
-  valueField:    'id',
-  displayField:  'value',
-  ctCls:         'ux-combo-box-cls'
-});
-
 Talho.Rollcall.init_store = null;
 
 Talho.Rollcall.result_store = new Ext.data.JsonStore({

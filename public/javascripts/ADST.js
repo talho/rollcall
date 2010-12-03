@@ -139,22 +139,6 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       }]
     });
     Talho.Rollcall.ADST.superclass.constructor.call(this, config);
-  },
-  buildReportPanel: function()
-  {
-    return true;
-  },
-  submitQuery: function(b, e)
-  {
-    return false;
-  },
-  cancelForm: function(b,e)
-  {
-    return false;
-  },
-  resizeGraphs: function()
-  {
-    return false;
   }
 });
 

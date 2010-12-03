@@ -17,3 +17,14 @@ li.school span.more        {position:absolute;right:5px;bottom:0px;}
 li.school_bordered         {border:2px solid #369;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;}
 .rollcall_alarm_icon       {background:url(../images/alert.gif) 0 -2px no-repeat;}
 .rollcall_pdf_icon         {background:url(../images/file-pdf.png) 2px 0px no-repeat;width:20px;height:20px;position:relative;left:6px;}
+/*----- Ext Redesign -----*/
+.ux-combo-box-cls{
+  padding: 0px !important;
+}
+.ux-layout-auto-float-item{
+  float: left;
+  margin: 0px 5px;
+}
+.clear{
+  clear: both;
+}

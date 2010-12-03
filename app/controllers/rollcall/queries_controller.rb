@@ -97,14 +97,111 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
   end
 
   def search
+    if params[:adv] == 'true'
+      param_switch = 'adv'
+    else
+      param_switch = 'simple'
+    end
+
+    schools = School.search("#{params['school_'+param_switch]}").concat(School.search("#{params['school_type_'+param_switch]}"))
+    schools.concat(School.search("#{params['zip_'+param_switch]}")) unless params['zip_'+param_switch].blank?
+    
+    @schools = schools.uniq.map {|v| (schools-[v]).size < (schools.size - 1) ? v : nil}.compact
+    @schools = @schools.blank? ? schools : @schools
+    
     rrd_path = Dir.pwd << "/rrd/"
     rrd_tool =  if RAILS_ENV=="development"
       "/opt/local/bin/rrdtool"
     else
       "rrdtool"
     end
+
     rrd_image_path = Dir.pwd << "/public/rrd/"
-    RRD.create("#{rrd_path}school_absenteeism.rrd",
+    @image_names = []
+    @schools.each do |school, index|
+      school_name = school.display_name.gsub(" ", "_")
+      build_rrd rrd_path, rrd_tool, params, school_name unless File.exists?("#{rrd_path}#{school_name}_absenteeism.rrd")
+#      @result_set = SchoolDistrictDailyInfo.find(
+#        :all,
+#        :conditions => "report_date > #{params['startdt_'+param_switch]} && report_date < #{params['enddt_'+param_switch]} && district_id = #{school.district_id}"
+#      )
+      @result_set = []
+      @total_enrolled = (2..5).to_a[rand((2..5).to_a.length - 1)] * 100
+      for i in 0..14
+        @total_absent = (20..150).to_a[rand((20..150).to_a.length - 1)]
+        @result_set.push(SchoolDistrictDailyInfo.new(
+          :report_date => Time.local(2010,"aug",(i + 1),0,0),
+          :absentee_rate => (@total_absent / @total_enrolled) * 100,
+          :total_enrollment => @total_enrolled,
+          :total_absent => @total_absent,
+          :school_district_id => school.district_id,
+          :data => "temperature:51,lethargy:25,sore_throat:15,congestion:23,diarrhea:12,headache:34,aches:13,vomiting:42,rhinorrhea:07,unknown:278"
+        ))
+      end
+
+      
+      @result_set.each do |rec|
+        #absent_data = {}
+        #rec[:data].split(",").each do |r,i|
+        #  absent_data["#{r.split(":")[0]}"] = r.split(":")[1]
+        #end
+
+        RRD.send_later(:update, "#{rrd_path}#{school_name}_absenteeism.rrd", [rec[:report_date].to_i.to_s,rec[:total_absent], rec[:total_enrollment]], "#{rrd_tool}")
+        #Delayed::Job.enqueue(NewsletterJob.new('text', User.find(:all).collect(&:email)), 0, 5.minutes.from_now)
+        #Delayed::Job.enqueue Delayed::PerformableMethod.new(RRD, "update".to_sym, ["#{rrd_path}#{school_name}_absenteeism.rrd", [rec[:report_date].to_i.to_s,rec[:total_absent], rec[:total_enrollment]], "#{rrd_tool}"]), 1, Time.now
+      end
+      RRD.send_later(:graph, 
+        "#{rrd_path}#{school_name}_absenteeism.rrd","#{rrd_image_path}school_absenteeism_#{school_name}.png",
+        {
+          :start      => Time.local(2010,"aug",1,0,0),
+          :end        => Time.local(2011,"sep",30,23,59),
+          :width      => 500,
+          :height     => 120,
+          :image_type => "PNG",
+          :title      => "Absenteeism Rate for #{school_name}",
+          :vlabel     => "percent absent",
+          :lowerlimit => 0,
+          :defs       => [{
+            :key     => "a",
+            :cf      => "AVERAGE",
+            :ds_name => "Absent"
+          },{
+            :key     => "b",
+            :cf      => "AVERAGE",
+            :ds_name => "Enrolled"
+          }],
+          :elements   => [{
+            :key     => "a",
+            :element => "AREA",
+            :color   => "CC9966",
+            :text    => "Total Enrolled"
+          },{
+            :key     => "b",
+            :element => "LINE1",
+            :color   => "FF9900",
+            :text    => "Total Absent"
+          }]
+        }, "#{rrd_tool}")
+
+      @image_names.push(
+        :value => "/rrd/school_absenteeism_#{school_name}.png"
+      )
+    end
+    respond_to do |format|
+      format.json do
+        render :json => {
+          :success       => true,
+          :total_results => @image_names.length,
+          :results       => @image_names.as_json
+        }
+      end
+    end
+  end
+
+  private
+
+  def build_rrd(rrd_path,rrd_tool,params, school_name)
+    RRD.create("#{rrd_path}#{school_name}_absenteeism.rrd",
       {
         :step  => 24.hours.seconds,
         :start => Time.local(2010,"aug",1,0,0).to_i,
@@ -124,90 +221,6 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
           :type => "LAST", :xff => 0.5, :steps => 1, :rows => 366
         }]
       } , "#{rrd_tool}")
-    
-    @result_set = build_fake_data
-    @result_set.each do |rec|
-      RRD.update("#{rrd_path}school_absenteeism.rrd", [rec[:date],rec[:absent], rec[:total]], "#{rrd_tool}")      
-    end
-
-    @cmd = RRD.graph("#{rrd_path}school_absenteeism.rrd","#{rrd_image_path}school_absenteeism_woodson.png",
-      {
-        :start => Time.local(2010,"aug",1,0,0),
-        :end   => Time.local(2011,"sep",30,23,59),
-        :width => 500,
-        :height => 120,
-        :image_type => "PNG",
-        :title => "Absenteeism Rate for Woodson Middle School",
-        :defs => [{
-          :key => "a",
-          :cf => "AVERAGE",
-          :ds_name => "Absent"
-        },{
-          :key => "b",
-          :cf => "AVERAGE",
-          :ds_name => "Enrolled"
-        }],
-        :elements => [{
-          :key => "a",
-          :element => "AREA",
-          :color => "CC9966",
-          :text => "Total Enrolled"
-        },{
-          :key => "b",
-          :element => "LINE1",
-          :color => "FF9900",
-          :text => "Total Absent"
-        }],
-        :vlabel => "percent absent",
-        :lowerlimit => 0
-      }, "#{rrd_tool}")
-    @image_name = [
-      :id => 1, :value => "/rrd/school_absenteeism_woodson.png"
-    ]
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :total_results => @image_name.length,
-          :results => @image_name.as_json
-        }
-      end
-    end
+    return true
   end
-
-  def build_fake_data
-    fake_data = [
-      {
-        :date => Time.local(2010,"aug",1,0,0).to_i.to_s,
-        :absent => 100,
-        :total => 500
-      },
-      {
-        :date => Time.local(2010,"aug",2,0,0).to_i.to_s,
-        :absent => 95,
-        :total => 500
-      },
-      {
-        :date => Time.local(2010,"aug",3,0,0).to_i.to_s,
-        :absent => 108,
-        :total => 500
-      },
-      {
-        :date => Time.local(2010,"aug",4,0,0).to_i.to_s,
-        :absent => 90,
-        :total => 500
-      },
-      {
-        :date => Time.local(2010,"aug",5,0,0).to_i.to_s,
-        :absent => 97,
-        :total => 500
-      },
-      {
-        :date => Time.local(2010,"aug",6,0,0).to_i.to_s,
-        :absent => 101,
-        :total => 500
-      }
-    ]
-    return fake_data
-  end
-  
 end

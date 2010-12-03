@@ -19,58 +19,14 @@ Talho.ux.rollcall.RollcallSearchResultPanel = Ext.extend(Ext.ux.Portal, {
         listeners:{
           scope: this
         }
-      },]
+      }]
     });
     Talho.ux.rollcall.RollcallSearchResultPanel.superclass.constructor.call(this, config);
   },
 
-  processQuery: function()
+  processQuery: function(json_result)
   {
-    var resultStore = new Ext.data.JsonStore({
-      idProperty: 'id',
-      totalProperty: 'total_results',
-      autoLoad: true,
-      url: '/rollcall/search',
-      root:   'results',
-      fields: ['id', 'value'],
-      listeners: {
-        scope: this,
-        'beforeload': function(this_store, config){
-
-        },
-        'load': function(this_store, record){
-          for(var i = 0; i < record.length; i++){
-            Ext.getCmp('searchResultPanel').get('columnLeft').add({
-              title: 'Query Result',
-              style:'margin:5px',
-              tools: this._buildTools(),
-              height: 230,
-              html: '<div style="text-align:center"><img src="'+record[i].data.value+'" /></div>'
-            });
-          }
-          Ext.getCmp('searchResultPanel').get('columnLeft').doLayout();
-          Ext.getCmp('searchResultPanel').doLayout();
-        }
-      }
-    });
-  },
-  
-  _buildTools: function()
-  {
-    var tools = [{
-      id:'plus',
-      qtip: 'Save Query',
-      scope: this,
-      handler: function(e, targetEl, panel, tc){
-        Ext.getCmp('searchResultPanel')._showAlarmConsole();
-      }
-    },{
-      id:'close',
-      handler: function(e, target, panel){
-        panel.ownerCt.remove(panel, true);
-      }
-    }];
-    return tools;
+    Talho.ux.rollcall.result_store.loadData(json_result);
   },
 
   _showAlarmConsole: function()

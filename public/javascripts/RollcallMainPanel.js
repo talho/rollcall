@@ -8,11 +8,103 @@ Talho.ux.rollcall.comboBoxConfig  = Ext.extend(Ext.form.ComboBox, {
   autoSelect:    true,
   selectOnFocus: true,
   valueField:    'id',
-  displayField:  'value'
+  displayField:  'value',
+  ctCls:         'ux-combo-box-cls'
 });
-
-
 Talho.ux.rollcall.init_store = null;
+Talho.ux.rollcall.result_store = new Ext.data.JsonStore({
+  idProperty: 'id',
+  totalProperty: 'total_results',
+  root:   'results',
+  fields: ['id', 'value'],
+  listeners: {
+    scope: this,
+    'load': function(this_store, record){
+      var image_uri = '';
+      var item_id = null;
+      var graphImageConfig = null;
+      var image_load = false;
+      var d_cnt = 0;
+      for(var i = 0; i < record.length; i++){
+        item_id = 'query_result_'+i;
+        graphImageConfig = {
+          title: 'Query Result',
+          style:'margin:5px',
+          itemId: item_id,
+          tools: [{
+            id:'plus',
+            qtip: 'Save Query',
+            handler: function(e, targetEl, panel, tc){
+              Ext.getCmp('searchResultPanel')._showAlarmConsole();
+            }
+          },{
+            id:'close',
+            handler: function(e, target, panel){
+              panel.ownerCt.remove(panel, true);
+            }
+          }],
+          height: 230,
+          html: '<div style="text-align:center">Loading...</div>'
+        };
+        if(i == 0 || i%2 == 0)Ext.getCmp('searchResultPanel').get('columnRight').add(graphImageConfig);
+        else Ext.getCmp('searchResultPanel').get('columnLeft').add(graphImageConfig);
+        Ext.getCmp('searchResultPanel').get('columnLeft').doLayout();
+        Ext.getCmp('searchResultPanel').get('columnRight').doLayout();
+      }
+
+//      for(var i = 0; i < record.length; i++){
+//        var image_uri = record[i].data.value;
+//        var item_id = 'query_result_'+i;
+//        var graphImageConfig = {
+//          title: 'Query Result',
+//          style:'margin:5px',
+//          itemId: item_id,
+//          listeners:{
+//            scope: this,
+//            'render': function()
+//            {
+//              Ext.Ajax.request({
+//                url: image_uri,
+//                success: function(){
+//                  var temp_comp = Ext.getCmp('searchResultPanel').get("columnRight").getComponent(item_id).add({html:'<div style="text-align:center"><img name="'+i+'" src="'+image_uri+'" /></div>'});
+//                  if(temp_comp == undefined)
+//                    Ext.getCmp('searchResultPanel').get("columnLeft").getComponent(item_id).add({html:'<div style="text-align:center"><img name="'+i+'" src="'+image_uri+'" /></div>'});
+//                  Ext.getCmp('searchResultPanel').get('columnLeft').doLayout();
+//                  Ext.getCmp('searchResultPanel').get('columnRight').doLayout();
+//                },
+//                failure: function(result, opts){
+//                  Ext.Ajax.request(opts);
+//                },
+//                headers: {
+//                  'type': 'HEAD'
+//                }
+//              });
+//
+//            }
+//          },
+//          tools: [{
+//            id:'plus',
+//            qtip: 'Save Query',
+//            handler: function(e, targetEl, panel, tc){
+//              Ext.getCmp('searchResultPanel')._showAlarmConsole();
+//            }
+//          },{
+//            id:'close',
+//            handler: function(e, target, panel){
+//              panel.ownerCt.remove(panel, true);
+//            }
+//          }],
+//          height: 230,
+//          html: '<div style="text-align:center">Loading...</div>'
+//        };
+//        if(i == 0 || i%2 == 0)Ext.getCmp('searchResultPanel').get('columnRight').add(graphImageConfig);
+//        else Ext.getCmp('searchResultPanel').get('columnLeft').add(graphImageConfig);
+//        Ext.getCmp('searchResultPanel').get('columnLeft').doLayout();
+//        Ext.getCmp('searchResultPanel').get('columnRight').doLayout();
+//      }
+    }
+  }
+});
 
 Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
   constructor: function(config)
@@ -22,6 +114,7 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
     var panel = new Ext.Panel({
       title:      config.title,
       id:         config.id,
+      itemdId:    config.id,
       closable:   true,
       autoScroll: true,
       layout:     'border',
@@ -56,9 +149,10 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
                     eval(string_eval);  
                   }
                 }
-                this.getPanel().getComponent("search_panel").getComponent("query_container").add(new Talho.ux.rollcall.RollcallSimpleSearchForm(simple_config));
-                this.getPanel().getComponent("search_panel").getComponent("query_container").add(new Talho.ux.rollcall.RollcallAdvancedSearchForm(adv_config));
-                this.getPanel().getComponent("search_panel").getComponent("query_container").doLayout();
+                this.getPanel().getComponent("search_panel").getComponent('query_container').show();
+                this.getPanel().getComponent("search_panel").getComponent("query_container").getComponent("searchFormPanel").add(new Talho.ux.rollcall.RollcallSimpleSearchContainer(simple_config));
+                this.getPanel().getComponent("search_panel").getComponent("query_container").getComponent("searchFormPanel").add(new Talho.ux.rollcall.RollcallAdvancedSearchContainer(adv_config));
+                this.getPanel().getComponent("search_panel").getComponent("query_container").getComponent("searchFormPanel").doLayout();
                 this.getPanel().getComponent("search_panel").doLayout();
               }
             }
@@ -114,7 +208,41 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
         items:[{
           xtype:  'container',
           itemId: 'query_container',
-          layout: 'column'
+          layout: 'column',
+          hidden: true,
+          items:[{
+            xtype: 'form',
+            itemId: 'searchFormPanel',
+            columnWidth: 1,
+            labelAlign: 'top',
+            id: "searchFormPanel",
+            url:'/rollcall/search',
+            buttonAlign: 'left',
+            buttons: [{
+              text: "Submit",
+              scope: this,
+              handler: function(buttonEl, eventObj){
+                Ext.getCmp('searchFormPanel').getForm().submit({
+                  scope: this,
+                  waitMsg: "Please wait...",
+                  waitTitle: "Loading",
+                  success: function(form, action)
+                  {
+                    Ext.getCmp('searchResultPanel').show();
+                    Ext.getCmp('searchResultPanel').processQuery(action.result);
+                  },
+                  failure: function(form, action)
+                  {
+
+                  }
+                });
+              },
+              formBind: true
+            },{
+              text: "Cancel",
+              handler: this.clearForm
+            }]
+          }]
         },
           new Talho.ux.rollcall.RollcallSearchResultPanel({})
         ]
@@ -141,6 +269,28 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
   resizeGraphs: function()
   {
     return false;
+  },
+  renderGraphs: function(image_array, cnt)
+  {
+    var item_id = 'query_result_'+cnt;
+    Ext.Ajax.request({
+      url: image_array[cnt],
+      success: function(){
+        var temp_comp = Ext.getCmp('searchResultPanel').get("columnRight").getComponent(item_id).add({html:'<div style="text-align:center"><img name="'+i+'" src="'+image_array[cnt]+'" /></div>'});
+        if(temp_comp == undefined)
+          Ext.getCmp('searchResultPanel').get("columnLeft").getComponent(item_id).add({html:'<div style="text-align:center"><img name="'+i+'" src="'+image_array[cnt]+'" /></div>'});
+        Ext.getCmp('searchResultPanel').get('columnLeft').doLayout();
+        Ext.getCmp('searchResultPanel').get('columnRight').doLayout();
+        cnt++;
+        Ext.get('rollcall').renderGraphs(image_array, cnt);
+      },
+      failure: function(result, opts){
+        Ext.Ajax.request(opts);
+      },
+      headers: {
+        'type': 'HEAD'
+      }
+    });
   }
 });
 

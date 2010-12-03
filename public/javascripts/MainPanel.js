@@ -1,7 +1,7 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
-Talho.Rollcall.ux.comboBoxConfig  = Ext.extend(Ext.form.ComboBox, {
+Talho.Rollcall.ux.ComboBox = Ext.extend(Ext.form.ComboBox, {
   typeAhead:     true,
   triggerAction: 'all',
   mode:          'local',

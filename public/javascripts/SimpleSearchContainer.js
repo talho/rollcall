@@ -24,7 +24,7 @@ Talho.Rollcall.SimpleSearchContainer = Ext.extend(Ext.Container, {
       },
       items:[{
         items:
-          new Talho.Rollcall.ux.comboBoxConfig({
+          new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'Absenteeism',
             emptyText:'Gross',
             id: 'absent_simple',
@@ -32,7 +32,7 @@ Talho.Rollcall.SimpleSearchContainer = Ext.extend(Ext.Container, {
           })
         },{
         items:
-          new Talho.Rollcall.ux.comboBoxConfig({
+          new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'School',
             emptyText:'Select School...',
             id: 'school_simple',
@@ -40,7 +40,7 @@ Talho.Rollcall.SimpleSearchContainer = Ext.extend(Ext.Container, {
           })
         },{
           items:
-            new Talho.Rollcall.ux.comboBoxConfig({
+            new Talho.Rollcall.ux.ComboBox({
               fieldLabel: 'School Type',
               emptyText:'Select School Type...',
               id: 'school_type_simple',
@@ -70,7 +70,7 @@ Talho.Rollcall.SimpleSearchContainer = Ext.extend(Ext.Container, {
           }
         },{
           items:
-            new Talho.Rollcall.ux.comboBoxConfig({
+            new Talho.Rollcall.ux.ComboBox({
               fieldLabel: 'Data Function',
               emptyText:'Raw',
               id: 'data_func_simple',

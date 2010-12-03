@@ -1,6 +1,7 @@
-Ext.namespace('Talho.ux.rollcall');
+Ext.namespace('Talho.Rollcall');
+Ext.namespace('Talho.Rollcall.ux');
 
-Talho.ux.rollcall.RollcallSavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
+Talho.Rollcall.RollcallSavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
   constructor: function(config){
     Ext.applyIf(config, {
       itemId: 'portalId_south',
@@ -68,6 +69,6 @@ Talho.ux.rollcall.RollcallSavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
       }]
     });
 
-    Talho.ux.rollcall.RollcallSavedQueriesPanel.superclass.constructor.call(this, config);
+    Talho.Rollcall.RollcallSavedQueriesPanel.superclass.constructor.call(this, config);
   }
 });

@@ -1,7 +1,7 @@
-Feature: Execute Simple Search Queries
-  In order to execute simple search queries
+Feature: Execute Simple ADST Queries
+  In order to execute simple ADST queries
   As a Rollcall user
-  I should be able to select from a list of simple search options, construct and execute my query
+  I should be able to select from a list of simple ADST options, construct and execute my query
 
 Background:
   Given the following entities exist:
@@ -45,45 +45,45 @@ Background:
     | -4    | BERRY ES    | 200      | 10     |
   And I am logged in as "nurse.betty@example.com"  
 
-Scenario: User runs a simple search against absenteeism to view the raw data
-  When I navigate to the rollcall search page
+Scenario: User runs a simple query against absenteeism to view the raw data
+  When I navigate to the rollcall ADST page
   And I check "Absenteeism"
   And I fill in "Percentage" with "20"
   And I click "Submit"
   And I should see a graph called "all_abs_raw.png" within ext panel "Results"
 
-Scenario: User runs a simple search against a school to view the raw data
-  When I go to the rollcall search page
+Scenario: User runs a simple query against a school to view the raw data
+  When I navigate to the rollcall ADST page
   And I click on "School"
   And I select "Lewis ES" from "School"
   And I click "Submit"
   And I should see a graph called "lewis_es_raw.png" within ext panel "Results"
   
-Scenario: User runs a simple search against a school type to view the raw data
-  When I go to the rollcall search page
+Scenario: User runs a simple query against a school type to view the raw data
+  When I navigate to the rollcall ADST page
   And I click on "School Type"
   And I select "Elementary" from "School Type"
   And I click "Submit"
   And I should see a graph called "es_raw.png" within ext panel "Results"
 
-Scenario: User runs a comparison search against all schools using school
-  When I go to the rollcall search page
+Scenario: User runs a comparison query against all schools using school
+  When I navigate to the rollcall ADST page
   And I click on "School"
   And I select "Lewis ES" from "School"
   And I select "Ratio Compare" from "Data Function"
   And I click "Submit"
   And I should see a graph called "lewis_es_ratio.png"
 
-Scenario: User runs a comparison search against all schools using school type
-  When I go to the rollcall search page
+Scenario: User runs a comparison query against all schools using school type
+  When I navigate to the rollcall ADST page
   And I click on "School Type"
   And I select "Elementary" from "School Type"
   And I select "Ratio Compare" from "Data Function"
   And I click "Submit"
   And I should see a graph called "lewis_es_ratio.png"
 
-Scenario: User runs a simple search using the time slider
-  When I go to the rollcall search page
+Scenario: User runs a simple query using the time slider
+  When I navigate to the rollcall ADST page
   And I click on "School Type"
   And I select "Elementary" from "School Type"
   And I click on "Set Time Range"
@@ -92,8 +92,8 @@ Scenario: User runs a simple search using the time slider
   And I click on "Submit"
   And I should see a graph called "es_time_raw.png"
   
-Scenario: User runs a simple search against absenteeism and school type to view the raw data
-  When I go to the rollcall search page
+Scenario: User runs a simple query against absenteeism and school type to view the raw data
+  When I navigate to the rollcall ADST page
   And I click on "Absenteeism"
   And I select "Confirmed" from "Absenteeism"
   And I click on "School Type"
@@ -101,8 +101,8 @@ Scenario: User runs a simple search against absenteeism and school type to view 
   And I click "Submit"
   And I should see a graph called "es_abs_raw.png" within ext panel "Results"
 
-Scenario: User runs a simple search against absenteeism and school type to view the average data
-  When I go to the rollcall search page
+Scenario: User runs a simple query against absenteeism and school type to view the average data
+  When I navigate to the rollcall ADST page
   And I click on "Absenteeism"
   And I fill in "Confirmed" from "Absenteeism"
   And I click on "School Type"
@@ -113,7 +113,7 @@ Scenario: User runs a simple search against absenteeism and school type to view 
 
 
 Scenario: User runs a simple search against absenteeism and scope to view the standard deviation
-  When I go to the rollcall search page
+  When I navigate to the rollcall ADST page
   And I click on "Absenteeism"
   And I fill in "Confirmed" from "Absenteeism"
   And I click on "School Type"

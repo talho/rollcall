@@ -21,7 +21,7 @@ Talho.Rollcall.result_store = new Ext.data.JsonStore({
             id:'plus',
             qtip: 'Save Query',
             handler: function(e, targetEl, panel, tc){
-              Ext.getCmp('searchResultPanel')._showAlarmConsole();
+              Ext.getCmp('ADSTResultPanel')._showAlarmConsole();
             }
           },{
             id:'close',
@@ -32,21 +32,21 @@ Talho.Rollcall.result_store = new Ext.data.JsonStore({
           height: 230,
           html: '<div style="text-align:center">Loading...</div>'
         };
-        if(i == 0 || i%2 == 0)Ext.getCmp('searchResultPanel').get('columnRight').add(graphImageConfig);
-        else Ext.getCmp('searchResultPanel').get('columnLeft').add(graphImageConfig);
-        Ext.getCmp('searchResultPanel').get('columnLeft').doLayout();
-        Ext.getCmp('searchResultPanel').get('columnRight').doLayout();
+        if(i == 0 || i%2 == 0)Ext.getCmp('ADSTResultPanel').get('columnRight').add(graphImageConfig);
+        else Ext.getCmp('ADSTResultPanel').get('columnLeft').add(graphImageConfig);
+        Ext.getCmp('ADSTResultPanel').get('columnLeft').doLayout();
+        Ext.getCmp('ADSTResultPanel').get('columnRight').doLayout();
       }
-      Ext.getCmp('searchResultPanel').renderGraphs(record, 0);
+      Ext.getCmp('ADSTResultPanel').renderGraphs(record, 0);
     }
   }
 });
 
-Talho.Rollcall.SearchResultPanel = Ext.extend(Ext.ux.Portal, {
+Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   constructor: function(config){
     Ext.applyIf(config,{
       hidden: true,
-      id:     'searchResultPanel',
+      id:     'ADSTResultPanel',
       itemId: 'portalId',
       items:[{
         columnWidth: .50,
@@ -63,7 +63,7 @@ Talho.Rollcall.SearchResultPanel = Ext.extend(Ext.ux.Portal, {
         }
       }]
     });
-    Talho.Rollcall.SearchResultPanel.superclass.constructor.call(this, config);
+    Talho.Rollcall.ADSTResultPanel.superclass.constructor.call(this, config);
   },
 
   processQuery: function(json_result)
@@ -245,14 +245,14 @@ Talho.Rollcall.SearchResultPanel = Ext.extend(Ext.ux.Portal, {
       url: image_array[cnt].data.value,
       success: function(){
         try{
-          Ext.getCmp('searchResultPanel').get("columnRight").getComponent(item_id).add({html:'<div style="text-align:center"><img name="'+cnt+'" src="'+image_array[cnt].data.value+'" /></div>'});
+          Ext.getCmp('ADSTResultPanel').get("columnRight").getComponent(item_id).add({html:'<div style="text-align:center"><img name="'+cnt+'" src="'+image_array[cnt].data.value+'" /></div>'});
         }catch(e){
-          Ext.getCmp('searchResultPanel').get("columnLeft").getComponent(item_id).add({html:'<div style="text-align:center"><img name="'+cnt+'" src="'+image_array[cnt].data.value+'" /></div>'});
+          Ext.getCmp('ADSTResultPanel').get("columnLeft").getComponent(item_id).add({html:'<div style="text-align:center"><img name="'+cnt+'" src="'+image_array[cnt].data.value+'" /></div>'});
         }
-        Ext.getCmp('searchResultPanel').get('columnLeft').doLayout();
-        Ext.getCmp('searchResultPanel').get('columnRight').doLayout();
+        Ext.getCmp('ADSTResultPanel').get('columnLeft').doLayout();
+        Ext.getCmp('ADSTResultPanel').get('columnRight').doLayout();
         cnt++;
-        if(image_array.length != cnt) Ext.getCmp('searchResultPanel').renderGraphs(image_array, cnt);
+        if(image_array.length != cnt) Ext.getCmp('ADSTResultPanel').renderGraphs(image_array, cnt);
       },
       failure: function(result, opts){
         Ext.Ajax.request(opts);

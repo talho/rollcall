@@ -1,15 +1,13 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
-Talho.Rollcall.init_store = null;
-
 Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   constructor: function(config)
   {
+    var resultPanel = new Talho.Rollcall.ADSTResultPanel({});
+    
     Ext.apply(config, {
-      title:      config.title,
-      id:         config.id,
-      itemdId:    config.id,
+      init_store: null,
       closable:   true,
       autoScroll: true,
       layout:     'border',
@@ -55,9 +53,10 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         autoScroll:  true,
         listeners: {
           render: function(this_comp){
-            new Ext.LoadMask(this_comp.getEl(), {msg:"Please wait...", store: Talho.Rollcall.init_store});
+            new Ext.LoadMask(this_comp.getEl(), {msg:"Please wait...", store: this.ownerCt.init_store});
           }
         },
+        resultPanel: resultPanel,
         items:[{
           xtype:  'container',
           itemId: 'query_container',
@@ -75,14 +74,14 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
               text: "Submit",
               scope: this,
               handler: function(buttonEl, eventObj){
-                Ext.getCmp('ADSTFormPanel').getForm().submit({
+                this.submit({
                   scope: this,
                   waitMsg: "Please wait...",
                   waitTitle: "Loading",
                   success: function(form, action)
                   {
-                    Ext.getCmp('ADSTResultPanel').show();
-                    Ext.getCmp('ADSTResultPanel').processQuery(action.result);
+                    this.ownerCt.ownerCt.resultPanel.show();
+                    this.ownerCt.ownerCt.resultPanel.processQuery(action.result);
                   },
                   failure: function(form, action)
                   {
@@ -96,7 +95,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
               handler: this.clearForm
             }],
             initComponent: function() {
-              Talho.Rollcall.init_store = new Ext.data.JsonStore({
+              this.ownerCt.ownerCt.ownerCt.init_store = new Ext.data.JsonStore({
                 autoLoad: true,
                 root:   'options',
                 fields: ['absenteeism', 'age', 'data_functions', 'gender', 'grade', 'school_type',   'schools', 'symptons', 'temperature', 'zipcode'],
@@ -124,7 +123,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                         eval(string_eval);
                       }
                     }
-                    this.findParentByType('container').show();
+                    this.ownerCt.show();
                     this.add(new Talho.Rollcall.SimpleADSTContainer(simple_config));
                     this.add(new Talho.Rollcall.AdvancedADSTContainer(adv_config));
                     this.doLayout();
@@ -135,7 +134,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
               this.__proto__.initComponent.apply(this);
             }
           }]
-        }, new Talho.Rollcall.ADSTResultPanel({}) ]
+        }, resultPanel ]
       }]
     });
     Talho.Rollcall.ADST.superclass.constructor.call(this, config);

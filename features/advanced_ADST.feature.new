@@ -1,7 +1,7 @@
-Feature: Execute Advanced Search Queries
+Feature: Execute Advanced ADST Queries
   In order to execute advanced search queries
   As a Rollcall user
-  I should be able to select from a list of advanced search options, construct and execute my query
+  I should be able to select from a list of advanced ADST options, construct and execute my query
 
 Background:
   Given the following entities exist:
@@ -44,20 +44,20 @@ Background:
     | -3    | BERRY ES    | 200      | 10     |
     | -4    | BERRY ES    | 200      | 10     |
 
-Scenario: User runs an advanced search against school type
+Scenario: User runs an advanced query against school type
 
-Scenario: User runs an advanced search against age
+Scenario: User runs an advanced query against age
 
-Scenario: User runs an advanced search against grade
+Scenario: User runs an advanced query against grade
 
-Scenario: User runs an advanced search against time period
+Scenario: User runs an advanced query against time period
 
-Scenario: User runs an advanced search against gender
+Scenario: User runs an advanced query against gender
 
-Scenario: User runs an advanced search against symptoms
+Scenario: User runs an advanced query against symptoms
 
-Scenario: User runs an advanced search against school type, grade, time period, gender and symptoms to view the average data
+Scenario: User runs an advanced query against school type, grade, time period, gender and symptoms to view the average data
 
-Scenario: User runs an advanced search against school type, grade, time period, gender and symptoms to view the raw data
+Scenario: User runs an advanced query against school type, grade, time period, gender and symptoms to view the raw data
 
-Scenario: User runs an advanced search against school type, grade, time period, gender and symptoms to view the standard deviation
+Scenario: User runs an advanced query against school type, grade, time period, gender and symptoms to view the standard deviation

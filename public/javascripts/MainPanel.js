@@ -1,18 +1,6 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
-Talho.Rollcall.ux.comboBoxConfig  = Ext.extend(Ext.form.ComboBox, {
-  typeAhead:     true,
-  triggerAction: 'all',
-  mode:          'local',
-  lazyRender:    true,
-  autoSelect:    true,
-  selectOnFocus: true,
-  valueField:    'id',
-  displayField:  'value',
-  ctCls:         'ux-combo-box-cls'
-});
-
 Talho.Rollcall.init_store = null;
 
 Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
@@ -58,11 +46,11 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
                     eval(string_eval);  
                   }
                 }
-                this.getPanel().getComponent("search_panel").getComponent('query_container').show();
-                this.getPanel().getComponent("search_panel").getComponent("query_container").getComponent("searchFormPanel").add(new Talho.Rollcall.SimpleSearchContainer(simple_config));
-                this.getPanel().getComponent("search_panel").getComponent("query_container").getComponent("searchFormPanel").add(new Talho.Rollcall.AdvancedSearchContainer(adv_config));
-                this.getPanel().getComponent("search_panel").getComponent("query_container").getComponent("searchFormPanel").doLayout();
-                this.getPanel().getComponent("search_panel").doLayout();
+                this.getPanel().getComponent("ADST_panel").getComponent('query_container').show();
+                this.getPanel().getComponent("ADST_panel").getComponent("query_container").getComponent("ADSTFormPanel").add(new Talho.Rollcall.SimpleADSTContainer(simple_config));
+                this.getPanel().getComponent("ADST_panel").getComponent("query_container").getComponent("ADSTFormPanel").add(new Talho.Rollcall.AdvancedADSTContainer(adv_config));
+                this.getPanel().getComponent("ADST_panel").getComponent("query_container").getComponent("ADSTFormPanel").doLayout();
+                this.getPanel().getComponent("ADST_panel").doLayout();
               }
             }
           });
@@ -103,9 +91,9 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
         items: new Talho.Rollcall.AlarmsPanel({})
       },{
         listeners:   { scope: this},
-        title:       'Search',
-        itemId:      'search_panel',
-        id:          'search_panel',
+        title:       'ADST',
+        itemId:      'ADST_panel',
+        id:          'ADST_panel',
         collapsible: false,
         region:      'center',
         autoScroll:  true,
@@ -121,24 +109,24 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
           hidden: true,
           items:[{
             xtype: 'form',
-            itemId: 'searchFormPanel',
+            itemId: 'ADSTFormPanel',
             columnWidth: 1,
             labelAlign: 'top',
-            id: "searchFormPanel",
-            url:'/rollcall/search',
+            id: "ADSTFormPanel",
+            url:'/rollcall/adst',
             buttonAlign: 'left',
             buttons: [{
               text: "Submit",
               scope: this,
               handler: function(buttonEl, eventObj){
-                Ext.getCmp('searchFormPanel').getForm().submit({
+                Ext.getCmp('ADSTFormPanel').getForm().submit({
                   scope: this,
                   waitMsg: "Please wait...",
                   waitTitle: "Loading",
                   success: function(form, action)
                   {
-                    Ext.getCmp('searchResultPanel').show();
-                    Ext.getCmp('searchResultPanel').processQuery(action.result);
+                    Ext.getCmp('ADSTResultPanel').show();
+                    Ext.getCmp('ADSTResultPanel').processQuery(action.result);
                   },
                   failure: function(form, action)
                   {
@@ -153,7 +141,7 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
             }]
           }]
         },
-          new Talho.Rollcall.SearchResultPanel({})
+          new Talho.Rollcall.ADSTResultPanel({})
         ]
       }]
     });

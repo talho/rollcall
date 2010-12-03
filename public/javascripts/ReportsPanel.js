@@ -1,7 +1,7 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
-Talho.Rollcall.RollcallReportsPanel = Ext.extend(Ext.grid.GridPanel, {
+Talho.Rollcall.ReportsPanel = Ext.extend(Ext.grid.GridPanel, {
   constructor: function(config){
     // sample static data for the store
     var myData = [
@@ -45,6 +45,6 @@ Talho.Rollcall.RollcallReportsPanel = Ext.extend(Ext.grid.GridPanel, {
       stateId: 'grid'
     });
     //Ext.apply(this, config);
-    Talho.Rollcall.RollcallReportsPanel.superclass.constructor.call(this, config);
+    Talho.Rollcall.ReportsPanel.superclass.constructor.call(this, config);
   }
 });

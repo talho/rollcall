@@ -1,7 +1,7 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
-Talho.Rollcall.RollcallAlarmsPanel = Ext.extend(Ext.Container, {
+Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
   constructor: function(config)
   {
     Ext.applyIf(config,{
@@ -105,6 +105,6 @@ Talho.Rollcall.RollcallAlarmsPanel = Ext.extend(Ext.Container, {
         iconCls:'rollcall_alarm_icon'
       }]
     });
-    Talho.Rollcall.RollcallAlarmsPanel.superclass.constructor.call(this, config);
+    Talho.Rollcall.AlarmsPanel.superclass.constructor.call(this, config);
   }
 });

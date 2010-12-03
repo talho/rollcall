@@ -153,8 +153,8 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
                   }
                 }
                 this.getPanel().getComponent("search_panel").getComponent('query_container').show();
-                this.getPanel().getComponent("search_panel").getComponent("query_container").getComponent("searchFormPanel").add(new Talho.Rollcall.RollcallSimpleSearchContainer(simple_config));
-                this.getPanel().getComponent("search_panel").getComponent("query_container").getComponent("searchFormPanel").add(new Talho.Rollcall.RollcallAdvancedSearchContainer(adv_config));
+                this.getPanel().getComponent("search_panel").getComponent("query_container").getComponent("searchFormPanel").add(new Talho.Rollcall.SimpleSearchContainer(simple_config));
+                this.getPanel().getComponent("search_panel").getComponent("query_container").getComponent("searchFormPanel").add(new Talho.Rollcall.AdvancedSearchContainer(adv_config));
                 this.getPanel().getComponent("search_panel").getComponent("query_container").getComponent("searchFormPanel").doLayout();
                 this.getPanel().getComponent("search_panel").doLayout();
               }
@@ -176,7 +176,7 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
         minSize:  75,
         maxSize:  250,
         bodyStyle:   'padding:15px',
-        items:    new Talho.Rollcall.RollcallSavedQueriesPanel({})
+        items:    new Talho.Rollcall.SavedQueriesPanel({})
       },{
         title:       'Reports',
         region:      'east',
@@ -186,7 +186,7 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
         bodyStyle:   'padding:0px',
         layout:      'fit',
         autoScroll:  true,
-        items:       new Talho.Rollcall.RollcallReportsPanel({})
+        items:       new Talho.Rollcall.ReportsPanel({})
       },{
         title: 'Alarms',
         region:'west',
@@ -194,7 +194,7 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
         minSize: 175,
         maxSize: 400,
         bodyStyle: 'padding:0px',
-        items: new Talho.Rollcall.RollcallAlarmsPanel({})
+        items: new Talho.Rollcall.AlarmsPanel({})
       },{
         listeners:   { scope: this},
         title:       'Search',
@@ -247,7 +247,7 @@ Talho.RollcallQuery = Ext.extend(Ext.util.Observable, {
             }]
           }]
         },
-          new Talho.Rollcall.RollcallSearchResultPanel({})
+          new Talho.Rollcall.SearchResultPanel({})
         ]
       }]
     });

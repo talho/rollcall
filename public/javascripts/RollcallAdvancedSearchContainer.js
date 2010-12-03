@@ -1,6 +1,7 @@
-Ext.namespace('Talho.ux.rollcall');
+Ext.namespace('Talho.Rollcall');
+Ext.namespace('Talho.Rollcall.ux');
 
-Talho.ux.rollcall.RollcallAdvancedSearchContainer = Ext.extend(Ext.Container, {
+Talho.Rollcall.RollcallAdvancedSearchContainer = Ext.extend(Ext.Container, {
   constructor: function(config)
   {
     Ext.applyIf(config, {
@@ -33,14 +34,14 @@ Talho.ux.rollcall.RollcallAdvancedSearchContainer = Ext.extend(Ext.Container, {
         }
       },
       items: [{
-        items: new Talho.ux.rollcall.comboBoxConfig({
+        items: new Talho.Rollcall.ux.comboBoxConfig({
             fieldLabel: 'Absenteeism',
             emptyText:  'Gross',
             id: 'absent_adv',
             store: config.absenteeism
           })
         },{
-          items: new Talho.ux.rollcall.comboBoxConfig({
+          items: new Talho.Rollcall.ux.comboBoxConfig({
             fieldLabel:    'Age',
             emptyText:     'Select Age...',
             id: 'age_adv',
@@ -48,28 +49,28 @@ Talho.ux.rollcall.RollcallAdvancedSearchContainer = Ext.extend(Ext.Container, {
             store: config.age
           })
         },{
-          items: new Talho.ux.rollcall.comboBoxConfig({
+          items: new Talho.Rollcall.ux.comboBoxConfig({
             fieldLabel: 'Gender',
             emptyText:  'Select Gender...',
             id: 'gender_adv',
             store: config.gender
           })
         },{
-          items: new Talho.ux.rollcall.comboBoxConfig({
+          items: new Talho.Rollcall.ux.comboBoxConfig({
             fieldLabel: 'Grade',
             emptyText:  'Select Grade...',
             id: 'grade_adv',
             store: config.grade
           })
         },{
-          items: new Talho.ux.rollcall.comboBoxConfig({
+          items: new Talho.Rollcall.ux.comboBoxConfig({
             fieldLabel: 'School',
             emptyText:  'Select School...',
             id: 'school_adv',
             store: config.schools
           })
         },{
-          items: new Talho.ux.rollcall.comboBoxConfig({
+          items: new Talho.Rollcall.ux.comboBoxConfig({
             fieldLabel: 'School Type',
             emptyText:  'Select School Type...',
             id: 'school_type_adv',
@@ -98,28 +99,28 @@ Talho.ux.rollcall.RollcallAdvancedSearchContainer = Ext.extend(Ext.Container, {
             ctCls: 'ux-combo-box-cls'
           }
         },{
-          items: new Talho.ux.rollcall.comboBoxConfig({
+          items: new Talho.Rollcall.ux.comboBoxConfig({
             fieldLabel: 'Symptoms',
             emptyText:  'Select Symptoms...',
             id: 'symptoms_adv',
             store: config.symptons
           })
         },{
-          items: new Talho.ux.rollcall.comboBoxConfig({
+          items: new Talho.Rollcall.ux.comboBoxConfig({
             fieldLabel: 'Temperature',
             emptyText:  'Select Temperature...',
             id: 'temp_adv',
             store: config.temperature
           })
         },{
-          items: new Talho.ux.rollcall.comboBoxConfig({
+          items: new Talho.Rollcall.ux.comboBoxConfig({
             fieldLabel: 'Zipcode',
             emptyText:  'Select Zipcode...',
             id: 'zip_adv',
             store: config.zipcode
           })
         },{
-          items: new Talho.ux.rollcall.comboBoxConfig({
+          items: new Talho.Rollcall.ux.comboBoxConfig({
             fieldLabel: 'Data Function',
             emptyText:  'Raw',
             id: 'data_func_adv',
@@ -148,6 +149,6 @@ Talho.ux.rollcall.RollcallAdvancedSearchContainer = Ext.extend(Ext.Container, {
         }
       }]
     });
-    Talho.ux.rollcall.RollcallAdvancedSearchContainer.superclass.constructor.call(this, config);
+    Talho.Rollcall.RollcallAdvancedSearchContainer.superclass.constructor.call(this, config);
   }
 });

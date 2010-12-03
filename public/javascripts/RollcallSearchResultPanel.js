@@ -1,6 +1,7 @@
-Ext.namespace('Talho.ux.rollcall');
+Ext.namespace('Talho.Rollcall');
+Ext.namespace('Talho.Rollcall.ux');
 
-Talho.ux.rollcall.result_store = new Ext.data.JsonStore({
+Talho.Rollcall.result_store = new Ext.data.JsonStore({
   idProperty: 'id',
   totalProperty: 'total_results',
   root:   'results',
@@ -41,7 +42,7 @@ Talho.ux.rollcall.result_store = new Ext.data.JsonStore({
   }
 });
 
-Talho.ux.rollcall.RollcallSearchResultPanel = Ext.extend(Ext.ux.Portal, {
+Talho.Rollcall.RollcallSearchResultPanel = Ext.extend(Ext.ux.Portal, {
   constructor: function(config){
     Ext.applyIf(config,{
       hidden: true,
@@ -62,13 +63,12 @@ Talho.ux.rollcall.RollcallSearchResultPanel = Ext.extend(Ext.ux.Portal, {
         }
       }]
     });
-    Talho.ux.rollcall.RollcallSearchResultPanel.superclass.constructor.call(this, config);
+    Talho.Rollcall.RollcallSearchResultPanel.superclass.constructor.call(this, config);
   },
 
   processQuery: function(json_result)
   {
-    
-    Talho.ux.rollcall.result_store.loadData(json_result);
+    Talho.Rollcall.result_store.loadData(json_result);
   },
 
   _showAlarmConsole: function()

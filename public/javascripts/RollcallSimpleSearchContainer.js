@@ -1,6 +1,7 @@
-Ext.namespace('Talho.ux.rollcall');
+Ext.namespace('Talho.Rollcall');
+Ext.namespace('Talho.Rollcall.ux');
 
-Talho.ux.rollcall.RollcallSimpleSearchContainer = Ext.extend(Ext.Container, {
+Talho.Rollcall.RollcallSimpleSearchContainer = Ext.extend(Ext.Container, {
   constructor: function(config)
   {
     Ext.applyIf(config, {
@@ -23,7 +24,7 @@ Talho.ux.rollcall.RollcallSimpleSearchContainer = Ext.extend(Ext.Container, {
       },
       items:[{
         items:
-          new Talho.ux.rollcall.comboBoxConfig({
+          new Talho.Rollcall.ux.comboBoxConfig({
             fieldLabel: 'Absenteeism',
             emptyText:'Gross',
             id: 'absent_simple',
@@ -31,7 +32,7 @@ Talho.ux.rollcall.RollcallSimpleSearchContainer = Ext.extend(Ext.Container, {
           })
         },{
         items:
-          new Talho.ux.rollcall.comboBoxConfig({
+          new Talho.Rollcall.ux.comboBoxConfig({
             fieldLabel: 'School',
             emptyText:'Select School...',
             id: 'school_simple',
@@ -39,7 +40,7 @@ Talho.ux.rollcall.RollcallSimpleSearchContainer = Ext.extend(Ext.Container, {
           })
         },{
           items:
-            new Talho.ux.rollcall.comboBoxConfig({
+            new Talho.Rollcall.ux.comboBoxConfig({
               fieldLabel: 'School Type',
               emptyText:'Select School Type...',
               id: 'school_type_simple',
@@ -69,7 +70,7 @@ Talho.ux.rollcall.RollcallSimpleSearchContainer = Ext.extend(Ext.Container, {
           }
         },{
           items:
-            new Talho.ux.rollcall.comboBoxConfig({
+            new Talho.Rollcall.ux.comboBoxConfig({
               fieldLabel: 'Data Function',
               emptyText:'Raw',
               id: 'data_func_simple',
@@ -85,13 +86,13 @@ Talho.ux.rollcall.RollcallSimpleSearchContainer = Ext.extend(Ext.Container, {
             },
             scope: this,
             handler: function(buttonEl, eventObj){
-              Ext.getCmp('simple_query_select').hide();
+              this.hide();
               Ext.getCmp('advanced_query_select').show();
               Ext.getCmp('advanced_query_select').doLayout();
             }
           }
         }]
     });
-    Talho.ux.rollcall.RollcallSimpleSearchContainer.superclass.constructor.call(this, config);
+    Talho.Rollcall.RollcallSimpleSearchContainer.superclass.constructor.call(this, config);
   }
 });

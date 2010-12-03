@@ -22,7 +22,7 @@ Talho.Rollcall.result_store = new Ext.data.JsonStore({
             id:'plus',
             qtip: 'Save Query',
             handler: function(e, targetEl, panel, tc){
-              Ext.getCmp('searchResultPanel')._showAlarmConsole();
+              Ext.getCmp('ADSTResultPanel')._showAlarmConsole();
             }
           },{
             id:'close',
@@ -46,11 +46,11 @@ Talho.Rollcall.result_store = new Ext.data.JsonStore({
   }
 });
 
-Talho.Rollcall.SearchResultPanel = Ext.extend(Ext.ux.Portal, {
+Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   constructor: function(config){
     Ext.applyIf(config,{
       hidden: true,
-      id:     'searchResultPanel',
+      id:     'ADSTResultPanel',
       itemId: 'portalId',
       items:[{
         columnWidth: .50,
@@ -67,7 +67,7 @@ Talho.Rollcall.SearchResultPanel = Ext.extend(Ext.ux.Portal, {
         }
       }]
     });
-    Talho.Rollcall.SearchResultPanel.superclass.constructor.call(this, config);
+    Talho.Rollcall.ADSTResultPanel.superclass.constructor.call(this, config);
   },
 
   processQuery: function(json_result)

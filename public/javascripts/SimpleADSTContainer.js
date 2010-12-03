@@ -1,7 +1,7 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
-Talho.Rollcall.SimpleSearchContainer = Ext.extend(Ext.Container, {
+Talho.Rollcall.SimpleADSTContainer = Ext.extend(Ext.Container, {
   constructor: function(config)
   {
     Ext.applyIf(config, {
@@ -80,7 +80,7 @@ Talho.Rollcall.SimpleSearchContainer = Ext.extend(Ext.Container, {
           cls: 'clear',
           items:{
             xtype: 'button',
-            text: "Switch to Advanced Search >>",
+            text: "Switch to Advanced View >>",
             style:{
               margin: '0px 0px 5px 5px'
             },
@@ -93,6 +93,6 @@ Talho.Rollcall.SimpleSearchContainer = Ext.extend(Ext.Container, {
           }
         }]
     });
-    Talho.Rollcall.SimpleSearchContainer.superclass.constructor.call(this, config);
+    Talho.Rollcall.SimpleADSTContainer.superclass.constructor.call(this, config);
   }
 });

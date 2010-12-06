@@ -109,7 +109,9 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
       param_switch = 'simple'
     end
 
-    schools = School.search("#{CGI::unescape params['school_'+param_switch]}").concat(School.search("#{CGI::unescape params['school_type_'+param_switch]}"))
+    school_name = params['school_'+param_switch].index('...').blank? ? CGI::unescape(params['school_'+param_switch]) : ""
+    school_type = params['school_type_'+param_switch].index('...').blank? ? CGI::unescape(params['school_type_'+param_switch]) : ""
+    schools     = School.search("#{school_name}").concat(School.search("#{school_type}"))
     schools.concat(School.search("#{params['zip_'+param_switch]}")) unless params['zip_'+param_switch].blank?
 
 

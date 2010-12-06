@@ -36,7 +36,7 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
       {:id => 11,:value => '11th Grade'},
       {:id => 12,:value => '12th Grade'}
     ]
-    @symptons = [
+    @symptoms = [
       {:id => 0, :value => 'Temperature'},
       {:id => 1, :value => 'Lethargy'},
       {:id => 2, :value => 'Sore Throat'},
@@ -77,8 +77,8 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
       ]
     end
     @schools     = current_user.schools(:order => "display_name")
-    @zipcode     = @schools.map{|s| s.postal_code}.uniq.each_with_index.map{|sc, index| {:id => index, :value => sc}}
-    @school_type = @schools.map{|s| s.school_type}.uniq.each_with_index.map{|sc, index| {:id => index, :value => sc}}
+    @zipcodes     = current_user.school_districts.map{|s| s.by_zipcodes.map(&:postal_code)}.flatten.uniq.compact.map{|i| {:id => i, :value => i}}
+    @school_types = current_user.school_districts.map{|s| s.by_school_types.map(&:school_type)}.flatten.uniq.compact.map{|i| {:id => i, :value => i}}
     respond_to do |format|
       format.json do
         original_included_root = ActiveRecord::Base.include_root_in_json
@@ -90,11 +90,11 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
             {:data_functions => @data_functions.as_json},
             {:gender         => @gender.as_json},
             {:grade          => @grade.as_json},
-            {:school_type    => @school_type.as_json},
+            {:school_type    => @school_types.as_json},
             {:schools        => @schools.as_json},
-            {:symptons       => @symptons.as_json},
+            {:symptoms       => @symptoms.as_json},
             {:temperature    => @temperature.as_json},
-            {:zipcode        => @zipcode.as_json}
+            {:zipcode        => @zipcodes.as_json}
           ]
         }
         ActiveRecord::Base.include_root_in_json = original_included_root

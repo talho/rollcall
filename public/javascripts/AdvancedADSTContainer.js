@@ -103,7 +103,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             fieldLabel: 'Symptoms',
             emptyText:  'Select Symptoms...',
             id: 'symptoms_adv',
-            store: config.symptons
+            store: config.symptoms
           })
         },{
           items: new Talho.Rollcall.ux.ComboBox({

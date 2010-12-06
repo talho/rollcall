@@ -40,4 +40,12 @@ class SchoolDistrict < ActiveRecord::Base
     end
     avgs
   end
+
+  def by_zipcodes
+    schools.scoped(:select => "DISTINCT id,postal_code", :order => "postal_code")
+  end
+
+  def by_school_types
+    schools.scoped(:select => "DISTINCT id,school_type", :order => "school_type")
+  end
 end

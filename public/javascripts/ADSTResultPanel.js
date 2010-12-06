@@ -4,35 +4,30 @@ Ext.namespace('Talho.Rollcall.ux');
 
 Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   constructor: function(config){
-    var leftColumn = new Ext.Container({
-      columnWidth: .50,
-      itemId: 'columnLeft',
-      listeners:{
-        scope: this
-      }
-    });
-
-    var rightColumn = new Ext.Container({
-      columnWidth: .50,
-      id: 'columnRight',
-      listeners:{
-        scope: this
-      }
-    });
-
     Ext.applyIf(config,{
       hidden: true,
       id:     'ADSTResultPanel',
       itemId: 'portalId',
-      items:[leftColumn, rightColumn],
-      leftColumn: leftColumn,
-      rightColumn: rightColumn
+      items:[{
+        columnWidth: .50,
+        itemId: 'leftColumn',
+        listeners:{
+          scope: this
+        }
+      }, {
+        columnWidth: .50,
+        itemId: 'rightColumn',
+        listeners:{
+          scope: this
+        }
+      }]
     });
 
     var result_store = new Ext.data.JsonStore({
       idProperty: 'id',
       totalProperty: 'total_results',
       root:   'results',
+      url: '/rollcall/adst', 
       fields: ['id', 'value'],
       listeners: {
         scope: this,
@@ -40,6 +35,8 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           var item_id = null;
           var graphImageConfig = null;
           var result_obj = null;
+          this.getComponent('rightColumn').removeAll();
+          this.getComponent('leftColumn').removeAll();
           for(var i = 0; i < record.length; i++){
             item_id = 'query_result_'+i;
             graphImageConfig = {
@@ -50,7 +47,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
                 id:'plus',
                 qtip: 'Save Query',
                 handler: function(e, targetEl, panel, tc){
-                  this._showAlarmConsole();
+                  panel.ownerCt.ownerCt._showAlarmConsole();
                 }
               },{
                 id:'close',
@@ -63,18 +60,17 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
             };
 
             if(i == 0 || i%2 == 0){
-              result_obj = this.rightColumn.add(graphImageConfig);
+              result_obj = this.getComponent('rightColumn').add(graphImageConfig);
             }else{
-              result_obj = this.leftColumn.add(graphImageConfig);
+              result_obj = this.getComponent('leftColumn').add(graphImageConfig);
             }
-            this.leftColumn.doLayout();
-            this.rightColumn.doLayout();
+            this.doLayout();
             this.renderGraphs(record[i].data.value, result_obj);
           }
         }
       }
     });
-    this.getStore = function(){
+    this._getResultStore = function(){
       return result_store;
     }
 
@@ -83,9 +79,14 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
   processQuery: function(json_result)
   {
-    this.getStore().loadData(json_result);
+    this._getResultStore().loadData(json_result);
   },
 
+  getResultStore: function()
+  {
+    return this._getResultStore();  
+  },
+  
   _showAlarmConsole: function()
   {
     /*
@@ -258,16 +259,17 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       url: image,
       scope: this,
       success: function(){
+        obj.removeAll();
         obj.add({html:'<div style="text-align:center"><img src="'+image+'" /></div>'});
-        this.leftColumn.doLayout();
-        this.rightColumn.doLayout();
+        obj.doLayout();
       },
       failure: function(result, opts){
         Ext.Ajax.request(opts);
       },
       headers: {
         'type': 'HEAD'
-      }
+      },
+      disableCaching: true
     });
   }
 });

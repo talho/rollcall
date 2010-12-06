@@ -107,13 +107,6 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
           })
         },{
           items: new Talho.Rollcall.ux.ComboBox({
-            fieldLabel: 'Temperature',
-            emptyText:  'Select Temperature...',
-            id: 'temp_adv',
-            store: config.temperature
-          })
-        },{
-          items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'Zipcode',
             emptyText:  'Select Zipcode...',
             id: 'zip_adv',

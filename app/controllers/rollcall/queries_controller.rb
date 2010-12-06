@@ -122,10 +122,9 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
     @schools = @schools.blank? ? schools.paginate(options) : @schools.paginate(options)
     
     rrd_path = Dir.pwd << "/rrd/"
-    rrd_tool =  if RAILS_ENV=="development"
-      "/opt/local/bin/rrdtool"
-    else
-      "rrdtool"
+
+    rrd_tool = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
+      YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
     end
 
     rrd_image_path = Dir.pwd << "/public/rrd/"

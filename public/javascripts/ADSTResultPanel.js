@@ -3,6 +3,7 @@ Ext.namespace('Talho.Rollcall.ux');
 
 Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   constructor: function(config){
+    this.providers = new Array();
     Ext.applyIf(config,{
       hidden: true,
       id:     'ADSTResultPanel',
@@ -64,7 +65,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               result_obj = this.getComponent('leftColumn').add(graphImageConfig);
             }
             this.doLayout();
-            this.renderGraphs(record[i].data.value, result_obj);
+            this.renderGraphs(i, record[i].data.value, result_obj);
           }
         }
       }
@@ -243,7 +244,13 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       }],
       buttons: [{
         text:'Submit',
-        disabled:true
+        disabled:true,
+        handler: function(e) {
+          Ext.each(this.providers, function(item, index, allItems) {
+            item.disconnect();
+          })
+          this.providers = new Array();
+        }
       },{
         text: 'Close',
         handler: function(){
@@ -253,22 +260,27 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
     alarm_console.show();
   },
-  renderGraphs: function(image, obj) {
-    Ext.Ajax.request({
+  renderGraphs: function(id, image, obj) {
+    provider = new Ext.direct.PollingProvider({
+      id: 'image' + id + '-provider',
+      type: 'polling',
       url: image,
-      scope: this,
-      success: function(){
-        obj.removeAll();
-        obj.add({html:'<div style="text-align:center"><img src="'+image+'" /></div>'});
-        obj.doLayout();
-      },
-      failure: function(result, opts){
-        Ext.Ajax.request(opts);
-      },
-      headers: {
-        'type': 'HEAD'
-      },
-      disableCaching: true
+      listeners: {
+        scope: obj,
+        data: function(provider, e) {
+          if(e.xhr.status == 200) {
+            this.removeAll();
+            this.add({html:'<div style="text-align:center"><img src="'+provider.url+'" /></div>'});
+            this.doLayout();
+            provider.disconnect();
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
     });
+    this.providers.push(provider);
+    Ext.Direct.addProvider(provider);
   }
 });

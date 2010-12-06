@@ -125,13 +125,10 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                           ]
                         }
                       }else{
-                        string_eval = "simple_config."+this_store.fields.items[i].name+" = adv_config."+this_store.fields.items[i].name+" = new Array();"+
-                        "for(var a = 0; a "+"<"+" record[i].data."+this_store.fields.items[i].name+".length; a++){"+
-                            "simple_config."+this_store.fields.items[i].name+"[a] = adv_config."+this_store.fields.items[i].name+"[a] = ["+
-                              "record[i].data."+this_store.fields.items[i].name+"[a].id, record[i].data."+this_store.fields.items[i].name+"[a].value"+
-                            "];"+
-                         "}"
-                        eval(string_eval);
+                        simple_config[this_store.fields.items[i].name] = adv_config[this_store.fields.items[i].name] = new Array();
+                        for(var a = 0; a < record[i].data[this_store.fields.items[i].name].length; a++) {
+                          simple_config[this_store.fields.items[i].name][a] = adv_config[this_store.fields.items[i].name][a] = [record[i].data[this_store.fields.items[i].name][a].id, record[i].data[this_store.fields.items[i].name][a].value]
+                        }
                       }
                     }
                     this.ownerCt.show();

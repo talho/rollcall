@@ -244,13 +244,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       }],
       buttons: [{
         text:'Submit',
-        disabled:true,
-        handler: function(e) {
-          Ext.each(this.providers, function(item, index, allItems) {
-            item.disconnect();
-          })
-          this.providers = new Array();
-        }
+        disabled: true
       },{
         text: 'Close',
         handler: function(){
@@ -282,5 +276,11 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
     this.providers.push(provider);
     Ext.Direct.addProvider(provider);
+  },
+  clearProviders: function() {
+    Ext.each(this.providers, function(item, index, allItems) {
+      item.disconnect();
+    })
+    this.providers = new Array();
   }
 });

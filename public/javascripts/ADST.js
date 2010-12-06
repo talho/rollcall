@@ -5,6 +5,9 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   constructor: function(config)
   {
     var resultPanel = new Talho.Rollcall.ADSTResultPanel({});
+    this.getResultPanel = function() {
+      return resultPanel;
+    }
     
     Ext.apply(config, {
       init_store: null,
@@ -56,9 +59,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
             new Ext.LoadMask(this_comp.getEl(), {msg:"Please wait...", store: this.ownerCt.init_store});
           }
         },
-        getResultPanel: function() {
-          return resultPanel;
-        },
+
         items:[{
           xtype:  'container',
           itemId: 'query_container',
@@ -76,11 +77,12 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
               text: "Submit",
               scope: this,
               handler: function(buttonEl, eventObj){
+                this.getResultPanel().clearProviders();
 
                 var form_values = buttonEl.findParentByType('form').getForm().getValues();
-                var result_store = buttonEl.findParentByType('form').findParentByType('panel').getResultPanel().getResultStore();
+                var result_store = this.getResultPanel().getResultStore();
                 buttonEl.findParentByType('form').findParentByType('panel').getBottomToolbar().bindStore(result_store);
-                buttonEl.findParentByType('form').findParentByType('panel').getResultPanel().show();
+                this.getResultPanel().show();
                 form_values.page = 1;
                 form_values.start = 0;
                 form_values.limit = 6;

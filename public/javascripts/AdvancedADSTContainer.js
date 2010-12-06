@@ -14,11 +14,11 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
       listeners: {
         'show': function()
         {
-          Ext.getCmp("ADSTFormPanel").getForm().setValues([{id: 'adv', value: true}]);
+          this.ownerCt.getForm().setValues([{id: 'adv', value: true}]);
         },
         'hide': function()
         {
-          Ext.getCmp("ADSTFormPanel").getForm().setValues([{id: 'adv', value: false}]);
+          this.ownerCt.getForm().setValues([{id: 'adv', value: false}]);
         }
       },
       defaults:{

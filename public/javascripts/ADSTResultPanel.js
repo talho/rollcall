@@ -27,7 +27,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       idProperty: 'id',
       totalProperty: 'total_results',
       root:   'results',
-      url: '/rollcall/adst', 
+      url: '/rollcall/adst',
       fields: ['id', 'value'],
       listeners: {
         scope: this,
@@ -84,9 +84,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
   getResultStore: function()
   {
-    return this._getResultStore();  
+    return this._getResultStore();
   },
-  
+
   _showAlarmConsole: function()
   {
     /*
@@ -257,7 +257,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   renderGraphs: function(id, image, obj) {
     provider = new Ext.direct.PollingProvider({
       id: 'image' + id + '-provider',
-      type: 'polling',
+      type: 'polling',      
       url: image,
       listeners: {
         scope: obj,

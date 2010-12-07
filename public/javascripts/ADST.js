@@ -78,7 +78,6 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
               scope: this,
               handler: function(buttonEl, eventObj){
                 this.getResultPanel().clearProviders();
-
                 var form_values = buttonEl.findParentByType('form').getForm().getValues();
                 var result_store = this.getResultPanel().getResultStore();
                 buttonEl.findParentByType('form').findParentByType('panel').getBottomToolbar().bindStore(result_store);
@@ -86,26 +85,18 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                 form_values.page = 1;
                 form_values.start = 0;
                 form_values.limit = 6;
-                result_store.load({params: form_values});
-//                buttonEl.findParentByType('form').getForm().submit({
-//                  waitMsg: "Please wait...",
-//                  waitTitle: "Loading",
-//                  success: function(form, action)
-//                  {
-//                    form.ownerCt.ownerCt.getResultPanel().show();
-//                    result_store.load({data: action.result, params: form_values});
-//                    //form.ownerCt.ownerCt.getResultPanel().processQuery(action.result);
-//                  },
-//                  failure: function(form, action)
-//                  {
-//
-//                  }
-//                });
+                for(key in form_values){
+                  result_store.setBaseParam(key, form_values[key]);
+                }
+                result_store.load();
+                return true;
               },
               formBind: true
             },{
               text: "Cancel",
-              handler: this.clearForm
+              handler: function(buttonEl, eventObj){
+                buttonEl.findParentByType("form").getForm().reset();
+              }
             }],
             initComponent: function() {
               this.ownerCt.ownerCt.ownerCt.init_store = new Ext.data.JsonStore({
@@ -151,8 +142,6 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           prependButtons: true,
           listeners:{
             'beforechange': function(this_toolbar, params){
-              var form_values = this_toolbar.ownerCt.getComponent('query_container').getComponent('ADSTFormPanel').getForm().getValues();
-              for (attrname in form_values) { params[attrname] = form_values[attrname]; }
               params['page'] = Math.floor(params.start /  params.limit) + 1;
               return true;
             }

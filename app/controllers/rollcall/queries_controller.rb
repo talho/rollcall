@@ -8,45 +8,49 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
       {:id => 1, :value => 'Confirmed Illness'}
     ]
     @age = [
-      {:id => 0, :value => '3-4'},
-      {:id => 1, :value => '5-6'},
-      {:id => 2, :value => '7-8'},
-      {:id => 3, :value => '9-10'},
-      {:id => 4, :value => '11-12'},
-      {:id => 5, :value => '13-14'},
-      {:id => 6, :value => '15-16'},
-      {:id => 7, :value => '17-18'}
+      {:id => 0, :value => 'Select Age...'},
+      {:id => 1, :value => '3-4'},
+      {:id => 2, :value => '5-6'},
+      {:id => 3, :value => '7-8'},
+      {:id => 4, :value => '9-10'},
+      {:id => 5, :value => '11-12'},
+      {:id => 6, :value => '13-14'},
+      {:id => 7, :value => '15-16'},
+      {:id => 8, :value => '17-18'}
     ]
     @gender = [
-      {:id => 0, :value => 'Male'},
-      {:id => 1, :value => 'Female'}
+      {:id => 0, :value => 'Select Gender...'},
+      {:id => 1, :value => 'Male'},
+      {:id => 2, :value => 'Female'}
     ]
     @grade = [
-      {:id => 0, :value => 'Kindergarten (Pre-K)'},
-      {:id => 1, :value => '1st Grade'},
-      {:id => 2, :value => '2nd Grade'},
-      {:id => 3, :value => '3rd Grade'},
-      {:id => 4, :value => '4th Grade'},
-      {:id => 5, :value => '5th Grade'},
-      {:id => 6, :value => '6th Grade'},
-      {:id => 7, :value => '7th Grade'},
-      {:id => 8, :value => '8th Grade'},
-      {:id => 9, :value => '9th Grade'},
-      {:id => 10,:value => '10th Grade'},
-      {:id => 11,:value => '11th Grade'},
-      {:id => 12,:value => '12th Grade'}
+      {:id => 0, :value => 'Select Grade...'},
+      {:id => 1, :value => 'Kindergarten (Pre-K)'},
+      {:id => 2, :value => '1st Grade'},
+      {:id => 3, :value => '2nd Grade'},
+      {:id => 4, :value => '3rd Grade'},
+      {:id => 5, :value => '4th Grade'},
+      {:id => 6, :value => '5th Grade'},
+      {:id => 7, :value => '6th Grade'},
+      {:id => 8, :value => '7th Grade'},
+      {:id => 9, :value => '8th Grade'},
+      {:id => 10, :value => '9th Grade'},
+      {:id => 11,:value => '10th Grade'},
+      {:id => 12,:value => '11th Grade'},
+      {:id => 13,:value => '12th Grade'}
     ]
     @symptoms = [
-      {:id => 0, :value => 'Temperature'},
-      {:id => 1, :value => 'Lethargy'},
-      {:id => 2, :value => 'Sore Throat'},
-      {:id => 3, :value => 'Congestion'},
-      {:id => 4, :value => 'Diarrhea'},
-      {:id => 5, :value => 'Headache'},
-      {:id => 6, :value => 'Cough'},
-      {:id => 7, :value => 'Body Ache'},
-      {:id => 8, :value => 'Vomiting'},
-      {:id => 9, :value => 'Rhinorrhea'}
+      {:id => 0, :value => 'Select Symptom...'},
+      {:id => 1, :value => 'Temperature'},
+      {:id => 2, :value => 'Lethargy'},
+      {:id => 3, :value => 'Sore Throat'},
+      {:id => 4, :value => 'Congestion'},
+      {:id => 5, :value => 'Diarrhea'},
+      {:id => 6, :value => 'Headache'},
+      {:id => 7, :value => 'Cough'},
+      {:id => 8, :value => 'Body Ache'},
+      {:id => 9, :value => 'Vomiting'},
+      {:id => 10,:value => 'Rhinorrhea'}
     ]
     @temperature = [
       {:id => 0, :value => '98 - 99'},
@@ -76,7 +80,7 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
         {:id => 5, :value => 'Cusum'}
       ]
     end
-    @schools     = current_user.schools(:order => "display_name")
+    @schools      = current_user.schools(:order => "display_name")
     @zipcodes     = current_user.school_districts.map{|s| s.by_zipcodes.map(&:postal_code)}.flatten.uniq.compact.map{|i| {:id => i, :value => i}}
     @school_types = current_user.school_districts.map{|s| s.by_school_types.map(&:school_type)}.flatten.uniq.compact.map{|i| {:id => i, :value => i}}
     respond_to do |format|
@@ -109,32 +113,38 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
       param_switch = 'simple'
     end
 
+    # Search schools by passed params
     school_name = params['school_'+param_switch].index('...').blank? ? CGI::unescape(params['school_'+param_switch]) : ""
     school_type = params['school_type_'+param_switch].index('...').blank? ? CGI::unescape(params['school_type_'+param_switch]) : ""
     schools     = School.search("#{school_name}").concat(School.search("#{school_type}"))
     schools.concat(School.search("#{params['zip_'+param_switch]}")) unless params['zip_'+param_switch].blank?
-
-
-    options = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
-    
-    @schools = schools.uniq.map {|v| (schools-[v]).size < (schools.size - 1) ? v : nil}.compact
+    #Build school result set, and paginate
+    options        = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
+    @schools       = schools.uniq.map {|v| (schools-[v]).size < (schools.size - 1) ? v : nil}.compact
     @school_length = @schools.blank? ? schools.length : @schools.length
-    @schools = @schools.blank? ? schools.paginate(options) : @schools.paginate(options)
-    
-    rrd_path = Dir.pwd << "/rrd/"
+    @schools       = @schools.blank? ? schools.paginate(options) : @schools.paginate(options)
 
-    rrd_tool = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
+    @start_date    = params['startdt_'+param_switch].index('...').blank? ? Time.local(params['startdt_'+param_switch]) : Time.local(2010,"aug",1,0,0)
+    @end_date      = params['enddt_'+param_switch].index('...').blank? ? Time.local(params['enddt_'+param_switch]) : Time.local(2011,"sep",30,23,59)
+    
+    rrd_path       = Dir.pwd << "/rrd/"
+    rrd_image_path = Dir.pwd << "/public/rrd/"
+    rrd_tool       = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
       YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
     end
 
-    rrd_image_path = Dir.pwd << "/public/rrd/"
-    @image_names = []
-    @alpha = ["A","B","C","D","E","F"]
-    @numeric = ["0","1","2","3","4","5","6","7","8","9"]
+    #empty image array
+    @image_names   = []
+    #Following arrays are used to dynamically create schools colors for graphs
+    @alpha         = ["A","B","C","D","E","F"]
+    @numeric       = ["0","1","2","3","4","5","6","7","8","9"]
     @alpha_numeric = [@alpha,@numeric]
 
+    #Run through the schools results and update the corresponding school rrd file with fake data
+    #Graph the updated data using RRD
+    #Push image names into @image_names array
     @schools.each do |school, index|
-      school_name = school.display_name.gsub(" ", "_")
+      school_name    = school.display_name.gsub(" ", "_")
       school_color_a = ""
       school_color_b = ""
       for c in 0..5
@@ -146,12 +156,12 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
         school_color_b += @alpha_numeric[alpha_or_numeric][rand(@alpha_numeric[alpha_or_numeric].length)]
       end
       build_rrd rrd_path, rrd_tool, params, school_name unless File.exists?("#{rrd_path}#{school_name}_absenteeism.rrd")
-      @result_set = []
+      @result_set     = []
       @total_enrolled = (2..5).to_a[rand((2..5).to_a.length - 1)] * 100
-      @fake_data = "temperature:100,lethargy:10,sore_throat:21,congestion:8,diarrhea:2,headache:34,cough:5,body_aches:6,vomiting:2,rhinorrhea:11"
+      @fake_data      = "temperature:100,lethargy:10,sore_throat:21,congestion:8,diarrhea:2,headache:34,cough:5,body_aches:6,vomiting:2,rhinorrhea:11"
       for i in 0..29
-        @total_absent = (20..150).to_a[rand((20..150).to_a.length - 1)]
-        @report_date = Time.local(2010,Time.now().strftime("%b").downcase,(i + 1),0,0)
+        @total_absent  = (20..150).to_a[rand((20..150).to_a.length - 1)]
+        @report_date   = Time.local(2010,Time.now().strftime("%b").downcase,(i + 1),0,0)
         @absentee_rate = (@total_absent / @total_enrolled) * 100
         unless params['symptoms_'+param_switch].blank?
           if params['symptoms_'+param_switch].index("...").blank?
@@ -162,6 +172,9 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
               end
             end
           end  
+        end
+        unless params['absent_'+param_switch].index("Confirmed").blank?
+          @total_absent = calculate_confirmed_illness @fake_data
         end
         RRD.send_later(:update, "#{rrd_path}#{school_name}_absenteeism.rrd", [@report_date.to_i.to_s,@total_absent, @total_enrolled], "#{rrd_tool}")
       end
@@ -177,8 +190,8 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
       RRD.send_later(:graph, 
         "#{rrd_path}#{school_name}_absenteeism.rrd","#{rrd_image_path}school_absenteeism_#{school_name}.png",
         {
-          :start      => Time.local(2010,"aug",1,0,0),
-          :end        => Time.local(2011,"sep",30,23,59),
+          :start      => @start_date,
+          :end        => @end_date,
           :width      => 500,
           :height     => 120,
           :image_type => "PNG",
@@ -219,6 +232,23 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
           :results       => @image_names.as_json
         }
       end
+    end
+  end
+
+  def calculate_confirmed_illness data_string
+    result = 0
+    data_string.split(",").each do |rec|
+      result += rec.split(":").last.to_i
+    end
+    return result
+  end
+
+  def check_image
+    rrd_image_path = Dir.pwd << "/public#{params[:image_path]}" 
+    if File.exists?(rrd_image_path)
+      render :nothing => true, :status => 200
+    else
+      render :nothing => true, :status => 202  
     end
   end
 

@@ -10,5 +10,6 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :rollcall_queries, :controller => "rollcall/queries"
   map.get_query_options "/rollcall/query_options", :controller => "rollcall/queries", :action => "get_options"
-  map.search "/rollcall/search", :controller => "rollcall/queries", :action => "search"
+  map.search "/rollcall/adst", :controller => "rollcall/queries", :action => "search"
+  map.check_image "/rollcall/image", :controller => "rollcall/queries", :action => "check_image"
 end

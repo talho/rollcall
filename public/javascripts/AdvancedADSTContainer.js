@@ -45,7 +45,6 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             fieldLabel:    'Age',
             emptyText:     'Select Age...',
             id: 'age_adv',
-            selectOnFocus: true,
             store: config.age
           })
         },{
@@ -84,7 +83,6 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             xtype:         'datefield',
             endDateField:  'enddt_adv',
             emptyText:     'Select Start Date...',
-            selectOnFocus: true,
             ctCls: 'ux-combo-box-cls'
           }
         },{
@@ -94,14 +92,13 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             id:             'enddt_adv',
             xtype:          'datefield',
             startDateField: 'startdt_adv',
-            emptyText:      'Select End Date',
-            selectOnFocus:  true,
+            emptyText:      'Select End Date...',
             ctCls: 'ux-combo-box-cls'
           }
         },{
           items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'Symptoms',
-            emptyText:  'Select Symptoms...',
+            emptyText:  'Select Symptom...',
             id: 'symptoms_adv',
             store: config.symptoms
           })

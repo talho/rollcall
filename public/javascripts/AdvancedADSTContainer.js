@@ -142,7 +142,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
           },
           scope:   this,
           handler: function(buttonEl, eventObj){
-            Ext.getCmp('advanced_query_select').hide();
+            this.hide();
             Ext.getCmp('simple_query_select').show();
           }
         }

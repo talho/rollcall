@@ -88,7 +88,8 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                 for(key in form_values){
                   result_store.setBaseParam(key, form_values[key]);
                 }
-                result_store.load();
+                record = new result_store.recordType({id: null, img_url: ''},null);
+                result_store.add([record]);
                 return true;
               },
               formBind: true

@@ -25,20 +25,23 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
 
     var result_store = new Ext.data.JsonStore({
-      idProperty: 'id',
       totalProperty: 'total_results',
-      root:   'results',
+      root:   'absentee_reports',
       url: '/rollcall/adst',
-      fields: ['id', 'value'],
+      fields: ['id','img_urls'],
+      writer: new Ext.data.JsonWriter({encode: false}),
+      restful: true,
+      autoLoad: true,
+      autoSave: true,
       listeners: {
         scope: this,
-        'load': function(this_store, record){
+        write: function(store, action, result, res, rs) {
           var item_id = null;
           var graphImageConfig = null;
           var result_obj = null;
           this.getComponent('rightColumn').removeAll();
           this.getComponent('leftColumn').removeAll();
-          for(var i = 0; i < record.length; i++){
+          for(var i = 0; i < result[0]['img_urls'].length; i++){
             item_id = 'query_result_'+i;
             graphImageConfig = {
               title: 'Query Result',
@@ -66,7 +69,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               result_obj = this.getComponent('leftColumn').add(graphImageConfig);
             }
             this.doLayout();
-            this.renderGraphs(i, record[i].data.value, result_obj);
+            this.renderGraphs(i, result[0]['img_urls'][i].value, result_obj);
           }
         }
       }

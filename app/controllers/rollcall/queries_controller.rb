@@ -3,11 +3,11 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
   before_filter :rollcall_required
 
   def get_options
-    @absenteeism = [
+    absenteeism = [
       {:id => 0, :value => 'Gross'},
       {:id => 1, :value => 'Confirmed Illness'}
     ]
-    @age = [
+    age = [
       {:id => 0, :value => 'Select Age...'},
       {:id => 1, :value => '3-4'},
       {:id => 2, :value => '5-6'},
@@ -18,12 +18,12 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
       {:id => 7, :value => '15-16'},
       {:id => 8, :value => '17-18'}
     ]
-    @gender = [
+    gender = [
       {:id => 0, :value => 'Select Gender...'},
       {:id => 1, :value => 'Male'},
       {:id => 2, :value => 'Female'}
     ]
-    @grade = [
+    grade = [
       {:id => 0, :value => 'Select Grade...'},
       {:id => 1, :value => 'Kindergarten (Pre-K)'},
       {:id => 2, :value => '1st Grade'},
@@ -34,12 +34,12 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
       {:id => 7, :value => '6th Grade'},
       {:id => 8, :value => '7th Grade'},
       {:id => 9, :value => '8th Grade'},
-      {:id => 10, :value => '9th Grade'},
+      {:id => 10,:value => '9th Grade'},
       {:id => 11,:value => '10th Grade'},
       {:id => 12,:value => '11th Grade'},
       {:id => 13,:value => '12th Grade'}
     ]
-    @symptoms = [
+    symptoms = [
       {:id => 0, :value => 'Select Symptom...'},
       {:id => 1, :value => 'Temperature'},
       {:id => 2, :value => 'Lethargy'},
@@ -52,19 +52,7 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
       {:id => 9, :value => 'Vomiting'},
       {:id => 10,:value => 'Rhinorrhea'}
     ]
-    @temperature = [
-      {:id => 0, :value => '98 - 99'},
-      {:id => 1, :value => '100'},
-      {:id => 2, :value => '101'},
-      {:id => 3, :value => '102'},
-      {:id => 4, :value => '103'},
-      {:id => 5, :value => '104'},
-      {:id => 6, :value => '105'},
-      {:id => 7, :value => '106'},
-      {:id => 8, :value => '107'},
-      {:id => 9, :value => '108'}
-    ]
-    @data_functions = if params[:type] == 'simple' || params[:type].blank?
+    data_functions = if params[:type] == 'simple' || params[:type].blank?
       [
         {:id => 0, :value => 'Raw'},
         {:id => 1, :value => 'Average'},
@@ -80,25 +68,26 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
         {:id => 5, :value => 'Cusum'}
       ]
     end
-    @schools     = current_user.schools(:order => "display_name")
-    @zipcodes     = current_user.school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
-    @school_types = current_user.school_districts.map{|s| s.school_types.map{|i| {:id => i, :value => i}}}.flatten
+
+    schools     = current_user.schools(:order => "display_name")
+    zipcodes     = current_user.school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
+    school_types = current_user.school_districts.map{|s| s.school_types.map{|i| {:id => i, :value => i}}}.flatten
+
     respond_to do |format|
       format.json do
         original_included_root = ActiveRecord::Base.include_root_in_json
         ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :options => [
-            {:absenteeism    => @absenteeism.as_json},
-            {:age            => @age.as_json},
-            {:data_functions => @data_functions.as_json},
-            {:gender         => @gender.as_json},
-            {:grade          => @grade.as_json},
-            {:school_type    => @school_types.as_json},
-            {:schools        => @schools.as_json},
-            {:symptoms       => @symptoms.as_json},
-            {:temperature    => @temperature.as_json},
-            {:zipcode        => @zipcodes.as_json}
+            {:absenteeism    => absenteeism.as_json},
+            {:age            => age.as_json},
+            {:data_functions => data_functions.as_json},
+            {:gender         => gender.as_json},
+            {:grade          => grade.as_json},
+            {:school_type    => school_types.as_json},
+            {:schools        => schools.as_json},
+            {:symptoms       => symptoms.as_json},
+            {:zipcode        => zipcodes.as_json}
           ]
         }
         ActiveRecord::Base.include_root_in_json = original_included_root
@@ -118,7 +107,7 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
 
   def create
     image_names = AbsenteeReport.render_graphs(params)
-    
+
     respond_to do |format|
       format.json do
         render :json => {
@@ -149,7 +138,11 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
 
   private
 
-  def build_rrd(rrd_path,rrd_tool,params, school_name)
+  def build_rrd(params,school_name)
+    rrd_path = Dir.pwd << "/rrd/"
+    rrd_tool = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
+      YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
+    end
     RRD.create("#{rrd_path}#{school_name}_absenteeism.rrd",
       {
         :step  => 24.hours.seconds,
@@ -160,6 +153,42 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
           },
           {
             :name => "Absent", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 768000
+          },
+          {
+            :name => "Temperature", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 76800
+          },
+          {
+            :name => "Lethargy", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 76800
+          },
+          {
+            :name => "Sore_Throat", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 76800
+          },
+          {
+            :name => "Congestion", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 76800
+          },
+          {
+            :name => "Diarrhea", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 76800
+          },
+          {
+            :name => "Headache", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 76800
+          },
+          {
+            :name => "Cough", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 76800
+          },
+          {
+            :name => "Body_Ache", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 76800
+          },
+          {
+            :name => "Vomiting", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 76800
+          },
+          {
+            :name => "Rhinorrhea", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 76800
+          },
+          {
+            :name => "Male", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 76800
+          },
+          {
+            :name => "Female", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 76800
           }
         ],
         :rra => [{

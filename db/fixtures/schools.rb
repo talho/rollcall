@@ -10,7 +10,7 @@ def build_rrd(identifier)
   RRD.create("#{rrd_path}#{identifier}_absenteeism.rrd",
     {
       :step  => 24.hours.seconds,
-      :start => Time.local(2010,"nov",1,0,0).to_i,
+      :start => Time.local(2010,"oct",1,0,0).to_i,
       :ds    => [{
         :name => "Absent", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 768000
       },{
@@ -39,7 +39,7 @@ FasterCSV.open(File.dirname(__FILE__) + '/schools.csv', :headers => true) do |sc
     end
     puts "seeding #{row["name"]}" unless row["tea_id"].blank? || School.find_by_tea_id(row["tea_id"].strip)
     school = School.find_or_create_by_tea_id(:display_name => row["name"].strip, :tea_id => row["tea_id"], :district => @district, :school_id => row["school_id"].strip, :school_type => row["school_type"].strip, :postal_code => row["postal_code"].strip)
-    build_rrd(schoool.tea_id)
+    build_rrd(school.tea_id)
   end
 end
 

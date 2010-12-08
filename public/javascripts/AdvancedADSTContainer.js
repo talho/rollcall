@@ -44,6 +44,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
           items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel:    'Age',
             emptyText:     'Select Age...',
+            allowBlank: true,
             id: 'age_adv',
             store: config.age
           })
@@ -51,6 +52,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
           items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'Gender',
             emptyText:  'Select Gender...',
+            allowBlank: true,
             id: 'gender_adv',
             store: config.gender
           })
@@ -58,6 +60,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
           items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'Grade',
             emptyText:  'Select Grade...',
+            allowBlank: true,
             id: 'grade_adv',
             store: config.grade
           })
@@ -65,6 +68,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
           items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'School',
             emptyText:  'Select School...',
+            allowBlank: true,
             id: 'school_adv',
             store: config.schools
           })
@@ -72,6 +76,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
           items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'School Type',
             emptyText:  'Select School Type...',
+            allowBlank: true,
             id: 'school_type_adv',
             store: config.school_type
           })
@@ -83,6 +88,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             xtype:         'datefield',
             endDateField:  'enddt_adv',
             emptyText:     'Select Start Date...',
+            allowBlank: true,
             ctCls: 'ux-combo-box-cls'
           }
         },{
@@ -93,12 +99,14 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             xtype:          'datefield',
             startDateField: 'startdt_adv',
             emptyText:      'Select End Date...',
+            allowBlank: true,
             ctCls: 'ux-combo-box-cls'
           }
         },{
           items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'Symptoms',
             emptyText:  'Select Symptom...',
+            allowBlank: true,
             id: 'symptoms_adv',
             store: config.symptoms
           })
@@ -106,6 +114,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
           items: new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'Zipcode',
             emptyText:  'Select Zipcode...',
+            allowBlank: true,
             id: 'zip_adv',
             store: config.zipcode
           })

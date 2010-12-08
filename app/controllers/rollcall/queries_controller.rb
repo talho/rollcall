@@ -107,127 +107,13 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
   end
 
   def search
-    if params[:adv] == 'true'
-      param_switch = 'adv'
-    else
-      param_switch = 'simple'
-    end
-
-    # Search schools by passed params
-    school_name = params['school_'+param_switch].index('...').blank? ? CGI::unescape(params['school_'+param_switch]) : ""
-    school_type = params['school_type_'+param_switch].index('...').blank? ? CGI::unescape(params['school_type_'+param_switch]) : ""
-    schools     = School.search("#{school_name}").concat(School.search("#{school_type}"))
-    schools.concat(School.search("#{params['zip_'+param_switch]}")) unless params['zip_'+param_switch].blank?
-    #Build school result set, and paginate
-    options        = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
-    @schools       = schools.uniq.map {|v| (schools-[v]).size < (schools.size - 1) ? v : nil}.compact
-    @school_length = @schools.blank? ? schools.length : @schools.length
-    @schools       = @schools.blank? ? schools.paginate(options) : @schools.paginate(options)
-
-    @start_date    = params['startdt_'+param_switch].index('...').blank? ? Time.local(params['startdt_'+param_switch]) : Time.now - 60.days
-    @end_date      = params['enddt_'+param_switch].index('...').blank? ? Time.local(params['enddt_'+param_switch]) : Time.now
-    
-    rrd_path       = Dir.pwd << "/rrd/"
-    rrd_image_path = Dir.pwd << "/public/rrd/"
-    rrd_tool       = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
-      YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
-    end
-
-    #empty image array
-    @image_names   = []
-    #Following arrays are used to dynamically create schools colors for graphs
-    @alpha         = ["A","B","C","D","E","F"]
-    @numeric       = ["0","1","2","3","4","5","6","7","8","9"]
-    @alpha_numeric = [@alpha,@numeric]
-
-    #Run through the schools results and update the corresponding school rrd file with fake data
-    #Graph the updated data using RRD
-    #Push image names into @image_names array
-    @schools.each do |school, index|
-      school_name = school.display_name.gsub(" ", "_")
-      school_number = school.school_number
-      school_color_a = ""
-      school_color_b = ""
-      for c in 0..5
-        alpha_or_numeric = rand(2)
-        school_color_a += @alpha_numeric[alpha_or_numeric][rand(@alpha_numeric[alpha_or_numeric].length)]
-      end
-      for c in 0..5
-        alpha_or_numeric = rand(2)
-        school_color_b += @alpha_numeric[alpha_or_numeric][rand(@alpha_numeric[alpha_or_numeric].length)]
-      end
-#      build_rrd rrd_path, rrd_tool, params, school_name unless File.exists?("#{rrd_path}#{school_name}_absenteeism.rrd")
-#      @result_set = []
-#      @total_enrolled = (2..5).to_a[rand((2..5).to_a.length - 1)] * 100
-#      @fake_data = "temperature:100,lethargy:10,sore_throat:21,congestion:8,diarrhea:2,headache:34,cough:5,body_aches:6,vomiting:2,rhinorrhea:11"
-#      for i in 0..29
-#        @total_absent = (20..150).to_a[rand((20..150).to_a.length - 1)]
-#        @report_date = Time.local(2010,Time.now().strftime("%b").downcase,(i + 1),0,0)
-#        @absentee_rate = (@total_absent / @total_enrolled) * 100
-#        unless params['symptoms_'+param_switch].blank?
-#          if params['symptoms_'+param_switch].index("...").blank?
-#            @symptom = params['symptoms_'+param_switch]
-#            @fake_data.split(",").each do |data|
-#              if data.split(":").first == @symptom.downcase.gsub(" ","_")
-#                @total_absent = data.split(":").last.to_i
-#              end
-#            end
-#          end
-#        end
-#        RRD.send_later(:update, "#{rrd_path}#{school_name}_absenteeism.rrd", [@report_date.to_i.to_s,@total_absent, @total_enrolled], "#{rrd_tool}")
-#      end
-      @graph_title = "Absenteeism Rate for #{school_name}"
-      unless params['symptoms_'+param_switch].blank?
-        if params['symptoms_'+param_switch].index("...").blank?
-          @graph_title = "Absenteeism Rate for #{school_name} based on #{params['symptoms_'+param_switch]}"
-        end   
-      end
-
-      File.delete("#{rrd_image_path}school_absenteeism_#{school_number}.png") if File.exist?("#{rrd_image_path}school_absenteeism_#{school_number}.png")
-
-      RRD.send_later(:graph, 
-        "#{rrd_path}#{school_number}_absenteeism.rrd","#{rrd_image_path}school_absenteeism_#{school_number}.png",
-        {
-          :start      => @start_date,
-          :end        => @end_date,
-          :width      => 500,
-          :height     => 120,
-          :image_type => "PNG",
-          :title      => @graph_title,
-          :vlabel     => "percent absent",
-          :lowerlimit => 0,
-          :defs       => [{
-            :key     => "a",
-            :cf      => "LAST",
-            :ds_name => "Absent"
-          },{
-            :key     => "b",
-            :cf      => "LAST",
-            :ds_name => "Enrolled"
-          }],
-          :elements   => [{
-            :key     => "a",
-            :element => "AREA",
-            :color   => school_color_a,
-            :text    => "Total Absent"
-          },{
-            :key     => "b",
-            :element => "LINE1",
-            :color   => school_color_b,
-            :text    => "Total Enrolled"
-          }]
-        }, "#{rrd_tool}")
-
-      @image_names.push(
-        :value => "/rrd/school_absenteeism_#{school_number}.png"
-      )
-    end
+    image_names = AbsenteeReport.render_graphs(params)
     respond_to do |format|
       format.json do
         render :json => {
           :success       => true,
-          :total_results => @school_length,
-          :results       => @image_names.as_json
+          :total_results => image_names.length,
+          :results       => image_names.as_json
         }
       end
     end

@@ -68,8 +68,8 @@ class AbsenteeReport < ActiveRecord::Base
     options        = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
     schools_uniq   = schools.uniq.map {|v| (schools-[v]).size < (schools.size - 1) ? v : nil}.compact
     schools_uniq   = schools_uniq.blank? ? schools.paginate(options) : schools_uniq.paginate(options)
-    start_date     = params['startdt_'+param_switch].index('...').blank? ? Time.local(params['startdt_'+param_switch]) : Time.local(2010,"aug",1,0,0)
-    end_date       = params['enddt_'+param_switch].index('...').blank? ? Time.local(params['enddt_'+param_switch]) : Time.local(2011,"sep",30,23,59)
+    start_date     = params['startdt_'+param_switch].index('...').blank? ? Time.local(params['startdt_'+param_switch]) : Time.now - 60.days
+    end_date       = params['enddt_'+param_switch].index('...').blank? ? Time.local(params['enddt_'+param_switch]) : Time.now
     image_names    = []
     rrd_path       = Dir.pwd << "/rrd/"
     rrd_image_path = Dir.pwd << "/public/rrd/"

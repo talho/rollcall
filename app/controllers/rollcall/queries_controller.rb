@@ -106,14 +106,25 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
     end
   end
 
+  def index
+    @absentee_reports = AbsenteeReport.all
+
+    respond_to do |format|
+      format.json do
+        render :json => {:success => true, :absentee_reports => []}
+      end
+    end
+  end
+
   def create
     image_names = AbsenteeReport.render_graphs(params)
+    
     respond_to do |format|
       format.json do
         render :json => {
-          :success       => true,
-          :total_results => image_names.length,
-          :results       => image_names.as_json
+          :success          => true,
+          :total_results    => image_names.length,
+          :absentee_reports => {:id => 2, :img_urls => image_names}.as_json
         }
       end
     end

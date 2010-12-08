@@ -80,9 +80,9 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
         {:id => 5, :value => 'Cusum'}
       ]
     end
-    @schools      = current_user.schools(:order => "display_name")
-    @zipcodes     = current_user.school_districts.map{|s| s.by_zipcodes.map(&:postal_code)}.flatten.uniq.compact.map{|i| {:id => i, :value => i}}
-    @school_types = current_user.school_districts.map{|s| s.by_school_types.map(&:school_type)}.flatten.uniq.compact.map{|i| {:id => i, :value => i}}
+    @schools     = current_user.schools(:order => "display_name")
+    @zipcodes     = current_user.school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}
+    @school_types = current_user.school_districts.map{|s| s.school_types.map{|i| {:id => i, :value => i}}}
     respond_to do |format|
       format.json do
         original_included_root = ActiveRecord::Base.include_root_in_json
@@ -124,8 +124,8 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
     @school_length = @schools.blank? ? schools.length : @schools.length
     @schools       = @schools.blank? ? schools.paginate(options) : @schools.paginate(options)
 
-    @start_date    = params['startdt_'+param_switch].index('...').blank? ? Time.local(params['startdt_'+param_switch]) : Time.local(2010,"aug",1,0,0)
-    @end_date      = params['enddt_'+param_switch].index('...').blank? ? Time.local(params['enddt_'+param_switch]) : Time.local(2011,"sep",30,23,59)
+    @start_date    = params['startdt_'+param_switch].index('...').blank? ? Time.local(params['startdt_'+param_switch]) : Time.now - 60.days
+    @end_date      = params['enddt_'+param_switch].index('...').blank? ? Time.local(params['enddt_'+param_switch]) : Time.now
     
     rrd_path       = Dir.pwd << "/rrd/"
     rrd_image_path = Dir.pwd << "/public/rrd/"
@@ -144,7 +144,8 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
     #Graph the updated data using RRD
     #Push image names into @image_names array
     @schools.each do |school, index|
-      school_name    = school.display_name.gsub(" ", "_")
+      school_name = school.display_name.gsub(" ", "_")
+      school_number = school.school_number
       school_color_a = ""
       school_color_b = ""
       for c in 0..5
@@ -155,29 +156,26 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
         alpha_or_numeric = rand(2)
         school_color_b += @alpha_numeric[alpha_or_numeric][rand(@alpha_numeric[alpha_or_numeric].length)]
       end
-      build_rrd rrd_path, rrd_tool, params, school_name unless File.exists?("#{rrd_path}#{school_name}_absenteeism.rrd")
-      @result_set     = []
-      @total_enrolled = (2..5).to_a[rand((2..5).to_a.length - 1)] * 100
-      @fake_data      = "temperature:100,lethargy:10,sore_throat:21,congestion:8,diarrhea:2,headache:34,cough:5,body_aches:6,vomiting:2,rhinorrhea:11"
-      for i in 0..29
-        @total_absent  = (20..150).to_a[rand((20..150).to_a.length - 1)]
-        @report_date   = Time.local(2010,Time.now().strftime("%b").downcase,(i + 1),0,0)
-        @absentee_rate = (@total_absent / @total_enrolled) * 100
-        unless params['symptoms_'+param_switch].blank?
-          if params['symptoms_'+param_switch].index("...").blank?
-            @symptom = params['symptoms_'+param_switch]
-            @fake_data.split(",").each do |data|
-              if data.split(":").first == @symptom.downcase.gsub(" ","_")
-                @total_absent = data.split(":").last.to_i
-              end
-            end
-          end  
-        end
-        unless params['absent_'+param_switch].index("Confirmed").blank?
-          @total_absent = calculate_confirmed_illness @fake_data
-        end
-        RRD.send_later(:update, "#{rrd_path}#{school_name}_absenteeism.rrd", [@report_date.to_i.to_s,@total_absent, @total_enrolled], "#{rrd_tool}")
-      end
+#      build_rrd rrd_path, rrd_tool, params, school_name unless File.exists?("#{rrd_path}#{school_name}_absenteeism.rrd")
+#      @result_set = []
+#      @total_enrolled = (2..5).to_a[rand((2..5).to_a.length - 1)] * 100
+#      @fake_data = "temperature:100,lethargy:10,sore_throat:21,congestion:8,diarrhea:2,headache:34,cough:5,body_aches:6,vomiting:2,rhinorrhea:11"
+#      for i in 0..29
+#        @total_absent = (20..150).to_a[rand((20..150).to_a.length - 1)]
+#        @report_date = Time.local(2010,Time.now().strftime("%b").downcase,(i + 1),0,0)
+#        @absentee_rate = (@total_absent / @total_enrolled) * 100
+#        unless params['symptoms_'+param_switch].blank?
+#          if params['symptoms_'+param_switch].index("...").blank?
+#            @symptom = params['symptoms_'+param_switch]
+#            @fake_data.split(",").each do |data|
+#              if data.split(":").first == @symptom.downcase.gsub(" ","_")
+#                @total_absent = data.split(":").last.to_i
+#              end
+#            end
+#          end
+#        end
+#        RRD.send_later(:update, "#{rrd_path}#{school_name}_absenteeism.rrd", [@report_date.to_i.to_s,@total_absent, @total_enrolled], "#{rrd_tool}")
+#      end
       @graph_title = "Absenteeism Rate for #{school_name}"
       unless params['symptoms_'+param_switch].blank?
         if params['symptoms_'+param_switch].index("...").blank?
@@ -185,10 +183,10 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
         end   
       end
 
-      File.delete("#{rrd_image_path}school_absenteeism_#{school_name}.png") if File.exist?("#{rrd_image_path}school_absenteeism_#{school_name}.png")
+      File.delete("#{rrd_image_path}school_absenteeism_#{school_number}.png") if File.exist?("#{rrd_image_path}school_absenteeism_#{school_number}.png")
 
       RRD.send_later(:graph, 
-        "#{rrd_path}#{school_name}_absenteeism.rrd","#{rrd_image_path}school_absenteeism_#{school_name}.png",
+        "#{rrd_path}#{school_number}_absenteeism.rrd","#{rrd_image_path}school_absenteeism_#{school_number}.png",
         {
           :start      => @start_date,
           :end        => @end_date,
@@ -200,28 +198,28 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
           :lowerlimit => 0,
           :defs       => [{
             :key     => "a",
-            :cf      => "AVERAGE",
+            :cf      => "LAST",
             :ds_name => "Absent"
           },{
             :key     => "b",
-            :cf      => "AVERAGE",
+            :cf      => "LAST",
             :ds_name => "Enrolled"
           }],
           :elements   => [{
             :key     => "a",
             :element => "AREA",
             :color   => school_color_a,
-            :text    => "Total Enrolled"
+            :text    => "Total Absent"
           },{
             :key     => "b",
             :element => "LINE1",
             :color   => school_color_b,
-            :text    => "Total Absent"
+            :text    => "Total Enrolled"
           }]
         }, "#{rrd_tool}")
 
       @image_names.push(
-        :value => "/rrd/school_absenteeism_#{school_name}.png"
+        :value => "/rrd/school_absenteeism_#{school_number}.png"
       )
     end
     respond_to do |format|

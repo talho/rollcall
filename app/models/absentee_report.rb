@@ -82,12 +82,6 @@ class AbsenteeReport < ActiveRecord::Base
       tea_id  = school.tea_id
       #build_rrd rrd_path, rrd_tool, params, school_name unless File.exists?("#{rrd_path}#{school_name}_absenteeism.rrd")
       total_enrolled = (2..5).to_a[rand((2..5).to_a.length - 1)] * 100
-      for i in 0..29
-        total_absent  = (20..150).to_a[rand((20..150).to_a.length - 1)]
-        report_date   = Time.local(2010,Time.now().strftime("%b").downcase,(i + 1),0,0)
-        ds_values     = self.build_fake_data report_date.to_i.to_s, total_enrolled, total_absent, params['absent_'+param_switch].index("Confirmed").blank?
-        RRD.send_later(:update, "#{rrd_path}#{tea_id}_absenteeism.rrd", ds_values, "#{rrd_tool}")
-      end
       graph_title = "Absenteeism Rate for #{school_name}"
 
       unless params['symptoms_'+param_switch].blank?

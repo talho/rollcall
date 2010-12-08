@@ -13,7 +13,7 @@ class RollcallDataImporter
         data.map!{|d| d.split("\t")}
         data.each do |rec|
           begin
-            report_date, tea_id, school, enrolled, absent = rec
+            report_date, tea_id, enrolled, absent = rec
             report_date=Date.parse(report_date)
             school=School.find_by_tea_id(tea_id.strip)
             if school

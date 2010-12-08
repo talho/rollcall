@@ -106,7 +106,7 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
     end
   end
 
-  def search
+  def create
     image_names = AbsenteeReport.render_graphs(params)
     respond_to do |format|
       format.json do

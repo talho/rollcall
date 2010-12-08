@@ -23,7 +23,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         }
       }]
     });
-
+    
     var result_store = new Ext.data.JsonStore({
       totalProperty: 'total_results',
       root:   'absentee_reports',

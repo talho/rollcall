@@ -44,7 +44,7 @@ namespace :rollcall do
       current_time = Time.now
 
       SchoolDistrict.all.each do |district|
-        (district.school_types.map{|school_type| school_type.gsub(/\s/,'').underscore} + district.schools.map(&:school_number)).compact.each do |name|
+        (district.school_types.map{|school_type| school_type.gsub(/\s/,'').underscore} + district.schools.map(&:tea_id)).compact.each do |name|
           total_enrolled = (2..5).to_a[rand((2..5).to_a.length - 1)] * 100
           (0..29).reverse_each do |i|
             total_absent = (20..150).to_a[rand((20..150).to_a.length - 1)]

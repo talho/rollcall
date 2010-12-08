@@ -13,9 +13,9 @@ class RollcallDataImporter
         data.map!{|d| d.split("\t")}
         data.each do |rec|
           begin
-            report_date, tea_id, enrolled, absent = rec
+            report_date, school_number, enrolled, absent = rec
             report_date=Date.parse(report_date)
-            school=School.find_by_tea_id(tea_id.strip)
+            school=School.find_by_school_number(school_number.strip)
             if school
               AbsenteeReport.create(:school => school, :report_date => report_date, :enrolled => enrolled, :absent => absent)
             else

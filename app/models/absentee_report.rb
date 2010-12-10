@@ -53,7 +53,7 @@ class AbsenteeReport < ActiveRecord::Base
     return "high" if absentee_percentage >= (SEVERITY[:high][:min]*100)
   end
 
-  def self.render_graphs params
+  def self.search params
     if params[:adv] == 'true'
       param_switch = 'adv'
     else
@@ -64,10 +64,16 @@ class AbsenteeReport < ActiveRecord::Base
     school_type = params['school_type_'+param_switch].index('...').blank? ? CGI::unescape(params['school_type_'+param_switch]) : ""
     schools     = School.search("#{school_name}").concat(School.search("#{school_type}"))
     schools.concat(School.search("#{params['zip_'+param_switch]}")) unless params['zip_'+param_switch].blank?
+    schools_uniq = schools.uniq.map {|v| (schools-[v]).size < (schools.size - 1) ? v : nil}.compact
+    return schools_uniq
+  end
 
-    options        = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
-    schools_uniq   = schools.uniq.map {|v| (schools-[v]).size < (schools.size - 1) ? v : nil}.compact
-    schools_uniq   = schools_uniq.blank? ? schools.paginate(options) : schools_uniq.paginate(options)
+  def self.render_graphs params
+    if params[:adv] == 'true'
+      param_switch = 'adv'
+    else
+      param_switch = 'simple'
+    end
     start_date     = params['startdt_'+param_switch].index('...').blank? ? Time.local(params['startdt_'+param_switch]) : Time.now - 60.days
     end_date       = params['enddt_'+param_switch].index('...').blank? ? Time.local(params['enddt_'+param_switch]) : Time.now
     image_names    = []
@@ -77,38 +83,42 @@ class AbsenteeReport < ActiveRecord::Base
       YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
     end
 
-    schools_uniq.each do |school|
-      school_name    = school.display_name.gsub(" ", "_")
-      tea_id  = school.tea_id
-      #build_rrd rrd_path, rrd_tool, params, school_name unless File.exists?("#{rrd_path}#{school_name}_absenteeism.rrd")
-      total_enrolled = (2..5).to_a[rand((2..5).to_a.length - 1)] * 100
-      graph_title = "Absenteeism Rate for #{school_name}"
+    unless params['results'].blank?
+      unless params['results']['schools'].blank?
+        params['results']['schools'].split(',').each do |rec|
+          tea_id      = rec.to_i
+          school_name = School.find_by_tea_id(tea_id).display_name.gsub(" ", "_")
 
-      unless params['symptoms_'+param_switch].blank?
-        if params['symptoms_'+param_switch].index("...").blank?
-          graph_title = "Absenteeism Rate for #{school_name} based on #{params['symptoms_'+param_switch]}"
+          #build_rrd rrd_path, rrd_tool, params, school_name unless File.exists?("#{rrd_path}#{school_name}_absenteeism.rrd")
+          total_enrolled = (2..5).to_a[rand((2..5).to_a.length - 1)] * 100
+          graph_title = "Absenteeism Rate for #{school_name}"
+
+          unless params['symptoms_'+param_switch].blank?
+            if params['symptoms_'+param_switch].index("...").blank?
+              graph_title = "Absenteeism Rate for #{school_name} based on #{params['symptoms_'+param_switch]}"
+            end
+          end
+
+          File.delete("#{rrd_image_path}#{tea_id}_absenteeism.png") if File.exist?("#{rrd_image_path}#{tea_id}_absenteeism.png")
+
+          RRD.send_later(:graph,
+            "#{rrd_path}#{tea_id}_absenteeism.rrd","#{rrd_image_path}#{tea_id}_absenteeism.png",
+            {
+              :start      => start_date,
+              :end        => end_date,
+              :width      => 500,
+              :height     => 120,
+              :image_type => "PNG",
+              :title      => graph_title,
+              :vlabel     => "percent absent",
+              :lowerlimit => 0,
+              :defs       => self.build_defs(params, param_switch),
+              :elements   => self.build_elements(params, param_switch)
+            }, "#{rrd_tool}")
+
+          image_names.push(:value => "/rrd/#{tea_id}_absenteeism.png")
         end
       end
-
-      File.delete("#{rrd_image_path}school_absenteeism_#{tea_id}.png") if File.exist?("#{rrd_image_path}school_absenteeism_#{tea_id}.png")
-
-      RRD.send_later(:graph,
-        "#{rrd_path}#{tea_id}_absenteeism.rrd","#{rrd_image_path}school_absenteeism_#{tea_id}.png",
-        {
-          :start      => start_date,
-          :end        => end_date,
-          :width      => 500,
-          :height     => 120,
-          :image_type => "PNG",
-          :title      => graph_title,
-          :vlabel     => "percent absent",
-          :lowerlimit => 0,
-          :defs       => self.build_defs(params, param_switch),
-          :elements   => self.build_elements(params, param_switch)
-        }, "#{rrd_tool}")
-
-      image_names.push(:value => "/rrd/school_absenteeism_#{tea_id}.png")
-
     end
     return image_names
   end

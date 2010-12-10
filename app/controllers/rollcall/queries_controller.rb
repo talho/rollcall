@@ -2,6 +2,35 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
   helper :rollcall
   before_filter :rollcall_required
 
+  def index
+    results      = AbsenteeReport.search(params)
+    options      = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
+    results_uniq = results.blank? ? results.paginate(options) : results.paginate(options)
+    respond_to do |format|
+      format.json do
+        render :json => {
+          :success       => true,
+          :total_results => results.length,
+          :results       => results_uniq.as_json
+        }
+      end
+    end
+  end
+
+  def create
+    results = AbsenteeReport.render_graphs(params)
+    schools = params["results"]["schools"].blank? ? "" : params["results"]["schools"]
+    respond_to do |format|
+      format.json do
+        render :json => {
+          :success       => true,
+          :total_results => results.length,
+          :results       => {:id => 2, :img_urls => results, :schools => schools}.as_json
+        }
+      end
+    end
+  end
+
   def get_options
     absenteeism = [
       {:id => 0, :value => 'Gross'},
@@ -69,7 +98,7 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
       ]
     end
 
-    schools     = current_user.schools(:order => "display_name")
+    schools      = current_user.schools(:order => "display_name")
     zipcodes     = current_user.school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
     school_types = current_user.school_districts.map{|s| s.school_types.map{|i| {:id => i, :value => i}}}.flatten
 
@@ -94,31 +123,7 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
       end
     end
   end
-
-  def index
-    @absentee_reports = AbsenteeReport.all
-
-    respond_to do |format|
-      format.json do
-        render :json => {:success => true, :absentee_reports => []}
-      end
-    end
-  end
-
-  def create
-    image_names = AbsenteeReport.render_graphs(params)
-
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success          => true,
-          :total_results    => image_names.length,
-          :absentee_reports => {:id => 2, :img_urls => image_names}.as_json
-        }
-      end
-    end
-  end
-
+  
   def calculate_confirmed_illness data_string
     result = 0
     data_string.split(",").each do |rec|

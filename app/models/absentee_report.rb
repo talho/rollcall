@@ -74,10 +74,9 @@ class AbsenteeReport < ActiveRecord::Base
     else
       param_switch = 'simple'
     end
-    start_date     = params['startdt_'+param_switch].blank? ? Time.now - 60.days : Time.parse(params['startdt_'+param_switch])
-    end_date       = params['enddt_'+param_switch].blank? ? Time.now : Time.parse(params['enddt_'+param_switch])
+    start_date     = params['startdt_'+param_switch].index('...') ? Time.now - 60.days : Time.parse(params['startdt_'+param_switch])
+    end_date       = params['enddt_'+param_switch].index('...') ? Time.now : Time.parse(params['enddt_'+param_switch])
     image_names    = []
-    rrd_path       = Dir.pwd << "/rrd/"
     rrd_image_path = Dir.pwd << "/public/rrd/"
     rrd_tool       = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
       YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
@@ -87,6 +86,8 @@ class AbsenteeReport < ActiveRecord::Base
       unless params['results']['schools'].blank?
         params['results']['schools'].split(',').each do |rec|
           tea_id      = rec.to_i
+          filename    = "#{tea_id}_absenteeism"
+          rrd_file    = reduce_rrd(params, filename)
           school_name = School.find_by_tea_id(tea_id).display_name.gsub(" ", "_")
 
           #build_rrd rrd_path, rrd_tool, params, school_name unless File.exists?("#{rrd_path}#{school_name}_absenteeism.rrd")
@@ -102,7 +103,7 @@ class AbsenteeReport < ActiveRecord::Base
           File.delete("#{rrd_image_path}#{tea_id}_absenteeism.png") if File.exist?("#{rrd_image_path}#{tea_id}_absenteeism.png")
 
           RRD.send_later(:graph,
-            "#{rrd_path}#{tea_id}_absenteeism.rrd","#{rrd_image_path}#{tea_id}_absenteeism.png",
+            rrd_file,"#{rrd_image_path}#{tea_id}_absenteeism.png",
             {
               :start      => start_date,
               :end        => end_date,
@@ -203,5 +204,64 @@ class AbsenteeReport < ActiveRecord::Base
       })
     end
     return elements
+  end
+
+  def self.reduce_rrd options, filename
+    conditions = {}
+
+    if options[:adv]
+      options.delete_if{|key,value| key[-7,7] == "_simple"}
+    else
+      options.delete_if{|key,value| key[-4,4] == "_adv"}
+    end
+
+    options.each { |key,value|
+      case key
+      when "absent_simple", "absent_adv"
+        if value == "Confirmed+Illness"
+          filename = "AB_#{filename}"
+          conditions[:confirmed] = true
+        end
+      when "gender_adv"
+        if value == "Male"
+          filename = "G_#{filename}"
+          conditions[:gender] = 1
+        elsif value == "Female"
+          filename = "G_#{filename}"
+          conditions[:gender] = 0
+        end
+      else
+      end
+    }
+
+    rrd_path = Dir.pwd << "/rrd/"
+    rrd_tool = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
+      YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
+    end
+    RRD.create("#{rrd_path}#{filename}.rrd",
+    {
+      :step  => 24.hours.seconds,
+      :start => (Time.now - 60.days).to_i,
+      :ds    => [
+        {
+          :name => "Enrolled", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 768000
+        },
+        {
+          :name => "Absent", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 768000
+        }
+      ],
+      :rra => [{
+        :type => "AVERAGE", :xff => 0.5, :steps => 1, :rows => 366
+      },{
+        :type => "MAX", :xff => 0.5, :steps => 1, :rows => 366
+      },{
+        :type => "LAST", :xff => 0.5, :steps => 1, :rows => 366
+      }]
+    } , "#{rrd_tool}")
+
+
+    #Walk through AbsenteeData model and RRD.update on time range using :conditions variable
+
+    "#{rrd_path}#{filename}.rrd"
   end
 end

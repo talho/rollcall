@@ -58,7 +58,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
                 id:'plus',
                 qtip: 'Save Query',
                 handler: function(e, targetEl, panel, tc){
-                  panel.ownerCt.ownerCt._showAlarmConsole();
+                  panel.ownerCt.ownerCt._showAlarmConsole(store.baseParams);
                 }
               },{
                 id:'close',
@@ -98,40 +98,40 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     return this._getResultStore();
   },
 
-  _showAlarmConsole: function()
+  _showAlarmConsole: function(queryParams)
   {
-    /*
-    * Setting up mock data for presentation.  This code might be useful
-    * in constructing the app.
-    * */
-    var myStore = new Ext.data.ArrayStore({
+    var params       = [];
+    var storedParams = new Ext.data.ArrayStore({
         storeId: 'my-store',
         fields: ['field', 'value'],
         idIndex: 0
     });
-    var myData = [
-        ['Absenteeism', 'Confirmed Illness'],
-        ['School Type', 'Elementary']
-    ];
-    myStore.loadData(myData);
 
-    /*
-    * Creating Ext Component Window.  Mocking up
-    * alarm console
-    * */
+    if(queryParams['adv'] == 'true') var paramSwitch = 'adv';
+    else var paramSwitch = 'simple';
+    
+    for(key in queryParams){
+      if(key.indexOf(paramSwitch) != -1){
+        if(queryParams[key].indexOf("...") == -1 && key != 'adv')
+          params.push([key.substr(0, key.indexOf("_")), queryParams[key]]);
+      }
+    }
+    storedParams.loadData(params);
+
     var alarm_console = new Ext.Window({
       layout:'fit',
       autoWidth:true,
       autoHeight:true,
       closeAction:'hide',
-      title: 'Set Alarm for Query Result(1)',
+      title: 'Set Alarm for Query Result',
       plain: true,
       items: [{
         xtype: 'form',
+        url: 'rollcall/save_query',
         border:false,
         items:[{
           xtype:'textfield',
-          labelStyle:'margin: 10px 0px 0px 5px',
+          labelStyle: 'margin: 10px 0px 0px 5px',
           fieldLabel: 'Alarm Name',
           width: 195,
           style:{
@@ -140,9 +140,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           }
         },{
           xtype: 'fieldset',
-          width : 300,
+          width: 300,
           autoHeight: true,
-          title : 'Deviation',
+          title: 'Deviation',
           style:{
             marginLeft: '5px',
             marginRight: '5px'
@@ -161,11 +161,11 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               name: 'th'
           },{
               fieldLabel: 'Min',
-              value: 80,
+              value: 50,
               name: 'min'
           },{
               fieldLabel: 'Max',
-              value: 25,
+              value: 50,
               name: 'max'
           }],
           fbar: {
@@ -186,9 +186,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           }
         },{
           xtype: 'fieldset',
-          width : 300,
+          width: 300,
           autoHeight: true,
-          title : 'Severity',
+          title: 'Severity',
           style:{
             marginLeft: '5px',
             marginRight: '5px'
@@ -203,11 +203,11 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           },
           items: [{
               fieldLabel: 'Min',
-              value: 80,
+              value: 50,
               name: 'min'
           },{
               fieldLabel: 'Max',
-              value: 25,
+              value: 50,
               name: 'max'
           }],
           fbar: {
@@ -228,9 +228,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           }
         },{
           xtype: 'fieldset',
-          autoWidth : true,
+          autoWidth: true,
           autoHeight: true,
-          title : 'Parameters',
+          title: 'Parameters',
           style:{
             marginLeft: '5px',
             marginRight: '5px'
@@ -238,7 +238,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           collapsible: true,
           items: [{
             xtype: 'listview',
-            store: myStore,
+            store: storedParams,
             multiSelect: true,
             reserveScrollOffset: true,
             columns: [{
@@ -255,7 +255,10 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       }],
       buttons: [{
         text:'Submit',
-        disabled: true
+        handler: function(buttonEl, eventObj){
+          buttonEl.findParentByType("form").getForm().submit();
+          //this.saveQuery(buttonEl, eventObj);
+        }
       },{
         text: 'Close',
         handler: function(){
@@ -290,6 +293,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
     this.providers.push(provider);
     Ext.Direct.addProvider(provider);
+  },
+  saveQuery: function(buttonEl, eventObj) {
+
   },
   clearProviders: function() {
     Ext.each(this.providers, function(item, index, allItems) {

@@ -1,6 +1,6 @@
 class Rollcall::SavedQueryController < Rollcall::RollcallAppController
   def index
-    saved_queries = current_user.saved_queries
+    saved_queries = current_user.saved_queries.blank? ? "" : current_user.saved_queries
     respond_to do |format|
       format.json do
         render :json => {

@@ -9,6 +9,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :rollcall_school_districts, :member => {:school => :post}, :controller =>"rollcall/school_districts", :as => 'rollcall/school_districts'
 
   map.resources :adst, :controller => "rollcall/queries", :as => 'rollcall/adst'
+  map.resources :save_query, :controller => "rollcall/saved_query", :as => "rollcall/save_query"
   map.get_query_options "/rollcall/query_options", :controller => "rollcall/queries", :action => "get_options"
   map.check_image "/rollcall/image", :controller => "rollcall/queries", :action => "check_image"
 end

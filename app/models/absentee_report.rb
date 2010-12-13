@@ -74,8 +74,8 @@ class AbsenteeReport < ActiveRecord::Base
     else
       param_switch = 'simple'
     end
-    start_date     = params['startdt_'+param_switch].index('...').blank? ? Time.local(params['startdt_'+param_switch]) : Time.now - 60.days
-    end_date       = params['enddt_'+param_switch].index('...').blank? ? Time.local(params['enddt_'+param_switch]) : Time.now
+    start_date     = params['startdt_'+param_switch].blank? ? Time.now - 60.days : Time.parse(params['startdt_'+param_switch])
+    end_date       = params['enddt_'+param_switch].blank? ? Time.now : Time.parse(params['enddt_'+param_switch])
     image_names    = []
     rrd_path       = Dir.pwd << "/rrd/"
     rrd_image_path = Dir.pwd << "/public/rrd/"

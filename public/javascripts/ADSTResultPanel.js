@@ -279,7 +279,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           if(e.xhr.status == 200) {
             this.removeAll();
             (function(provider) {
-              this.add({html:'<div style="text-align:center"><img src="'+provider.url+'" /></div>'});
+              this.add({html:'<div style="text-align:center"><img src="'+provider.url+'?' + Math.floor(Math.random() * 10000) + '" /></div>'});
               this.doLayout();
             }).defer(1000,this,[provider]);
 

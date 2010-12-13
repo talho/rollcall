@@ -58,7 +58,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
                 id:'plus',
                 qtip: 'Save Query',
                 handler: function(e, targetEl, panel, tc){
-                  panel.ownerCt.ownerCt._showAlarmConsole(store.baseParams);
+                  panel.ownerCt.ownerCt.showSaveQueryConsole(store.baseParams);
                 }
               },{
                 id:'close',
@@ -98,7 +98,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     return this._getResultStore();
   },
 
-  _showAlarmConsole: function(queryParams)
+  showSaveQueryConsole: function(queryParams)
   {
     var params       = [];
     var storedParams = new Ext.data.ArrayStore({
@@ -120,28 +120,30 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
     var alarm_console = new Ext.Window({
       layout:'fit',
-      autoWidth:true,
+      width: 300,
       autoHeight:true,
-      closeAction:'hide',
-      title: 'Set Alarm for Query Result',
+      closeAction:'close',
+      title: 'Save Query',
       plain: true,
       items: [{
         xtype: 'form',
+        id: 'savedQueryForm',
         url: 'rollcall/save_query',
-        border:false,
+        border: false,
+        baseParams:{
+          query_params: params  
+        },
         items:[{
           xtype:'textfield',
           labelStyle: 'margin: 10px 0px 0px 5px',
-          fieldLabel: 'Alarm Name',
-          width: 195,
+          fieldLabel: 'Query Name',
+          id: 'query_name',
           style:{
             marginTop: '10px',
             marginBottom: '5px'
           }
         },{
           xtype: 'fieldset',
-          width: 300,
-          autoHeight: true,
           title: 'Deviation',
           style:{
             marginLeft: '5px',
@@ -157,16 +159,16 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           },
           items: [{
               fieldLabel: 'Threshold',
-              value: 50,
-              name: 'th'
+              id: 'deviation_threshold',
+              value: 50
           },{
               fieldLabel: 'Min',
-              value: 50,
-              name: 'min'
+              id: 'deviation_min',
+              value: 50
           },{
               fieldLabel: 'Max',
-              value: 50,
-              name: 'max'
+              id: 'deviation_max',
+              value: 50
           }],
           fbar: {
               xtype: 'toolbar',
@@ -186,7 +188,6 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           }
         },{
           xtype: 'fieldset',
-          width: 300,
           autoHeight: true,
           title: 'Severity',
           style:{
@@ -203,12 +204,12 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           },
           items: [{
               fieldLabel: 'Min',
-              value: 50,
-              name: 'min'
+              id: 'severity_min',
+              value: 50
           },{
               fieldLabel: 'Max',
-              value: 50,
-              name: 'max'
+              id: 'severity_max',
+              value: 50
           }],
           fbar: {
               xtype: 'toolbar',
@@ -253,19 +254,21 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           }]
         }]
       }],
+      buttonAlign: 'right',
       buttons: [{
         text:'Submit',
-        handler: function(buttonEl, eventObj){
-          buttonEl.findParentByType("form").getForm().submit();
-          //this.saveQuery(buttonEl, eventObj);
+        handler: function(buttonEl, eventObj){        
+          alarm_console.getComponent('savedQueryForm').getForm().submit();
         }
       },{
         text: 'Close',
-        handler: function(){
+        handler: function(buttonEl, eventObj){
           alarm_console.hide();
+          alarm_console.destroy();
         }
       }]
     });
+    alarm_console.doLayout();
     alarm_console.show();
   },
   renderGraphs: function(id, image, obj) {

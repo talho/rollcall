@@ -22,7 +22,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         }
       }]
     });
-    
+
     var result_store = new Ext.data.JsonStore({
       totalProperty: 'total_results',
       root:   'results',
@@ -55,13 +55,52 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               style:'margin:5px',
               itemId: item_id,
               tools: [{
-                id:'plus',
+                id:'save',
                 qtip: 'Save Query',
                 handler: function(e, targetEl, panel, tc){
                   panel.ownerCt.ownerCt.showSaveQueryConsole(store.baseParams);
                 }
               },{
+                id:'down',
+                qtip: 'Export Query Result',
+                handler: function(e, targetEl, panel, tc){
+
+                  // create a hidden iframe, open the file
+                  if(Application.rails_environment === 'cucumber')
+                  {
+                    Ext.Ajax.request({
+                      url: 'rollcall/export',
+                      method: 'GET',
+                      success: function(){
+                        alert("Success");
+                      },
+                      failure: function(){
+                        alert("File Download Failed");
+                      }
+                    })
+                  }
+                  else
+                  {
+                    if(!this._downloadFrame){
+                      this._downloadFrame = Ext.DomHelper.append(panel.getEl().dom, {tag: 'iframe', style: 'width:0;height:0;'});
+                      Ext.EventManager.on(this._downloadFrame, 'load', function(){
+                        // in a very strange bit of convenience, the frame load event will only fire here IF there is an error
+                        // need to test the convenience on IE.
+                        Ext.Msg.alert('Could Not Load File', 'There was an error downloading the file you have requested. Please contact an administrator');
+                      }, this);
+                    }
+                    var form_values  = panel.ownerCt.ownerCt.ownerCt.findByType('form')[0].getForm().getValues();
+                    var param_string = '';
+                    for(key in form_values){
+                      param_string += key + '=' + form_values[key] + ",";
+                    }
+                    param_string += 'tea_id' + '=' + result[0]['schools'].split(",")[i]
+                    this._downloadFrame.src = 'rollcall/export?'+param_string;
+                  }
+                }
+              },{
                 id:'close',
+                qtip: "Close",
                 handler: function(e, target, panel){
                   panel.ownerCt.remove(panel, true);
                 }
@@ -86,6 +125,18 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     }
 
     Talho.Rollcall.ADSTResultPanel.superclass.constructor.call(this, config);
+  },
+
+  download_iframe: null,
+  
+  reportExportFailure: function(response, obj)
+  {
+
+  },
+  
+  deliverExportFile: function(response, obj)
+  {
+
   },
 
   processQuery: function(json_result)

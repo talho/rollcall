@@ -31,6 +31,14 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
     end
   end
 
+  def export
+    results = AbsenteeReport.export_rrd_data(params)
+    #results      = "Trying,out,this,csv,thing"
+    #options      = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
+    #results_uniq = results.blank? ? results.paginate(options) : results.paginate(options)
+    send_data "Trying,out,this,csv,thing", :type => 'application/csv', :filename => "example.csv"
+  end
+
   def get_options
     absenteeism = [
       {:id => 0, :value => 'Gross'},

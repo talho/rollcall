@@ -10,6 +10,7 @@
 #  created_at  :datetime
 #  updated_at  :datetime
 #
+require 'fastercsv'
 
 class AbsenteeReport < ActiveRecord::Base
   SEVERITY = {
@@ -88,9 +89,10 @@ class AbsenteeReport < ActiveRecord::Base
           tea_id      = rec.to_i
           filename    = "#{tea_id}_absenteeism"
           rrd_file    = reduce_rrd(params, filename)
+          #rrd_path    = Dir.pwd << "/rrd/"
+          #rrd_file    = "#{rrd_path}#{filename}.rrd"
           school_name = School.find_by_tea_id(tea_id).display_name.gsub(" ", "_")
 
-          #build_rrd rrd_path, rrd_tool, params, school_name unless File.exists?("#{rrd_path}#{school_name}_absenteeism.rrd")
           total_enrolled = (2..5).to_a[rand((2..5).to_a.length - 1)] * 100
           graph_title = "Absenteeism Rate for #{school_name}"
 
@@ -124,29 +126,37 @@ class AbsenteeReport < ActiveRecord::Base
     return image_names
   end
 
+  def self.export_rrd_data params
+    rrd_tool = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
+      YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
+    end
+    results = Crack::XML.parse(RRD.xport("#{params["tea_id"]}_absenteeism.rrd", "#{rrd_tool}"))
+
+    csv_data = FasterCSV.generate do |csv|
+      csv << [
+        "Absent",
+        "Enrolled",
+        "001",
+        "002",
+        "003",
+        "004",
+        "005",
+        "006",
+        "007",
+        "008",
+        "009",
+        "010",
+        "Male",
+        "Female"
+      ]
+    end
+    csv_data
+  end
+  
   private
   #These methods are used to construct data dynamically, all these methods will
   #be removed as we continue to refine the RDD process.  There are no plans to
   #preserve this code, it is being used to build fake data.
-  def self.build_fake_data report_date, total_enrolled, total_absent, confirmed
-    data_array = []
-    data_array.push(report_date);
-    data_array.push(total_enrolled);
-    data_array.push(total_absent);
-    totaled = 0;
-    for i in 0..9
-      ds_value = (0..(total_absent - totaled)).to_a[rand((0..(total_absent - totaled)).to_a.length - 1)]
-      totaled += ds_value
-      data_array.push(ds_value)
-    end
-    if confirmed
-      data_array[2] = totaled
-    end
-    gender = total_absent/2
-    data_array.push(gender)
-    data_array.push(total_absent - gender)
-    return data_array
-  end
 
   def self.build_defs options, switch
     keys    = ["a","b","c","d"]
@@ -235,31 +245,31 @@ class AbsenteeReport < ActiveRecord::Base
     }
 
     rrd_path = Dir.pwd << "/rrd/"
-    rrd_tool = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
-      YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
+    unless conditions.blank?
+      rrd_tool = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
+        YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
+      end
+      RRD.create("#{rrd_path}#{filename}.rrd",
+      {
+        :step  => 24.hours.seconds,
+        :start => (Time.now - 60.days).to_i,
+        :ds    => [
+          {
+            :name => "Enrolled", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 768000
+          },
+          {
+            :name => "Absent", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 768000
+          }
+        ],
+        :rra => [{
+          :type => "AVERAGE", :xff => 0.5, :steps => 1, :rows => 366
+        },{
+          :type => "MAX", :xff => 0.5, :steps => 1, :rows => 366
+        },{
+          :type => "LAST", :xff => 0.5, :steps => 1, :rows => 366
+        }]
+      } , "#{rrd_tool}")  
     end
-    RRD.create("#{rrd_path}#{filename}.rrd",
-    {
-      :step  => 24.hours.seconds,
-      :start => (Time.now - 60.days).to_i,
-      :ds    => [
-        {
-          :name => "Enrolled", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 768000
-        },
-        {
-          :name => "Absent", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 768000
-        }
-      ],
-      :rra => [{
-        :type => "AVERAGE", :xff => 0.5, :steps => 1, :rows => 366
-      },{
-        :type => "MAX", :xff => 0.5, :steps => 1, :rows => 366
-      },{
-        :type => "LAST", :xff => 0.5, :steps => 1, :rows => 366
-      }]
-    } , "#{rrd_tool}")
-
-
     #Walk through AbsenteeData model and RRD.update on time range using :conditions variable
 
     "#{rrd_path}#{filename}.rrd"

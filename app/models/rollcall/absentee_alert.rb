@@ -34,9 +34,11 @@
 
 =end
 
-class AbsenteeAlert < RollcallAlert
+class Rollcall::AbsenteeAlert < Rollcall::Alert
+
   validates_presence_of :absentee_rate
-  belongs_to :absentee_report
-  belongs_to :school
-  belongs_to :school_district
+  belongs_to :absentee_report, :class_name => "Rollcall::AbsenteeReport"
+  belongs_to :school, :class_name => "Rollcall::School"
+  belongs_to :school_district, :class_name => "Rollcall::SchoolDistrict"
+  
 end

@@ -12,7 +12,7 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
   end
 
   def create
-    saved_result = SavedQuery.create(
+    saved_result = Rollcall::SavedQuery.create(
       :name                => params['query_name'],
       :user_id             => current_user.id,
       :query_params        => params['query_params'],
@@ -32,7 +32,7 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
   end
 
   def update
-    query   = SavedQuery.find(params[:id])
+    query   = Rollcall::SavedQuery.find(params[:id])
     success = query.update_attributes(params[:user])
     if success
       query.save
@@ -47,7 +47,7 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
   end
 
   def delete
-    query   = SavedQuery.find(params[:id])
+    query   = Rollcall::SavedQuery.find(params[:id])
     success = query.destroy
     respond_to do |format|
       format.json do

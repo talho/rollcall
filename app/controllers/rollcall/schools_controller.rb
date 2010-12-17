@@ -33,7 +33,7 @@ class Rollcall::SchoolsController < Rollcall::RollcallAppController
   def show
     schools = current_user.schools(:order => "display_name")
     
-    @school = School.find(params[:id])
+    @school = Rollcall::School.find(params[:id])
 
     if @school
       @district = @school.district
@@ -55,7 +55,7 @@ class Rollcall::SchoolsController < Rollcall::RollcallAppController
   end
 
   def chart
-    @school = School.find(params[:rollcall_school_id])
+    @school = Rollcall::School.find(params[:rollcall_school_id])
     render :text => create_school_chart(@school, params[:timespan])
   end
 

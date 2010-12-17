@@ -13,5 +13,6 @@
 #  updated_at         :datetime
 #
 
-class RollcallAlert < ActiveRecord::Base
+class Rollcall::Alert < Rollcall::Base
+  set_table_name "rollcall_alerts"  
 end

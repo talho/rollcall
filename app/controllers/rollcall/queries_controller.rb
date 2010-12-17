@@ -1,9 +1,9 @@
 class Rollcall::QueriesController < Rollcall::RollcallAppController
-  helper :rollcall
+  #helper :rollcall
   before_filter :rollcall_required
 
   def index
-    results      = AbsenteeReport.search(params)
+    results      = Rollcall::AbsenteeReport.search(params)
     options      = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
     results_uniq = results.blank? ? results.paginate(options) : results.paginate(options)
     respond_to do |format|
@@ -18,7 +18,7 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
   end
 
   def create
-    results = AbsenteeReport.render_graphs(params)
+    results = Rollcall::AbsenteeReport.render_graphs(params)
     schools = params["results"]["schools"].blank? ? "" : params["results"]["schools"]
     respond_to do |format|
       format.json do
@@ -32,7 +32,7 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
   end
 
   def export
-    results = AbsenteeReport.export_rrd_data(params)
+    results = Rollcall::AbsenteeReport.export_rrd_data(params)
     #results      = "Trying,out,this,csv,thing"
     #options      = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
     #results_uniq = results.blank? ? results.paginate(options) : results.paginate(options)

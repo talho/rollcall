@@ -1,4 +1,4 @@
-module RollcallHelper
+module RollCallHelper
 
   def create_school_chart(school, timespan)
     timespan = 7 if timespan.nil?

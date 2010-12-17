@@ -11,38 +11,41 @@
 #  updated_at  :datetime
 #
 require 'fastercsv'
-
-class AbsenteeReport < ActiveRecord::Base
+  
+class Rollcall::AbsenteeReport < Rollcall::Base
+  
   SEVERITY = {
-      :low => {:min => 0.11000, :max => 0.14000},
-      :medium => {:min => 0.14000, :max => 0.25000},
-      :high => {:min => 0.25000, :max => 1.000},
-      }
-  belongs_to :school
+    :low    => {:min => 0.11000, :max => 0.14000},
+    :medium => {:min => 0.14000, :max => 0.25000},
+    :high   => {:min => 0.25000, :max => 1.000},
+  }
+  belongs_to :school, :class_name => "Rollcall::School"
   has_one :district, :through => :school
 
-  named_scope :for_date, lambda{ |date|
-    {
-        :conditions => {:report_date => date}
-    }
+  named_scope :for_date, lambda{|date|
+    {:conditions => {:report_date => date}}
   }
   named_scope :for_date_range, lambda{ |start, finish|
     {
-        :conditions => ["report_date >= ? and report_date <= ?", start, finish],
-        :order => "report_date desc"
+      :conditions => ["report_date >= ? and report_date <= ?", start, finish],
+      :order      => "report_date desc"
     }
   }
   named_scope :recent, lambda{|limit| {:limit => limit, :order => "report_date DESC"}}
-  named_scope :recent_alerts_by_severity, lambda{|limit| {
-      :limit => limit.to_i,
+  named_scope :recent_alerts_by_severity, lambda{|limit|
+    {
+      :limit      => limit.to_i,
       :conditions => "(absent/enrolled) >= #{SEVERITY[:low][:min]}",
-      :order => "(absent/enrolled) DESC"}}
-
+      :order      => "(absent/enrolled) DESC"
+    }
+  }
   named_scope :absenses, lambda{{:conditions => ['absentee_reports.absent / absentee_reports.enrolled >= .11']}}
   named_scope :with_severity, lambda{|severity|
-    range=SEVERITY[severity]
-    { :conditions => ["(absent / enrolled) >= ? and (absent / enrolled) < ?", range[:min], range[:max]]
-    }}
+    range = SEVERITY[severity]
+    { :conditions => ["(absent / enrolled) >= ? and (absent / enrolled) < ?", range[:min], range[:max]] }
+  }
+
+  set_table_name'rollcall_absentee_reports'
 
   def absentee_percentage
     ((absent.to_f / enrolled.to_f) * 100).to_f.round(2)
@@ -152,7 +155,7 @@ class AbsenteeReport < ActiveRecord::Base
     end
     csv_data
   end
-  
+
   private
   #These methods are used to construct data dynamically, all these methods will
   #be removed as we continue to refine the RDD process.  There are no plans to
@@ -268,7 +271,7 @@ class AbsenteeReport < ActiveRecord::Base
         },{
           :type => "LAST", :xff => 0.5, :steps => 1, :rows => 366
         }]
-      } , "#{rrd_tool}")  
+      } , "#{rrd_tool}")
     end
     #Walk through AbsenteeData model and RRD.update on time range using :conditions variable
 

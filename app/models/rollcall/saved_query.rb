@@ -13,7 +13,8 @@
 #  deviation_max       :integer(4)
 #
 
-class SavedQuery < ActiveRecord::Base
+class Rollcall::SavedQuery < Rollcall::Base
   belongs_to :user, :class_name => "User", :foreign_key => "user_id"
-    
+
+  set_table_name "rollcall_saved_queries"  
 end

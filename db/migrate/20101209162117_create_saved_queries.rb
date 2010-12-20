@@ -17,6 +17,8 @@ class CreateSavedQueries < ActiveRecord::Migration
   end
 
   def self.down
+    remove_index :saved_queries, :user_id
+    remove_index :saved_queries, :name
     drop_table :saved_queries
   end
 end

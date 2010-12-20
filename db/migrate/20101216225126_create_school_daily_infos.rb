@@ -12,6 +12,8 @@ class CreateSchoolDailyInfos < ActiveRecord::Migration
   end
 
   def self.down
+    remove_index :rollcall_school_daily_infos, :id
+    remove_index :rollcall_school_daily_infos, :school_id 
     drop_table :rollcall_school_daily_infos
   end
 end

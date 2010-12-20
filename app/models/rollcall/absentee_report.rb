@@ -118,8 +118,8 @@ class Rollcall::AbsenteeReport < Rollcall::Base
               :title      => graph_title,
               :vlabel     => "percent absent",
               :lowerlimit => 0,
-              :defs       => self.build_defs(params, param_switch),
-              :elements   => self.build_elements(params, param_switch)
+              :defs       => self.build_defs({}, param_switch),
+              :elements   => self.build_elements({}, param_switch)
             }, "#{rrd_tool}")
 
           image_names.push(:value => "/rrd/#{tea_id}_absenteeism.png")
@@ -178,7 +178,7 @@ class Rollcall::AbsenteeReport < Rollcall::Base
     for i in 0..(ds_name.length - 1)
       defs.push({
         :key     => keys[i],
-        :cf      => "AVERAGE",
+        :cf      => "LAST",
         :ds_name => ds_name[i].gsub(" ","_")
       })
     end

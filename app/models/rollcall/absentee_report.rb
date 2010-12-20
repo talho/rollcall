@@ -66,8 +66,8 @@ class Rollcall::AbsenteeReport < Rollcall::Base
 
     school_name = params['school_'+param_switch].index('...').blank? ? CGI::unescape(params['school_'+param_switch]) : ""
     school_type = params['school_type_'+param_switch].index('...').blank? ? CGI::unescape(params['school_type_'+param_switch]) : ""
-    schools     = School.search("#{school_name}").concat(School.search("#{school_type}"))
-    schools.concat(School.search("#{params['zip_'+param_switch]}")) unless params['zip_'+param_switch].blank?
+    schools     = Rollcall::School.search("#{school_name}").concat(Rollcall::School.search("#{school_type}"))
+    schools.concat(Rollcall::School.search("#{params['zip_'+param_switch]}")) unless params['zip_'+param_switch].blank?
     schools_uniq = schools.uniq.map {|v| (schools-[v]).size < (schools.size - 1) ? v : nil}.compact
     return schools_uniq
   end
@@ -94,7 +94,7 @@ class Rollcall::AbsenteeReport < Rollcall::Base
           rrd_file    = reduce_rrd(params, filename)
           #rrd_path    = Dir.pwd << "/rrd/"
           #rrd_file    = "#{rrd_path}#{filename}.rrd"
-          school_name = School.find_by_tea_id(tea_id).display_name.gsub(" ", "_")
+          school_name = Rollcall::School.find_by_tea_id(tea_id).display_name.gsub(" ", "_")
 
           total_enrolled = (2..5).to_a[rand((2..5).to_a.length - 1)] * 100
           graph_title = "Absenteeism Rate for #{school_name}"

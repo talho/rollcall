@@ -1,5 +1,5 @@
 class Rollcall::QueriesController < Rollcall::RollcallAppController
-  #helper :rollcall
+  helper :rollcall
   before_filter :rollcall_required
 
   def index
@@ -16,7 +16,7 @@ class Rollcall::QueriesController < Rollcall::RollcallAppController
       end
     end
   end
-
+  
   def create
     results = Rollcall::AbsenteeReport.render_graphs(params)
     schools = params["results"]["schools"].blank? ? "" : params["results"]["schools"]

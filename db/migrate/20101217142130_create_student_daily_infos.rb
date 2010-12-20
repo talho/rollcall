@@ -2,7 +2,7 @@ class CreateStudentDailyInfos < ActiveRecord::Migration
   def self.up
     create_table :rollcall_student_daily_infos do |t|
       t.integer :school_id
-      t.date    :date
+      t.date    :report_date
       t.integer :age
       t.date    :dob
       t.boolean :gender

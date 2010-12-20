@@ -3,7 +3,7 @@ class CreateSchoolDailyInfos < ActiveRecord::Migration
     create_table :rollcall_school_daily_infos do |t|
       t.integer :school_id
       t.integer :total_absent
-      t.integer :toal_enrolled
+      t.integer :total_enrolled
       t.date    :report_date
       t.timestamps
     end

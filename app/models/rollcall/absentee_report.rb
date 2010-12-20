@@ -233,15 +233,15 @@ class Rollcall::AbsenteeReport < Rollcall::Base
       when "absent_simple", "absent_adv"
         if value == "Confirmed+Illness"
           filename = "AB_#{filename}"
-          conditions[:confirmed] = true
+          conditions[:confirmed_illness] = true
         end
       when "gender_adv"
         if value == "Male"
           filename = "G_#{filename}"
-          conditions[:gender] = 1
+          conditions[:gender] = true
         elsif value == "Female"
           filename = "G_#{filename}"
-          conditions[:gender] = 0
+          conditions[:gender] = false
         end
       else
       end
@@ -273,8 +273,18 @@ class Rollcall::AbsenteeReport < Rollcall::Base
         }]
       } , "#{rrd_tool}")
     end
+    
     #Walk through AbsenteeData model and RRD.update on time range using :conditions variable
-
+    (1..60).reverse_each do |i|
+      report_date = Date.today - i.days
+      report_time = Time.now - i.days
+      total_absent = Rollcall::StudentDailyInfo.find_all_by_report_date(report_date, :conditions => conditions).size
+      sdi = Rollcall::SchoolDailyInfo.find_by_report_date(report_date)
+      if(sdi)
+        total_enrolled = sdi.total_enrolled
+        RRD.update("#{rrd_path}#{filename}.rrd", [report_time.to_i.to_s,total_absent, total_enrolled], "#{rrd_tool}")
+      end
+    end
     "#{rrd_path}#{filename}.rrd"
   end
 end

@@ -1,0 +1,23 @@
+icd9_code,name
+032.9,Diphtheria
+034.0,Strep Throat
+034.1,Scarlet Fever
+038.11,Staph Aureus
+041.00,Streptococcal Infection
+052.9,Chicken Pox
+056.9,Rubella
+055.9,Measles
+072.9,Mumps
+322.9,Meningitis
+323.9,Encephalitis
+462,Sore Throat
+478.19,Congestion
+487.1,Influenza
+573.3,Hepatitis
+780.60,Temperature
+780.64,Chills
+780.79,Lethargy
+784.0,Headache
+786.2,Cough
+787.03,Vomiting
+787.91,Diarrhea

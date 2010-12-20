@@ -5,10 +5,9 @@ class CreateStudentDailyInfos < ActiveRecord::Migration
       t.date    :date
       t.integer :age
       t.date    :dob
-      t.string  :gender
+      t.boolean :gender
       t.integer :grade
-      t.string  :symptoms
-      t.string  :confirmed_illness
+      t.boolean :confirmed_illness
       t.timestamps
     end
     add_index :rollcall_student_daily_infos, :id
@@ -16,6 +15,8 @@ class CreateStudentDailyInfos < ActiveRecord::Migration
   end
 
   def self.down
+    remove_index :rollcall_student_daily_infos, :id
+    remove_index :rollcall_student_daily_infos, :school_id
     drop_table :rollcall_student_daily_infos
   end
 end

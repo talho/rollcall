@@ -10,8 +10,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :adst, :controller => "rollcall/queries", :as => 'rollcall/adst'
   map.resources :save_query, :controller => "rollcall/saved_query", :as => "rollcall/save_query"
-  map.get_query_options "/rollcall/query_options", :controller => "rollcall/queries", :action => "get_options"
-  map.check_image "/rollcall/image", :controller => "rollcall/queries", :action => "check_image"
+  map.get_query_options "/rollcall/query_options", :controller => "rollcall/rollcall", :action => "get_options"
 
   map.export "/rollcall/export", :controller => "rollcall/queries", :action => "export"
 end

@@ -108,12 +108,11 @@ namespace :rollcall do
             symptom_length = rand(Rollcall::Symptom.all.length)
             (0..symptom_length).each do |i|
               puts "Generating Reported Symptoms for #{school.display_name} on report date #{daily_info.report_date}"
-              symptom_id = rand(symptom_length) + 1
-              symptom = Rollcall::Symptom.find_by_id(symptom_id)
+              symptom_id = Rollcall::Symptom.all[rand(symptom_length)].id
               Rollcall::StudentReportedSymptoms.create(
                 :student_daily_info_id => daily_info.id,
-                :symptom_id => symptom
-              )  
+                :symptom_id => symptom_id
+              )
             end
           end
         end

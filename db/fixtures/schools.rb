@@ -46,6 +46,9 @@ FasterCSV.open(File.dirname(__FILE__) + '/schools.csv', :headers => true) do |sc
       :school_type => row["school_type"].strip,
       :postal_code => row["postal_code"].strip)
     build_rrd(school.tea_id)
+    Rollcall::Rrd.find_or_create_by_file_name(
+      :file_name => "#{school.tea_id}_absenteeism.rdd"  
+    )
   end
 end
 

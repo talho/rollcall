@@ -3,14 +3,14 @@
 # Table name: rollcall_rrd
 #
 #  id                 :integer(4)      not null, primary key
-#  saved_query_id     :integer(4)      not null, foreign key
+#  saved_query_id     :integer(4)      foreign key
 #  file_name          :string(255)
 #  created_at         :datetime
 #  updated_at         :datetime
 #
 
 class Rollcall::Rrd < Rollcall::Base
-  set_table_name "rollcall_rrd"
+  set_table_name "rollcall_rrds"
 
   def self.search params
     if params[:adv] == 'true'
@@ -175,14 +175,14 @@ class Rollcall::Rrd < Rollcall::Base
   end
 
   def self.reduce_rrd options, filename
-    conditions = {}
-
+    tea_id = filename
+    total_absent = nil
     if options[:adv]
       options.delete_if{|key,value| key[-7,7] == "_simple"}
     else
       options.delete_if{|key,value| key[-4,4] == "_adv"}
     end
-
+    conditions = {}
     options.each { |key,value|
       case key
       when "absent_simple", "absent_adv"
@@ -198,16 +198,25 @@ class Rollcall::Rrd < Rollcall::Base
           filename = "G_#{filename}"
           conditions[:gender] = false
         end
+      when "startdt_simple", "startdt_adv"
+        if value.index('...').blank?
+          filename = "SD_#{filename}"
+          conditions[:startdt] = value
+        end
+      when "enddt_simple", "enddt_adv"
+        if value.index('...').blank?
+          filename = "ED_#{filename}"
+          conditions[:enddt] = value
+        end
       else
       end
     }
-
     rrd_path = Dir.pwd << "/rrd/"
     unless conditions.blank?
       rrd_tool = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
         YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
       end
-      RRD.create("#{rrd_path}#{filename}.rrd",
+      RRD.send_later(:create, "#{rrd_path}#{filename}.rrd",
       {
         :step  => 24.hours.seconds,
         :start => (Time.now - 60.days).to_i,
@@ -227,18 +236,19 @@ class Rollcall::Rrd < Rollcall::Base
           :type => "LAST", :xff => 0.5, :steps => 1, :rows => 366
         }]
       } , "#{rrd_tool}")
-
       #Walk through AbsenteeData model and RRD.update on time range using :conditions variable
-      (1..60).reverse_each do |i|
-        report_date = Date.today - i.days
-        report_time = Time.now - i.days
-        total_absent = Rollcall::StudentDailyInfo.find_all_by_report_date(report_date, :conditions => conditions).size
-        sdi = Rollcall::SchoolDailyInfo.find_by_report_date(report_date)
-        if(sdi)
-          total_enrolled = sdi.total_enrolled
-          RRD.update("#{rrd_path}#{filename}.rrd", [report_time.to_i.to_s,total_absent, total_enrolled], "#{rrd_tool}")
+      unless conditions[:startdt].blank? && conditions[:enddt].blank?
+        school_id = Rollcall::School.find_by_tea_id(tea_id).id
+        start_date = Time.parse(conditions[:startdt])
+        end_date = Time.parse(conditions[:enddt])
+        days = (end_date - start_date).to_i
+        (0..days).each do |i|
+          report_date = start_date + i.days
+          total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(school_id, report_date).size
+          total_enrolled = Rollcall::SchoolDailyInfo.find_by_report_date(report_date).total_enrolled
+          RRD.send_later(:update,"#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,total_absent, total_enrolled],"#{rrd_tool}")
         end
-      end
+      end     
     end
 
     "#{rrd_path}#{filename}.rrd"

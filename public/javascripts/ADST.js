@@ -89,6 +89,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                   result_store.setBaseParam(key, form_values[key]);
                 }
                 result_store.load();
+                buttonEl.findParentByType("form").buttons[2].show();
                 return true;
               },
               formBind: true
@@ -96,6 +97,43 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
               text: "Cancel",
               handler: function(buttonEl, eventObj){
                 buttonEl.findParentByType("form").getForm().reset();
+              }
+            },{
+              text: "Export Result Set",
+              hidden: true,
+              handler: function(buttonEl, eventObj){
+                if(Application.rails_environment === 'cucumber')
+                {
+                  Ext.Ajax.request({
+                    url: 'rollcall/export',
+                    method: 'GET',
+                    success: function(){
+                      alert("Success");
+                    },
+                    failure: function(){
+                      alert("File Download Failed");
+                    }
+                  })
+                }
+                else
+                {
+                  if(!this._downloadFrame){
+                    this._downloadFrame = Ext.DomHelper.append(buttonEl.findParentByType("form").getEl().dom, {tag: 'iframe', style: 'width:0;height:0;'});
+                    Ext.EventManager.on(this._downloadFrame, 'load', function(){
+                      // in a very strange bit of convenience, the frame load event will only fire here IF there is an error
+                      // need to test the convenience on IE.
+                      Ext.Msg.alert('Could Not Load File', 'There was an error downloading the file you have requested. Please contact an administrator');
+                    }, this);
+                  }
+                  var form_values  = buttonEl.findParentByType("form").getForm().getValues();
+                  var param_string = '';
+                  for(key in form_values){
+                    param_string += key + '=' + form_values[key] + "&";
+                  }
+
+                  //param_string += 'tea_id' + '=' + result[0]['schools'].split(",")[i]
+                  this._downloadFrame.src = 'rollcall/export?'+param_string;
+                }
               }
             }],
             initComponent: function() {

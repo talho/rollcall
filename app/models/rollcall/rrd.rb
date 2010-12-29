@@ -44,15 +44,11 @@ class Rollcall::Rrd < Rollcall::Base
     unless params['results'].blank?
       unless params['results']['schools'].blank?
         params['results']['schools'].split(',').each do |rec|
-          tea_id      = rec.to_i
-          filename    = "#{tea_id}_absenteeism"
-          rrd_file    = reduce_rrd(params, filename)
-          #rrd_path    = Dir.pwd << "/rrd/"
-          #rrd_file    = "#{rrd_path}#{filename}.rrd"
-          school_name = Rollcall::School.find_by_tea_id(tea_id).display_name.gsub(" ", "_")
-
-          total_enrolled = (2..5).to_a[rand((2..5).to_a.length - 1)] * 100
-          graph_title = "Absenteeism Rate for #{school_name}"
+          tea_id         = rec.to_i
+          filename       = "#{tea_id}_absenteeism"
+          rrd_file       = reduce_rrd(params, filename)
+          school_name    = Rollcall::School.find_by_tea_id(tea_id).display_name.gsub(" ", "_")
+          graph_title    = "Absenteeism Rate for #{school_name}"
 
           unless params['symptoms_'+param_switch].blank?
             if params['symptoms_'+param_switch].index("...").blank?
@@ -85,30 +81,29 @@ class Rollcall::Rrd < Rollcall::Base
   end
 
   def self.export_rrd_data params
-    rrd_tool = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
-      YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
+    initial_result = search params
+    @csv_data       = nil
+    if params[:adv] == 'true'
+      param_switch = 'adv'
+    else
+      param_switch = 'simple'
     end
-    results = Crack::XML.parse(RRD.xport("#{params["tea_id"]}_absenteeism.rrd", "#{rrd_tool}"))
-
-    csv_data = FasterCSV.generate do |csv|
-      csv << [
-        "Absent",
-        "Enrolled",
-        "001",
-        "002",
-        "003",
-        "004",
-        "005",
-        "006",
-        "007",
-        "008",
-        "009",
-        "010",
-        "Male",
-        "Female"
-      ]
+    start_date = params['startdt_'+param_switch].index('...') ? Time.now - 60.days : Time.parse(params['startdt_'+param_switch])
+    end_date   = params['enddt_'+param_switch].index('...') ? Time.now : Time.parse(params['enddt_'+param_switch])
+    initial_result.each do |rec|
+      days       = end_date.day - start_date.day
+      (0..days).each do |i|
+        report_date    = start_date + i.days
+        unless conditions[:confirmed_illness].blank?
+          total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(rec.id, report_date, true).size
+        else
+          total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(rec.id, report_date).size
+        end
+        total_enrolled = Rollcall::SchoolDailyInfo.find_by_report_date(report_date).total_enrolled
+        @csv_data      += "#{rec.display_name},#{rec.tea_id},#{total_absent},#{total_enrolled},#{report_date}\n"
+      end
     end
-    csv_data
+    return @csv_data
   end
 
   private
@@ -252,14 +247,14 @@ class Rollcall::Rrd < Rollcall::Base
           unless conditions[:confirmed_illness].blank?
             total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(school_id, report_date, true).size
           else
-            total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(school_id, report_date).size  
+            total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(school_id, report_date).size
           end
           total_enrolled = Rollcall::SchoolDailyInfo.find_by_report_date(report_date).total_enrolled
           RRD.send_later(:update,"#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,total_absent, total_enrolled],"#{rrd_tool}")
         end
       else
-        
-      end     
+
+      end
     end
     "#{rrd_path}#{filename}.rrd"
   end

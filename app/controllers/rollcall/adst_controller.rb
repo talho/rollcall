@@ -33,10 +33,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
 
   def export
     results = Rollcall::Rrd.export_rrd_data(params)
-    #results      = "Trying,out,this,csv,thing"
-    #options      = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
-    #results_uniq = results.blank? ? results.paginate(options) : results.paginate(options)
-    send_data "Trying,out,this,csv,thing", :type => 'application/csv', :filename => "example.csv"
+    send_data results, :type => 'application/csv', :filename => "example.csv"
   end
 
   def get_options

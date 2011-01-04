@@ -118,7 +118,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                 else
                 {
                   if(!this._downloadFrame){
-                    this._downloadFrame = Ext.DomHelper.append(buttonEl.findParentByType("form").getEl().dom, {tag: 'iframe', style: 'width:0;height:0;'});
+                    this._downloadFrame = Ext.DomHelper.append(buttonEl.findParentByType("form").getEl().dom, {tag: 'iframe', style: 'width:0;height:0;border:none;'});
                     Ext.EventManager.on(this._downloadFrame, 'load', function(){
                       // in a very strange bit of convenience, the frame load event will only fire here IF there is an error
                       // need to test the convenience on IE.

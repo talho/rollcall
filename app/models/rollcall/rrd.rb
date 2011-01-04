@@ -115,7 +115,7 @@ class Rollcall::Rrd < Rollcall::Base
     }
     @csv_data = "School Name,TEA ID,Total Absent,Total Enrolled,Report Date\n"
     initial_result.each do |rec|
-      days = ((end_date - start_date) / 86400) - 1
+      days = ((end_date - start_date) / 86400)
       (0..days).each do |i|
         report_date    = start_date + i.days
         unless conditions[:confirmed_illness].blank?
@@ -243,7 +243,7 @@ class Rollcall::Rrd < Rollcall::Base
           start_date = Time.parse("11/22/2010")
           end_date   = Time.now
         end
-        days = ((end_date - start_date) / 86400) - 1
+        days = ((end_date - start_date) / 86400)
         (0..days).each do |i|
           report_date = start_date + i.days
           unless conditions[:confirmed_illness].blank?

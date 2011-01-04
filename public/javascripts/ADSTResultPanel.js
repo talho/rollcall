@@ -51,8 +51,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           for(var i = 0; i < result[0]['img_urls'].length; i++){
             //item_id = 'query_result_'+i;
             item_id = result[0]["schools"][i]
+            school_name = result[0]["school_names"][i]
             graphImageConfig = {
-              title: 'Query Result',
+              title: 'Query Result for '+school_name,
               style:'margin:5px',
               itemId: item_id,
               school_name: result[0]["school_names"][i],
@@ -60,50 +61,13 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
                 id:'save',
                 qtip: 'Save Query',
                 handler: function(e, targetEl, panel, tc){
-                  panel.ownerCt.ownerCt.showSaveQueryConsole(store.baseParams);
+                  panel.ownerCt.ownerCt.showSaveQueryConsole(store.baseParams, item_id, school_name);
                 }
               },{
                 id:'down',
                 qtip: 'Export Query Result',
                 handler: function(e, targetEl, panel, tc){
-
-                  // create a hidden iframe, open the file
-                  if(Application.rails_environment === 'cucumber')
-                  {
-                    Ext.Ajax.request({
-                      url: 'rollcall/export',
-                      method: 'GET',
-                      success: function(){
-                        alert("Success");
-                      },
-                      failure: function(){
-                        alert("File Download Failed");
-                      }
-                    })
-                  }
-                  else
-                  {
-                    if(!this._downloadFrame){
-                      this._downloadFrame = Ext.DomHelper.append(panel.getEl().dom, {tag: 'iframe', style: 'width:0;height:0;'});
-                      Ext.EventManager.on(this._downloadFrame, 'load', function(){
-                        // in a very strange bit of convenience, the frame load event will only fire here IF there is an error
-                        // need to test the convenience on IE.
-                        Ext.Msg.alert('Could Not Load File', 'There was an error downloading the file you have requested. Please contact an administrator');
-                      }, this);
-                    }
-                    var form_values  = panel.ownerCt.ownerCt.ownerCt.findByType('form')[0].getForm().getValues();
-                    var param_string = '';
-                    for(key in form_values){
-                      if(key == 'school_simple' || key == 'school_adv'){
-                        param_string += key + '=' + panel.school_name + "&";  
-                      }else{
-                        param_string += key + '=' + form_values[key] + "&";
-                      }
-
-                    }
-                    //param_string += 'tea_id' + '=' + result[0]['schools'].split(",")[i]
-                    this._downloadFrame.src = 'rollcall/export?'+param_string;
-                  }
+                  panel.ownerCt.ownerCt.deliverExportFile(panel, this);
                 }
               },{
                 id:'close',
@@ -141,9 +105,42 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
   },
   
-  deliverExportFile: function(response, obj)
+  deliverExportFile: function(panel, object)
   {
+    // create a hidden iframe, open the file
+    if(Application.rails_environment === 'cucumber')
+    {
+      Ext.Ajax.request({
+        url: 'rollcall/export',
+        method: 'GET',
+        success: function(){
+          alert("Success");
+        },
+        failure: function(){
+          alert("File Download Failed");
+        }
+      })
+    }
+    else
+    {
+      if(!object._downloadFrame){
+        object._downloadFrame = Ext.DomHelper.append(panel.getEl().dom, {tag: 'iframe', style: 'width:0;height:0;border:none;'});
+        Ext.EventManager.on(object._downloadFrame, 'load', function(){
+          Ext.Msg.alert('Could Not Load File', 'There was an error downloading the file you have requested. Please contact an administrator');
+        }, this);
+      }
+      var form_values  = panel.ownerCt.ownerCt.ownerCt.findByType('form')[0].getForm().getValues();
+      var param_string = '';
+      for(key in form_values){
+        if(key == 'school_simple' || key == 'school_adv'){
+          param_string += key + '=' + panel.school_name + "&";
+        }else{
+          param_string += key + '=' + form_values[key] + "&";
+        }
 
+      }
+      object._downloadFrame.src = 'rollcall/export?'+param_string;
+    }
   },
 
   processQuery: function(json_result)
@@ -156,7 +153,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     return this._getResultStore();
   },
 
-  showSaveQueryConsole: function(queryParams)
+  showSaveQueryConsole: function(queryParams, tea_id, school_name)
   {
     var params       = [];
     var storedParams = new Ext.data.ArrayStore({
@@ -174,6 +171,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           params.push([key.substr(0, key.indexOf("_")), queryParams[key]]);
       }
     }
+    params.push(['tea_id', tea_id]);
     storedParams.loadData(params);
 
     var alarm_console = new Ext.Window({
@@ -181,7 +179,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       width: 300,
       autoHeight:true,
       closeAction:'close',
-      title: 'Save Query',
+      title: 'Save Query for '+school_name,
       plain: true,
       items: [{
         xtype: 'form',
@@ -189,7 +187,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         url: 'rollcall/save_query',
         border: false,
         baseParams:{
-          query_params: params  
+          query_params: storedParams  
         },
         items:[{
           xtype:'textfield',
@@ -207,42 +205,116 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
             marginLeft: '5px',
             marginRight: '5px'
           },
-          defaultType: 'sliderfield',
-          buttonAlign: 'left',
+          buttonAlign:'left',
           defaults: {
-              anchor: '95%',
-              tipText: function(thumb){
-                  return String(thumb.value) + '%';
-              }
+            xtype: 'container'
           },
           items: [{
-              fieldLabel: 'Threshold',
+            fieldLabel: 'Threshold',
+            items:[{
+              xtype: 'textfield',
+              width: 32,
+              cls: 'ux-layout-auto-float-item',
+              style:{
+                marginLeft: '-40px'
+              },
+              value: '50%'
+            },{
+              xtype: 'sliderfield',
+              width: 135,
+              listeners: {
+                scope: this,
+                change: function(obj, new_number, old_number){
+                  obj.ownerCt.findByType('textfield')[0].setValue(new_number)
+                }
+              },
+              tipText: function(thumb){
+                return String(thumb.value) + '%';
+              },
               id: 'deviation_threshold',
+              cls: 'ux-layout-auto-float-item',
               value: 50
+            }]
           },{
-              fieldLabel: 'Min',
+            fieldLabel: 'Min',
+            items:[{
+              xtype: 'textfield',
+              width: 32,
+              cls: 'ux-layout-auto-float-item',
+              style:{
+                marginLeft: '-40px'
+              },
+              value: '50%'
+            },{
+              xtype: 'sliderfield',
+              width: 135,
+              listeners: {
+                scope: this,
+                change: function(obj, new_number, old_number){
+                  obj.ownerCt.findByType('textfield')[0].setValue(new_number)
+                }
+              },
+              tipText: function(thumb){
+                return String(thumb.value) + '%';
+              },
               id: 'deviation_min',
+              cls: 'ux-layout-auto-float-item',
               value: 50
+            }]
           },{
-              fieldLabel: 'Max',
+            fieldLabel: 'Max',
+            items:[{
+              xtype: 'textfield',
+              width: 32,
+              cls: 'ux-layout-auto-float-item',
+              style:{
+                marginLeft: '-40px'
+              },
+              value: '50%'
+            },{
+              xtype: 'sliderfield',
+              width: 135,
+              listeners: {
+                scope: this,
+                change: function(obj, new_number, old_number){
+                  obj.ownerCt.findByType('textfield')[0].setValue(new_number)
+                }
+              },
+              tipText: function(thumb){
+                return String(thumb.value) + '%';
+              },
               id: 'deviation_max',
+              cls: 'ux-layout-auto-float-item',
               value: 50
+            }]
           }],
           fbar: {
-              xtype: 'toolbar',
-              items: ['->', {
-                  text: 'Max All',
-                  handler: function(){
-                      form.items.each(function(c){
-                          c.setValue(100);
-                      });
+            xtype: 'toolbar',
+            items: ['->', {
+              text: 'Max All',
+              handler: function(buttonEl, eventObj){
+                sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
+                for(key in sliders){
+                  try{
+                    sliders[key].setValue(100);
+                  }catch(e){
+                    
                   }
-              },{
-                  text: 'Reset',
-                  handler: function(){
-                      form.getForm().reset();
+                }
+              }
+            },{
+              text: 'Reset',
+              handler: function(buttonEl, eventObj){
+                sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
+                for(key in sliders){
+                  try{
+                    sliders[key].reset();
+                  }catch(e){
+
                   }
-              }]
+                }
+              }
+            }]
           }
         },{
           xtype: 'fieldset',
@@ -252,38 +324,91 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
             marginLeft: '5px',
             marginRight: '5px'
           },
-          defaultType: 'sliderfield',
           buttonAlign: 'left',
           defaults: {
-              anchor: '95%',
-              tipText: function(thumb){
-                  return String(thumb.value) + '%';
-              }
+            xtype: 'container',
+            layout: 'anchor'
           },
           items: [{
-              fieldLabel: 'Min',
+            fieldLabel: 'Min',
+            items:[{
+              xtype: 'textfield',
+              width: 32,
+              cls: 'ux-layout-auto-float-item',
+              style:{
+                marginLeft: '-40px'
+              },
+              value: '50%'
+            },{
+              xtype: 'sliderfield',
+              width: 135,
+              listeners: {
+                scope: this,
+                change: function(obj, new_number, old_number){
+                  obj.ownerCt.findByType('textfield')[0].setValue(new_number)
+                }
+              },
+              tipText: function(thumb){
+                return String(thumb.value) + '%';
+              },
               id: 'severity_min',
-              value: 50
+              value: 50,
+              cls: 'ux-layout-auto-float-item'
+            }]
           },{
-              fieldLabel: 'Max',
+            fieldLabel: 'Max',
+            items:[{
+              xtype: 'textfield',
+              width: 32,
+              cls: 'ux-layout-auto-float-item',
+              style:{
+                marginLeft: '-40px'
+              },
+              value: '50%'
+            },{
+              xtype: 'sliderfield',
+              width: 135,
+              listeners: {
+                scope: this,
+                change: function(obj, new_number, old_number){
+                  obj.ownerCt.findByType('textfield')[0].setValue(new_number)
+                }
+              },
+              tipText: function(thumb){
+                return String(thumb.value) + '%';
+              },
               id: 'severity_max',
-              value: 50
+              value: 50,
+              cls: 'ux-layout-auto-float-item'
+            }]
           }],
           fbar: {
-              xtype: 'toolbar',
-              items: ['->', {
-                  text: 'Max All',
-                  handler: function(){
-                      form.items.each(function(c){
-                          c.setValue(100);
-                      });
+            xtype: 'toolbar',
+            items: ['->', {
+              text: 'Max All',
+              handler: function(buttonEl, eventObj){
+                sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
+                for(key in sliders){
+                  try{
+                    sliders[key].setValue(100);
+                  }catch(e){
+
                   }
-              },{
-                  text: 'Reset',
-                  handler: function(){
-                      form.getForm().reset();
+                }
+              }
+            },{
+              text: 'Reset',
+              handler: function(buttonEl, eventObj){
+                sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
+                for(key in sliders){
+                  try{
+                    sliders[key].reset();
+                  }catch(e){
+
                   }
-              }]
+                }
+              }
+            }]
           }
         },{
           xtype: 'fieldset',

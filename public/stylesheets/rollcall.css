@@ -25,6 +25,10 @@ li.school_bordered         {border:2px solid #369;border-radius:10px;-moz-border
   float: left;
   margin: 0px 5px;
 }
+.ux-layout-none-float-item{
+  clear: both;
+  margin: 0px 5px;
+}
 .clear{
   clear: both;
 }

@@ -18,22 +18,52 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   end
   
   def create
-    results = Rollcall::Rrd.render_graphs(params)
-    schools = params["results"]["schools"].blank? ? "" : params["results"]["schools"]
+    results      = Rollcall::Rrd.render_graphs(params)
+    schools      = params[:results][:schools].blank? ? "" : params[:results][:schools]
+    school_names = []
+    schools = schools.split(",").each do |school|
+      school_names.push("#{Rollcall::School.find_by_tea_id(school).display_name}")
+    end
+    school_names.join(",")
+
     respond_to do |format|
       format.json do
         render :json => {
           :success       => true,
           :total_results => results.length,
-          :results       => {:id => 2, :img_urls => results, :schools => schools}.as_json
+          :results       => {:id => 2, :img_urls => results, :schools => schools, :school_names => school_names}.as_json
         }
       end
     end
   end
 
   def export
-    results = Rollcall::Rrd.export_rrd_data(params)
-    send_data results, :type => 'application/csv', :filename => "example.csv"
+    filename = "csv_export"
+    params.each { |key,value|
+      case key
+      when "absent_simple", "absent_adv"
+        if value == "Confirmed+Illness"
+          filename = "AB_#{filename}"
+        end
+      when "gender_adv"
+        if value == "Male"
+          filename = "G-#{value}_#{filename}"
+        elsif value == "Female"
+          filename = "G-#{value}_#{filename}"
+        end
+      when "startdt_simple", "startdt_adv"
+        if value.index('...').blank?
+          filename = "SD-#{Time.parse(value).strftime("%s")}_#{filename}"
+        end
+      when "enddt_simple", "enddt_adv"
+        if value.index('...').blank?
+          filename = "ED-#{Time.parse(value).strftime("%s")}_#{filename}"
+        end
+      else
+      end
+    }
+    results = Rollcall::Rrd.export_rrd_data params
+    send_data results, :type => 'application/csv', :filename => "#{filename}.csv"
   end
 
   def get_options

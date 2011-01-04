@@ -46,16 +46,19 @@ namespace :rollcall do
       Rollcall::SchoolDistrict.all.each do |district|
         (district.school_types.map{|school_type| school_type.gsub(/\s/,'').underscore} + district.schools.map(&:tea_id)).compact.each do |name|
           total_enrolled = (1..3).to_a[rand((1..3).to_a.length)] * 100
-          (0..14).reverse_each do |i|
+          (0..42).reverse_each do |i|
             total_absent = (0..20).to_a[rand((0..20).to_a.length)]
             report_date = current_time - i.days
-            RRD.update("#{rrd_path}#{name}_absenteeism.rrd", [report_date.to_i.to_s,total_absent, total_enrolled], "#{rrd_tool}")
-            Rollcall::SchoolDailyInfo.create(
-              :school_id => Rollcall::School.find_by_tea_id(name).id,
-              :total_absent => total_absent,
-              :total_enrolled => total_enrolled,
-              :report_date => report_date
-            ) unless name.to_i == 0
+            if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
+            else
+              RRD.update("#{rrd_path}#{name}_absenteeism.rrd", [report_date.to_i.to_s,total_absent, total_enrolled], "#{rrd_tool}")
+              Rollcall::SchoolDailyInfo.create(
+                :school_id => Rollcall::School.find_by_tea_id(name).id,
+                :total_absent => total_absent,
+                :total_enrolled => total_enrolled,
+                :report_date => report_date
+              ) unless name.to_i == 0
+            end
           end
         end
       end

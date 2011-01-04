@@ -27,7 +27,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       totalProperty: 'total_results',
       root:   'results',
       url: '/rollcall/adst',
-      fields: ['id','img_urls','schools'],
+      fields: ['id','img_urls','schools', 'school_names'],
       writer: new Ext.data.JsonWriter({encode: false}),
       restful: true,
       autoLoad: false,
@@ -49,11 +49,13 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           this.getComponent('rightColumn').removeAll();
           this.getComponent('leftColumn').removeAll();
           for(var i = 0; i < result[0]['img_urls'].length; i++){
-            item_id          = 'query_result_'+i;
+            //item_id = 'query_result_'+i;
+            item_id = result[0]["schools"][i]
             graphImageConfig = {
               title: 'Query Result',
               style:'margin:5px',
               itemId: item_id,
+              school_name: result[0]["school_names"][i],
               tools: [{
                 id:'save',
                 qtip: 'Save Query',
@@ -92,9 +94,14 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
                     var form_values  = panel.ownerCt.ownerCt.ownerCt.findByType('form')[0].getForm().getValues();
                     var param_string = '';
                     for(key in form_values){
-                      param_string += key + '=' + form_values[key] + ",";
+                      if(key == 'school_simple' || key == 'school_adv'){
+                        param_string += key + '=' + panel.school_name + "&";  
+                      }else{
+                        param_string += key + '=' + form_values[key] + "&";
+                      }
+
                     }
-                    param_string += 'tea_id' + '=' + result[0]['schools'].split(",")[i]
+                    //param_string += 'tea_id' + '=' + result[0]['schools'].split(",")[i]
                     this._downloadFrame.src = 'rollcall/export?'+param_string;
                   }
                 }

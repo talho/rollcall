@@ -67,7 +67,16 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
                 id:'down',
                 qtip: 'Export Query Result',
                 handler: function(e, targetEl, panel, tc){
-                  panel.ownerCt.ownerCt.deliverExportFile(panel, this);
+                  var form_values  = panel.ownerCt.ownerCt.ownerCt.findByType('form')[0].getForm().getValues();
+                  var param_string = '';
+                  for(key in form_values){
+                    if(key == 'school_simple' || key == 'school_adv'){
+                      param_string += key + '=' + panel.school_name + "&";
+                    }else{
+                      param_string += key + '=' + form_values[key] + "&";
+                    }
+                  }
+                  Talho.ux.FileDownloadFrame.download('rollcall/export?'+param_string);
                 }
               },{
                 id:'close',
@@ -98,51 +107,11 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     Talho.Rollcall.ADSTResultPanel.superclass.constructor.call(this, config);
   },
 
-  download_iframe: null,
-  
   reportExportFailure: function(response, obj)
   {
 
   },
   
-  deliverExportFile: function(panel, object)
-  {
-    // create a hidden iframe, open the file
-    if(Application.rails_environment === 'cucumber')
-    {
-      Ext.Ajax.request({
-        url: 'rollcall/export',
-        method: 'GET',
-        success: function(){
-          alert("Success");
-        },
-        failure: function(){
-          alert("File Download Failed");
-        }
-      })
-    }
-    else
-    {
-      if(!object._downloadFrame){
-        object._downloadFrame = Ext.DomHelper.append(panel.getEl().dom, {tag: 'iframe', style: 'width:0;height:0;border:none;'});
-        Ext.EventManager.on(object._downloadFrame, 'load', function(){
-          Ext.Msg.alert('Could Not Load File', 'There was an error downloading the file you have requested. Please contact an administrator');
-        }, this);
-      }
-      var form_values  = panel.ownerCt.ownerCt.ownerCt.findByType('form')[0].getForm().getValues();
-      var param_string = '';
-      for(key in form_values){
-        if(key == 'school_simple' || key == 'school_adv'){
-          param_string += key + '=' + panel.school_name + "&";
-        }else{
-          param_string += key + '=' + form_values[key] + "&";
-        }
-
-      }
-      object._downloadFrame.src = 'rollcall/export?'+param_string;
-    }
-  },
-
   processQuery: function(json_result)
   {
     this._getResultStore().loadData(json_result);
@@ -173,6 +142,11 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     }
     params.push(['tea_id', tea_id]);
     storedParams.loadData(params);
+    param_string = '';
+
+    for(key in params){
+      param_string += params[key][0] + '=' + params[key][1] + "|"
+    }
 
     var alarm_console = new Ext.Window({
       layout:'fit',
@@ -187,7 +161,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         url: 'rollcall/save_query',
         border: false,
         baseParams:{
-          query_params: storedParams  
+          query_params: param_string  
         },
         items:[{
           xtype:'textfield',

@@ -59,7 +59,6 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
             new Ext.LoadMask(this_comp.getEl(), {msg:"Please wait...", store: this.ownerCt.init_store});
           }
         },
-
         items:[{
           xtype:  'container',
           itemId: 'query_container',
@@ -81,15 +80,21 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                 var form_values = buttonEl.findParentByType('form').getForm().getValues();
                 var result_store = this.getResultPanel().getResultStore();
                 buttonEl.findParentByType('form').findParentByType('panel').getBottomToolbar().bindStore(result_store);
-                this.getResultPanel().show();
                 form_values.page = 1;
                 form_values.start = 0;
                 form_values.limit = 6;
                 for(key in form_values){
                   result_store.setBaseParam(key, form_values[key]);
                 }
-                result_store.load();
+
                 buttonEl.findParentByType("form").buttons[2].show();
+
+                var test_mask = new Ext.LoadMask(this.getComponent('ADST_panel').getEl(), {msg:"Please wait..."});
+                test_mask.show();
+                result_store.on('write', function(){
+                  test_mask.hide();
+                })
+                result_store.load();
                 return true;
               },
               formBind: true
@@ -149,11 +154,19 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           }]
         }, resultPanel ],
         bbar: new Ext.PagingToolbar({
+          scope: this,
           displayInfo: true,
           pageSize: 6,
           prependButtons: true,
           listeners:{
             'beforechange': function(this_toolbar, params){
+              var result_store = this_toolbar.ownerCt.ownerCt.getResultPanel().getResultStore();
+              var test_mask = new Ext.LoadMask(this_toolbar.ownerCt.ownerCt.getResultPanel().getEl(), {msg:"Please wait..."});
+              test_mask.show();
+
+              result_store.on('write', function(){
+                test_mask.hide();
+              })
               params['page'] = Math.floor(params.start /  params.limit) + 1;
               return true;
             }

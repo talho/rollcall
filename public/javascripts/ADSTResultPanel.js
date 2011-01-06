@@ -35,6 +35,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       listeners: {
         scope: this,
         load: function(store, records, options){
+          this.show();
           var schools = new Array();
           for(var i =0; i < records.length; i++){
             schools += records[i].json.school.tea_id+',';
@@ -49,9 +50,8 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           this.getComponent('rightColumn').removeAll();
           this.getComponent('leftColumn').removeAll();
           for(var i = 0; i < result[0]['img_urls'].length; i++){
-            //item_id = 'query_result_'+i;
-            item_id = result[0]["schools"][i]
-            school_name = result[0]["school_names"][i]
+            item_id          = result[0]["schools"][i];
+            school_name          = result[0]["school_names"][i];
             graphImageConfig = {
               title: 'Query Result for '+school_name,
               style:'margin:5px',
@@ -61,7 +61,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
                 id:'save',
                 qtip: 'Save Query',
                 handler: function(e, targetEl, panel, tc){
-                  panel.ownerCt.ownerCt.showSaveQueryConsole(store.baseParams, item_id, school_name);
+                  panel.ownerCt.ownerCt.showSaveQueryConsole(store.baseParams, panel.itemId, panel.school_name);
                 }
               },{
                 id:'down',
@@ -414,7 +414,10 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       buttonAlign: 'right',
       buttons: [{
         text:'Submit',
-        handler: function(buttonEl, eventObj){        
+        handler: function(buttonEl, eventObj){
+          alarm_console.getComponent('savedQueryForm').getForm().on('actioncomplete', function(){
+
+          }, this);
           alarm_console.getComponent('savedQueryForm').getForm().submit();
         }
       },{
@@ -437,12 +440,19 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         scope: obj,
         data: function(provider, e) {
           if(e.xhr.status == 200) {
-            this.removeAll();
+            var element_id = Math.floor(Math.random() * 10000);
             (function(provider) {
-              this.add({html:'<div style="text-align:center"><img src="'+provider.url+'?' + Math.floor(Math.random() * 10000) + '" /></div>'});
+              this.update('<div id="'+element_id+'" style="text-align:center;display:none;">' +
+                          '<img src="'+provider.url+'?' + element_id + '" />' +
+                          '</div>');
+              this.doLayout();
+            }).defer(50,this,[provider]);
+            (function(provider) {
+              this.update('<div id="'+element_id+'" style="text-align:center;">' +
+                          '<img src="'+provider.url+'?' + element_id + '" />' +
+                          '</div>');
               this.doLayout();
             }).defer(1000,this,[provider]);
-
             provider.disconnect();
             return true;
           } else {

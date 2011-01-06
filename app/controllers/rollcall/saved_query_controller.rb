@@ -5,7 +5,7 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
       format.json do
         render :json => {
           :success => true,
-          :absentee_reports => saved_queries
+          :absentee_reports => saved_queries.as_json
         }
       end
     end

@@ -35,7 +35,7 @@ class Rollcall::Rrd < Rollcall::Base
     end
     test_data_date = Time.parse("11/22/2010")
     start_date     = params['startdt_'+param_switch].index('...') ? test_data_date : Time.parse(params['startdt_'+param_switch])
-    end_date       = params['enddt_'+param_switch].index('...') ? Time.now : Time.parse(params['enddt_'+param_switch])
+    end_date       = params['enddt_'+param_switch].index('...') ? Time.now : Time.parse(params['enddt_'+param_switch]) + 1.day
     image_names    = []
     rrd_image_path = Dir.pwd << "/public/rrd/"
     rrd_path       = Dir.pwd << "/rrd/"
@@ -76,6 +76,20 @@ class Rollcall::Rrd < Rollcall::Base
       end
     end
     return image_names
+  end
+
+  def self.render_saved_graphs saved_queries
+    image_names = []
+#    saved_queries.each do |query|
+#      query_params = query.query_params.split("|")
+#      rrd_file = find :rrd_id => query.rrd_id
+#      unless params.blank?
+#        query_params.each do |params|
+#          key_value = params.split("=")
+#        end
+#      end
+#    end
+    return true
   end
 
   def self.export_rrd_data params
@@ -123,7 +137,7 @@ class Rollcall::Rrd < Rollcall::Base
         else
           total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(rec.id, report_date).size
         end
-        total_enrolled = Rollcall::SchoolDailyInfo.find_by_report_date(report_date).total_enrolled
+        total_enrolled = Rollcall::SchoolDailyInfo.find_by_report_date_and_school_id(report_date, rec.id).total_enrolled
         @csv_data      = "#{@csv_data}#{rec.display_name},#{rec.tea_id},#{total_absent},#{total_enrolled},#{report_date}\n"
       end
     end
@@ -238,7 +252,7 @@ class Rollcall::Rrd < Rollcall::Base
         #Walk through AbsenteeData model and RRD.update on time range using :conditions variable
         unless conditions[:startdt].blank? && conditions[:enddt].blank?
           start_date = Time.parse(conditions[:startdt])
-          end_date   = Time.parse(conditions[:enddt])
+          end_date   = Time.parse(conditions[:enddt]) + 1.day
         else
           start_date = Time.parse("11/22/2010")
           end_date   = Time.now
@@ -251,8 +265,11 @@ class Rollcall::Rrd < Rollcall::Base
           else
             total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(school_id, report_date).size
           end
-          total_enrolled = Rollcall::SchoolDailyInfo.find_by_report_date(report_date).total_enrolled
-          RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,total_absent, total_enrolled],"#{rrd_tool}"
+          begin
+            total_enrolled = Rollcall::SchoolDailyInfo.find_by_report_date_and_school_id(report_date, school_id).total_enrolled
+            RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,total_absent, total_enrolled],"#{rrd_tool}"
+          rescue
+          end
         end
         create :file_name => "#{filename}.rrd"
       end

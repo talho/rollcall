@@ -1,11 +1,16 @@
 class Rollcall::SavedQueryController < Rollcall::RollcallAppController
   def index
-    saved_queries = current_user.saved_queries.blank? ? "" : current_user.saved_queries
+    saved_queries      = Rollcall::SavedQuery.find_all_by_user_id(current_user.id).blank? ? "" : Rollcall::SavedQuery.find_all_by_user_id(current_user.id)
+    saved_query_graphs = Rollcall::Rrd.render_saved_graphs saved_queries
     respond_to do |format|
       format.json do
         render :json => {
           :success => true,
-          :absentee_reports => saved_queries.as_json
+          :results => [{
+            :saved_queries => saved_queries.as_json
+          },{
+            :saved_graphs  => saved_query_graphs.as_json  
+          }]
         }
       end
     end

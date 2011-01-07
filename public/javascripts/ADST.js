@@ -22,6 +22,8 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       },
       items: [{
         title:    'Saved Queries',
+        itemId:   'saved_queries',
+        id:       'saved_queries',
         region:   'south',
         height:   150,
         minSize:  75,

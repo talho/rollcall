@@ -61,7 +61,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
                 id:'save',
                 qtip: 'Save Query',
                 handler: function(e, targetEl, panel, tc){
-                  panel.ownerCt.ownerCt.showSaveQueryConsole(store.baseParams, panel.itemId, panel.school_name);
+                  panel.ownerCt.ownerCt.showSaveQueryConsole(store.baseParams, panel.itemId, panel.school_name, panel);
                 }
               },{
                 id:'down',
@@ -122,7 +122,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     return this._getResultStore();
   },
 
-  showSaveQueryConsole: function(queryParams, tea_id, school_name)
+  showSaveQueryConsole: function(queryParams, tea_id, school_name, result_panel)
   {
     var params       = [];
     var storedParams = new Ext.data.ArrayStore({
@@ -416,8 +416,8 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         text:'Submit',
         handler: function(buttonEl, eventObj){
           alarm_console.getComponent('savedQueryForm').getForm().on('actioncomplete', function(){
-
-          }, this);
+            result_panel.ownerCt.ownerCt.ownerCt.ownerCt.getComponent('saved_queries').updateSavedQueries();          
+          }, result_panel);
           alarm_console.getComponent('savedQueryForm').getForm().submit();
         }
       },{

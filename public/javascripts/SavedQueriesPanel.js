@@ -13,8 +13,11 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
       saved_store: new Ext.data.JsonStore({
         autoLoad: true,
         root:   'results',
-        fields: ['saved_queries'],        
-        url:    '/rollcall/save_query',
+        fields: ['id', 'saved_queries', 'img_urls'],
+        proxy: new Ext.data.HttpProxy({
+          url: '/rollcall/save_query',
+          method:'get'
+        }),
         listeners:{
           scope: this,
           load: function(this_store, record){
@@ -33,7 +36,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
                     },
                     autoWidth: true,
                     autoHeight: true,
-                    html: '<div style="text-align:center"><img src="/images/school_absenteeism.png" /></div>'
+                    html: '<div style="text-align:center"><img style="width:400px;height:70px;" src="'+record[i].data.img_urls.image_urls[cnt]+'" /></div>'
                   }]
                 });
                 this.doLayout();
@@ -42,73 +45,16 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
           }
         }
       })
-      
-//      items:[{
-//        columnWidth: .25,
-//        listeners:{
-//          scope: this
-//        },
-//        items:[{
-//          title: 'Saved Query(1)',
-//          style:{
-//            marginRight: '5px',
-//            top: '-5px'
-//          },
-//          autoWidth: true,
-//          autoHeight: true,
-//          html: '<div style="text-align:center"><img src="/images/school_absenteeism.png" /></div>'
-//        }]
-//      },{
-//        columnWidth: .25,
-//        listeners:{
-//          scope: this
-//        },
-//        items:[{
-//          title: 'Saved Query(2)',
-//          style:{
-//            marginRight: '5px',
-//            top: '-5px'
-//          },
-//          autoWidth: true,
-//          autoHeight: true,
-//          html: '<div style="text-align:center"><img src="/images/school_absenteeism_berry.png" /></div>'
-//        }]
-//      },{
-//        columnWidth: .25,
-//        listeners:{
-//          scope: this
-//        },
-//        items:[{
-//          title: 'Saved Query(3)',
-//          style:{
-//            marginRight: '5px',
-//            top: '-5px'
-//          },
-//          autoWidth: true,
-//          autoHeight: true,
-//          html: '<div style="text-align:center"><img src="/images/school_absenteeism_lewis.png" /></div>'
-//        }]
-//      },{
-//        columnWidth: .25,
-//        listeners:{
-//          scope: this
-//        },
-//        items:[{
-//          title: 'Saved Query(4)',
-//          style:{
-//            marginRight: '5px',
-//            top: '-5px'
-//          },
-//          autoWidth: true,
-//          autoHeight: true,
-//          html: '<div style="text-align:center"><img src="/images/school_absenteeism_south.png" /></div>'
-//        }]
-//      }]
     });
 
     Talho.Rollcall.SavedQueriesPanel.superclass.constructor.call(this, config);
   },
-  updateSavedQueries: function(){
-    this.saved_store.load();
+  updateSavedQueries: function(r_id){
+    var options = {
+      params: {
+        r_id: r_id
+      }
+    }
+    this.saved_store.load(options);
   }
 });

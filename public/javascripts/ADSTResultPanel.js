@@ -27,7 +27,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       totalProperty: 'total_results',
       root:   'results',
       url: '/rollcall/adst',
-      fields: ['id','img_urls','schools', 'school_names'],
+      fields: ['id','img_urls', 'r_ids', 'schools', 'school_names'],
       writer: new Ext.data.JsonWriter({encode: false}),
       restful: true,
       autoLoad: false,
@@ -57,11 +57,12 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               style:'margin:5px',
               itemId: item_id,
               school_name: result[0]["school_names"][i],
+              r_id: result[0]["r_ids"][i],
               tools: [{
                 id:'save',
                 qtip: 'Save Query',
                 handler: function(e, targetEl, panel, tc){
-                  panel.ownerCt.ownerCt.showSaveQueryConsole(store.baseParams, panel.itemId, panel.school_name, panel);
+                  panel.ownerCt.ownerCt.showSaveQueryConsole(store.baseParams, panel.itemId, panel.school_name, panel.r_id.value, panel);
                 }
               },{
                 id:'down',
@@ -122,7 +123,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     return this._getResultStore();
   },
 
-  showSaveQueryConsole: function(queryParams, tea_id, school_name, result_panel)
+  showSaveQueryConsole: function(queryParams, tea_id, school_name, r_id, result_panel)
   {
     var params       = [];
     var storedParams = new Ext.data.ArrayStore({
@@ -141,6 +142,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       }
     }
     params.push(['tea_id', tea_id]);
+    //params.push(['r_id', r_id]);
     storedParams.loadData(params);
     param_string = '';
 
@@ -161,7 +163,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         url: 'rollcall/save_query',
         border: false,
         baseParams:{
-          query_params: param_string  
+          query_params: param_string,
+          r_id: r_id,
+          tea_id: tea_id
         },
         items:[{
           xtype:'textfield',
@@ -393,7 +397,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
             marginLeft: '5px',
             marginRight: '5px'
           },
-          collapsible: true,
+          collapsible: false,
           items: [{
             xtype: 'listview',
             store: storedParams,
@@ -415,9 +419,15 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       buttons: [{
         text:'Submit',
         handler: function(buttonEl, eventObj){
+          var obj_options = {
+            result_panel: result_panel
+          };
           alarm_console.getComponent('savedQueryForm').getForm().on('actioncomplete', function(){
-            result_panel.ownerCt.ownerCt.ownerCt.ownerCt.getComponent('saved_queries').updateSavedQueries();          
-          }, result_panel);
+            var adst_panel = obj_options.result_panel.ownerCt.ownerCt.ownerCt.ownerCt;
+            adst_panel.getComponent('saved_queries').getComponent('portalId_south').updateSavedQueries(r_id);
+            this.hide();
+            this.destroy();
+          }, alarm_console, obj_options);
           alarm_console.getComponent('savedQueryForm').getForm().submit();
         }
       },{

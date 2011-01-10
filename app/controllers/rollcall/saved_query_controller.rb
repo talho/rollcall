@@ -1,16 +1,23 @@
 class Rollcall::SavedQueryController < Rollcall::RollcallAppController
   def index
-    saved_queries      = Rollcall::SavedQuery.find_all_by_user_id(current_user.id).blank? ? "" : Rollcall::SavedQuery.find_all_by_user_id(current_user.id)
+    unless params[:r_id].blank?
+      saved_queries = Rollcall::SavedQuery.find_all_by_user_id_and_rrd_id(current_user.id, params[:r_id])
+    else
+      saved_queries = Rollcall::SavedQuery.find_all_by_user_id(current_user.id)
+    end
+    #saved_queries      = Rollcall::SavedQuery.find_all_by_user_id(current_user.id)
     saved_query_graphs = Rollcall::Rrd.render_saved_graphs saved_queries
+    
     respond_to do |format|
       format.json do
         render :json => {
-          :success => true,
-          :results => [{
-            :saved_queries => saved_queries.as_json
-          },{
-            :saved_graphs  => saved_query_graphs.as_json  
-          }]
+          :success       => true,
+          :total_results => saved_query_graphs[:image_urls].length,
+          :results       => {
+            :id            => 1,
+            :saved_queries => saved_queries,
+            :img_urls      => saved_query_graphs,
+          }.as_json
         }
       end
     end
@@ -25,7 +32,8 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
       :severity_max        => params['severity_max'],
       :deviation_threshold => params['deviation_threshold'],
       :deviation_min       => params['deviation_min'],
-      :deviation_max       => params['deviation_max']
+      :deviation_max       => params['deviation_max'],
+      :rrd_id              => params['r_id']
     )
     respond_to do |format|
       format.json do

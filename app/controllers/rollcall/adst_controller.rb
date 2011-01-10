@@ -30,8 +30,14 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       format.json do
         render :json => {
           :success       => true,
-          :total_results => results.length,
-          :results       => {:id => 2, :img_urls => results, :schools => schools, :school_names => school_names}.as_json
+          :total_results => results[:image_urls].length,
+          :results       => {
+            :id => 1,
+            :img_urls => results[:image_urls],
+            :r_ids     => results[:rrd_ids], 
+            :schools => schools,
+            :school_names => school_names
+          }.as_json
         }
       end
     end

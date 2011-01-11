@@ -5,9 +5,7 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
     else
       saved_queries = Rollcall::SavedQuery.find_all_by_user_id(current_user.id)
     end
-    #saved_queries      = Rollcall::SavedQuery.find_all_by_user_id(current_user.id)
-    saved_query_graphs = Rollcall::Rrd.render_saved_graphs saved_queries
-    
+    saved_query_graphs = Rollcall::Rrd.render_saved_graphs saved_queries   
     respond_to do |format|
       format.json do
         render :json => {

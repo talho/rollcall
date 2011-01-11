@@ -21,27 +21,32 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
         listeners:{
           scope: this,
           load: function(this_store, record){
+            var result_obj = null;
+            var column_obj = null;
             for(var i=0;i<record.length;i++){
               for(var cnt=0;cnt<record[i].data.saved_queries.length;cnt++){
-                this.add({
+                column_obj = this.add({
                   columnWidth: .25,
                   listeners:{
                     scope: this
-                  },
-                  items:[{
-                    title: record[i].data.saved_queries[cnt].saved_query.name,
-                    style:{
-                      marginRight: '5px',
-                      top: '-5px'
-                    },
-                    autoWidth: true,
-                    autoHeight: true,
-                    html: '<div style="text-align:center"><img style="width:400px;height:70px;" src="'+record[i].data.img_urls.image_urls[cnt]+'" /></div>'
-                  }]
+                  }
                 });
-                this.doLayout();
+                result_obj = column_obj.add({
+                  title: record[i].data.saved_queries[cnt].saved_query.name,
+                  tools: [{
+                    id:'save',
+                    qtip: 'Edit Query'
+                  }],
+                  cls: 'ux-saved-graphs',
+                  //autoWidth: true,
+                  //autoHeight: true,
+                  html: '<div class="ux-saved-graph-container"><img class="ux-ajax-loader" src="/images/Ajax-loader.gif" /></div>'
+                });
+                this.ownerCt.ownerCt.renderGraphs(cnt, record[i].data.img_urls.image_urls[cnt], result_obj, 'ux-saved-graph-container');
               }
             }
+            this.doLayout();
+            this.setSize('auto','auto');
           }
         }
       })

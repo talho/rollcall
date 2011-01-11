@@ -3,7 +3,7 @@ Ext.namespace('Talho.Rollcall.ux');
 
 Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   constructor: function(config){
-    this.providers = new Array();
+
     Ext.applyIf(config,{
       hidden: true,
       id:     'ADSTResultPanel',
@@ -87,7 +87,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
                 }
               }],
               height: 230,
-              html: '<div style="text-align:center"><img src="/images/Ajax-loader.gif" /></div>'
+              html: '<div class="ux-result-graph-container"><img src="/images/Ajax-loader.gif" /></div>'
             };
 
             if(i == 0 || i%2 == 0){
@@ -96,7 +96,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               result_obj = this.getComponent('leftColumn').add(graphImageConfig);
             }
             this.doLayout();
-            this.renderGraphs(i, result[0]['img_urls'][i].value, result_obj);
+            this.ownerCt.ownerCt.renderGraphs(i, result[0]['img_urls'][i].value, result_obj, 'ux-result-graph-container');
           }
         }
       }
@@ -142,7 +142,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       }
     }
     params.push(['tea_id', tea_id]);
-    //params.push(['r_id', r_id]);
+
     storedParams.loadData(params);
     param_string = '';
 
@@ -154,6 +154,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       layout:'fit',
       width: 300,
       autoHeight:true,
+      modal: true,
       closeAction:'close',
       title: 'Save Query for '+school_name,
       plain: true,
@@ -433,54 +434,19 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       },{
         text: 'Close',
         handler: function(buttonEl, eventObj){
-          alarm_console.hide();
-          alarm_console.destroy();
+          alarm_console.close();
+          //alarm_console.hide();
+          //alarm_console.destroy();
         }
       }]
     });
     alarm_console.doLayout();
     alarm_console.show();
   },
-  renderGraphs: function(id, image, obj) {
-    provider = new Ext.direct.PollingProvider({
-      id: 'image' + id + '-provider',
-      type: 'polling',      
-      url: image,
-      listeners: {
-        scope: obj,
-        data: function(provider, e) {
-          if(e.xhr.status == 200) {
-            var element_id = Math.floor(Math.random() * 10000);
-            (function(provider) {
-              this.update('<div id="'+element_id+'" style="text-align:center;display:none;">' +
-                          '<img src="'+provider.url+'?' + element_id + '" />' +
-                          '</div>');
-              this.doLayout();
-            }).defer(50,this,[provider]);
-            (function(provider) {
-              this.update('<div id="'+element_id+'" style="text-align:center;">' +
-                          '<img src="'+provider.url+'?' + element_id + '" />' +
-                          '</div>');
-              this.doLayout();
-            }).defer(1000,this,[provider]);
-            provider.disconnect();
-            return true;
-          } else {
-            return false;
-          }
-        }
-      }
-    });
-    this.providers.push(provider);
-    Ext.Direct.addProvider(provider);
-  },
-  saveQuery: function(buttonEl, eventObj) {
-
-  },
   clearProviders: function() {
     Ext.each(this.providers, function(item, index, allItems) {
       item.disconnect();
-    })
+    });
     this.providers = new Array();
   }
 });

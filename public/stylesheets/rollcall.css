@@ -29,6 +29,27 @@ li.school_bordered         {border:2px solid #369;border-radius:10px;-moz-border
   clear: both;
   margin: 0px 5px;
 }
+.ux-result-graph-container{
+  text-align: center;
+}
+.ux-saved-graphs{
+  top: -5px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+
+}
+.ux-saved-graph-container{
+  text-align:center;
+  height:80px;
+}
+.ux-saved-graphs img{
+  width: 400px;
+  height: 80px;
+}
+.ux-ajax-loader{
+  width:32px !important;
+  height:32px !important;
+}
 .clear{
   clear: both;
 }

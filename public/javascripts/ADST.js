@@ -5,10 +5,45 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   constructor: function(config)
   {
     var resultPanel = new Talho.Rollcall.ADSTResultPanel({});
+
     this.getResultPanel = function() {
       return resultPanel;
-    }
-    
+    };
+    this.providers    = new Array();
+    this.renderGraphs = function(id, image, obj, class_name) {
+      provider = new Ext.direct.PollingProvider({
+        id: 'image' + id + '-provider',
+        type: 'polling',
+        url: image,
+        listeners: {
+          scope: obj,
+          data: function(provider, e) {
+            if(e.xhr.status == 200) {
+              var element_id = Math.floor(Math.random() * 10000);
+              (function(provider) {
+                this.update('<div id="'+element_id+'" class="'+class_name+'" >' +
+                            '<img style="display:none;" src="'+provider.url+'?' + element_id + '" />' +
+                            '</div>');
+                this.doLayout();
+              }).defer(50,this,[provider]);
+              (function(provider) {
+                this.update('<div id="'+element_id+'" class="'+class_name+'">' +
+                            '<img src="'+provider.url+'?' + element_id + '" />' +
+                            '</div>');
+                this.doLayout();
+              }).defer(1000,this,[provider]);
+              provider.disconnect();
+              return true;
+            } else {
+              return false;
+            }
+          }
+        }
+      });
+      this.providers.push(provider);
+      Ext.Direct.addProvider(provider);
+    };
+
     Ext.apply(config, {
       init_store: null,
       closable:   true,
@@ -25,10 +60,11 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         itemId:   'saved_queries',
         id:       'saved_queries',
         region:   'south',
-        height:   150,
-        minSize:  75,
-        maxSize:  250,
-        bodyStyle:   'padding:15px',
+        height:   180,
+        minSize:  180,
+        maxSize:  300,
+        autoScroll: true,
+        bodyStyle:   'padding:10px;',
         items:    new Talho.Rollcall.SavedQueriesPanel({})
       },{
         title:       'Reports',
@@ -91,10 +127,10 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
 
                 buttonEl.findParentByType("form").buttons[2].show();
 
-                var test_mask = new Ext.LoadMask(this.getComponent('ADST_panel').getEl(), {msg:"Please wait..."});
-                test_mask.show();
+                var panel_mask = new Ext.LoadMask(this.getComponent('ADST_panel').getEl(), {msg:"Please wait..."});
+                panel_mask.show();
                 result_store.on('write', function(){
-                  test_mask.hide();
+                  panel_mask.hide();
                 })
                 result_store.load();
                 return true;
@@ -163,11 +199,11 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           listeners:{
             'beforechange': function(this_toolbar, params){
               var result_store = this_toolbar.ownerCt.ownerCt.getResultPanel().getResultStore();
-              var test_mask = new Ext.LoadMask(this_toolbar.ownerCt.ownerCt.getResultPanel().getEl(), {msg:"Please wait..."});
-              test_mask.show();
+              var container_mask = new Ext.LoadMask(this_toolbar.ownerCt.ownerCt.getResultPanel().getEl(), {msg:"Please wait..."});
+              container_mask.show();
 
               result_store.on('write', function(){
-                test_mask.hide();
+                container_mask.hide();
               })
               params['page'] = Math.floor(params.start /  params.limit) + 1;
               return true;
@@ -176,6 +212,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         })
       }]
     });
+
     Talho.Rollcall.ADST.superclass.constructor.call(this, config);
   }
 });

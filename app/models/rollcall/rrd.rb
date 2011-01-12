@@ -303,6 +303,7 @@ class Rollcall::Rrd < Rollcall::Base
           end_date   = Time.now
         end
         days = ((end_date - start_date) / 86400)
+        total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
         (0..days).each do |i|
           report_date = start_date + i.days
           unless conditions[:confirmed_illness].blank?
@@ -311,7 +312,7 @@ class Rollcall::Rrd < Rollcall::Base
             total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(school_id, report_date).size
           end
           begin
-            total_enrolled = Rollcall::SchoolDailyInfo.find_by_report_date_and_school_id(report_date, school_id).total_enrolled
+#            total_enrolled = Rollcall::SchoolDailyInfo.find_by_report_date_and_school_id(report_date, school_id).total_enrolled
             RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,total_absent, total_enrolled],"#{rrd_tool}"
           rescue
           end

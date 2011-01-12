@@ -44,7 +44,7 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
 
   def update
     query   = Rollcall::SavedQuery.find(params[:id])
-    success = query.update_attributes(params[:user])
+    success = query.update_attributes(params)
     if success
       query.save
     end

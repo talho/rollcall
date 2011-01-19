@@ -1,4 +1,3 @@
-Talho.ScriptManager.addInitializer('Talho.Rollcall', {js:'AjaxPanel /javascripts/rollcall/rollcall.js'});
 Talho.ScriptManager.addInitializer('Talho.Rollcall.NurseAssistant', {js:'$(ext_extensions)/xActionColumn.js /javascripts/rollcall/NurseAssistant.js'});
 Talho.ScriptManager.addInitializer('Talho.Rollcall.ADST', {
   js:'( $(ext_extensions)/Portal.js > /javascripts/rollcall/ux/ComboBox.js > ' +

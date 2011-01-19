@@ -96,7 +96,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               result_obj = this.getComponent('leftColumn').add(graphImageConfig);
             }
             this.doLayout();
-            this.ownerCt.ownerCt.renderGraphs(i, result[0]['img_urls'][i].value, result_obj, 'ux-result-graph-container');
+            this.ownerCt.ownerCt.ownerCt.renderGraphs(i, result[0]['img_urls'][i].value, result_obj, 'ux-result-graph-container');
           }
         }
       }
@@ -156,7 +156,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       autoHeight:true,
       modal: true,
       constrain: true,
-	   // renderTo: Ext.getCmp('ADST_panel').getEl().id,//this.getEl().id,
+	    renderTo: 'adst_container',
       closeAction:'close',
       title: 'Save Query for '+school_name,
       plain: true,

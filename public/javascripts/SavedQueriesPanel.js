@@ -3,10 +3,10 @@ Ext.namespace('Talho.Rollcall.ux');
 
 Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
   constructor: function(config){
-    var savedQueryStore = new Talho.Rollcall.ADSTResultPanel({});
-    this.getResultPanel = function() {
-      return resultPanel;
-    }
+//    var savedQueryStore = new Talho.Rollcall.ADSTResultPanel({});
+//    this.getResultPanel = function() {
+//      return resultPanel;
+//    }
     Ext.applyIf(config, {
       itemId: 'portalId_south',
       border: false,
@@ -81,7 +81,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
                     //autoHeight: true,
                     html: '<div class="ux-saved-graph-container"><img class="ux-ajax-loader" src="/images/Ajax-loader.gif" /></div>'
                   });
-                  this.ownerCt.ownerCt.renderGraphs(cnt, record[i].data.img_urls.image_urls[cnt], result_obj, 'ux-saved-graph-container');
+                  this.ownerCt.ownerCt.ownerCt.renderGraphs(cnt, record[i].data.img_urls.image_urls[cnt], result_obj, 'ux-saved-graph-container');
                 }
               }
 
@@ -137,6 +137,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
       autoHeight:true,
       modal: true,
       constrain: true,
+      renderTo: 'adst_container',
       closeAction:'close',
       title: query_title,
       plain: true,

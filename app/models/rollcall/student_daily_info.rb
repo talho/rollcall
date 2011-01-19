@@ -3,13 +3,13 @@
 # Table name: rollcall_student_daily_infos
 #
 #  id                :integer(4)      not null, primary key
-#  date              :date
-#  age               :integer(4)
+#  school_id         :integer(11)
+#  report_date       :date
+#  age               :integer(11)
 #  dob               :date
-#  gender            :integer(4)
-#  symptoms          :varchar(255)
-#  confirmed_illness :varchar(255)
-#
+#  gender            :tinyint(1)
+#  grade             :integer(11)
+#  confirmed_illness :tinyint(1)
 
 =begin
     OpenPHIN is an opensource implementation of the CDC guidelines for
@@ -33,5 +33,6 @@
 =end
 class Rollcall::StudentDailyInfo < Rollcall::Base
   set_table_name "rollcall_student_daily_infos"
-  has_and_belongs_to_many :symptoms, :join_table => 'rollcall_student_reported_symptoms', :class_name => "Rollcall::Symptom"
+  belongs_to :school, :class_name => "Rollcall::School", :foreign_key => "school_id"
+  #has_and_belongs_to_many :symptoms, :join_table => 'rollcall_student_reported_symptoms', :class_name => "Rollcall::Symptom"
 end

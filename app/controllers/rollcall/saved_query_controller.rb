@@ -1,11 +1,9 @@
 class Rollcall::SavedQueryController < Rollcall::RollcallAppController
+  helper :rollcall
+  before_filter :rollcall_required
+
   def index
-    unless params[:r_id].blank?
-      saved_queries = Rollcall::SavedQuery.find_all_by_user_id_and_rrd_id(current_user.id, params[:r_id])
-    else
-      saved_queries = Rollcall::SavedQuery.find_all_by_user_id(current_user.id)
-    end
-    saved_query_graphs = Rollcall::Rrd.render_saved_graphs saved_queries   
+    saved_query_graphs = Rollcall::Rrd.render_saved_graphs current_user.saved_queries(params)
     respond_to do |format|
       format.json do
         render :json => {
@@ -44,7 +42,6 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
 
   def update
     query   = Rollcall::SavedQuery.find(params[:id])
-    #success = query.update_attributes(params)
     success = query.update_attributes(
       :name                => params['query_name'],
       :query_params        => params['query_params'],

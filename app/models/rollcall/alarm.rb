@@ -14,6 +14,9 @@
 #
 
 class Rollcall::Alarm < Rollcall::Base
+  belongs_to :school, :class_name => "Rollcall::School", :foreign_key => "school_id"
+  belongs_to :saved_query, :class_name => "Rollcall::SavedQuery", :foreign_key => "saved_query_id"
+    
   set_table_name "rollcall_alarms"
 
   def self.generate_alarms(user_id)

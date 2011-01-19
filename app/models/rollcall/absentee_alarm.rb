@@ -34,7 +34,7 @@
 
 =end
 
-class Rollcall::AbsenteeAlert < Rollcall::Alarm
+class Rollcall::AbsenteeAlarm < Rollcall::Alarm
 
   validates_presence_of :absentee_rate
   belongs_to :absentee_report, :class_name => "Rollcall::AbsenteeReport"

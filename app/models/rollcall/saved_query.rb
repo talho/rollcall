@@ -15,6 +15,7 @@
 
 class Rollcall::SavedQuery < Rollcall::Base
   belongs_to :user, :class_name => "User", :foreign_key => "user_id"
-
+  belongs_to :rrd, :class_name => "Rollcall::Rrd", :foreign_key => "rrd_id"
+  
   set_table_name "rollcall_saved_queries"  
 end

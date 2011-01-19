@@ -155,6 +155,8 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       width: 300,
       autoHeight:true,
       modal: true,
+      constrain: true,
+	   // renderTo: Ext.getCmp('ADST_panel').getEl().id,//this.getEl().id,
       closeAction:'close',
       title: 'Save Query for '+school_name,
       plain: true,

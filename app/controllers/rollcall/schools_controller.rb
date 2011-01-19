@@ -38,7 +38,6 @@ class Rollcall::SchoolsController < Rollcall::RollcallAppController
     if @school
       @district = @school.district
     end
-
     respond_to do |format|
       if @school && schools.include?(@school)
         @chart=open_flash_chart_object(600, 300, rollcall_school_chart_path(@school, params[:timespan]))

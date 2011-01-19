@@ -11,6 +11,7 @@ Then /^I should see an absenteeism summary with the data\:$/ do |table|
   end
 end
 Then /^I should see an absenteeism graph with the following\:$/ do |table|
+  sleep 3
   raise "No data URL located in response body" unless page.body =~ /"data-file":"([^\"]*)"/
   url = CGI.unescape($1)
   values = table.is_a?(Array) ? table : table.raw
@@ -18,6 +19,7 @@ Then /^I should see an absenteeism graph with the following\:$/ do |table|
   old_url = page.current_url
   page.visit url
   json = ActiveSupport::JSON.decode(page.find("body").text)
+
   values.each do |row|
     property, value=row
     case property

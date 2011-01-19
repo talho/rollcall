@@ -1,21 +1,21 @@
 # == Schema Information
 #
-# Table name: rollcall_alerts
+# Table name: rollcall_alarms
 #
 #  id                 :integer(4)      not null, primary key
-#  severity           :integer(4)
-#  type               :string(255)
-#  absentee_report_id :integer(4)
 #  school_id          :integer(4)
-#  school_district_id :integer(4)
+#  saved_query_id     :integer(4)
+#  deviation          :float
+#  severity           :float
 #  absentee_rate      :float
+#  report_date        :date
 #  created_at         :datetime
 #  updated_at         :datetime
 #
 
 require 'spec_helper'
 
-describe RollcallAlert do
+describe Alarm do
   before(:each) do
     @valid_attributes = {
       :absentee_report_id => 1,
@@ -24,6 +24,6 @@ describe RollcallAlert do
   end
 
   it "should create a new instance given valid attributes" do
-    RollcallAlert.create!(@valid_attributes)
+    Rollcall::Alarm.create!(@valid_attributes)
   end
 end

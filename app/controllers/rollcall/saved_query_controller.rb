@@ -44,7 +44,16 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
 
   def update
     query   = Rollcall::SavedQuery.find(params[:id])
-    success = query.update_attributes(params)
+    #success = query.update_attributes(params)
+    success = query.update_attributes(
+      :name                => params['query_name'],
+      :query_params        => params['query_params'],
+      :severity_min        => params['severity_min'],
+      :severity_max        => params['severity_max'],
+      :deviation_threshold => params['deviation_threshold'],
+      :deviation_min       => params['deviation_min'],
+      :deviation_max       => params['deviation_max'],
+      :rrd_id              => params['r_id'])
     if success
       query.save
     end

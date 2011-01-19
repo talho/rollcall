@@ -11,7 +11,7 @@ module RollcallHelper
     xlabels=[]
     y_max = 0
     (timespan-1).days.ago.to_date.upto Date.today do |date|
-      report=@school.absentee_reports.for_date(date).first
+      report=school.absentee_reports.for_date(date).first
       if report.nil?
         school_absentee_points.push nil
       else
@@ -31,7 +31,7 @@ Enrolled: #{report.enrolled}"
     end
 
     school_line = OpenFlashChart::LineHollow.new
-    school_line.text=@school.name
+    school_line.text=school.display_name
     school_line.values=school_absentee_points
 
     xa= OpenFlashChart::XAxis.new

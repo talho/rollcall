@@ -29,9 +29,8 @@ class Rollcall::SchoolDistrict < Rollcall::Base
     di = daily_infos.find_by_report_date(date)
     if di.nil?
       di = daily_infos.create(:report_date => date)
-    else
-      di.update_stats
     end
+    di.update_stats
     di
   end
 

@@ -37,17 +37,31 @@ Talho.Rollcall.SimpleADSTContainer = Ext.extend(Ext.Container, {
             emptyText:'Select School...',
             allowBlank: true,
             id: 'school_simple',
-            store: config.schools
+            itemId: 'school_simple',
+            store: config.schools,
+            listeners:{
+              select: function(comboBox, record, index){
+                //comboBox.ownerCt().getComponent('school_type_simple').reset();
+                Ext.getCmp('school_type_simple').clearValue();
+              }
+            }
           })
         },{
-          items:
-            new Talho.Rollcall.ux.ComboBox({
-              fieldLabel: 'School Type',
-              emptyText:'Select School Type...',
-              allowBlank: true,
-              id: 'school_type_simple',
-              store: config.school_type
-            })
+        items:
+          new Talho.Rollcall.ux.ComboBox({
+            fieldLabel: 'School Type',
+            emptyText:'Select School Type...',
+            allowBlank: true,
+            id: 'school_type_simple',
+            itemId: 'school_type_simple',
+            store: config.school_type,
+            listeners:{
+              select: function(comboBox, record, index){
+                //comboBox.ownerCt().getComponent('school_simple').reset();
+                Ext.getCmp('school_simple').clearValue();
+              }
+            }
+          })
         },{
           items:{
             fieldLabel: 'Start Date',

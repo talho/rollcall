@@ -37,30 +37,30 @@ describe AbsenteeReport do
 
   describe "named_scope with_severity" do
     before(:each) do
-      @normal = AbsenteeReport.create(:absent => 1, :enrolled => 100, :report_date => 1.week.ago)
+      @normal = Rollcall::AbsenteeReport.create(:absent => 1, :enrolled => 100, :report_date => 1.week.ago)
       
     end
     it "should return reports with high severity" do
-      report=AbsenteeReport.create(:absent => 30, :enrolled => 100, :report_date => 3.days.ago)
-      AbsenteeReport.with_severity(:high).should include(report)
-      AbsenteeReport.with_severity(:high).should_not include(@normal)
+      report = Rollcall::AbsenteeReport.create(:absent => 30, :enrolled => 100, :report_date => 3.days.ago)
+      Rollcall::AbsenteeReport.with_severity(:high).should include(report)
+      Rollcall::AbsenteeReport.with_severity(:high).should_not include(@normal)
     end
     it "should return reports with medium severity" do
-      report=AbsenteeReport.create(:absent => 20, :enrolled => 100, :report_date => 3.days.ago)
-      AbsenteeReport.with_severity(:medium).should include(report)
-      AbsenteeReport.with_severity(:medium).should_not include(@normal)
+      report = Rollcall::AbsenteeReport.create(:absent => 20, :enrolled => 100, :report_date => 3.days.ago)
+      Rollcall::AbsenteeReport.with_severity(:medium).should include(report)
+      Rollcall::AbsenteeReport.with_severity(:medium).should_not include(@normal)
     end
     it "should return reports with low severity" do
-      report=AbsenteeReport.create(:absent => 12, :enrolled => 100, :report_date => 3.days.ago)
-      AbsenteeReport.with_severity(:low).should include(report)
-      AbsenteeReport.with_severity(:low).should_not include(@normal)
+      report =  Rollcall::AbsenteeReport.create(:absent => 12, :enrolled => 100, :report_date => 3.days.ago)
+      Rollcall::AbsenteeReport.with_severity(:low).should include(report)
+      Rollcall::AbsenteeReport.with_severity(:low).should_not include(@normal)
     end
     it "should not return reports older than 30 days" do
-      AbsenteeReport.create(:absent => 20, :enrolled => 100, :report_date => 3.days.ago)
-      report=AbsenteeReport.create(:absent => 30, :enrolled => 100, :report_date => 31.days.ago)
-      AbsenteeReport.with_severity(:medium).should_not include(report)
-      AbsenteeReport.with_severity(:medium).should_not include(@normal)
-      AbsenteeReport.with_severity(:medium).should_not be_empty
+      Rollcall::AbsenteeReport.create(:absent => 20, :enrolled => 100, :report_date => 3.days.ago)
+      report =  Rollcall::AbsenteeReport.create(:absent => 30, :enrolled => 100, :report_date => 31.days.ago)
+      Rollcall::AbsenteeReport.with_severity(:medium).should_not include(report)
+      Rollcall::AbsenteeReport.with_severity(:medium).should_not include(@normal)
+      Rollcall::AbsenteeReport.with_severity(:medium).should_not be_empty
     end
   end
 end

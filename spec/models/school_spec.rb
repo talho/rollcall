@@ -39,8 +39,8 @@ describe School do
 
       end
       it "should return schools with an alert" do
-        School.with_alerts.should include(@school)
-        School.with_alerts.size.should == 1
+        Rollcall::School.with_alerts.should include(@school)
+        Rollcall::School.with_alerts.size.should == 1
       end
       it "should not return schools that only have alerts older than 30 days" do
         oldschool=Factory(:school)

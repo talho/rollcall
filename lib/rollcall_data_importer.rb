@@ -1,27 +1,25 @@
 class RollcallDataImporter
   def self.process_uploads
-    pickup_dir=File.join(Rails.root, "tmp", "rollcall")
+    pickup_dir = File.join(Rails.root, "tmp", "rollcall")
     Dir.ensure_exists(pickup_dir)
     Dir.ensure_exists(File.join(pickup_dir, "archive"))
-
     if File.exist?(pickup_dir)
       Dir[File.join(pickup_dir, "Attendance_*")].each do |file|
         ROLLCALL_LOGGER.warn("Opening file #{file}")
-        import=File.open(file, "r")
-        data=import.read.split("\n")
+        import = File.open(file, "r")
+        data   = import.read.split("\n")
         import.close
         data.map!{|d| d.split("\t")}
         data.each do |rec|
           begin
             report_date, tea_id, enrolled, absent = rec
-            report_date=Date.parse(report_date)
-            school=School.find_by_tea_id(tea_id.strip)
+            report_date = Date.parse(report_date)
+            school      = Rollcall::School.find_by_tea_id(tea_id.strip)
             if school
-              AbsenteeReport.create(:school => school, :report_date => report_date, :enrolled => enrolled, :absent => absent)
+              Rollcall::AbsenteeReport.create(:school => school, :report_date => report_date, :enrolled => enrolled, :absent => absent)
             else
               puts "Could not find school named #{rec[1].strip}"
             end
-
           rescue
             ROLLCALL_LOGGER.error("Import failed for record: #{data.join(",")}; file:#{file}")
             next
@@ -34,9 +32,8 @@ class RollcallDataImporter
 
   def self.read_data(filename, field_separator=',', record_separator="\n")
     raise "Data file #{filename} does not exist." unless File.exist?(filename)
-
-    datafile=File.open(filename)
-    data = datafile.read.split(record_separator).map{|d| d.split(field_separator)}
+    datafile = File.open(filename)
+    data     = datafile.read.split(record_separator).map{|d| d.split(field_separator)}
     datafile.close
     return data
   end
@@ -45,7 +42,7 @@ class RollcallDataImporter
     data = read_data(filename, ",")
     data[1..-1].each do |school|
       school_number, name, display_name, level, region = school
-      school = School.find_by_display_name(display_name)
+      school = Rollcall::School.find_by_display_name(display_name)
       if school.nil?
         errstream << "Could not find school #{display_name}"
         next
@@ -56,12 +53,12 @@ class RollcallDataImporter
   end
 
   def self.historical_import(filename, errstream=STDERR)
-    data = read_data(filename, "\t")
+    data       = read_data(filename, "\t")
     badschools = []
     data[1..-1].each do |report|
       report_date, schoolname, enrolled, absent = report
       next if badschools.include?(schoolname)
-      school=School.find_by_name(schoolname)
+      school = Rollcall::School.find_by_name(schoolname)
       if school.nil?
         errstream << "Could not find school #{schoolname}\n"
         badschools.push(schoolname)

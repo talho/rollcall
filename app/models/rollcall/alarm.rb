@@ -46,6 +46,7 @@ class Rollcall::Alarm < Rollcall::Base
         end
         deviation = calculate_deviation data_set
         severity  = (total_absent.to_f / total_enrolled.to_f)
+
         if (severity <= saved_query.severity_min || severity >= saved_query.severity_max) ||
            (deviation <= saved_query.deviation_min || deviation >= saved_query.deviation_max) ||
            (deviation >= saved_query.deviation_threshold) ||

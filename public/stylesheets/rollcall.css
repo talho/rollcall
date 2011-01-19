@@ -50,6 +50,15 @@ li.school_bordered         {border:2px solid #369;border-radius:10px;-moz-border
   width:32px !important;
   height:32px !important;
 }
+.ux-empty-saved-query-container{
+  background: url(images/saved_query_icon_ext.png) no-repeat;
+  height: 80px; 
+}
+.ux-empty-saved-query-container p{
+  padding-left:90px;
+  padding-top: 25px;
+  font-size: 2em;
+}
 .clear{
   clear: both;
 }

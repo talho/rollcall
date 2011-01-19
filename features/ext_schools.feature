@@ -25,22 +25,22 @@ Feature: School
       | Epi Smith    | epi.smith@example.com   | Rollcall       | Houston |
       | Normal Epi   | normal.epi@example.com  | Epidemiologist | Houston |
     And "Houston ISD" has the following current absenteeism data:
-      | Day   | SchoolName  | Enrolled | Absent |
-      | 0     | LEWIS ES    | 500      | 5      |
-      | -1    | LEWIS ES    | 500      | 10     |
-      | -2    | LEWIS ES    | 500      | 15     |
-      | -3    | LEWIS ES    | 500      | 5      |
-      | -4    | LEWIS ES    | 500      | 60     |
-      | 0     | SOUTHMAYDES | 100      | 2      |
-      | -1    | SOUTHMAYDES | 100      | 5      |
-      | -2    | SOUTHMAYDES | 100      | 15     |
-      | -3    | SOUTHMAYDES | 100      | 10     |
-      | -4    | SOUTHMAYDES | 100      | 7      |
-      | 0     | BERRY ES    | 200      | 10     |
-      | -1    | BERRY ES    | 200      | 15     |
-      | -2    | BERRY ES    | 200      | 5      |
-      | -3    | BERRY ES    | 200      | 10     |
-      | -4    | BERRY ES    | 200      | 10     |
+      | Day  | SchoolName  | Enrolled | Absent |
+      | 0    | LEWIS ES    | 500      | 5      |
+      | 1    | LEWIS ES    | 500      | 10     |
+      | 2    | LEWIS ES    | 500      | 15     |
+      | 3    | LEWIS ES    | 500      | 5      |
+      | 4    | LEWIS ES    | 500      | 60     |
+      | 0    | SOUTHMAYDES | 100      | 2      |
+      | 1    | SOUTHMAYDES | 100      | 5      |
+      | 2    | SOUTHMAYDES | 100      | 15     |
+      | 3    | SOUTHMAYDES | 100      | 10     |
+      | 4    | SOUTHMAYDES | 100      | 7      |
+      | 0    | BERRY ES    | 200      | 10     |
+      | 1    | BERRY ES    | 200      | 15     |
+      | 2    | BERRY ES    | 200      | 5      |
+      | 3    | BERRY ES    | 200      | 10     |
+      | 4    | BERRY ES    | 200      | 10     |
 
   Scenario: Viewing the School View screen
     Given I am logged in as "nurse.betty@example.com"
@@ -72,7 +72,7 @@ Feature: School
     And I wait for the "object" element to load
     Then I should see school data for "BERRY ES"
     And I should see an absenteeism graph with the following:
-      | data-label  | Berry Elementary                 |
+      | data-label  | BERRY ES                |
       | data        | nil,nil,5.0,5.0,2.5,7.5,5.0  |
 
   Scenario: Viewing the second school
@@ -84,5 +84,5 @@ Feature: School
     And I press "Choose"
     And I wait for the "object" element to load
     Then I should see an absenteeism graph with the following:
-      | data-label | Lewis Elementary                 |
+      | data-label | LEWIS ES                 |
       | data       | nil,nil,12.0,1.0,3.0,2.0,1.0 |

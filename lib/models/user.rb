@@ -8,7 +8,7 @@ module Rollcall
 
     def schools(options={})
       options={ :conditions => ["district_id in (?)", school_districts.map(&:id)], :order => "name"}.merge(options)
-      School.find(:all, options)
+      Rollcall::School.find(:all, options)
       #    school_districts.map{|district| district.schools}.flatten.uniq
     end
 

@@ -29,20 +29,20 @@ Feature: Rollcall status screen
     And "Houston ISD" has the following current absenteeism data:
       | Day   | SchoolName  | Enrolled | Absent |
       | 0     | LEWIS ES    | 500      | 5      |
-      | -1    | LEWIS ES    | 500      | 10     |
-      | -2    | LEWIS ES    | 500      | 15     |
-      | -3    | LEWIS ES    | 500      | 5      |
-      | -4    | LEWIS ES    | 500      | 60     |
+      | 1     | LEWIS ES    | 500      | 10     |
+      | 2     | LEWIS ES    | 500      | 15     |
+      | 3     | LEWIS ES    | 500      | 5      |
+      | 4     | LEWIS ES    | 500      | 60     |
       | 0     | SOUTHMAYDES | 100      | 2      |
-      | -1    | SOUTHMAYDES | 100      | 5      |
-      | -2    | SOUTHMAYDES | 100      | 15     |
-      | -3    | SOUTHMAYDES | 100      | 10     |
-      | -4    | SOUTHMAYDES | 100      | 7      |
+      | 1     | SOUTHMAYDES | 100      | 5      |
+      | 2     | SOUTHMAYDES | 100      | 15     |
+      | 3     | SOUTHMAYDES | 100      | 10     |
+      | 4     | SOUTHMAYDES | 100      | 7      |
       | 0     | BERRY ES    | 200      | 10     |
-      | -1    | BERRY ES    | 200      | 15     |
-      | -2    | BERRY ES    | 200      | 5      |
-      | -3    | BERRY ES    | 200      | 10     |
-      | -4    | BERRY ES    | 200      | 10     |
+      | 1     | BERRY ES    | 200      | 15     |
+      | 2     | BERRY ES    | 200      | 5      |
+      | 3     | BERRY ES    | 200      | 10     |
+      | 4     | BERRY ES    | 200      | 10     |
 
 Scenario: Accessing the Rollcall application
   Given I am logged in as "nurse.betty@example.com"
@@ -51,10 +51,12 @@ Scenario: Accessing the Rollcall application
     | Rollcall |
   When I press "Rollcall"
   Then I should see the following ext menu items:
-    | name           |
-    | Main           |
-    | Schools        |
-    | About Rollcall |
+    | name            |
+    | Main            |
+    | ADST            |
+    | Nurse Assistant |
+    | Schools         |
+    | About Rollcall  |
 
 Scenario: Accessing the Rollcall application as a non-rollcall user
   Given I am logged in as "normal.epi@example.com"

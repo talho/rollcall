@@ -34,7 +34,7 @@
 class Rollcall::SchoolDistrictDailyInfo < Rollcall::Base
   belongs_to :rollcall_school_district
 
-  before_create :update_stats
+#  before_create :update_stats
   validates_presence_of :rollcall_school_district
   validates_presence_of :report_date
 
@@ -44,13 +44,11 @@ class Rollcall::SchoolDistrictDailyInfo < Rollcall::Base
   set_table_name "rollcall_school_district_daily_infos"
 
   def update_stats
-    total_enrolled=rollcall_school_district.rollcall_absentee_reports.for_date(report_date).sum(:enrolled)
+    total_enrolled = Rollcall::AbsenteeReport.for_date(Date.today).sum(:absent)
     if total_enrolled > 0
-      write_attribute :total_enrollment,total_enrolled
-      write_attribute :total_absent, rollcall_school_district.rollcall_absentee_reports.for_date(report_date).sum(:absent)
-      rate = rollcall_school_district.rolcall_absentee_reports.average("absent/enrolled",
-                                                      :conditions => ["report_date = ?", report_date]
-      )
+      write_attribute :total_enrollment, total_enrolled
+      write_attribute :total_absent, Rollcall::AbsenteeReport.for_date(report_date).sum(:absent)
+      rate = Rollcall::AbsenteeReport.average("absent/enrolled", :conditions => ["report_date = ?", report_date])
       write_attribute :absentee_rate, rate.nil? || rate == 0  ? nil : rate.round(4)*100
     end
   end

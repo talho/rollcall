@@ -6,23 +6,28 @@ end
 
 Given /^"([^\"]*)" has the following schools:$/ do |isd, table|
   table.hashes.each do |row|
-    Factory(:school, :name => row["Name"],
+    Factory(:school,
+            :name => row["Name"],
             :display_name => row["DisplayName"],
-            :school_number => row["SchoolID"],
+            :tea_id       => row["TeaId"],
+            :school_id    => row["SchoolId"],
+            :school_number => row["SchoolNumber"],
             :address => row["Address"],
             :postal_code => row["Zipcode"],
+            :school_type => row["SchoolType"],
             :level => row["Level"],
-            :district => SchoolDistrict.find_by_name!(isd))
+            :district => Rollcall::SchoolDistrict.find_by_name!(isd))
   end
 end
 
-Given /^"([^\"]*)" has the following current absenteeism data:$/ do |isd, table|
+Given /^"([^\"]*)" has the following current absenteeism data:$/ do |isd, table| 
   table.hashes.each do |row|
 #    row["Date"] = Date.today.strftime("%Y-%m-%d") if row["Date"] == "today"
-    date=Date.today + row["Day"].to_i.days
-    AbsenteeReport.create!(:school => School.find_by_display_name!(row["SchoolName"]),
-                                :report_date => "#{date} 00:00:00",
-                                :enrolled => row["Enrolled"],
-                                :absent => row["Absent"])
+    date = Date.today - row["Day"].to_i.days
+    Rollcall::AbsenteeReport.create!(
+      :school => Rollcall::School.find_by_display_name!(row["SchoolName"]),
+      :report_date => "#{date} 00:00:00",
+      :enrolled => row["Enrolled"],
+      :absent => row["Absent"])
   end
 end

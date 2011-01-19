@@ -1,11 +1,11 @@
 require 'factory_girl'
 
-Factory.define :school_district do |m|
+Factory.define :school_district, :class => Rollcall::SchoolDistrict do |m|
   m.sequence(:name){|t| "Name ##{t}"}
   m.association :jurisdiction
 end
 
-Factory.define :school do |m|
+Factory.define :school , :class => Rollcall::School do |m|
   m.sequence(:name){|t| "Name ##{t}"}
   m.sequence(:display_name) {|t| "Display Name ##{t}"}
   m.level "ES"

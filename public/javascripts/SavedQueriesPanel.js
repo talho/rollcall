@@ -3,10 +3,7 @@ Ext.namespace('Talho.Rollcall.ux');
 
 Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
   constructor: function(config){
-//    var savedQueryStore = new Talho.Rollcall.ADSTResultPanel({});
-//    this.getResultPanel = function() {
-//      return resultPanel;
-//    }
+
     Ext.applyIf(config, {
       itemId: 'portalId_south',
       border: false,
@@ -23,16 +20,8 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
           load: function(this_store, record){
             var result_obj          = null;
             var column_obj          = null;
-            var query_title         = null;
-            var query_params        = null;
-            var severity_min        = null;
-            var severity_max        = null;
-            var deviation_threshold = null;
-            var deviation_min       = null;
-            var deviation_max       = null;
-            var r_id                = null;
-            var query_id            = null;
             var south_panel         = this;
+            var param_config        = {};
             for(var i=0;i<record.length;i++){
               if(record[i].data.saved_queries.length == 0){
                 column_obj = this.add({
@@ -51,15 +40,17 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
                   this.getComponent('empty_saved_query_container').destroy();
                 }
                 for(var cnt=0;cnt<record[i].data.saved_queries.length;cnt++){
-                  query_id            = record[i].data.saved_queries[cnt].saved_query.id;
-                  query_title         = record[i].data.saved_queries[cnt].saved_query.name;
-                  query_params        = record[i].data.saved_queries[cnt].saved_query.query_params;
-                  severity_min        = record[i].data.saved_queries[cnt].saved_query.severity_min;
-                  severity_max        = record[i].data.saved_queries[cnt].saved_query.severity_max;
-                  deviation_threshold = record[i].data.saved_queries[cnt].saved_query.deviation_threshold;
-                  deviation_min       = record[i].data.saved_queries[cnt].saved_query.deviation_min;
-                  deviation_max       = record[i].data.saved_queries[cnt].saved_query.deviation_max;
-                  r_id                = record[i].data.saved_queries[cnt].saved_query.rrd_id;
+                  param_config = {
+                    query_id:            record[i].data.saved_queries[cnt].saved_query.id,
+                    query_title:         record[i].data.saved_queries[cnt].saved_query.name,
+                    query_params:        record[i].data.saved_queries[cnt].saved_query.query_params,
+                    severity_min:        record[i].data.saved_queries[cnt].saved_query.severity_min,
+                    severity_max:        record[i].data.saved_queries[cnt].saved_query.severity_max,
+                    deviation_threshold: record[i].data.saved_queries[cnt].saved_query.deviation_threshold,
+                    deviation_min:       record[i].data.saved_queries[cnt].saved_query.deviation_min,
+                    deviation_max:       record[i].data.saved_queries[cnt].saved_query.deviation_max,
+                    r_id:                record[i].data.saved_queries[cnt].saved_query.rrd_id
+                  };
                   column_obj = this.add({
                     columnWidth: .25,
                     listeners:{
@@ -67,18 +58,25 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
                     }
                   });
                   result_obj = column_obj.add({
-                    title: query_title,
+                    title: param_config.query_title,
+                    param_config: param_config,
                     tools: [{
                       id:'save',
                       qtip: 'Edit Query',
                       handler: function(e, targetEl, panel, tc){
-                        panel.ownerCt.ownerCt.showEditSavedQueryConsole(query_title, query_params, severity_min,
-                          severity_max, deviation_threshold, deviation_min, deviation_max, r_id, query_id, south_panel);
+                        panel.ownerCt.ownerCt.showEditSavedQueryConsole(
+                          panel.param_config.query_title,
+                          panel.param_config.query_params,
+                          panel.param_config.severity_min,
+                          panel.param_config.severity_max,
+                          panel.param_config.deviation_threshold,
+                          panel.param_config.deviation_min,
+                          panel.param_config.deviation_max,
+                          panel.param_config.r_id,
+                          panel.param_config.query_id, south_panel);
                       }
                     }],
                     cls: 'ux-saved-graphs',
-                    //autoWidth: true,
-                    //autoHeight: true,
                     html: '<div class="ux-saved-graph-container"><img class="ux-ajax-loader" src="/images/Ajax-loader.gif" /></div>'
                   });
                   this.ownerCt.ownerCt.ownerCt.renderGraphs(cnt, record[i].data.img_urls.image_urls[cnt], result_obj, 'ux-saved-graph-container');

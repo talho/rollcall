@@ -5,7 +5,9 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
   def index
     alarms = []
     current_user.saved_queries.each do |query|
-      result = Rollcall::Alarm.find_all_by_id(query.id)
+      result = Rollcall::Alarm.find_all_by_saved_query_id(query.id).each do |query|
+        query[:school_name] = query.school.display_name
+      end
       alarms.push(result)
     end
     respond_to do |format|
@@ -14,24 +16,12 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
           :success       => true,
           :total_results => alarms.length,
           :results       => {
-            :id            => 1,
-            :alarms        => alarms
+            :id     => 1,
+            :alarms => alarms
           }.as_json
         }
       end
     end
-  end
-
-  def create
-
-  end
-
-  def update
-
-  end
-
-  def delete
-
   end
 
 end

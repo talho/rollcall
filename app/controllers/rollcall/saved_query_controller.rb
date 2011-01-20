@@ -3,7 +3,8 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
   before_filter :rollcall_required
 
   def index
-    saved_query_graphs = Rollcall::Rrd.render_saved_graphs current_user.saved_queries(params)
+    saved_queries      = current_user.saved_queries(params)
+    saved_query_graphs = Rollcall::Rrd.render_saved_graphs saved_queries
     respond_to do |format|
       format.json do
         render :json => {

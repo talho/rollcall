@@ -32,10 +32,10 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
           :success       => true,
           :total_results => results[:image_urls].length,
           :results       => {
-            :id => 1,
-            :img_urls => results[:image_urls],
-            :r_ids     => results[:rrd_ids], 
-            :schools => schools,
+            :id           => 1,
+            :img_urls     => results[:image_urls],
+            :r_ids        => results[:rrd_ids],
+            :schools      => schools,
             :school_names => school_names
           }.as_json
         }
@@ -109,19 +109,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       {:id => 12,:value => '11th Grade'},
       {:id => 13,:value => '12th Grade'}
     ]
-    symptoms = [
-      {:id => 0, :value => 'Select Symptom...'},
-      {:id => 1, :value => 'Temperature'},
-      {:id => 2, :value => 'Lethargy'},
-      {:id => 3, :value => 'Sore Throat'},
-      {:id => 4, :value => 'Congestion'},
-      {:id => 5, :value => 'Diarrhea'},
-      {:id => 6, :value => 'Headache'},
-      {:id => 7, :value => 'Cough'},
-      {:id => 8, :value => 'Body Ache'},
-      {:id => 9, :value => 'Vomiting'},
-      {:id => 10,:value => 'Rhinorrhea'}
-    ]
+    symptoms       = Rollcall::Symptom.find(:all)
     data_functions = if params[:type] == 'simple' || params[:type].blank?
       [
         {:id => 0, :value => 'Raw'},

@@ -43,6 +43,25 @@
 .clear{
   clear: both;
 }
+.alarm{
+  height: 40px;
+  padding-left: 15px;
+}
+.extreme{
+  background:url(images/status_extreme.png) 0px 1px no-repeat;
+}
+.severe{
+  background:url(images/status_severe.png) 0px 1px no-repeat;
+}
+.moderate{
+  background:url(images/status_moderate.png) 0px 1px no-repeat;
+}
+.minor{
+  background:url(images/status_minor.png) 0px 1px no-repeat;
+}
+.unknown{
+  background:url(images/status_unknown.png) 0px 1px no-repeat;
+}
 .rollcall_alarm_icon {
   background:url(../images/alert.gif) 0 -2px no-repeat;
 }

@@ -5,6 +5,7 @@
 #  id                 :integer(4)      not null, primary key
 #  school_id          :integer(4)
 #  saved_query_id     :integer(4)
+#  alarm_severity     :string
 #  deviation          :float
 #  severity           :float
 #  absentee_rate      :float
@@ -32,7 +33,6 @@ class Rollcall::Alarm < Rollcall::Base
       start_date     = params['startdt'].blank? ? test_data_date : Time.parse(params['startdt'])
       end_date       = params['enddt'].blank? ? Time.now : Time.parse(params['enddt']) + 1.day
       tea_id         = params['tea_id']
-#      school_name    = Rollcall::School.find_by_tea_id(tea_id).display_name.gsub(" ", "_")
       school_id      = Rollcall::School.find_by_tea_id(tea_id).id
       days           = ((end_date - start_date) / 86400)
       total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
@@ -47,25 +47,34 @@ class Rollcall::Alarm < Rollcall::Base
           data_set.push(total_absent)
         rescue
         end
-        deviation = calculate_deviation data_set
-        severity  = (total_absent.to_f / total_enrolled.to_f)
-
+        deviation     = calculate_deviation data_set
+        severity      = (total_absent.to_f / total_enrolled.to_f)
+        absentee_rate = severity * 100
         if (severity <= saved_query.severity_min || severity >= saved_query.severity_max) ||
            (deviation <= saved_query.deviation_min || deviation >= saved_query.deviation_max) ||
            (deviation >= saved_query.deviation_threshold) ||
            ((saved_query.deviation_threshold - deviation) >= 1)
+          if absentee_rate >= saved_query.severity_max
+            alarm_severity = 'extreme'
+          elsif absentee_rate > saved_query.severity_min && absentee_rate < saved_query.severity_max
+            alarm_severity = 'severe'
+          elsif absentee_rate > (saved_query.severity_min - 2) && absentee_rate <= saved_query.severity_min
+            alarm_severity = 'moderate'
+          else
+            alarm_severity = 'unknown'
+          end
           create(
             :school_id      => school_id,
             :saved_query_id => saved_query.id,
             :deviation      => deviation,
             :severity       => severity,
-            :absentee_rate  => severity * 100,
+            :alarm_severity => alarm_severity,
+            :absentee_rate  => absentee_rate,
             :report_date    => report_date
           )
         end
       end
       data_set.clear
-      
     end
   end
 

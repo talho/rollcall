@@ -72,3 +72,13 @@
   position:relative;
   left:6px;
 }
+.x-tool-alarm-on{
+  background:url(images/ext_alarm_sprite.gif) 0px 0px no-repeat !important;
+  width: 15px !important;
+  height: 15px !important;
+}
+.x-tool-alarm-off{
+  background:url(images/ext_alarm_sprite.gif) 0px 0px no-repeat !important;
+  width: 15px !important;
+  height: 15px !important;
+}

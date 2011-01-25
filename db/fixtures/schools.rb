@@ -10,7 +10,7 @@ def build_rrd(identifier)
   RRD.create("#{rrd_path}#{identifier}_absenteeism.rrd",
     {
       :step  => 24.hours.seconds,
-      :start => Time.local(2010,"oct",1,0,0).to_i,
+      :start => Time.local(2010,"aug",31,0,0).to_i,
       :ds    => [{
         :name => "Absent", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 768000
       },{

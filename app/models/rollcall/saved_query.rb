@@ -11,6 +11,7 @@
 #  deviation_threshold :integer(4)
 #  deviation_min       :integer(4)
 #  deviation_max       :integer(4)
+#  alarm               :boolean
 #
 
 class Rollcall::SavedQuery < Rollcall::Base

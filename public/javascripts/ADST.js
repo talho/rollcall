@@ -69,7 +69,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           maxSize:  300,
           autoScroll: true,
           layout: 'fit',
-          bodyStyle:   'padding:10px;',
+//          bodyStyle:   'padding:10px;',
           items:    new Talho.Rollcall.SavedQueriesPanel({})
         },{
           title:       'Reports',

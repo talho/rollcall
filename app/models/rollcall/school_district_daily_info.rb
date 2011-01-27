@@ -34,7 +34,7 @@
 class Rollcall::SchoolDistrictDailyInfo < Rollcall::Base
   belongs_to :school_district, :class_name => "Rollcall::SchoolDistrict", :foreign_key => "school_district_id"
 
-  validates_presence_of :rollcall_school_district
+  validates_presence_of :school_district
   validates_presence_of :report_date
 
   named_scope :for_date, lambda{|date| {

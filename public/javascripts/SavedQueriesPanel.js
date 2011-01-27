@@ -126,7 +126,8 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
   showEditSavedQueryConsole: function(panel,south_panel)
   {
     var params              = [];
-    var param_string        = null;
+    var param_string        = '';
+    var param_switch        = '';
     var tea_id              = null;
     var query_title         = panel.param_config.query_title;
     var query_params        = panel.param_config.query_params;
@@ -144,18 +145,20 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
     });
 
     query_params = query_params.split("|");
-    query_params.pop(query_params.length);
+   // query_params.pop(query_params.length);
     for(var i=0; i<query_params.length;i++){
       var key_value = query_params[i].split("=");
-      if(key_value[0].indexOf("undefined") == -1){
-        if(key_value[0] == "tea_id") tea_id = key_value[0];
-        params.push([key_value[0], key_value[1]]);  
-      }
+      //if(key_value[0].indexOf("undefined") == -1){
+        if(key_value[0] == "tea_id") tea_id = key_value[1];
+        if(key_value[0] == "switch") param_switch = key_value[1];
+        else params.push([key_value[0], key_value[1]]);
+      //}
     }
 
     storedParams.loadData(params);
+    storedParams.push('switch', param_switch);
     for(key in params){
-      param_string += params[key][0] + '=' + params[key][1] + "|"
+      if(key != "remove") param_string += params[key][0] + '=' + params[key][1] + "|"
     }
 
     var alarm_console = new Ext.Window({

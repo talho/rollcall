@@ -126,9 +126,13 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                   form_values.start = 0;
                   form_values.limit = 6;
                   for(key in form_values){
-                    result_store.setBaseParam(key, form_values[key]);
-                  }
+                    if(Ext.getCmp('advanced_query_select').isVisible()){
+                      if(key.indexOf('adv') != -1) result_store.setBaseParam(key.replace('_adv',''), form_values[key]);
+                    }else{
+                      if(key.indexOf('simple') != -1) result_store.setBaseParam(key.replace('_simple',''), form_values[key]);
+                    }
 
+                  }
                   buttonEl.findParentByType("form").buttons[2].show();
 
                   var panel_mask = new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(), {msg:"Please wait..."});
@@ -152,7 +156,11 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                   var form_values  = buttonEl.findParentByType("form").getForm().getValues();
                   var param_string = '';
                   for(key in form_values){
-                    param_string += key + '=' + form_values[key] + "&";
+                    if(Ext.getCmp('advanced_query_select').isVisible){
+                      if(key.indexOf('adv') != -1) param_string += key.replace('_adv','') + '=' + form_values[key] + "&";
+                    }else{
+                      if(key.indexOf('simple') != -1) param_string += key.replace('_simple','') + '=' + form_values[key] + "&";  
+                    }
                   }
                   Talho.ux.FileDownloadFrame.download('rollcall/export?'+param_string);
                 }

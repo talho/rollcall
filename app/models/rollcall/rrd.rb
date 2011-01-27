@@ -13,29 +13,18 @@ class Rollcall::Rrd < Rollcall::Base
   set_table_name "rollcall_rrds"
 
   def self.search params
-    if params[:adv] == 'true'
-      param_switch = 'adv'
-    else
-      param_switch = 'simple'
-    end
-
-    school_name = params['school_'+param_switch].index('...').blank? ? CGI::unescape(params['school_'+param_switch]) : ""
-    school_type = params['school_type_'+param_switch].index('...').blank? ? CGI::unescape(params['school_type_'+param_switch]) : ""
+    school_name = params['school'].index('...').blank? ? CGI::unescape(params['school']) : ""
+    school_type = params['school_type'].index('...').blank? ? CGI::unescape(params['school_type']) : ""
     schools     = Rollcall::School.search("#{school_name}").concat(Rollcall::School.search("#{school_type}"))
-    schools.concat(Rollcall::School.search("#{params['zip_'+param_switch]}")) unless params['zip_'+param_switch].blank?
+    schools.concat(Rollcall::School.search("#{params['zip']}")) unless params['zip'].blank?
     schools_uniq = schools.uniq.map {|v| (schools-[v]).size < (schools.size - 1) ? v : nil}.compact
     return schools_uniq
   end
 
   def self.render_graphs params
-    if params[:adv] == 'true'
-      param_switch = 'adv'
-    else
-      param_switch = 'simple'
-    end
     test_data_date = Time.parse("11/22/2010")
-    start_date     = params['startdt_'+param_switch].index('...') ? test_data_date : Time.parse(params['startdt_'+param_switch])
-    end_date       = params['enddt_'+param_switch].index('...') ? Time.now : Time.parse(params['enddt_'+param_switch]) + 1.day
+    start_date     = params['startdt'].index('...') ? test_data_date : Time.parse(params['startdt'])
+    end_date       = params['enddt'].index('...') ? Time.now : Time.parse(params['enddt']) + 1.day
     image_paths    = []
     rrd_ids        = []
     rrd_image_path = Dir.pwd << "/public/rrd/"
@@ -54,13 +43,27 @@ class Rollcall::Rrd < Rollcall::Base
           image_file     = rrd_file.gsub(".rrd",".png")
           school_name    = Rollcall::School.find_by_tea_id(tea_id).display_name.gsub(" ", "_")
           graph_title    = "Absenteeism Rate for #{school_name}"
-          unless params['symptoms_'+param_switch].blank?
-            if params['symptoms_'+param_switch].index("...").blank?
-              graph_title = "Absenteeism Rate for #{school_name} based on #{params['symptoms_'+param_switch]}"
+          unless params['symptoms'].blank?
+            if params['symptoms'].index("...").blank?
+              graph_title = "Absenteeism Rate for #{school_name} based on #{params['symptoms']}"
             end
           end
           File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
-          RRD.send_later(:graph,
+#          RRD.send_later(:graph,
+#            "#{rrd_path}#{rrd_file}","#{rrd_image_path}#{image_file}",
+#            {
+#              :start      => start_date,
+#              :end        => end_date,
+#              :width      => 500,
+#              :height     => 120,
+#              :image_type => "PNG",
+#              :title      => graph_title,
+#              :vlabel     => "percent absent",
+#              :lowerlimit => 0,
+#              :defs       => self.build_defs(params),
+#              :elements   => self.build_elements
+#            }, "#{rrd_tool}")
+          RRD.graph(
             "#{rrd_path}#{rrd_file}","#{rrd_image_path}#{image_file}",
             {
               :start      => start_date,
@@ -71,8 +74,10 @@ class Rollcall::Rrd < Rollcall::Base
               :title      => graph_title,
               :vlabel     => "percent absent",
               :lowerlimit => 0,
-              :defs       => self.build_defs({}, param_switch),
-              :elements   => self.build_elements({}, param_switch)
+              :defs       => self.build_defs(params),
+              #:cdefs      => self.build_cdefs(params),
+              :elements   => self.build_elements(params)
+
             }, "#{rrd_tool}")
           image_paths.push(:value => "/rrd/#{image_file}")
           rrd_ids.push(:value => rrd_id)
@@ -123,8 +128,8 @@ class Rollcall::Rrd < Rollcall::Base
             :title      => graph_title,
             :vlabel     => "percent absent",
             :lowerlimit => 0,
-            :defs       => self.build_defs({}, {}),
-            :elements   => self.build_elements({}, {})
+            :defs       => self.build_defs(params),
+            :elements   => self.build_elements(params)
           }, "#{rrd_tool}")
         image_urls.push("/rrd/#{image_file}")
       end
@@ -136,33 +141,27 @@ class Rollcall::Rrd < Rollcall::Base
 
   def self.export_rrd_data params
     initial_result = search params
-    if params[:adv] == 'true'
-      param_switch = 'adv'
-    else
-      param_switch = 'simple'
-    end
     test_data_date = Time.parse("11/22/2010")
-    start_date = params['startdt_'+param_switch].index('...') ? test_data_date : Time.parse(params['startdt_'+param_switch])
-    end_date   = params['enddt_'+param_switch].index('...') ? Time.now : Time.parse(params['enddt_'+param_switch])
-
-    conditions = {}
+    start_date     = params['startdt'].index('...') ? test_data_date : Time.parse(params['startdt'])
+    end_date       = params['enddt'].index('...') ? Time.now : Time.parse(params['enddt'])
+    conditions     = {}
     params.each { |key,value|
       case key
-      when "absent_simple", "absent_adv"
+      when "absent"
         if value == "Confirmed+Illness" || value == "Confirmed Illness"
           conditions[:confirmed_illness] = true
         end
-      when "gender_adv"
+      when "gender"
         if value == "Male"
           conditions[:gender] = true
         elsif value == "Female"
           conditions[:gender] = false
         end
-      when "startdt_simple", "startdt_adv"
+      when "startdt"
         if value.index('...').blank?
           conditions[:startdt] = value
         end
-      when "enddt_simple", "enddt_adv"
+      when "enddt"
         if value.index('...').blank?
           conditions[:enddt] = value
         end
@@ -188,21 +187,45 @@ class Rollcall::Rrd < Rollcall::Base
 
   private
 
-  def self.build_defs options, switch
+  def self.build_defs options
     keys    = ["a","b","c","d"]
     ds_name = ["Absent", "Enrolled"]
     defs    = []
+
     for i in 0..(ds_name.length - 1)
+      cf      = "LAST"       if options[:data_func] == "Raw"
+      cf      = "AVERAGE"    if options[:data_func] == "Average"
+      if options[:data_func] == "Standard+Deviation" && ds_name[i] != 'Enrolled'
+        cf = "DEVPREDICT"
+      elsif options[:data_func] == "Standard+Deviation"
+        cf = "LAST"
+      end
       defs.push({
         :key     => keys[i],
-        :cf      => "LAST",
+        :cf      => cf,
         :ds_name => ds_name[i].gsub(" ","_")
       })
     end
     return defs
   end
 
-  def self.build_elements options, switch
+  def self.build_cdefs options
+    if options[:data_func] == "Standard+Deviation"
+      keys    = ['a']
+      ds_name = ['Absent']
+      cdefs   = []
+      for i in 0..(ds_name.length - 1)
+        cdefs.push({
+          :key => 'somekey'+keys[i],
+          :new_key => keys[i]+keys[i],
+          :rpn     => "#{keys[i]},2,*,+ \\"
+        })
+      end
+      return cdefs
+    end
+  end
+
+  def self.build_elements options
     keys           = ["a","b","c","d"]
     ds_name        = ["Absent", "Enrolled"]
     elements       = []
@@ -215,12 +238,22 @@ class Rollcall::Rrd < Rollcall::Base
         alpha_or_numeric = rand(2)
         school_color    += alpha_numeric[alpha_or_numeric][rand(alpha_numeric[alpha_or_numeric].length)]
       end
-      elements.push({
-        :key     => keys[i],
-        :element => keys[i] == "a" ? "AREA" : "LINE1",
-        :color   => school_color,
-        :text    => "Total "+ds_name[i]
-      })
+      if options[:data_func] == "Standard+Deviation" && keys[i] == "a"
+        elements.push({
+          :key     => keys[i],
+          :element => "AREA",
+          :color   => school_color,
+          :text    => "Standard Deviation",
+          :cf      => 'DEVPREDICT'
+        })
+      else
+        elements.push({
+          :key     => keys[i],
+          :element => keys[i] == "a" ? "AREA" : "LINE1",
+          :color   => school_color,
+          :text    => "Total "+ds_name[i]
+        })
+      end
     end
     return elements
   end
@@ -233,12 +266,12 @@ class Rollcall::Rrd < Rollcall::Base
 
     options.each { |key,value|
       case key
-      when "absent_simple", "absent_adv"
+      when "absent"
         if value == "Confirmed+Illness"
           filename = "AB_#{filename}"
           conditions[:confirmed_illness] = true
         end
-      when "gender_adv"
+      when "gender"
         if value == "Male"
           conditions[:gender] = true
           filename = "G-#{conditions[:gender]}_#{filename}"
@@ -246,12 +279,12 @@ class Rollcall::Rrd < Rollcall::Base
           conditions[:gender] = false
           filename = "G-#{conditions[:gender]}_#{filename}"
         end        
-      when "startdt_simple", "startdt_adv"
+      when "startdt"
         if value.index('...').blank?
           conditions[:startdt] = value
           filename = "SD-#{Time.parse(conditions[:startdt]).strftime("%s")}_#{filename}"
         end
-      when "enddt_simple", "enddt_adv"
+      when "enddt"
         if value.index('...').blank?
           conditions[:enddt] = value
           filename = "ED-#{Time.parse(conditions[:enddt]).strftime("%s")}_#{filename}"
@@ -287,6 +320,14 @@ class Rollcall::Rrd < Rollcall::Base
           :rra => [{
             :type => "AVERAGE", :xff => 0.5, :steps => 1, :rows => 366
           },{
+            :type => "HWPREDICT", :rows => 366, :alpha=> 0.5, :beta => 0.5, :period => 366, :rra_num => 3
+          },{
+            :type => "SEASONAL", :period => 366, :gamma => 0.5, :rra_num => 2
+          },{
+            :type => "DEVSEASONAL", :period => 366, :gamma => 0.5, :rra_num => 2
+          },{
+            :type => "DEVPREDICT", :rows => 366, :rra_num => 4
+          },{
             :type => "MAX", :xff => 0.5, :steps => 1, :rows => 366
           },{
             :type => "LAST", :xff => 0.5, :steps => 1, :rows => 366
@@ -302,7 +343,7 @@ class Rollcall::Rrd < Rollcall::Base
           start_date = Time.parse("11/22/2010")
           end_date   = Time.now
         end
-        days = ((end_date - start_date) / 86400)
+        days           = ((end_date - start_date) / 86400)
         total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
         (0..days).each do |i|
           report_date = start_date + i.days
@@ -312,7 +353,6 @@ class Rollcall::Rrd < Rollcall::Base
             total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(school_id, report_date).size
           end
           begin
-#            total_enrolled = Rollcall::SchoolDailyInfo.find_by_report_date_and_school_id(report_date, school_id).total_enrolled
             RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,total_absent, total_enrolled],"#{rrd_tool}"
           rescue
           end

@@ -185,7 +185,29 @@ namespace :rollcall do
           end
         end
       end
-
+      #Create School District Daily Infos
+      Rollcall::SchoolDistrict.all.each do |district|
+        current_time      = Time.parse(Rollcall::SchoolDailyInfo.find(:last).report_date.to_s)
+        begin_time        = Time.parse("09/01/2010")
+        days_to_traverse  = ((current_time - begin_time) / 86400).to_i
+        (0..(days_to_traverse - 1)).reverse_each do |i|
+          report_date    = current_time - i.days
+          if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
+          else
+            total_absent   = Rollcall::SchoolDailyInfo.find_all_by_report_date(report_date).sum(&:total_absent)
+            total_enrolled = Rollcall::SchoolDailyInfo.find_all_by_report_date(report_date).sum(&:total_enrolled)
+            absentee_rate  = (total_absent.to_f / total_enrolled.to_f)
+            result = Rollcall::SchoolDistrictDailyInfo.create(
+              :report_date        => report_date,
+              :absentee_rate      => absentee_rate,
+              :total_enrollment   => total_enrolled,
+              :total_absent       => total_absent,
+              :school_district_id => district.id
+            )
+            puts "Result #{result.id}"
+          end     
+        end
+      end
     end
   end
 end

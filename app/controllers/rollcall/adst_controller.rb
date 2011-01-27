@@ -47,21 +47,21 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     filename = "csv_export"
     params.each { |key,value|
       case key
-      when "absent_simple", "absent_adv"
+      when "absent"
         if value == "Confirmed+Illness"
           filename = "AB_#{filename}"
         end
-      when "gender_adv"
+      when "gender"
         if value == "Male"
           filename = "G-#{value}_#{filename}"
         elsif value == "Female"
           filename = "G-#{value}_#{filename}"
         end
-      when "startdt_simple", "startdt_adv"
+      when "startdt"
         if value.index('...').blank?
           filename = "SD-#{Time.parse(value).strftime("%s")}_#{filename}"
         end
-      when "enddt_simple", "enddt_adv"
+      when "enddt"
         if value.index('...').blank?
           filename = "ED-#{Time.parse(value).strftime("%s")}_#{filename}"
         end

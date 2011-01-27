@@ -19,6 +19,14 @@ def build_rrd(identifier)
       :rra => [{
         :type => "AVERAGE", :xff => 0.5, :steps => 1, :rows => 366
       },{
+        :type => "HWPREDICT", :rows => 366, :alpha=> 0.5, :beta => 0.5, :period => 366, :rra_num => 3
+      },{
+        :type => "SEASONAL", :period => 366, :gamma => 0.5, :rra_num => 2
+      },{
+        :type => "DEVSEASONAL", :period => 366, :gamma => 0.5, :rra_num => 2
+      },{
+        :type => "DEVPREDICT", :rows => 366, :rra_num => 4
+      },{
         :type => "MAX", :xff => 0.5, :steps => 1, :rows => 366
       },{
         :type => "LAST", :xff => 0.5, :steps => 1, :rows => 366

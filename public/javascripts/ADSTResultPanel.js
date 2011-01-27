@@ -71,10 +71,16 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
                   var form_values  = panel.ownerCt.ownerCt.ownerCt.findByType('form')[0].getForm().getValues();
                   var param_string = '';
                   for(key in form_values){
-                    if(key == 'school_simple' || key == 'school_adv'){
-                      param_string += key + '=' + panel.school_name + "&";
+                    if(Ext.getCmp('advanced_query_select').isVisible){
+                      if(key.indexOf('adv') != -1){
+                        if(key == 'school_adv') param_string += key.replace('_adv','') + '=' + panel.school_name + "&";
+                        else param_string += key.replace('_adv','') + '=' + form_values[key] + "&";
+                      }
                     }else{
-                      param_string += key + '=' + form_values[key] + "&";
+                      if(key.indexOf('simple') != -1){
+                        if(key == 'school_simple') param_string += key.replace('_simple','') + '=' + panel.school_name + "&";
+                        else param_string += key.replace('_simple','') + '=' + form_values[key] + "&";
+                      }
                     }
                   }
                   Talho.ux.FileDownloadFrame.download('rollcall/export?'+param_string);
@@ -142,12 +148,13 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       }
     }
     params.push(['tea_id', tea_id]);
-
     storedParams.loadData(params);
+    params.push(['switch', paramSwitch]);   
+
     param_string = '';
 
     for(key in params){
-      param_string += params[key][0] + '=' + params[key][1] + "|"
+      if(key != "remove") param_string += params[key][0] + '=' + params[key][1] + "|"
     }
 
     var alarm_console = new Ext.Window({

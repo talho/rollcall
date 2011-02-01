@@ -41,7 +41,6 @@ Talho.Rollcall.SimpleADSTContainer = Ext.extend(Ext.Container, {
             store: config.schools,
             listeners:{
               select: function(comboBox, record, index){
-                //comboBox.ownerCt().getComponent('school_type_simple').reset();
                 Ext.getCmp('school_type_simple').clearValue();
               }
             }
@@ -57,7 +56,6 @@ Talho.Rollcall.SimpleADSTContainer = Ext.extend(Ext.Container, {
             store: config.school_type,
             listeners:{
               select: function(comboBox, record, index){
-                //comboBox.ownerCt().getComponent('school_simple').reset();
                 Ext.getCmp('school_simple').clearValue();
               }
             }
@@ -94,6 +92,13 @@ Talho.Rollcall.SimpleADSTContainer = Ext.extend(Ext.Container, {
               id: 'data_func_simple',
               store: config.data_functions
             })
+        },{
+          cls: 'base-line-check',
+          items:{
+            xtype: 'checkbox',
+            id: 'enrolled_base_line_simple',
+            boxLabel: "Display Total Enrolled Base Line"
+          }
         },{
           cls: 'clear',
           items:{

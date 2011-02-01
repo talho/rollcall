@@ -82,3 +82,13 @@
   width: 15px !important;
   height: 15px !important;
 }
+.base-line-check{
+  clear:both;
+  position: relative;
+  top: -10px;
+  left: 6px;
+}
+#x-form-el-enrolled_base_line_simple,
+#x-form-el-enrolled_base_line_adv{
+  padding-left: 0px !important;
+}

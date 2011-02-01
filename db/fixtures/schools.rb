@@ -17,11 +17,11 @@ def build_rrd(identifier)
         :name => "Enrolled", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 768000
       }],
       :rra => [{
-        :type => "AVERAGE", :xff => 0.5, :steps => 1, :rows => 366
+        :type => "AVERAGE", :xff => 0.5, :steps => 5, :rows => 366
       },{
         :type => "HWPREDICT", :rows => 366, :alpha=> 0.5, :beta => 0.5, :period => 366, :rra_num => 3
       },{
-        :type => "SEASONAL", :period => 366, :gamma => 0.5, :rra_num => 2
+        :type => "SEASONAL", :period => 365, :gamma => 0.5, :rra_num => 2
       },{
         :type => "DEVSEASONAL", :period => 366, :gamma => 0.5, :rra_num => 2
       },{

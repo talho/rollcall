@@ -444,8 +444,6 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         text: 'Close',
         handler: function(buttonEl, eventObj){
           alarm_console.close();
-          //alarm_console.hide();
-          //alarm_console.destroy();
         }
       }]
     });

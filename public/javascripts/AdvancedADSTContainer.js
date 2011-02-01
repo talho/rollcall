@@ -133,6 +133,13 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             hidden: true
           }
         },{
+          cls: 'base-line-check',
+          items:{
+            xtype: 'checkbox',
+            id: 'enrolled_base_line_adv',
+            boxLabel: "Display Total Enrolled Base Line"
+          }
+        },{
         cls: 'clear',
         items:{
           xtype:   'button',

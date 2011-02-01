@@ -157,9 +157,10 @@ namespace :rollcall do
             report_date  = current_time - i.days
             sim_result   = SeedRollcallData.simulate_outbreak illness, sim_result[1], name, report_date
             total_absent = sim_result[0]
+            school       = Rollcall::School.find_by_tea_id(name)
             if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
+              RRD.update("#{rrd_path}#{name}_absenteeism.rrd", [report_date.to_i.to_s,0,total_enrolled], "#{rrd_tool}")
             else
-              school = Rollcall::School.find_by_tea_id(name)
               RRD.update("#{rrd_path}#{name}_absenteeism.rrd", [report_date.to_i.to_s,total_absent,total_enrolled], "#{rrd_tool}")
               result = Rollcall::SchoolDailyInfo.create(
                 :school_id      => school.id,
@@ -194,6 +195,7 @@ namespace :rollcall do
           report_date    = current_time - i.days
           if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
           else
+            puts "Creating School District Daily Info for #{report_date}"
             total_absent   = Rollcall::SchoolDailyInfo.find_all_by_report_date(report_date).sum(&:total_absent)
             total_enrolled = Rollcall::SchoolDailyInfo.find_all_by_report_date(report_date).sum(&:total_enrolled)
             absentee_rate  = (total_absent.to_f / total_enrolled.to_f)
@@ -204,7 +206,6 @@ namespace :rollcall do
               :total_absent       => total_absent,
               :school_district_id => district.id
             )
-            puts "Result #{result.id}"
           end     
         end
       end

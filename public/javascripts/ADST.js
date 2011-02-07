@@ -69,7 +69,6 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           maxSize:  300,
           autoScroll: true,
           layout: 'fit',
-//          bodyStyle:   'padding:10px;',
           items:    new Talho.Rollcall.SavedQueriesPanel({})
         },{
           title:       'Reports',
@@ -119,10 +118,10 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                 scope: this,
                 handler: function(buttonEl, eventObj){
                   this.getResultPanel().clearProviders();
-                  var form_values = buttonEl.findParentByType('form').getForm().getValues();
+                  var form_values  = buttonEl.findParentByType('form').getForm().getValues();
                   var result_store = this.getResultPanel().getResultStore();
                   buttonEl.findParentByType('form').findParentByType('panel').getBottomToolbar().bindStore(result_store);
-                  form_values.page = 1;
+                  form_values.page  = 1;
                   form_values.start = 0;
                   form_values.limit = 6;
                   for(key in form_values){
@@ -220,7 +219,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
             prependButtons: true,
             listeners:{
               'beforechange': function(this_toolbar, params){
-                var result_store = this_toolbar.ownerCt.ownerCt.ownerCt.getResultPanel().getResultStore();
+                var result_store   = this_toolbar.ownerCt.ownerCt.ownerCt.getResultPanel().getResultStore();
                 var container_mask = new Ext.LoadMask(this_toolbar.ownerCt.ownerCt.ownerCt.getResultPanel().getEl(), {msg:"Please wait..."});
                 container_mask.show();
 

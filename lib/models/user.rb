@@ -16,15 +16,20 @@ module Rollcall
     end
 
     def saved_queries(options={})
-      unless options[:r_id].blank?
-        saved_queries = Rollcall::SavedQuery.find_all_by_user_id_and_rrd_id(id, options[:r_id])
+      unless options[:query_id].blank?
+        saved_queries = []
         unless options[:clone].blank?
-          saved_query   = saved_queries.last
-          saved_queries = []
-          saved_queries.push(saved_query)
+          saved_query = Rollcall::SavedQuery.find(:all).last
+        else
+          saved_query = Rollcall::SavedQuery.find(options[:query_id])
         end
+        saved_queries.push(saved_query)
       else
-        saved_queries = Rollcall::SavedQuery.find_all_by_user_id(id)
+        unless options[:r_id].blank?
+          saved_queries = Rollcall::SavedQuery.find_all_by_user_id_and_rrd_id(id, options[:r_id])
+        else
+          saved_queries = Rollcall::SavedQuery.find_all_by_user_id(id)
+        end
       end
       saved_queries
     end

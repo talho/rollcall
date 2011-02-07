@@ -73,7 +73,7 @@
   left:6px;
 }
 .x-tool-alarm-on{
-  background:url(images/ext_alarm_sprite.gif) 0px 0px no-repeat !important;
+  background:url(images/ext_alarm_sprite.gif) -15px 0px no-repeat !important;
   width: 15px !important;
   height: 15px !important;
 }
@@ -91,4 +91,9 @@
 #x-form-el-enrolled_base_line_simple,
 #x-form-el-enrolled_base_line_adv{
   padding-left: 0px !important;
+}
+.x-tip-anchor-adjust{
+  left: -8px;
+  top: 4px;
+
 }

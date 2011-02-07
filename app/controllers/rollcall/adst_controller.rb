@@ -152,5 +152,5 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       end
     end
   end
-  
+
 end

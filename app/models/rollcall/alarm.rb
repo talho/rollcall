@@ -20,19 +20,40 @@ class Rollcall::Alarm < Rollcall::Base
     
   set_table_name "rollcall_alarms"
 
+  def self.generate_alarm(query)
+    unless query.alarm_set
+      result = create_alarm query
+    else
+      result = false
+    end
+    query.save if query.update_attributes(
+      :alarm_set => result
+    )
+    return result
+  end
+
   def self.generate_alarms(user_id)
     saved_queries = Rollcall::SavedQuery.find_all_by_user_id(user_id)
-    data_set      = []
     saved_queries.each do |saved_query|
-      query_params   = saved_query.query_params.split("|")
+      create_alarm saved_query
+    end
+  end
+
+  private
+
+  def self.create_alarm query
+    return_success = false
+    begin
+      data_set       = []
+      query_params   = query.query_params.split("|")
       params         = {}
       query_params.each do |param|
-        params["#{param.split('=')[0]}"] = param.split('=')[1]
+        params[:"#{param.split('=')[0]}"] = param.split('=')[1]
       end
       test_data_date = Time.parse("11/22/2010")
-      start_date     = params['startdt'].blank? ? test_data_date : Time.parse(params['startdt'])
-      end_date       = params['enddt'].blank? ? Time.now : Time.parse(params['enddt']) + 1.day
-      tea_id         = params['tea_id']
+      start_date     = params[:startdt].blank? ? test_data_date : Time.parse(params[:startdt])
+      end_date       = params[:enddt].blank? ? Time.now : Time.parse(params[:enddt]) + 1.day
+      tea_id         = params[:tea_id]
       school_id      = Rollcall::School.find_by_tea_id(tea_id).id
       days           = ((end_date - start_date) / 86400)
       total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
@@ -50,35 +71,38 @@ class Rollcall::Alarm < Rollcall::Base
         deviation     = calculate_deviation data_set
         severity      = (total_absent.to_f / total_enrolled.to_f)
         absentee_rate = severity * 100
-        if (severity <= saved_query.severity_min || severity >= saved_query.severity_max) ||
-           (deviation <= saved_query.deviation_min || deviation >= saved_query.deviation_max) ||
-           (deviation >= saved_query.deviation_threshold) ||
-           ((saved_query.deviation_threshold - deviation) >= 1)
-          if absentee_rate >= saved_query.severity_max
+
+        if (severity >= query.severity_min && severity <= query.severity_max) ||
+           (deviation >= query.deviation_min && deviation <= query.deviation_max) ||
+           (deviation >= query.deviation_threshold) ||
+           ((query.deviation_threshold - deviation) <= 1)
+          if absentee_rate >= query.severity_max
             alarm_severity = 'extreme'
-          elsif absentee_rate > saved_query.severity_min && absentee_rate < saved_query.severity_max
+          elsif absentee_rate > query.severity_min && absentee_rate < query.severity_max
             alarm_severity = 'severe'
-          elsif absentee_rate > (saved_query.severity_min - 2) && absentee_rate <= saved_query.severity_min
+          elsif absentee_rate > (query.severity_min - 2) && absentee_rate <= query.severity_min
             alarm_severity = 'moderate'
           else
             alarm_severity = 'unknown'
           end
           create(
             :school_id      => school_id,
-            :saved_query_id => saved_query.id,
+            :saved_query_id => query.id,
             :deviation      => deviation,
             :severity       => severity,
             :alarm_severity => alarm_severity,
             :absentee_rate  => absentee_rate,
             :report_date    => report_date
-          )
+          ) if find(:all, :conditions => ['saved_query_id = ? AND report_date = ?', query.id, report_date]).blank?
         end
       end
       data_set.clear
+    rescue
+      return false
     end
+    return_success = true unless find(:all, :conditions => ['saved_query_id = ?', query.id]).blank?
+    return return_success
   end
-
-  private
 
   def self.calculate_deviation(data_set)
     deviation            = 0

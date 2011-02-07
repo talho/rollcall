@@ -13,57 +13,34 @@ class Rollcall::Rrd < Rollcall::Base
   set_table_name "rollcall_rrds"
 
   def self.search params
-    school_name = params['school'].index('...').blank? ? CGI::unescape(params['school']) : ""
-    school_type = params['school_type'].index('...').blank? ? CGI::unescape(params['school_type']) : ""
+    school_name = params[:school].index('...').blank? ? CGI::unescape(params[:school]) : ""
+    school_type = params[:school_type].index('...').blank? ? CGI::unescape(params[:school_type]) : ""
     schools     = Rollcall::School.search("#{school_name}").concat(Rollcall::School.search("#{school_type}"))
-    schools.concat(Rollcall::School.search("#{params['zip']}")) unless params['zip'].blank?
+    schools.concat(Rollcall::School.search("#{params[:zip]}")) unless params[:zip].blank?
     schools_uniq = schools.uniq.map {|v| (schools-[v]).size < (schools.size - 1) ? v : nil}.compact
     return schools_uniq
   end
 
   def self.render_graphs params
-    test_data_date = Time.parse("08/31/2010")
-    start_date     = params['startdt'].index('...') ? test_data_date : Time.parse(params['startdt'])
-    end_date       = params['enddt'].index('...') ? Time.now : Time.parse(params['enddt']) + 1.day 
     image_paths    = []
     rrd_ids        = []
-    rrd_image_path = Dir.pwd << "/public/rrd/"
-    rrd_path       = Dir.pwd << "/rrd/"
-    rrd_tool       = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
-      YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
-    end
-    unless params['results'].blank?
-      unless params['results']['schools'].blank?
-        params['results']['schools'].split(',').each do |rec|
+    unless params[:results].blank?
+      unless params[:results][:schools].blank?
+        params[:results][:schools].split(',').each do |rec|
           tea_id         = rec.to_i
           filename       = "#{tea_id}_absenteeism"
           rrd_result     = reduce_rrd(params, filename)
           rrd_file       = rrd_result[:file_name]
           rrd_id         = rrd_result[:id]
-          image_file     = rrd_file.gsub(".rrd",".png")
+          image_file     = rrd_file.gsub(".rrd", ".png")
           school_name    = Rollcall::School.find_by_tea_id(tea_id).display_name.gsub(" ", "_")
           graph_title    = "Absenteeism Rate for #{school_name}"
-          unless params['symptoms'].blank?
-            if params['symptoms'].index("...").blank?
-              graph_title = "Absenteeism Rate for #{school_name} based on #{params['symptoms']}"
+          unless params[:symptoms].blank?
+            if params[:symptoms].index("...").blank?
+              graph_title = "Absenteeism Rate for #{school_name} based on #{params[:symptoms]}"
             end
           end
-          File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
-          RRD.graph(
-            "#{rrd_path}#{rrd_file}","#{rrd_image_path}#{image_file}",
-            {
-              :start      => start_date,
-              :end        => end_date,
-              :width      => 500,
-              :height     => 120,
-              :image_type => "PNG",
-              :title      => graph_title,
-              :vlabel     => "percent absent",
-              :lowerlimit => 0,
-              :defs       => self.build_defs(params),
-              :cdefs      => self.build_cdefs(params),
-              :elements   => self.build_elements(params)
-            }, "#{rrd_tool}")
+          self.graph rrd_file, image_file, graph_title, params
           image_paths.push(:value => "/rrd/#{image_file}")
           rrd_ids.push(:value => rrd_id)
         end
@@ -80,43 +57,19 @@ class Rollcall::Rrd < Rollcall::Base
     unless saved_queries.blank?
       saved_queries.each do |query|
         query_params   = query.query_params.split("|")
-        rrd_image_path = Dir.pwd << "/public/rrd/"
-        rrd_path       = Dir.pwd << "/rrd/"
         params         = {}
-        rrd_tool       = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
-          YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
-        end
         query_params.each do |param|
-          params["#{param.split('=')[0]}"] = param.split('=')[1]
+          params[:"#{param.split('=')[0]}"] = param.split('=')[1]
         end
-        
-        test_data_date = Time.parse("08/31/2010")
-        start_date     = params['startdt'].blank? ? test_data_date : Time.parse(params['startdt'])
-        end_date       = params['enddt'].blank? ? Time.now : Time.parse(params['enddt']) + 1.day
-        tea_id         = params['tea_id']
-        rrd_file       = find(:all, :conditions => ['id LIKE ?', "#{query.rrd_id}"]).first.file_name
-        image_file     = rrd_file.gsub(".rrd", ".png")
-        school_name    = Rollcall::School.find_by_tea_id(tea_id).display_name.gsub(" ", "_")
-        graph_title    = "Absenteeism Rate for #{school_name}"
-        unless params['symptoms'].blank?
-          graph_title = "Absenteeism Rate for #{school_name} based on #{params['symptoms_'+param_switch]}"
+        tea_id      = params[:tea_id]
+        rrd_file    = find(:all, :conditions => ['id LIKE ?', "#{query.rrd_id}"]).first.file_name
+        image_file  = rrd_file.gsub(".rrd", ".png")
+        school_name = Rollcall::School.find_by_tea_id(tea_id).display_name.gsub(" ", "_")
+        graph_title = "Absenteeism Rate for #{school_name}"
+        unless params[:symptoms].blank?
+          graph_title = "Absenteeism Rate for #{school_name} based on #{params[:symptoms]}"
         end
-        File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
-        RRD.graph(
-            "#{rrd_path}#{rrd_file}","#{rrd_image_path}#{image_file}",
-            {
-              :start      => start_date,
-              :end        => end_date,
-              :width      => 500,
-              :height     => 120,
-              :image_type => "PNG",
-              :title      => graph_title,
-              :vlabel     => "percent absent",
-              :lowerlimit => 0,
-              :defs       => self.build_defs(params),
-              :cdefs      => self.build_cdefs(params),
-              :elements   => self.build_elements(params)
-            }, "#{rrd_tool}")
+        self.graph rrd_file, image_file, graph_title, params
         image_urls.push("/rrd/#{image_file}")
       end
     end
@@ -128,8 +81,8 @@ class Rollcall::Rrd < Rollcall::Base
   def self.export_rrd_data params
     initial_result = search params
     test_data_date = Time.parse("11/22/2010")
-    start_date     = params['startdt'].index('...') ? test_data_date : Time.parse(params['startdt'])
-    end_date       = params['enddt'].index('...') ? Time.now : Time.parse(params['enddt'])
+    start_date     = params[:startdt].index('...') ? test_data_date : Time.parse(params[:startdt])
+    end_date       = params[:enddt].index('...') ? Time.now : Time.parse(params[:enddt])
     conditions     = {}
     params.each { |key,value|
       case key
@@ -172,6 +125,42 @@ class Rollcall::Rrd < Rollcall::Base
   end
 
   private
+
+  def self.graph rrd_file, image_file, graph_title, params
+    test_data_date = Time.parse("08/31/2010")
+    rrd_image_path = Dir.pwd << "/public/rrd/"
+    rrd_path       = Dir.pwd << "/rrd/"
+    rrd_tool       = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
+      YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
+    end
+    if params[:startdt].blank? || params[:startdt].index('...')
+      start_date = test_data_date
+    else
+      start_date = Time.parse(params[:startdt])
+    end
+    if params[:enddt].blank? || params[:enddt].index('...')
+      end_date = Time.now
+    else
+      end_date = Time.parse(params[:enddt]) + 1.day
+    end
+    File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
+    return RRD.graph(
+      "#{rrd_path}#{rrd_file}","#{rrd_image_path}#{image_file}",
+      {
+        :start      => start_date,
+        :end        => end_date,
+        :step       => 24.hours.seconds,
+        :width      => 500,
+        :height     => 120,
+        :image_type => "PNG",
+        :title      => graph_title,
+        :vlabel     => "percent absent",
+        :lowerlimit => 0,
+        :defs       => build_defs(params),
+        :cdefs      => build_cdefs(params),
+        :elements   => build_elements(params)
+      }, "#{rrd_tool}")
+  end
 
   def self.build_defs options
     defs = []
@@ -325,30 +314,31 @@ class Rollcall::Rrd < Rollcall::Base
       case key
       when "absent"
         if value == "Confirmed+Illness"
-          filename = "AB_#{filename}"
+          filename                       = "AB_#{filename}"
           conditions[:confirmed_illness] = true
         end
       when "gender"
         if value == "Male"
           conditions[:gender] = true
-          filename = "G-#{conditions[:gender]}_#{filename}"
+          filename            = "G-#{conditions[:gender]}_#{filename}"
         elsif value == "Female"
           conditions[:gender] = false
-          filename = "G-#{conditions[:gender]}_#{filename}"
+          filename            = "G-#{conditions[:gender]}_#{filename}"
         end        
       when "startdt"
         if value.index('...').blank?
           conditions[:startdt] = value
-          filename = "SD-#{Time.parse(conditions[:startdt]).strftime("%s")}_#{filename}"
+          filename             = "SD-#{Time.parse(conditions[:startdt]).strftime("%s")}_#{filename}"
         end
       when "enddt"
         if value.index('...').blank?
           conditions[:enddt] = value
-          filename = "ED-#{Time.parse(conditions[:enddt]).strftime("%s")}_#{filename}"
+          filename           = "ED-#{Time.parse(conditions[:enddt]).strftime("%s")}_#{filename}"
         end
       else
       end
     }
+    
     results = find(:all, :conditions => ['file_name LIKE ?', "#{filename}.rrd"]).first
     if results.blank?
       rrd_path = Dir.pwd << "/rrd/"
@@ -385,9 +375,9 @@ class Rollcall::Rrd < Rollcall::Base
           },{
             :type => "DEVPREDICT", :rows => 366, :rra_num => 4
           },{
-            :type => "MAX", :xff => 0.5, :steps => 1, :rows => 366
+            :type => "MAX", :xff => 0, :steps => 1, :rows => 366
           },{
-            :type => "LAST", :xff => 0.5, :steps => 1, :rows => 366
+            :type => "LAST", :xff => 0, :steps => 1, :rows => 366
           }]
         } , "#{rrd_tool}"
 
@@ -424,7 +414,7 @@ class Rollcall::Rrd < Rollcall::Base
           end         
         end
         create_results = create :file_name => "#{filename}.rrd"
-        rrd_id         = create_results.object_id
+        rrd_id         = create_results.id
         rrd_file_name  = create_results.file_name
       end
     else

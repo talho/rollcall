@@ -3,7 +3,6 @@ Ext.namespace('Talho.Rollcall.ux');
 
 Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   constructor: function(config){
-
     Ext.applyIf(config,{
       hidden: true,
       id:     'ADSTResultPanel',
@@ -37,7 +36,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         load: function(store, records, options){
           this.show();
           var schools = new Array();
-          for(var i =0; i < records.length; i++){
+          for(var i = 0; i < records.length; i++){
             schools += records[i].json.school.tea_id+',';
           }
           record = new store.recordType({id: null, img_urls: '', schools: schools},null);
@@ -51,7 +50,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           this.getComponent('leftColumn').removeAll();
           for(var i = 0; i < result[0]['img_urls'].length; i++){
             item_id          = result[0]["schools"][i];
-            school_name          = result[0]["school_names"][i];
+            school_name      = result[0]["school_names"][i];
             graphImageConfig = {
               title: 'Query Result for '+school_name,
               style:'margin:5px',
@@ -59,6 +58,12 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               school_name: result[0]["school_names"][i],
               r_id: result[0]["r_ids"][i],
               tools: [{
+                id:'pin',
+                qtip: 'Pin This Graph',
+                handler: function(e, targetEl, panel, tc){
+                  
+                }
+              },{
                 id:'save',
                 qtip: 'Save Query',
                 handler: function(e, targetEl, panel, tc){
@@ -137,19 +142,12 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         fields: ['field', 'value'],
         idIndex: 0
     });
-
-    if(queryParams['adv'] == 'true') var paramSwitch = 'adv';
-    else var paramSwitch = 'simple';
     
     for(key in queryParams){
-      if(key.indexOf(paramSwitch) != -1){
-        if(queryParams[key].indexOf("...") == -1 && key != 'adv')
-          params.push([key.substr(0, key.indexOf("_")), queryParams[key]]);
-      }
+      if(queryParams[key].indexOf("...") == -1) params.push([key, queryParams[key]]);
     }
     params.push(['tea_id', tea_id]);
     storedParams.loadData(params);
-    params.push(['switch', paramSwitch]);   
 
     param_string = '';
 

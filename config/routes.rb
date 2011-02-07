@@ -4,4 +4,5 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :alarms, :controller => "rollcall/alarm", :as => "rollcall/alarms"
   map.get_query_options "/rollcall/query_options", :controller => "rollcall/adst", :action => "get_options"
   map.export "/rollcall/export", :controller => "rollcall/adst", :action => "export"
+  map.activate_alarm "/rollcall/alarm/:saved_query_id", :controller => "rollcall/alarm", :action => "create"
 end

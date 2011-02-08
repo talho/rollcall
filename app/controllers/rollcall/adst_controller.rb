@@ -153,4 +153,30 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     end
   end
 
+  def get_info
+    alarm             = Rollcall::Alarm.find(params[:alarm_id])
+    school_info       = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date params[:school_id],params[:report_date]
+    confirmed_absents = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(
+      params[:school_id],params[:report_date],true).size
+    student_info      = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(params[:school_id],params[:report_date],true)
+
+    respond_to do |format|
+      format.json do
+        original_included_root = ActiveRecord::Base.include_root_in_json
+        ActiveRecord::Base.include_root_in_json = false
+        render :json => {
+          :info => [
+            {
+              :total_absent           => school_info.total_absent,
+              :total_enrolled         => school_info.total_enrolled,
+              :total_confirmed_absent => confirmed_absents,
+              :alarm_severity         => alarm.alarm_severity,
+              :students               => {:student_info => student_info.as_json}
+            }  
+          ]
+        }
+        ActiveRecord::Base.include_root_in_json = original_included_root
+      end
+    end
+  end
 end

@@ -180,6 +180,10 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           labelStyle: 'margin: 10px 0px 0px 5px',
           fieldLabel: 'Query Name',
           id: 'query_name',
+          allowBlank: false,
+          blankText: "This field is required.",
+          minLength: 3,
+          minLengthText: 'The minimum length for this field is 3',        
           style:{
             marginTop: '10px',
             marginBottom: '5px'

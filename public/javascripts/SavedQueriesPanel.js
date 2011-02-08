@@ -56,10 +56,8 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
                   };
                   if(param_config.alarm_set){
                     alarm_id = 'alarm-on';
-                    q_tip    = 'Turn Off Alarm';
                   }else{
                     alarm_id = 'alarm-off';
-                    q_tip    = 'Turn On Alarm';
                   }
                   column_obj = this.add({
                     columnWidth: .25,
@@ -75,19 +73,22 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
                     polling_id: cnt,
                     tools: [{
                       id:alarm_id,
-                      qtip:q_tip,
+                      qtip: "Toggle Alarm",
                       scope: this,
                       handler: function(e, targetEl, panel, tc){
+                        var container_mask = new Ext.LoadMask(Ext.getCmp('alarm_panel').getEl(), {msg:"Please wait..."});
+                        container_mask.show();
                         if(targetEl.hasClass('x-tool-alarm-off')){
                           Ext.Ajax.request({
                             url: 'rollcall/alarm/'+panel.param_config.query_id,
-                            success: function(){
+                            callback: function(options, success, response){
                               Ext.getCmp('alarm_panel').alarm_store.alarm_icon_el = targetEl;
                               Ext.getCmp('alarm_panel').alarm_store.load({
                                 params:{
                                   query_id: panel.param_config.query_id
                                 }
                               });
+                              container_mask.hide();
                             },
                             failure: function(){
 
@@ -95,12 +96,16 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
                           });
                         }else{
                           Ext.Ajax.request({
-                            url: 'rollcall/save_query/'+panel.param_config.query_id,
-                            method: 'DELETE',
-                            success: function(){
+                            url: 'rollcall/save_query/'+panel.param_config.query_id+'.json',
+                            params: {
+                              alarm_set: false  
+                            },
+                            method: 'PUT',
+                            callback: function(options, success, response){
                               Ext.getCmp('alarm_panel').removeAll(true);
                               Ext.getCmp('alarm_panel').alarm_store.alarm_icon_el = targetEl;
                               Ext.getCmp('alarm_panel').alarm_store.load();
+                              container_mask.hide();
                             },
                             failure: function(){
 
@@ -115,6 +120,37 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
                       scope: this,
                       handler: function(e, targetEl, panel, tc){
                         this.showEditSavedQueryConsole(panel,this);
+                      }
+                    },{
+                      id:'close',
+                      qtip: 'Delete Query',
+                      scope: this,
+                      handler:function(e, targetEl, panel, tc){
+                        Ext.MessageBox.show({
+                          title: 'Delete '+panel.title,
+                          msg: 'Are you sure you want to delete this query?',
+                          buttons: {
+                            ok: 'Yes',
+                            cancel: 'No'
+                          },
+                          scope: panel,
+                          icon: Ext.MessageBox.QUESTION,
+                          fn: function(btn,txt,cfg_obj){
+                            if(btn == 'ok'){
+                              Ext.Ajax.request({
+                                url: 'rollcall/save_query/'+this.param_config.query_id+'.json',
+                                method: 'DELETE',
+                                callback: function(options, success, response){
+                                  cfg_obj.scope.hide();
+                                  cfg_obj.scope.destroy();
+                                },
+                                failure: function(){
+
+                                }
+                              });
+                            }  
+                          }
+                        });
                       }
                     }],
                     cls: 'ux-saved-graphs',
@@ -219,6 +255,10 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
           fieldLabel: 'Query Name',
           value: query_title,
           id: 'query_name',
+          allowBlank: false,
+          blankText: "This field is required.",
+          minLength: 3,
+          minLengthText: 'The minimum length for this field is 3.',
           style:{
             marginTop: '10px',
             marginBottom: '5px'

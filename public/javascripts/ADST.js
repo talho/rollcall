@@ -222,7 +222,6 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                 var result_store   = this_toolbar.ownerCt.ownerCt.ownerCt.getResultPanel().getResultStore();
                 var container_mask = new Ext.LoadMask(this_toolbar.ownerCt.ownerCt.ownerCt.getResultPanel().getEl(), {msg:"Please wait..."});
                 container_mask.show();
-
                 result_store.on('write', function(){
                   container_mask.hide();
                 })

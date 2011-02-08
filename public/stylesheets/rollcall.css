@@ -95,5 +95,17 @@
 .x-tip-anchor-adjust{
   left: -8px;
   top: 4px;
-
+}
+.all-purpose-load-icon{
+  background: url(/images/Ajax-loader.gif) no-repeat;
+  height: 32px;
+  width: 32px;
+  margin:0px auto;
+}
+.alarm-tip-table{
+  line-height: 1.18 !important;
+  font-size: 11px !important;
+}
+.alarm-tip-table td span{
+  padding-left:5px;
 }

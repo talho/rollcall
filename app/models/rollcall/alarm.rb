@@ -42,7 +42,7 @@ class Rollcall::Alarm < Rollcall::Base
   private
 
   def self.create_alarm query
-    return_success = false
+    return_success   = false
     begin
       data_set       = []
       query_params   = query.query_params.split("|")
@@ -60,40 +60,39 @@ class Rollcall::Alarm < Rollcall::Base
       (0..days).each do |i|
         report_date = start_date + i.days
         unless params[:absent].blank?
-          total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(school_id, report_date, true).size
+          student_info = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(school_id, report_date, true)
         else
-          total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(school_id, report_date).size
+          student_info = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(school_id, report_date)
         end
-        begin
-          data_set.push(total_absent)
-        rescue
-        end
-        deviation     = calculate_deviation data_set
-        severity      = (total_absent.to_f / total_enrolled.to_f)
-        absentee_rate = severity * 100
-
-        if (severity >= query.severity_min && severity <= query.severity_max) ||
-           (deviation >= query.deviation_min && deviation <= query.deviation_max) ||
-           (deviation >= query.deviation_threshold) ||
-           ((query.deviation_threshold - deviation) <= 1)
-          if absentee_rate >= query.severity_max
-            alarm_severity = 'extreme'
-          elsif absentee_rate > query.severity_min && absentee_rate < query.severity_max
-            alarm_severity = 'severe'
-          elsif absentee_rate > (query.severity_min - 2) && absentee_rate <= query.severity_min
-            alarm_severity = 'moderate'
-          else
-            alarm_severity = 'unknown'
+        unless student_info.blank?
+          total_absent  = student_info.size
+          data_set.push(total_absent) 
+          deviation     = calculate_deviation data_set
+          severity      = (total_absent.to_f / total_enrolled.to_f)
+          absentee_rate = severity * 100
+          if (severity >= query.severity_min && severity <= query.severity_max) ||
+             (deviation >= query.deviation_min && deviation <= query.deviation_max) ||
+             (deviation >= query.deviation_threshold) ||
+             ((query.deviation_threshold - deviation) <= 1)
+            if absentee_rate >= query.severity_max
+              alarm_severity = 'extreme'
+            elsif absentee_rate > query.severity_min && absentee_rate < query.severity_max
+              alarm_severity = 'severe'
+            elsif absentee_rate > (query.severity_min - 2) && absentee_rate <= query.severity_min
+              alarm_severity = 'moderate'
+            else
+              alarm_severity = 'unknown'
+            end
+            create(
+              :school_id      => school_id,
+              :saved_query_id => query.id,
+              :deviation      => deviation,
+              :severity       => severity,
+              :alarm_severity => alarm_severity,
+              :absentee_rate  => absentee_rate,
+              :report_date    => report_date
+            ) if find(:all, :conditions => ['saved_query_id = ? AND report_date = ?', query.id, report_date]).blank?
           end
-          create(
-            :school_id      => school_id,
-            :saved_query_id => query.id,
-            :deviation      => deviation,
-            :severity       => severity,
-            :alarm_severity => alarm_severity,
-            :absentee_rate  => absentee_rate,
-            :report_date    => report_date
-          ) if find(:all, :conditions => ['saved_query_id = ? AND report_date = ?', query.id, report_date]).blank?
         end
       end
       data_set.clear

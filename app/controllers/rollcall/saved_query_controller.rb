@@ -43,17 +43,22 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
   end
 
   def update
-    query   = Rollcall::SavedQuery.find(params[:id])
-    success = query.update_attributes(
-      :name                => params[:query_name],
-      :query_params        => params[:query_params],
-      :severity_min        => params[:severity_min],
-      :severity_max        => params[:severity_max],
-      :deviation_threshold => params[:deviation_threshold],
-      :deviation_min       => params[:deviation_min],
-      :deviation_max       => params[:deviation_max],
-      :rrd_id              => params[:r_id],
-      :alarm_set           => false)
+    query     = Rollcall::SavedQuery.find(params[:id])
+    alarm_set = params[:alarm_set].blank? ? query.alarm_set : params[:alarm_set]
+    unless params[:alarm_set].blank?
+      success = query.update_attributes :alarm_set => alarm_set
+    else
+      success = query.update_attributes(
+        :name                => params[:query_name],
+        :query_params        => params[:query_params],
+        :severity_min        => params[:severity_min],
+        :severity_max        => params[:severity_max],
+        :deviation_threshold => params[:deviation_threshold],
+        :deviation_min       => params[:deviation_min],
+        :deviation_max       => params[:deviation_max],
+        :rrd_id              => params[:r_id],
+        :alarm_set           => alarm_set)
+    end   
     query.save if success
     respond_to do |format|
       format.json do
@@ -66,12 +71,10 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
 
   def destroy
     query   = Rollcall::SavedQuery.find(params[:id])
-    success = query.update_attributes :alarm_set => false
-    query.save if success
     respond_to do |format|
       format.json do
         render :json => {
-          :success => success
+          :success => query.destroy
         }
       end
     end

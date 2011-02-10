@@ -171,6 +171,8 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
               :total_enrolled         => school_info.total_enrolled,
               :total_confirmed_absent => confirmed_absents,
               :alarm_severity         => alarm.alarm_severity,
+              :school_name            => school_info.school.display_name,
+              :school_type            => school_info.school.school_type,
               :students               => {:student_info => student_info.as_json}
             }  
           ]

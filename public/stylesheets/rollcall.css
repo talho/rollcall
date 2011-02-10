@@ -63,7 +63,10 @@
   background:url(images/status_unknown.png) 0px 1px no-repeat;
 }
 .rollcall_alarm_icon {
-  background:url(../images/alert.gif) 0 -2px no-repeat;
+  background:url(../images/alert.gif) no-repeat;
+  height: 16px;
+  padding-left: 20px;
+  padding-top: 2px;
 }
 .rollcall_pdf_icon {
   background:url(../images/file-pdf.png) 2px 0px no-repeat;
@@ -108,4 +111,11 @@
 }
 .alarm-tip-table td span{
   padding-left:5px;
+}
+.ignore{
+  background: #666;
+  filter:alpha(opacity=60);
+  opacity:0.6;
+  position: relative;
+  z-index: 100;
 }

@@ -7,6 +7,8 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
     saved_query_graphs = Rollcall::Rrd.render_saved_graphs saved_queries
     respond_to do |format|
       format.json do
+        original_included_root = ActiveRecord::Base.include_root_in_json
+        ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :success       => true,
           :total_results => saved_query_graphs[:image_urls].length,
@@ -16,6 +18,7 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
             :img_urls      => saved_query_graphs,
           }.as_json
         }
+        ActiveRecord::Base.include_root_in_json = original_included_root
       end
     end
   end

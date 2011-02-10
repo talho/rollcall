@@ -436,7 +436,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           };
           alarm_console.getComponent('savedQueryForm').getForm().on('actioncomplete', function(){
             var adst_panel = obj_options.result_panel.ownerCt.ownerCt.ownerCt.ownerCt;
-            adst_panel.getComponent('saved_queries').getComponent('portalId_south').updateSavedQueries(r_id);
+            adst_panel.getComponent('saved_queries').getComponent('portalId_south').updateSavedQueries({params:{r_id:r_id}});
             this.hide();
             this.destroy();
           }, alarm_console, obj_options);

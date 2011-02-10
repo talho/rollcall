@@ -168,7 +168,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                 this.ownerCt.ownerCt.ownerCt.init_store = new Ext.data.JsonStore({
                   autoLoad: true,
                   root:   'options',
-                  fields: ['absenteeism', 'age', 'data_functions', 'gender', 'grade', 'school_type', 'schools', 'symptoms', 'temperature', 'zipcode'],
+                  fields: ['absenteeism', 'age', 'data_functions', 'gender', 'grade', 'school_type', 'schools', 'symptoms', 'zipcode'],
                   url:    '/rollcall/query_options',
                   listeners:{
                     scope: this,

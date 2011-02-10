@@ -26,16 +26,13 @@ class Rollcall::Alarm < Rollcall::Base
     else
       result = false
     end
-    query.save if query.update_attributes(
-      :alarm_set => result
-    )
     return result
   end
 
   def self.generate_alarms(user_id)
     saved_queries = Rollcall::SavedQuery.find_all_by_user_id(user_id)
     saved_queries.each do |saved_query|
-      create_alarm saved_query
+      generate_alarm saved_query
     end
   end
 

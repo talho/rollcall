@@ -155,7 +155,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                   var form_values  = buttonEl.findParentByType("form").getForm().getValues();
                   var param_string = '';
                   for(key in form_values){
-                    if(Ext.getCmp('advanced_query_select').isVisible){
+                    if(Ext.getCmp('advanced_query_select').isVisible()){
                       if(key.indexOf('adv') != -1) param_string += key.replace('_adv','') + '=' + form_values[key] + "&";
                     }else{
                       if(key.indexOf('simple') != -1) param_string += key.replace('_simple','') + '=' + form_values[key] + "&";  

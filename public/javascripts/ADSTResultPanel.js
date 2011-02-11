@@ -76,7 +76,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
                   var form_values  = panel.ownerCt.ownerCt.ownerCt.findByType('form')[0].getForm().getValues();
                   var param_string = '';
                   for(key in form_values){
-                    if(Ext.getCmp('advanced_query_select').isVisible){
+                    if(Ext.getCmp('advanced_query_select').isVisible()){
                       if(key.indexOf('adv') != -1){
                         if(key == 'school_adv') param_string += key.replace('_adv','') + '=' + panel.school_name + "&";
                         else param_string += key.replace('_adv','') + '=' + form_values[key] + "&";

@@ -112,13 +112,16 @@ class Rollcall::Rrd < Rollcall::Base
       days = ((end_date - start_date) / 86400)
       (0..days).each do |i|
         report_date    = start_date + i.days
-        unless conditions[:confirmed_illness].blank?
-          total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(rec.id, report_date, true).size
-        else
-          total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(rec.id, report_date).size
+        school_info = Rollcall::SchoolDailyInfo.find_by_report_date_and_school_id(report_date, rec.id)
+        unless school_info.blank?
+          total_enrolled = school_info.total_enrolled
+          unless conditions[:confirmed_illness].blank?
+            total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(rec.id, report_date, true).size
+          else
+            total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(rec.id, report_date).size
+          end
+          @csv_data = "#{@csv_data}#{rec.display_name},#{rec.tea_id},#{total_absent},#{total_enrolled},#{report_date}\n"
         end
-        total_enrolled = Rollcall::SchoolDailyInfo.find_by_report_date_and_school_id(report_date, rec.id).total_enrolled
-        @csv_data      = "#{@csv_data}#{rec.display_name},#{rec.tea_id},#{total_absent},#{total_enrolled},#{report_date}\n"
       end
     end
     return @csv_data

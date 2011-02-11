@@ -103,7 +103,7 @@ namespace :rollcall do
             end
             age                  = age_array[rand(age_array.length)]
             dob                  = Time.now - age.years - (rand(11) + 1).months - (rand(29) + 1).days
-            bool_array           = [true,false]
+            gender_array         = ['M','F']
             is_confirmed_illness = false
             if illness != 'event' || illness != 'none'
               is_confirmed_illness = true
@@ -114,7 +114,7 @@ namespace :rollcall do
               :age               => age,
               :dob               => dob,
               :grade             => grade,
-              :gender            => bool_array[rand(bool_array.length)],
+              :gender            => gender_array[rand(gender_array.length)],
               :confirmed_illness => is_confirmed_illness)
           end
         end
@@ -193,8 +193,7 @@ namespace :rollcall do
         days_to_traverse  = ((current_time - begin_time) / 86400).to_i
         (0..(days_to_traverse - 1)).reverse_each do |i|
           report_date    = current_time - i.days
-          if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
-          else
+          if report_date.strftime("%a").downcase != "sat" && report_date.strftime("%a").downcase != "sun"
             puts "Creating School District Daily Info for #{report_date}"
             total_absent   = Rollcall::SchoolDailyInfo.find_all_by_report_date(report_date).sum(&:total_absent)
             total_enrolled = Rollcall::SchoolDailyInfo.find_all_by_report_date(report_date).sum(&:total_enrolled)

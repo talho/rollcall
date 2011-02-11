@@ -124,6 +124,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                   form_values.page  = 1;
                   form_values.start = 0;
                   form_values.limit = 6;
+                  result_store.setBaseParam("enrolled_base_line", "off"); // must clear any previous checkbox "on" value
                   for(key in form_values){
                     if(Ext.getCmp('advanced_query_select').isVisible()){
                       if(key.indexOf('adv') != -1) result_store.setBaseParam(key.replace('_adv',''), form_values[key]);

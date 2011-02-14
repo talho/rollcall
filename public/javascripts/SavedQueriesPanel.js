@@ -18,159 +18,172 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
         }),
         listeners:{
           scope: this,
-          load: function(this_store, record){
-            var result_obj          = null;
-            var column_obj          = null;
-            var param_config        = {};
-            var alarm_id            = '';
-            var q_tip               = '';
-            for(var i=0;i<record.length;i++){
-              if(record[i].data.saved_queries.length == 0){
-                column_obj = this.add({
-                  columnWidth: .25,
-                  itemId: 'empty_saved_query_container',
-                  listeners:{
-                    scope: this
-                  }
-                });
-                result_obj = column_obj.add({
-                  cls: 'ux-saved-graphs',
-                  html: '<div class="ux-empty-saved-query-container"><p>There are no saved queries.</p></div>'
-                });
-              }else{
-                if(this.getComponent('empty_saved_query_container')){
-                  this.getComponent('empty_saved_query_container').destroy();
-                }
-                for(var cnt=0;cnt<record[i].data.saved_queries.length;cnt++){
-                  param_config = {
-                    query_id:            record[i].data.saved_queries[cnt].id,
-                    query_title:         record[i].data.saved_queries[cnt].name,
-                    query_params:        record[i].data.saved_queries[cnt].query_params,
-                    severity_min:        record[i].data.saved_queries[cnt].severity_min,
-                    severity_max:        record[i].data.saved_queries[cnt].severity_max,
-                    deviation_threshold: record[i].data.saved_queries[cnt].deviation_threshold,
-                    deviation_min:       record[i].data.saved_queries[cnt].deviation_min,
-                    deviation_max:       record[i].data.saved_queries[cnt].deviation_max,
-                    r_id:                record[i].data.saved_queries[cnt].rrd_id,
-                    alarm_set:           record[i].data.saved_queries[cnt].alarm_set
-                  };
-                  if(param_config.alarm_set){
-                    alarm_id = 'alarm-on';
-                  }else{
-                    alarm_id = 'alarm-off';
-                  }
-                  column_obj = this.add({
-                    columnWidth: .25,
-                    listeners:{
-                      scope: this
-                    }
-                  });
-                  result_obj = column_obj.add({
-                    title: param_config.query_title,
-                    param_config: param_config,
-                    scope: this,
-                    img_url: record[i].data.img_urls.image_urls[cnt],
-                    polling_id: cnt,
-                    tools: [{
-                      id:alarm_id,
-                      qtip: "Toggle Alarm",
-                      scope: this,
-                      handler: function(e, targetEl, panel, tc){
-                        var container_mask = new Ext.LoadMask(Ext.getCmp('alarm_panel').getEl(), {msg:"Please wait..."});
-                        var alarm_set      = false;
-                        if(targetEl.hasClass('x-tool-alarm-off')) alarm_set = true;
-                        container_mask.show();
-                        Ext.Ajax.request({
-                          url: 'rollcall/save_query/'+panel.param_config.query_id+'.json',
-                          params: {
-                            alarm_set: alarm_set
-                          },
-                          method: 'PUT',
-                          callback: function(options, success, response){
-                            Ext.Ajax.request({
-                              url: 'rollcall/alarm/'+panel.param_config.query_id,
-                              callback: function(options, success, response){
-                                Ext.getCmp('alarm_panel').getComponent(0).getStore().alarm_icon_el = targetEl;
-                                if(alarm_set) Ext.getCmp('alarm_panel').getComponent(0).getStore().load({
-                                  add: true,
-                                  params:{
-                                    query_id: panel.param_config.query_id
-                                  }
-                                });
-                                else Ext.getCmp('alarm_panel').getComponent(0).getStore().load(); 
-                                container_mask.hide();
-                              },
-                              failure: function(){
-
-                              }
-                            });
-                          },
-                          failure: function(){
-
-                          }
-                        });
-                      }
-                    },{
-                      id:'save',
-                      qtip: 'Edit Query',
-                      scope: this,
-                      handler: function(e, targetEl, panel, tc){
-                        this.showEditSavedQueryConsole(panel,this);
-                      }
-                    },{
-                      id:'close',
-                      qtip: 'Delete Query',
-                      scope: this,
-                      handler:function(e, targetEl, panel, tc){
-                        Ext.MessageBox.show({
-                          title: 'Delete '+panel.title,
-                          msg: 'Are you sure you want to delete this query?',
-                          buttons: {
-                            ok: 'Yes',
-                            cancel: 'No'
-                          },
-                          scope: panel,
-                          icon: Ext.MessageBox.QUESTION,
-                          fn: function(btn,txt,cfg_obj){
-                            if(btn == 'ok'){
-                              Ext.Ajax.request({
-                                url: 'rollcall/save_query/'+this.param_config.query_id+'.json',
-                                method: 'DELETE',
-                                scope: this,
-                                callback: function(options, success, response){
-                                  this.hide();
-                                  this.destroy();
-                                },
-                                failure: function(){
-
-                                }
-                              });
-                            }  
-                          }
-                        });
-                      }
-                    }],
-                    cls: 'ux-saved-graphs',
-                    html: '<div class="ux-saved-graph-container"><img class="ux-ajax-loader" src="/images/Ajax-loader.gif" /></div>'
-                  });
-                  this.ownerCt.ownerCt.ownerCt.renderGraphs(cnt, record[i].data.img_urls.image_urls[cnt], result_obj, 'ux-saved-graph-container');
-                }
-              }
-
-            }
-            this.doLayout();
-            this.setSize('auto','auto');
-          }
+          load:  this.loadSavedQueries
         }
       })
     });
 
     Talho.Rollcall.SavedQueriesPanel.superclass.constructor.call(this, config);
   },
+
+  loadSavedQueries: function(this_store, record)
+  {
+    var result_obj          = null;
+    var column_obj          = null;
+    var param_config        = {};
+    var alarm_id            = '';
+    var q_tip               = '';
+    for(var i=0;i<record.length;i++){
+      if(record[i].data.saved_queries.length == 0){
+        column_obj = this.add({
+          columnWidth: .25,
+          itemId: 'empty_saved_query_container',
+          listeners:{
+            scope: this
+          }
+        });
+        result_obj = column_obj.add({
+          cls: 'ux-saved-graphs',
+          html: '<div class="ux-empty-saved-query-container"><p>There are no saved queries.</p></div>'
+        });
+      }else{
+        if(this.getComponent('empty_saved_query_container')){
+          this.getComponent('empty_saved_query_container').destroy();
+        }
+        for(var cnt=0;cnt<record[i].data.saved_queries.length;cnt++){
+          param_config = {
+            query_id:            record[i].data.saved_queries[cnt].id,
+            query_title:         record[i].data.saved_queries[cnt].name,
+            query_params:        record[i].data.saved_queries[cnt].query_params,
+            severity_min:        record[i].data.saved_queries[cnt].severity_min,
+            severity_max:        record[i].data.saved_queries[cnt].severity_max,
+            deviation_threshold: record[i].data.saved_queries[cnt].deviation_threshold,
+            deviation_min:       record[i].data.saved_queries[cnt].deviation_min,
+            deviation_max:       record[i].data.saved_queries[cnt].deviation_max,
+            r_id:                record[i].data.saved_queries[cnt].rrd_id,
+            alarm_set:           record[i].data.saved_queries[cnt].alarm_set
+          };
+          if(param_config.alarm_set){
+            alarm_id = 'alarm-on';
+          }else{
+            alarm_id = 'alarm-off';
+          }
+          column_obj = this.add({
+            columnWidth: .25,
+            listeners:{
+              scope: this
+            }
+          });
+          result_obj = column_obj.add({
+            title: param_config.query_title,
+            param_config: param_config,
+            scope: this,
+            img_url: record[i].data.img_urls.image_urls[cnt],
+            polling_id: cnt,
+            tools: [{
+              id:alarm_id,
+              qtip: "Toggle Alarm",
+              scope: this,
+              handler: this.toggleAlarm
+            },{
+              id:'save',
+              qtip: 'Edit Query',
+              scope: this,
+              handler: function(e, targetEl, panel, tc){
+                this.showEditSavedQueryConsole(panel,this);
+              }
+            },{
+              id:'close',
+              qtip: 'Delete Query',
+              scope: this,
+              handler: this.deleteSavedQuery
+            }],
+            cls: 'ux-saved-graphs',
+            html: '<div class="ux-saved-graph-container"><img class="ux-ajax-loader" src="/images/Ajax-loader.gif" /></div>'
+          });
+          this.ownerCt.ownerCt.ownerCt.renderGraphs(cnt, record[i].data.img_urls.image_urls[cnt], result_obj, 'ux-saved-graph-container');
+        }
+      }
+
+    }
+    this.doLayout();
+    this.setSize('auto','auto');
+  },
+
+  deleteSavedQuery: function(e, targetEl, panel, tc)
+  {
+    Ext.MessageBox.show({
+      title: 'Delete '+panel.title,
+      msg:   'Are you sure you want to delete this query?',
+      buttons: {
+        ok:     'Yes',
+        cancel: 'No'
+      },
+      scope: panel,
+      icon:  Ext.MessageBox.QUESTION,
+      fn: function(btn,txt,cfg_obj)
+      {
+        if(btn == 'ok'){
+          Ext.Ajax.request({
+            url:    'rollcall/save_query/'+this.param_config.query_id+'.json',
+            method: 'DELETE',
+            scope:  this,
+            callback: function(options, success, response){
+              this.hide();
+              this.destroy();
+            },
+            failure: function(){
+
+            }
+          });
+        }
+      }
+    });
+  },
+
+  toggleAlarm: function(e, targetEl, panel, tc)
+  {
+    var container_mask = new Ext.LoadMask(Ext.getCmp('alarm_panel').getEl(), {msg:"Please wait..."});
+    var alarm_set      = false;
+    if(targetEl.hasClass('x-tool-alarm-off')) alarm_set = true;
+    container_mask.show();
+    Ext.Ajax.request({
+      url:    'rollcall/save_query/'+panel.param_config.query_id+'.json',
+      params: {
+        alarm_set: alarm_set
+      },
+      method:  'PUT',
+      callback: function(options, success, response)
+      {
+        Ext.Ajax.request({
+          url:      'rollcall/alarm/'+panel.param_config.query_id,
+          callback: function(options, success, response){
+            Ext.getCmp('alarm_panel').getComponent(0).getStore().alarm_icon_el = targetEl;
+            if(alarm_set) Ext.getCmp('alarm_panel').getComponent(0).getStore().load({
+              add: true,
+              params:{
+                query_id: panel.param_config.query_id
+              }
+            });
+            else Ext.getCmp('alarm_panel').getComponent(0).getStore().load();
+            container_mask.hide();
+          },
+          failure: function(){
+
+          }
+        });
+      },
+      failure: function(){
+
+      }
+    });
+  },
+
   updateSavedQueries: function(options)
   {
     this.saved_store.load(options);
   },
+
   showEditSavedQueryConsole: function(panel,south_panel)
   {
     var params              = [];
@@ -266,13 +279,9 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
               width: 135,
               listeners: {
                 scope: this,
-                change: function(obj, new_number, old_number){
-                  obj.ownerCt.findByType('textfield')[0].setValue(new_number)
-                }
+                change: this.changeSlider
               },
-              tipText: function(thumb){
-                return String(thumb.value) + '%';
-              },
+              tipText: this.showTipText,
               id: 'deviation_threshold',
               cls: 'ux-layout-auto-float-item',
               value: deviation_threshold
@@ -292,13 +301,9 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
               width: 135,
               listeners: {
                 scope: this,
-                change: function(obj, new_number, old_number){
-                  obj.ownerCt.findByType('textfield')[0].setValue(new_number)
-                }
+                change: this.changeSlider
               },
-              tipText: function(thumb){
-                return String(thumb.value) + '%';
-              },
+              tipText: this.showTipText,
               id: 'deviation_min',
               cls: 'ux-layout-auto-float-item',
               value: deviation_min
@@ -318,13 +323,9 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
               width: 135,
               listeners: {
                 scope: this,
-                change: function(obj, new_number, old_number){
-                  obj.ownerCt.findByType('textfield')[0].setValue(new_number)
-                }
+                change: this.changeSlider
               },
-              tipText: function(thumb){
-                return String(thumb.value) + '%';
-              },
+              tipText: this.showTipText,
               id: 'deviation_max',
               cls: 'ux-layout-auto-float-item',
               value: deviation_max
@@ -334,28 +335,10 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
             xtype: 'toolbar',
             items: ['->', {
               text: 'Max All',
-              handler: function(buttonEl, eventObj){
-                sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
-                for(key in sliders){
-                  try{
-                    sliders[key].setValue(100);
-                  }catch(e){
-
-                  }
-                }
-              }
+              handler: this.maxAllSliders
             },{
               text: 'Reset',
-              handler: function(buttonEl, eventObj){
-                sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
-                for(key in sliders){
-                  try{
-                    sliders[key].reset();
-                  }catch(e){
-
-                  }
-                }
-              }
+              handler: this.resetSliders
             }]
           }
         },{
@@ -386,13 +369,9 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
               width: 135,
               listeners: {
                 scope: this,
-                change: function(obj, new_number, old_number){
-                  obj.ownerCt.findByType('textfield')[0].setValue(new_number)
-                }
+                change: this.changeSlider
               },
-              tipText: function(thumb){
-                return String(thumb.value) + '%';
-              },
+              tipText: this.showTipText,
               id: 'severity_min',
               value: severity_min,
               cls: 'ux-layout-auto-float-item'
@@ -412,13 +391,9 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
               width: 135,
               listeners: {
                 scope: this,
-                change: function(obj, new_number, old_number){
-                  obj.ownerCt.findByType('textfield')[0].setValue(new_number)
-                }
+                change: this.changeSlider
               },
-              tipText: function(thumb){
-                return String(thumb.value) + '%';
-              },
+              tipText: this.showTipText,
               id: 'severity_max',
               value: severity_max,
               cls: 'ux-layout-auto-float-item'
@@ -428,28 +403,10 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
             xtype: 'toolbar',
             items: ['->', {
               text: 'Max All',
-              handler: function(buttonEl, eventObj){
-                sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
-                for(key in sliders){
-                  try{
-                    sliders[key].setValue(100);
-                  }catch(e){
-
-                  }
-                }
-              }
+              handler: this.maxAllSliders
             },{
               text: 'Reset',
-              handler: function(buttonEl, eventObj){
-                sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
-                for(key in sliders){
-                  try{
-                    sliders[key].reset();
-                  }catch(e){
-
-                  }
-                }
-              }
+              handler: this.resetSliders
             }]
           }
         },{
@@ -515,5 +472,39 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
     });
     alarm_console.doLayout();
     alarm_console.show();
+  },
+
+  changeSlider: function(obj, new_number, old_number)
+  {
+    obj.ownerCt.findByType('textfield')[0].setValue(new_number)
+  },
+
+  resetSliders: function(buttonEl, eventObj)
+  {
+    sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
+    for(key in sliders){
+      try{
+        sliders[key].reset();
+      }catch(e){
+
+      }
+    }
+  },
+
+  maxAllSliders: function(buttonEl, eventObj)
+  {
+    sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
+    for(key in sliders){
+      try{
+        sliders[key].setValue(100);
+      }catch(e){
+
+      }
+    }
+  },
+
+  showTipText: function(thumb)
+  {
+    return String(thumb.value) + '%';
   }
 });

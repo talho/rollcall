@@ -38,7 +38,8 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       restful: true,
       listeners:{
           scope: this,
-          load: function(this_store, record){
+          load: function(this_store, record)
+          {
             if(typeof(this_store.alarm_icon_el) != "undefined") {
               this_store.alarm_icon_el.toggleClass('x-tool-alarm-off');
               this_store.alarm_icon_el.toggleClass('x-tool-alarm-on');
@@ -66,7 +67,8 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       '<div class="x-clear"></div>',
       {
         compiled: true,
-        ignore_alarm: function(ignore){
+        ignore_alarm: function(ignore)
+        {
           if(ignore){
             return 'ignore'
           }
@@ -120,13 +122,19 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
     });
     Talho.Rollcall.AlarmsPanel.superclass.constructor.call(this, config);
   },
-  collapse: function(this_grid){
+
+  collapse: function(this_grid)
+  {
     if(this.tip_array.length != 0) this.tip_array.pop().destroy();
   },
-  bodyscroll: function(scroll_left, scroll_right){
+
+  bodyscroll: function(scroll_left, scroll_right)
+  {
     if(this.tip_array.length != 0) this.tip_array.pop().destroy();
   },
-  rowclick: function(this_grid, index, event_obj){
+
+  rowclick: function(this_grid, index, event_obj)
+  {
     var row_record = this_grid.getStore().getAt(index);
     if(this.tip_array.length != 0) this.tip_array.pop().destroy();
     var tip = new Ext.Tip({
@@ -154,7 +162,8 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
         alarm_id: row_record.get('id'),
         saved_query_id: row_record.get('saved_query_id')
       },
-      success: function(response, options){
+      success: function(response, options)
+      {
         jsonObj      = response.responseText.replace(/"alarm_severity"/g, 'alarm_severity');
         jsonObj      = jsonObj.replace(/"info"/g, 'info');
         jsonObj      = jsonObj.replace(/"total_confirmed_absent"/g, 'total_confirmed_absent');
@@ -250,7 +259,8 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
             fbar:[{
               text: ignore_button_text,
               scope: this,
-              handler: function(btn,event){
+              handler: function(btn,event)
+              {
                 if(row_record.get('ignore_alarm')){
                   row_record.set('ignore_alarm', false);
                   this.tip_array.pop().destroy();
@@ -266,7 +276,8 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
                     },
                     scope: this,
                     icon: Ext.MessageBox.QUESTION,
-                    fn: function(btn,txt,cfg_obj){
+                    fn: function(btn,txt,cfg_obj)
+                    {
                       if(btn == 'ok'){
                         row_record.set('ignore_alarm', true);
                         this.tip_array.pop().destroy();
@@ -280,7 +291,8 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
             },'->',{
               text: 'Delete Alarm',
               scope: this,
-              handler: function(btn,event){
+              handler: function(btn,event)
+              {
                 this.tip_array[0].hide();
                 Ext.MessageBox.show({
                   title: 'Delete Alarm for '+row_record.get('school_name'),
@@ -291,7 +303,8 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
                   },
                   scope: this,
                   icon: Ext.MessageBox.QUESTION,
-                  fn: function(btn,txt,cfg_obj){
+                  fn: function(btn,txt,cfg_obj)
+                  {
                     if(btn == 'ok'){
                       this_grid.getStore().remove(row_record);
                       this.tip_array.pop().destroy();

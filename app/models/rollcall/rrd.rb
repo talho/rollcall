@@ -41,6 +41,9 @@ class Rollcall::Rrd < Rollcall::Base
             end
           end
           self.graph rrd_file, image_file, graph_title, params
+          #rrd_image_path = Dir.pwd << "/public/rrd/"
+          #File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
+          #self.send_later(:graph, rrd_file, image_file, graph_title, params)
           image_paths.push(:value => "/rrd/#{image_file}")
           rrd_ids.push(:value => rrd_id)
         end
@@ -70,6 +73,9 @@ class Rollcall::Rrd < Rollcall::Base
           graph_title = "Absenteeism Rate for #{school_name} based on #{params[:symptoms]}"
         end
         self.graph rrd_file, image_file, graph_title, params
+        #rrd_image_path = Dir.pwd << "/public/rrd/"
+        #File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
+        #self.send_later(:graph, rrd_file, image_file, graph_title, params)
         image_urls.push("/rrd/#{image_file}")
       end
     end
@@ -78,7 +84,7 @@ class Rollcall::Rrd < Rollcall::Base
     }
   end
 
-  def self.export_rrd_data params
+  def self.export_rrd_data params, filename, user_obj
     initial_result = search params
     test_data_date = Time.parse("11/22/2010")
     start_date     = params[:startdt].index('...') ? test_data_date : Time.parse(params[:startdt])
@@ -124,7 +130,15 @@ class Rollcall::Rrd < Rollcall::Base
         end
       end
     end
-    return @csv_data
+    newfile            = File.join(Rails.root,'tmp',"#{filename}.csv")
+    file_result        = File.open(newfile, 'wb') {|f| f.write(@csv_data) }
+    file               = File.new(newfile, "r")
+    @document          = user_obj.documents.build({:folder_id => nil, :file => file})
+    @document.owner_id = user_obj.id
+    @document.save!
+    #DocumentMailer.deliver_document_addition(@document, user_obj) if @document.folder.notify_of_document_addition
+    #return @csv_data
+    return true
   end
 
   private

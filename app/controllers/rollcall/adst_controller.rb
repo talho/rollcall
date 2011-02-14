@@ -44,7 +44,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   end
 
   def export
-    filename = "csv_export"
+    filename = "rollcall_csv_export"
     params.each { |key,value|
       case key
       when "absent"
@@ -65,11 +65,25 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
         if value.index('...').blank?
           filename = "ED-#{Time.parse(value).strftime("%s")}_#{filename}"
         end
+      when "school"
+        if value.index('...').blank?
+          filename = "SC-#{value}_#{filename}"
+        end
+      when "school_type"
+        if value.index('...').blank?
+          filename = "ST-#{value}_#{filename}"
+        end
       else
       end
     }
-    results = Rollcall::Rrd.export_rrd_data params
-    send_data results, :type => 'application/csv', :filename => "#{filename}.csv"
+    Rollcall::Rrd.send_later(:export_rrd_data, params, filename, current_user)
+    respond_to do |format|
+      format.json do
+        render :json => {
+          :success => true
+        }
+      end
+    end
   end
 
   def get_options

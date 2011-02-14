@@ -21,7 +21,7 @@ class Rollcall::Alarm < Rollcall::Base
   set_table_name "rollcall_alarms"
 
   def self.generate_alarm(query)
-    unless query.alarm_set
+    if query.alarm_set
       result = create_alarm query
     else
       result = false
@@ -47,7 +47,7 @@ class Rollcall::Alarm < Rollcall::Base
       query_params.each do |param|
         params[:"#{param.split('=')[0]}"] = param.split('=')[1]
       end
-      test_data_date = Time.parse("11/22/2010")
+      test_data_date = Time.parse("09/01/2010")
       start_date     = params[:startdt].blank? ? test_data_date : Time.parse(params[:startdt])
       end_date       = params[:enddt].blank? ? Time.now : Time.parse(params[:enddt]) + 1.day
       tea_id         = params[:tea_id]

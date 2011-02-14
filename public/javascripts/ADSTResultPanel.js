@@ -66,6 +66,10 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           id:   'pin',
           qtip: 'Pin This Graph'
         },{
+          id:      'gear',
+          qtip:    'Show School on Google Map',
+          handler: this.showOnGoogleMap
+        },{
           id:      'save',
           qtip:    'Save Query',
           handler: function(e, targetEl, panel, tc)
@@ -98,6 +102,26 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   closeResult: function(e, target, panel)
   {
     panel.ownerCt.remove(panel, true);
+  },
+
+  showOnGoogleMap: function(e, targetEl, panel, tc) {
+    var gmapPanel = new Ext.ux.GMapPanel({zoomLevel: 14});
+    var win = new Ext.Window({
+      title: "Google Map for '" + panel.school_name + "'",
+      layout: 'fit',
+      labelAlign: 'top',
+      padding: '5',
+      width: 510, height: 420,
+      items: [gmapPanel]
+    });
+    win.addButton({xtype: 'button', text: 'Dismiss', handler: function(){ win.close(); }, scope: this, width:'auto'});
+    win.addListener("afterrender", function(){
+      gmapPanel.geocoder.geocode({address: panel.school_name+",Houston,TX"}, function(res, stat){
+        gmapPanel.gmap.setCenter(res[0].geometry.location);
+        gmapPanel.addMarker(res[0].geometry.location, panel.school_name, {});
+      });
+    });
+    win.show();
   },
 
   exportResult: function(e, targetEl, panel, tc)

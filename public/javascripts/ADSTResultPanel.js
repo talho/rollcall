@@ -119,7 +119,20 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     win.addListener("afterrender", function(){
       var loc = new google.maps.LatLng(panel.school.gmap_lat, panel.school.gmap_lng);
       gmapPanel.gmap.setCenter(loc);
-      gmapPanel.addMarker(loc, panel.school.display_name, {});
+      var addr_elems = panel.school.gmap_addr.split(",");
+      var marker = gmapPanel.addMarker(loc, panel.school.display_name, {});
+      marker.info = "<b>" + panel.school.display_name + "</b><br>";
+      marker.info += addr_elems[0] + "<br>" + addr_elems[1] + "<br>" + addr_elems.slice(2).join(",");
+      marker.info_popup = null;
+      google.maps.event.addListener(marker, 'click', function(){
+        if (marker.info_popup) {
+          this.info_popup.close(gmapPanel.gmap, this);
+          this.info_popup = null;
+        } else {
+          this.info_popup = new google.maps.InfoWindow({content: this.info});
+          this.info_popup.open(gmapPanel.gmap, this);
+        }
+      });
     });
     win.show();
   },

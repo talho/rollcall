@@ -93,6 +93,11 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                 hidden: true,
                 scope: this,
                 handler: this.exportResultSet
+              },{
+                text: "Map Result Set",
+                hidden: true,
+                scope: this,
+                handler: this.mapResultSet
               }],
               listeners:{
                 scope: this,
@@ -151,20 +156,54 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     this.providers.push(provider);
     Ext.Direct.addProvider(provider);
   },
+  buildParams: function(form_values)
+  {
+    var params = new Object;
+    for(key in form_values)
+      params[key.replace(/_adv|_simple/,'')] = form_values[key];
+    return params;
+  },
+  mapResultSet: function(buttonEl, eventObj)
+  {
+    var form_values  = buttonEl.findParentByType('form').getForm().getValues();
+    var params = this.buildParams(form_values);
+    params["limit"] = this.getResultPanel().getResultStore().getTotalCount();
+    Ext.Ajax.request({
+      url:    'rollcall/adst',
+      method: 'GET',
+      params: params,
+      scope:  this,
+      callback: function(options, success, response){
+        var gmapPanel = new Ext.ux.GMapPanel({zoomLevel: 9});
+        var win = new Ext.Window({
+          title: "Google Map of Schools",
+          layout: 'fit',
+          labelAlign: 'top',
+          padding: '5',
+          width: 510, height: 450,
+          items: [gmapPanel]
+        });
+        win.schools = Ext.decode(response.responseText).results;
+        win.addButton({xtype: 'button', text: 'Dismiss', handler: function(){ win.close(); }, scope: this, width:'auto'});
+        win.addListener("afterrender", function(w){
+          var center = new google.maps.LatLng(w.schools[0].school.gmap_lat, w.schools[0].school.gmap_lng);
+          gmapPanel.gmap.setCenter(center);
+          for(var i = 0; i < w.schools.length; i++) {
+            var loc = new google.maps.LatLng(w.schools[i].school.gmap_lat, w.schools[i].school.gmap_lng);
+            gmapPanel.addMarker(loc, w.schools[i].school.display_name, {});
+          }
+        });
+        win.show();
+      },
+      failure: function(){}
+    });
+  },
   exportResultSet: function(buttonEl, eventObj)
   {
-    var form_values  = buttonEl.findParentByType("form").getForm().getValues();
-    var param_string = '';
-    for(key in form_values){
-      if(Ext.getCmp('advanced_query_select').isVisible()){
-        if(key.indexOf('adv') != -1) param_string += key.replace('_adv','') + '=' + form_values[key] + "&";
-      }else{
-        if(key.indexOf('simple') != -1) param_string += key.replace('_simple','') + '=' + form_values[key] + "&";
-      }
-    }
     Ext.Ajax.request({
-      url:    'rollcall/export?'+param_string,
+      url:    'rollcall/export',
       method: 'GET',
+      params: this.buildParams(buttonEl.findParentByType("form").getForm().getValues()),
       scope:  this,
       callback: function(options, success, response){
         Ext.MessageBox.show({
@@ -176,7 +215,6 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         });
       },
       failure: function(){
-
       }
     });
     //Talho.ux.FileDownloadFrame.download('rollcall/export?'+param_string);   
@@ -194,23 +232,17 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     form_values.page  = 1;
     form_values.start = 0;
     form_values.limit = 6;
-    result_store.setBaseParam("enrolled_base_line", "off"); // must clear any previous checkbox "on" value
-    for(key in form_values){
-      if(Ext.getCmp('advanced_query_select').isVisible()){
-        if(key.indexOf('adv') != -1) result_store.setBaseParam(key.replace('_adv',''), form_values[key]);
-      }else{
-        if(key.indexOf('simple') != -1) result_store.setBaseParam(key.replace('_simple',''), form_values[key]);
-      }
-
-    }
+    result_store.baseParams = {}; // clear previous search values
+    var params = this.buildParams(form_values);
+    for(key in params)
+      result_store.setBaseParam(key, params[key]);
     buttonEl.findParentByType("form").buttons[2].show();
+    buttonEl.findParentByType("form").buttons[3].show();
 
     var panel_mask = new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(), {msg:"Please wait..."});
     panel_mask.show();
-    result_store.on('write', function(){
-      panel_mask.hide();
-    })
-    result_store.load();
+    result_store.on('write', function(){ panel_mask.hide(); });
+    result_store.load({params: this.buildParams(form_values)});
     return true;
   },
   setNextPage: function(this_toolbar, params)

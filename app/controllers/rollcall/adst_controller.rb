@@ -5,7 +5,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   def index
     results      = Rollcall::Rrd.search(params)
     options      = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
-    results_uniq = results.blank? ? results.paginate(options) : results.paginate(options)
+    results_uniq = results.paginate(options)
     respond_to do |format|
       format.json do
         render :json => {
@@ -20,11 +20,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   def create
     results      = Rollcall::Rrd.render_graphs(params)
     schools      = params[:results][:schools].blank? ? "" : params[:results][:schools]
-    school_names = []
-    schools = schools.split(",").each do |school|
-      school_names.push("#{Rollcall::School.find_by_tea_id(school).display_name}")
-    end
-    school_names.join(",")
+    school_descs = schools.split(",").collect { |school| Rollcall::School.find_by_tea_id(school) }
 
     respond_to do |format|
       format.json do
@@ -32,11 +28,10 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
           :success       => true,
           :total_results => results[:image_urls].length,
           :results       => {
-            :id           => 1,
-            :img_urls     => results[:image_urls],
-            :r_ids        => results[:rrd_ids],
-            :schools      => schools,
-            :school_names => school_names
+            :id          => 1,
+            :img_urls    => results[:image_urls],
+            :r_ids       => results[:rrd_ids],
+            :schools     => school_descs
           }.as_json
         }
       end

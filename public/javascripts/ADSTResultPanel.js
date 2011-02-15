@@ -54,13 +54,14 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     this.getComponent('rightColumn').removeAll();
     this.getComponent('leftColumn').removeAll();
     for(var i = 0; i < result[0]['img_urls'].length; i++){
-      item_id          = result[0]["schools"][i];
-      school_name      = result[0]["school_names"][i];
+      item_id            = result[0]["schools"][i].school.tea_id;
+      school_name        = result[0]["schools"][i].school.display_name;
       graphImageConfig = {
         title:       'Query Result for '+school_name,
         style:       'margin:5px',
         itemId:      item_id,
-        school_name: result[0]["school_names"][i],
+        school:      result[0]["schools"][i].school,
+        school_name: result[0]["schools"][i].school.display_name,
         r_id:        result[0]["r_ids"][i],
         tools: [{
           id:   'pin',
@@ -111,15 +112,14 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       layout: 'fit',
       labelAlign: 'top',
       padding: '5',
-      width: 510, height: 420,
+      width: 510, height: 450,
       items: [gmapPanel]
     });
     win.addButton({xtype: 'button', text: 'Dismiss', handler: function(){ win.close(); }, scope: this, width:'auto'});
     win.addListener("afterrender", function(){
-      gmapPanel.geocoder.geocode({address: panel.school_name+",Houston,TX"}, function(res, stat){
-        gmapPanel.gmap.setCenter(res[0].geometry.location);
-        gmapPanel.addMarker(res[0].geometry.location, panel.school_name, {});
-      });
+      var loc = new google.maps.LatLng(panel.school.gmap_lat, panel.school.gmap_lng);
+      gmapPanel.gmap.setCenter(loc);
+      gmapPanel.addMarker(loc, panel.school.display_name, {});
     });
     win.show();
   },

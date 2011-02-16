@@ -234,6 +234,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         url:        'rollcall/save_query',
         border:     false,
         baseParams: {
+          authenticity_token: FORM_AUTH_TOKEN,
           query_params: param_string,
           r_id:         r_id,
           tea_id:       tea_id
@@ -253,7 +254,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           }
         },{
           xtype: 'fieldset',
-          title: 'Deviation',
+          title: 'Absentee Rate Deviation',
           style: {
             marginLeft:  '5px',
             marginRight: '5px'
@@ -263,28 +264,6 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
             xtype: 'container'
           },
           items: [{
-            fieldLabel: 'Threshold',
-            items:[{
-              xtype: 'textfield',
-              width: 32,
-              cls:   'ux-layout-auto-float-item',
-              style: {
-                marginLeft: '-40px'
-              },
-              value: '50%'
-            },{
-              xtype: 'sliderfield',
-              width: 135,
-              listeners: {
-                scope:  this,
-                change: this.changeTextField
-              },
-              tipText: this.showTipText,
-              id:      'deviation_threshold',
-              cls:     'ux-layout-auto-float-item',
-              value:   50
-            }]
-          },{
             fieldLabel: 'Min',
             items:[{
               xtype: 'textfield',
@@ -293,7 +272,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               style:{
                 marginLeft: '-40px'
               },
-              value: '50%'
+              value: '0%'
             },{
               xtype: 'sliderfield',
               width: 135,
@@ -304,7 +283,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               tipText: this.showTipText,
               id:      'deviation_min',
               cls:     'ux-layout-auto-float-item',
-              value:   50
+              value:   0
             }]
           },{
             fieldLabel: 'Max',
@@ -342,7 +321,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         },{
           xtype:      'fieldset',
           autoHeight: true,
-          title:      'Severity',
+          title:      'Absentee Rate Severity',
           style:{
             marginLeft:  '5px',
             marginRight: '5px'
@@ -361,7 +340,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               style:{
                 marginLeft: '-40px'
               },
-              value: '50%'
+              value: '0%'
             },{
               xtype: 'sliderfield',
               width: 135,
@@ -371,7 +350,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               },
               tipText: this.showTipText,
               id:      'severity_min',
-              value:   50,
+              value:   0,
               cls:     'ux-layout-auto-float-item'
             }]
           },{

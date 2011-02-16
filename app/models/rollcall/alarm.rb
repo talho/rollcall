@@ -67,15 +67,13 @@ class Rollcall::Alarm < Rollcall::Base
           deviation     = calculate_deviation data_set
           severity      = (total_absent.to_f / total_enrolled.to_f)
           absentee_rate = severity * 100
-          if (severity >= query.severity_min && severity <= query.severity_max) ||
-             (deviation >= query.deviation_min && deviation <= query.deviation_max) ||
-             (deviation >= query.deviation_threshold) ||
-             ((query.deviation_threshold - deviation) <= 1)
+          if (absentee_rate >= query.severity_min) ||
+             (query.deviation_min <= deviation && deviation <= query.deviation_max)
             if absentee_rate >= query.severity_max
               alarm_severity = 'extreme'
-            elsif absentee_rate > query.severity_min && absentee_rate < query.severity_max
+            elsif (query.severity_min + 2) < absentee_rate && absentee_rate < query.severity_max
               alarm_severity = 'severe'
-            elsif absentee_rate > (query.severity_min - 2) && absentee_rate <= query.severity_min
+            elsif query.severity_min <= absentee_rate && absentee_rate <= (query.severity_min + 2)
               alarm_severity = 'moderate'
             else
               alarm_severity = 'unknown'

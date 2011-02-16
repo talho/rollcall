@@ -159,8 +159,12 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   buildParams: function(form_values)
   {
     var params = new Object;
-    for(key in form_values)
-      params[key.replace(/_adv|_simple/,'')] = form_values[key];
+    params['authenticity_token'] = FORM_AUTH_TOKEN;
+    for (key in form_values)
+      if (Ext.getCmp('advanced_query_select').isVisible())
+        params[key.replace(/_adv/,'')] = form_values[key];
+      else
+        params[key.replace(/_simple/,'')] = form_values[key];
     return params;
   },
   mapResultSet: function(buttonEl, eventObj)
@@ -242,9 +246,6 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     var form_values  = buttonEl.findParentByType('form').getForm().getValues();
     var result_store = this.getResultPanel().getResultStore();
     buttonEl.findParentByType('form').findParentByType('panel').getBottomToolbar().bindStore(result_store);
-    form_values.page  = 1;
-    form_values.start = 0;
-    form_values.limit = 6;
     result_store.baseParams = {}; // clear previous search values
     var params = this.buildParams(form_values);
     for(key in params)

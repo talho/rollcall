@@ -57,7 +57,6 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
             query_params:        record[i].data.saved_queries[cnt].query_params,
             severity_min:        record[i].data.saved_queries[cnt].severity_min,
             severity_max:        record[i].data.saved_queries[cnt].severity_max,
-            deviation_threshold: record[i].data.saved_queries[cnt].deviation_threshold,
             deviation_min:       record[i].data.saved_queries[cnt].deviation_min,
             deviation_max:       record[i].data.saved_queries[cnt].deviation_max,
             r_id:                record[i].data.saved_queries[cnt].rrd_id,
@@ -193,7 +192,6 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
     var query_params        = panel.param_config.query_params;
     var severity_min        = panel.param_config.severity_min;
     var severity_max        = panel.param_config.severity_max;
-    var deviation_threshold = panel.param_config.deviation_threshold;
     var deviation_min       = panel.param_config.deviation_min;
     var deviation_max       = panel.param_config.deviation_max;
     var r_id                = panel.param_config.r_id;
@@ -235,6 +233,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
         border: false,
         method: 'PUT',
         baseParams:{
+          authenticity_token: FORM_AUTH_TOKEN,
           query_params: param_string,
           r_id: r_id,
           tea_id: tea_id
@@ -255,7 +254,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
           }
         },{
           xtype: 'fieldset',
-          title: 'Deviation',
+          title: 'Absentee Rate Deviation',
           style:{
             marginLeft: '5px',
             marginRight: '5px'
@@ -265,28 +264,6 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
             xtype: 'container'
           },
           items: [{
-            fieldLabel: 'Threshold',
-            items:[{
-              xtype: 'textfield',
-              width: 32,
-              cls: 'ux-layout-auto-float-item',
-              style:{
-                marginLeft: '-40px'
-              },
-              value: '50%'
-            },{
-              xtype: 'sliderfield',
-              width: 135,
-              listeners: {
-                scope: this,
-                change: this.changeSlider
-              },
-              tipText: this.showTipText,
-              id: 'deviation_threshold',
-              cls: 'ux-layout-auto-float-item',
-              value: deviation_threshold
-            }]
-          },{
             fieldLabel: 'Min',
             items:[{
               xtype: 'textfield',
@@ -295,7 +272,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
               style:{
                 marginLeft: '-40px'
               },
-              value: '50%'
+              value: '0%'
             },{
               xtype: 'sliderfield',
               width: 135,
@@ -344,7 +321,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
         },{
           xtype: 'fieldset',
           autoHeight: true,
-          title: 'Severity',
+          title: 'Absentee Rate Severity',
           style:{
             marginLeft: '5px',
             marginRight: '5px'
@@ -363,7 +340,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
               style:{
                 marginLeft: '-40px'
               },
-              value: '50%'
+              value: '0%'
             },{
               xtype: 'sliderfield',
               width: 135,

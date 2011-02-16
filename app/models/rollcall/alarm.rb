@@ -39,6 +39,9 @@ class Rollcall::Alarm < Rollcall::Base
   private
 
   def self.create_alarm query
+    # clear previous alarms and before generating new ones
+    find(:all, :conditions => ['saved_query_id = ?', query.id]).each { |a| a.destroy }
+
     return_success   = false
     begin
       data_set       = []
@@ -56,6 +59,7 @@ class Rollcall::Alarm < Rollcall::Base
       total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
       (0..days).each do |i|
         report_date = start_date + i.days
+# FIX: if params[:absent] == "ConfirmedIllness"
         unless params[:absent].blank?
           student_info = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(school_id, report_date, true)
         else

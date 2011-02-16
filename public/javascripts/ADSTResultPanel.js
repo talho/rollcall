@@ -73,6 +73,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         },{
           id:      'save',
           qtip:    'Save Query',
+          scope:   this,
           handler: function(e, targetEl, panel, tc)
           {
             this.showSaveQueryConsole(store.baseParams, panel.itemId, panel.school_name, panel.r_id.value, panel);
@@ -272,7 +273,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               style:{
                 marginLeft: '-40px'
               },
-              value: '0%'
+              value: '100%'
             },{
               xtype: 'sliderfield',
               width: 135,
@@ -283,7 +284,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               tipText: this.showTipText,
               id:      'deviation_min',
               cls:     'ux-layout-auto-float-item',
-              value:   0
+              value:   100
             }]
           },{
             fieldLabel: 'Max',
@@ -294,7 +295,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               style:{
                 marginLeft: '-40px'
               },
-              value: '50%'
+              value: '100%'
             },{
               xtype: 'sliderfield',
               width: 135,
@@ -305,7 +306,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               tipText: this.showTipText,
               id:      'deviation_max',
               cls:     'ux-layout-auto-float-item',
-              value:   50
+              value:   100
             }]
           }],
           fbar: {
@@ -340,7 +341,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               style:{
                 marginLeft: '-40px'
               },
-              value: '0%'
+              value: '100%'
             },{
               xtype: 'sliderfield',
               width: 135,
@@ -350,7 +351,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               },
               tipText: this.showTipText,
               id:      'severity_min',
-              value:   0,
+              value:   100,
               cls:     'ux-layout-auto-float-item'
             }]
           },{
@@ -362,7 +363,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               style:{
                 marginLeft: '-40px'
               },
-              value: '50%'
+              value: '100%'
             },{
               xtype: 'sliderfield',
               width: 135,
@@ -372,7 +373,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               },
               tipText: this.showTipText,
               id:      'severity_max',
-              value:   50,
+              value:   100,
               cls:     'ux-layout-auto-float-item'
             }]
           }],

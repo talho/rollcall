@@ -136,8 +136,9 @@ class Rollcall::Rrd < Rollcall::Base
     @document          = user_obj.documents.build({:folder_id => nil, :file => file})
     @document.owner_id = user_obj.id
     @document.save!
-    #DocumentMailer.deliver_document_addition(@document, user_obj) if @document.folder.notify_of_document_addition
-    #return @csv_data
+    if !@document.folder.nil? && @document.folder.notify_of_document_addition
+      DocumentMailer.deliver_document_addition(@document, user_obj)
+    end
     return true
   end
 

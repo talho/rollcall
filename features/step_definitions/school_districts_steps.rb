@@ -22,7 +22,6 @@ end
 
 Given /^"([^\"]*)" has the following current absenteeism data:$/ do |isd, table| 
   table.hashes.each do |row|
-#    row["Date"] = Date.today.strftime("%Y-%m-%d") if row["Date"] == "today"
     date = Date.today - row["Day"].to_i.days
     Rollcall::AbsenteeReport.create!(
       :school => Rollcall::School.find_by_display_name!(row["SchoolName"]),

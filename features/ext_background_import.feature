@@ -43,10 +43,7 @@ Feature: Importing automated data
     And I navigate to "Rollcall > Schools"
     And I select "Lewis Elementary" from "School"
     And I press "Choose"
-    #And I load the ext rollcall schools page for "LEWIS ES"
     Then I should see an absenteeism graph with the following:
-    #Then I should see an absenteeism graph with the data:
     | data        | nil,nil,12.0,1.0,3.0,2.0,10.0     |
     | data-label  | Lewis Elementary                  |
     | title       | Absenteeism Rates (Last 7 days)   |
-

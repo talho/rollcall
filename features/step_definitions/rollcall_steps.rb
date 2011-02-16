@@ -13,7 +13,6 @@ end
 
 Then /^I should not see a rollcall alert for "([^\"]*)"$/ do |school|
   page.should_not have_xpath(".//li[@class='school']", :text => school)
-  #response.should_not have_selector(".school", :content => school)
 end
 
 Then /^I should see an "([^\"]*)" rollcall summary for "([^\"]*)" with (.*) absenteeism$/ do |severity, school, percent|
@@ -27,7 +26,4 @@ Then /^I should see school data for "([^\"]*)"$/ do |school|
   page.find(".school_data") do |elm|
     elm.find(".school", :content => school)
   end
-#  response.should have_selector(".school_data") do |elm|
-#    elm.should have_selector(".school", :content => school)
-#  end
 end

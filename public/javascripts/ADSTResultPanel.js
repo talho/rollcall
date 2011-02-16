@@ -75,7 +75,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           qtip:    'Save Query',
           handler: function(e, targetEl, panel, tc)
           {
-            panel.ownerCt.ownerCt.showSaveQueryConsole(store.baseParams, panel.itemId, panel.school_name, panel.r_id.value, panel);
+            this.showSaveQueryConsole(store.baseParams, panel.itemId, panel.school_name, panel.r_id.value, panel);
           }
         },{
           id:      'down',

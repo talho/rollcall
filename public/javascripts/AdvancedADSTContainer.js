@@ -11,16 +11,6 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
       hidden:      true,
       padding:     '0 0 5 5',
       layout:     'auto',
-      listeners: {
-        'show': function()
-        {
-          this.ownerCt.getForm().setValues([{id: 'adv', value: true}]);
-        },
-        'hide': function()
-        {
-          this.ownerCt.getForm().setValues([{id: 'adv', value: false}]);
-        }
-      },
       defaults:{
         xtype: 'container',
         layout: 'form',
@@ -70,7 +60,13 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             emptyText:  'Select School...',
             allowBlank: true,
             id: 'school_adv',
-            store: config.schools
+            store: config.schools,
+            listeners:{
+              select: function(comboBox, record, index){
+                Ext.getCmp('school_type_adv').clearValue();
+                Ext.getCmp('zip_adv').clearValue();
+              }
+            }
           })
         },{
           items: new Talho.Rollcall.ux.ComboBox({
@@ -78,7 +74,13 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             emptyText:  'Select School Type...',
             allowBlank: true,
             id: 'school_type_adv',
-            store: config.school_type
+            store: config.school_type,
+            listeners:{
+              select: function(comboBox, record, index){
+                Ext.getCmp('school_adv').clearValue();
+                Ext.getCmp('zip_adv').clearValue();
+              }
+            }
           })
         },{
           items:{
@@ -116,7 +118,13 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             emptyText:  'Select Zipcode...',
             allowBlank: true,
             id: 'zip_adv',
-            store: config.zipcode
+            store: config.zipcode,
+            listeners:{
+              select: function(comboBox, record, index){
+                Ext.getCmp('school_adv').clearValue();
+                Ext.getCmp('school_type_adv').clearValue();
+              }
+            }
           })
         },{
           items: new Talho.Rollcall.ux.ComboBox({
@@ -125,13 +133,6 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             id: 'data_func_adv',
             store: config.data_functions
           })
-        },{
-          items: {
-            xtype: 'field',
-            id: 'adv',
-            value: false,
-            hidden: true
-          }
         },{
           cls: 'base-line-check',
           items:{

@@ -172,7 +172,6 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
       }
     });
-    //Talho.ux.FileDownloadFrame.download('rollcall/export?'+param_string);
   },
 
   loadGraphResults: function(store, records, options)
@@ -206,7 +205,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
     
     for(key in queryParams){
-      if(queryParams[key].indexOf("...") == -1) params.push([key, queryParams[key]]);
+      if(queryParams[key].indexOf("...") == -1 && key != "authenticity_token") params.push([key, queryParams[key]]);
     }
     params.push(['tea_id', tea_id]);
     storedParams.loadData(params);

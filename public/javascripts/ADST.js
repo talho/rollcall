@@ -54,7 +54,15 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           layout:    'fit',
           bodyStyle: 'padding:0px',
           width:     200,
-          items:     new Talho.Rollcall.AlarmsPanel({})
+          items:     new Talho.Rollcall.AlarmsPanel({}),
+          bbar:[{
+            text: 'Refresh',
+            iconCls: 'x-tbar-loading',
+            handler: function(btn,event)
+            {
+              this.ownerCt.ownerCt.getComponent('alarm_panel').alarms_store.load();
+            }
+          }]
         },{
           title:       'ADST',
           itemId:      'ADST_panel',
@@ -169,8 +177,8 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   },
   mapResultSet: function(buttonEl, eventObj)
   {
-    var form_values  = buttonEl.findParentByType('form').getForm().getValues();
-    var params = this.buildParams(form_values);
+    var form_values = buttonEl.findParentByType('form').getForm().getValues();
+    var params      = this.buildParams(form_values);
     params["limit"] = this.getResultPanel().getResultStore().getTotalCount();
     Ext.Ajax.request({
       url:    'rollcall/adst',
@@ -233,8 +241,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       },
       failure: function(){
       }
-    });
-    //Talho.ux.FileDownloadFrame.download('rollcall/export?'+param_string);   
+    });  
   },
   resetForm: function(buttonEl, eventObj)
   {

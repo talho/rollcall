@@ -88,14 +88,25 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     ]
     age = [
       {:id => 0, :value => 'Select Age...'},
-      {:id => 1, :value => '3-4'},
-      {:id => 2, :value => '5-6'},
-      {:id => 3, :value => '7-8'},
-      {:id => 4, :value => '9-10'},
-      {:id => 5, :value => '11-12'},
-      {:id => 6, :value => '13-14'},
-      {:id => 7, :value => '15-16'},
-      {:id => 8, :value => '17-18'}
+      {:id => 1, :value => '0'},
+      {:id => 2, :value => '1'},
+      {:id => 3, :value => '2'},
+      {:id => 4, :value => '3'},
+      {:id => 5, :value => '4'},
+      {:id => 6, :value => '5'},
+      {:id => 7, :value => '6'},
+      {:id => 8, :value => '7'},
+      {:id => 9, :value => '8'},
+      {:id => 10, :value => '9'},
+      {:id => 11, :value => '10'},
+      {:id => 12, :value => '11'},
+      {:id => 13, :value => '12'},
+      {:id => 14, :value => '13'},
+      {:id => 15, :value => '14'},
+      {:id => 16, :value => '15'},
+      {:id => 17, :value => '16'},
+      {:id => 18, :value => '17'},
+      {:id => 19, :value => '18'}
     ]
     gender = [
       {:id => 0, :value => 'Select Gender...'},

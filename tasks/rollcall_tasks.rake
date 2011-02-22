@@ -105,7 +105,7 @@ namespace :rollcall do
             dob                  = Time.now - age.years - (rand(11) + 1).months - (rand(29) + 1).days
             gender_array         = ['M','F']
             is_confirmed_illness = false
-            if illness != 'event' || illness != 'none'
+            if illness != 'event' && illness != 'none'
               is_confirmed_illness = true
             end
             sdi        = Rollcall::StudentDailyInfo.create(
@@ -179,7 +179,7 @@ namespace :rollcall do
                 school_illness_outbreak.delete(illness)
               elsif illness == 'event'
                 event_counter += 1
-                if event_counter == 2
+                if event_counter == 4
                   school_illness_outbreak.delete(illness)
                 end
               end

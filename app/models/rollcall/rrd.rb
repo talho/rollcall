@@ -13,26 +13,36 @@ class Rollcall::Rrd < Rollcall::Base
   set_table_name "rollcall_rrds"
 
   def self.search params
-    school_name = params[:school].index('...').blank? ? CGI::unescape(params[:school]) : ""
-    school_type = params[:school_type].index('...').blank? ? CGI::unescape(params[:school_type]) : ""
-    schools     = Rollcall::School.search("#{school_name}").concat(Rollcall::School.search("#{school_type}"))
-    schools.concat(Rollcall::School.search("#{params[:zip]}")) unless params[:zip].blank?
-    schools_uniq = schools.uniq.map {|v| (schools-[v]).size < (schools.size - 1) ? v : nil}.compact
-    return schools_uniq
+    school_name  = params[:school].index('...').blank? ? CGI::unescape(params[:school]) : ""
+    school_type  = params[:school_type].index('...').blank? ? CGI::unescape(params[:school_type]) : ""
+    zipcode      = ""
+    zipcode      = params[:zip].index('...').blank? ? CGI::unescape(params[:zip]) : "" unless params[:zip].blank?
+    search_param = ""
+    if !school_name.blank?
+      search_param = school_name
+    elsif !school_type.blank?
+      search_param = school_type
+    elsif !zipcode.blank?
+      search_param = zipcode
+    end
+    schools = Rollcall::School.search("#{search_param}")
+    return schools
   end
 
   def self.render_graphs params
     image_paths    = []
     rrd_ids        = []
+    conditions     = set_conditions params
+
     unless params[:results].blank?
       unless params[:results][:schools].blank?
         params[:results][:schools].split(',').each do |rec|
           tea_id         = rec.to_i
           filename       = "#{tea_id}_absenteeism"
-          rrd_result     = reduce_rrd(params, filename)
-          rrd_file       = rrd_result[:file_name]
-          rrd_id         = rrd_result[:id]
-          image_file     = rrd_file.gsub(".rrd", ".png")
+          some_file_name = set_filename conditions, filename
+          image_file     = "#{some_file_name}.png"
+          rrd_image_path = Dir.pwd << "/public/rrd/"
+          results        = find(:all, :conditions => ['file_name LIKE ?', "#{some_file_name}.rrd"]).first
           school_name    = Rollcall::School.find_by_tea_id(tea_id).display_name.gsub(" ", "_")
           graph_title    = "Absenteeism Rate for #{school_name}"
           unless params[:symptoms].blank?
@@ -40,17 +50,25 @@ class Rollcall::Rrd < Rollcall::Base
               graph_title = "Absenteeism Rate for #{school_name} based on #{params[:symptoms]}"
             end
           end
-          self.graph rrd_file, image_file, graph_title, params
-          #rrd_image_path = Dir.pwd << "/public/rrd/"
-          #File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
-          #self.send_later(:graph, rrd_file, image_file, graph_title, params)
+          if results.blank?
+            create_results = create :file_name => "#{some_file_name}.rrd"
+            rrd_id         = create_results.id
+            rrd_file       = create_results.file_name
+            self.send_later(:reduce_rrd, params, tea_id, conditions, some_file_name, rrd_file, rrd_image_path, image_file, graph_title)
+          else
+            rrd_id         = results.id
+            rrd_file       = results.file_name
+            File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
+            self.send_later(:graph, rrd_file, image_file, graph_title, params)
+          end
+
           image_paths.push(:value => "/rrd/#{image_file}")
           rrd_ids.push(:value => rrd_id)
         end
       end
     end
     return {
-      :rrd_ids => rrd_ids,
+      :rrd_ids    => rrd_ids,
       :image_urls => image_paths
     }
   end
@@ -72,10 +90,10 @@ class Rollcall::Rrd < Rollcall::Base
         unless params[:symptoms].blank?
           graph_title = "Absenteeism Rate for #{school_name} based on #{params[:symptoms]}"
         end
-        self.graph rrd_file, image_file, graph_title, params
-        #rrd_image_path = Dir.pwd << "/public/rrd/"
-        #File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
-        #self.send_later(:graph, rrd_file, image_file, graph_title, params)
+        #self.graph rrd_file, image_file, graph_title, params
+        rrd_image_path = Dir.pwd << "/public/rrd/"
+        File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
+        self.send_later(:graph, rrd_file, image_file, graph_title, params)
         image_urls.push("/rrd/#{image_file}")
       end
     end
@@ -89,44 +107,17 @@ class Rollcall::Rrd < Rollcall::Base
     test_data_date = Time.parse("11/22/2010")
     start_date     = params[:startdt].index('...') ? test_data_date : Time.parse(params[:startdt])
     end_date       = params[:enddt].index('...') ? Time.now : Time.parse(params[:enddt])
-    conditions     = {}
-    params.each { |key,value|
-      case key
-      when "absent"
-        if value == "Confirmed+Illness" || value == "Confirmed Illness"
-          conditions[:confirmed_illness] = true
-        end
-      when "gender"
-        if value == "Male"
-          conditions[:gender] = true
-        elsif value == "Female"
-          conditions[:gender] = false
-        end
-      when "startdt"
-        if value.index('...').blank?
-          conditions[:startdt] = value
-        end
-      when "enddt"
-        if value.index('...').blank?
-          conditions[:enddt] = value
-        end
-      else
-      end
-    }
-    @csv_data = "School Name,TEA ID,Total Absent,Total Enrolled,Report Date\n"
+    conditions     = set_conditions params
+    @csv_data      = "School Name,TEA ID,Total Absent,Total Enrolled,Report Date\n"
     initial_result.each do |rec|
       days = ((end_date - start_date) / 86400)
       (0..days).each do |i|
-        report_date    = start_date + i.days
+        report_date = start_date + i.days
         school_info = Rollcall::SchoolDailyInfo.find_by_report_date_and_school_id(report_date, rec.id)
         unless school_info.blank?
           total_enrolled = school_info.total_enrolled
-          unless conditions[:confirmed_illness].blank?
-            total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(rec.id, report_date, true).size
-          else
-            total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(rec.id, report_date).size
-          end
-          @csv_data = "#{@csv_data}#{rec.display_name},#{rec.tea_id},#{total_absent},#{total_enrolled},#{report_date}\n"
+          total_absent   = get_total_absent report_date, conditions, rec.id
+          @csv_data      = "#{@csv_data}#{rec.display_name},#{rec.tea_id},#{total_absent},#{total_enrolled},#{report_date}\n"
         end
       end
     end
@@ -161,7 +152,7 @@ class Rollcall::Rrd < Rollcall::Base
     else
       end_date = Time.parse(params[:enddt]) + 1.day
     end
-    File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
+    #File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
     return RRD.graph(
       "#{rrd_path}#{rrd_file}","#{rrd_image_path}#{image_file}",
       {
@@ -264,22 +255,22 @@ class Rollcall::Rrd < Rollcall::Base
     end
     if options[:data_func] == "Standard+Deviation"
       elements.push({
-          :key     => 'a',
-          :element => "AREA",
-          :color   => school_color,
-          :text    => "Total Absent"
-        })
-        school_color = ""
-        for c in 0..5
-          alpha_or_numeric = rand(2)
-          school_color    += alpha_numeric[alpha_or_numeric][rand(alpha_numeric[alpha_or_numeric].length)]
-        end
-        elements.push({
-          :key     => 'msd',
-          :element => "LINE1",
-          :color   => school_color,
-          :text    => "Moving Standard Deviation"
-        })
+        :key     => 'a',
+        :element => "AREA",
+        :color   => school_color,
+        :text    => "Total Absent"
+      })
+      school_color = ""
+      for c in 0..5
+        alpha_or_numeric = rand(2)
+        school_color    += alpha_numeric[alpha_or_numeric][rand(alpha_numeric[alpha_or_numeric].length)]
+      end
+      elements.push({
+        :key     => 'msd',
+        :element => "LINE1",
+        :color   => school_color,
+        :text    => "Moving Standard Deviation"
+      })
     else
       if options[:data_func] == "Average"
         elements.push({
@@ -322,126 +313,159 @@ class Rollcall::Rrd < Rollcall::Base
     return elements
   end
 
-  def self.reduce_rrd options, filename
-    tea_id        = filename
-    conditions    = {}
-    rrd_file_name = nil
-    rrd_id        = nil
+  def self.reduce_rrd params, tea_id, conditions, filename, rrd_file, rrd_image_path, image_file, graph_title
+    rrd_path = Dir.pwd << "/rrd/"
+    unless conditions.blank?
+      rrd_tool = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
+        YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
+      end
+      unless conditions[:startdt].blank?
+        start_date = Time.parse(conditions[:startdt]) - 1.day
+      else
+        start_date = Time.local(2010,"aug",31,0,0)
+      end
 
+      RRD.create "#{rrd_path}#{filename}.rrd",
+      {
+        :step  => 24.hours.seconds,
+        :start => start_date.to_i,
+        :ds    => [
+          {
+            :name => "Absent", :type => "GAUGE", :heartbeat => 24.hours.seconds, :min => 0, :max => 768000
+          },
+          {
+            :name => "Enrolled", :type => "GAUGE", :heartbeat => 24.hours.seconds, :min => 0, :max => 768000
+          }
+        ],
+        :rra => [{
+          :type => "AVERAGE", :xff => 0.5, :steps => 5, :rows => 366
+        },{
+          :type => "HWPREDICT", :rows => 366, :alpha=> 0.5, :beta => 0.5, :period => 365, :rra_num => 3
+        },{
+          :type => "SEASONAL", :period => 365, :gamma => 0.5, :rra_num => 2
+        },{
+          :type => "DEVSEASONAL", :period => 365, :gamma => 0.5, :rra_num => 2
+        },{
+          :type => "DEVPREDICT", :rows => 366, :rra_num => 4
+        },{
+          :type => "MAX", :xff => 0, :steps => 1, :rows => 366
+        },{
+          :type => "MIN", :xff => 0, :steps => 1, :rows => 366
+        },{
+          :type => "LAST", :xff => 0, :steps => 1, :rows => 366
+        }]
+      } , "#{rrd_tool}"
+
+      school_id  = Rollcall::School.find_by_tea_id(tea_id).id
+      unless conditions[:startdt].blank? && conditions[:enddt].blank?
+        start_date = Time.parse(conditions[:startdt])
+        end_date   = Time.parse(conditions[:enddt])
+      else
+        start_date = Time.parse("08/31/2010")
+        end_date   = Time.now
+      end
+      days           = ((end_date - start_date) / 86400)
+      total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
+      (0..days).each do |i|
+        report_date = start_date + i.days
+        if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
+            RRD.update("#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,0,total_enrolled], "#{rrd_tool}")
+        else
+          total_absent = get_total_absent report_date, conditions, school_id
+          begin
+            RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,total_absent, total_enrolled],"#{rrd_tool}"
+          rescue
+          end
+        end
+      end
+    end
+    File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
+    self.send_later(:graph, rrd_file, image_file, graph_title, params)   
+  end
+
+  def self.set_conditions options
+    conditions = {}
     options.each { |key,value|
-      case key
-      when "absent"
-        if value == "Confirmed+Illness"
-          filename                       = "AB_#{filename}"
-          conditions[:confirmed_illness] = true
-        end
-      when "gender"
-        if value == "Male"
-          conditions[:gender] = true
-          filename            = "G-#{conditions[:gender]}_#{filename}"
-        elsif value == "Female"
-          conditions[:gender] = false
-          filename            = "G-#{conditions[:gender]}_#{filename}"
-        end        
-      when "startdt"
-        if value.index('...').blank?
+      if value.index('...').blank?
+        case key
+        when "absent"
+          if value == "Confirmed+Illness"
+            conditions[:confirmed_illness] = true
+          end
+        when "gender"
+          conditions[:gender]  = 'M' if value == "Male"
+          conditions[:gender]  = 'F' if value == "Female"
+        when "age"
+          conditions[:age]     = value.to_i
+        when "grade"
+          conditions[:grade]   = value.to_i
+        when "symptoms"
+          conditions[:symptom] = value.gsub("+", " ")
+        when "startdt"
           conditions[:startdt] = value
-          filename             = "SD-#{Time.parse(conditions[:startdt]).strftime("%s")}_#{filename}"
+        when "enddt"
+          conditions[:enddt]   = value
+        else
         end
-      when "enddt"
-        if value.index('...').blank?
-          conditions[:enddt] = value
-          filename           = "ED-#{Time.parse(conditions[:enddt]).strftime("%s")}_#{filename}"
-        end
+      end
+    }
+    return conditions
+  end
+
+  def self.set_filename conditions, filename
+    conditions.each { |key,value|
+      case key
+      when :confirmed_illness
+        filename = "AB_#{filename}"
+      when :gender
+        filename = "GNDR-#{value}_#{filename}"
+      when :age
+        filename = "AGE-#{value}_#{filename}"
+      when :grade
+        filename = "GRD-#{value.to_i}_#{filename}"
+      when :symptoms
+        filename = "SYM-#{value.gsub("+", "_")}_#{filename}"
+      when :startdt
+        filename = "SD-#{Time.parse(value).strftime("%s")}_#{filename}"
+      when :enddt
+        filename = "ED-#{Time.parse(value).strftime("%s")}_#{filename}"
       else
       end
     }
-    
-    results = find(:all, :conditions => ['file_name LIKE ?', "#{filename}.rrd"]).first
-    if results.blank?
-      rrd_path = Dir.pwd << "/rrd/"
-      unless conditions.blank?
-        rrd_tool = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
-          YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
-        end
-        unless conditions[:startdt].blank?
-          start_date = Time.parse(conditions[:startdt]) - 1.day
-        else
-          start_date = Time.local(2010,"aug",31,0,0)
-        end
-
-        RRD.create "#{rrd_path}#{filename}.rrd",
-        {
-          :step  => 24.hours.seconds,
-          :start => start_date.to_i,
-          :ds    => [
-            {
-              :name => "Absent", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 768000
-            },
-            {
-              :name => "Enrolled", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 768000
-            }
-          ],
-          :rra => [{
-            :type => "AVERAGE", :xff => 0.5, :steps => 5, :rows => 366
-          },{
-            :type => "HWPREDICT", :rows => 366, :alpha=> 0.5, :beta => 0.5, :period => 365, :rra_num => 3
-          },{
-            :type => "SEASONAL", :period => 365, :gamma => 0.5, :rra_num => 2
-          },{
-            :type => "DEVSEASONAL", :period => 365, :gamma => 0.5, :rra_num => 2
-          },{
-            :type => "DEVPREDICT", :rows => 366, :rra_num => 4
-          },{
-            :type => "MAX", :xff => 0, :steps => 1, :rows => 366
-          },{
-            :type => "LAST", :xff => 0, :steps => 1, :rows => 366
-          }]
-        } , "#{rrd_tool}"
-
-        school_id  = Rollcall::School.find_by_tea_id(tea_id).id
-        unless conditions[:startdt].blank? && conditions[:enddt].blank?
-          start_date = Time.parse(conditions[:startdt])
-          end_date   = Time.parse(conditions[:enddt])
-        else
-          start_date = Time.parse("08/31/2010")
-          end_date   = Time.now
-        end
-        days           = ((end_date - start_date) / 86400)
-        total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
-        (0..days).each do |i|
-          report_date = start_date + i.days
-          if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
-              #Dev Note: Running an update with a zero absent rate will show, what I feel to be, a very true
-              #absent pattern in which we see dips in absentee rate on expected days such as Sat and Sunday.
-              #Subsequently, RRD will average upwards of 3 days of unreported data and treat any other dates
-              #beyond this threshold as unknown data points which may or not result in dips in absentee data.
-              #As an example, seeing an averaged out data set between the days of thurs, friday, saturday,
-              #and sunday on a 3 day week before some sort of Holiday.
-              RRD.update("#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,0,total_enrolled], "#{rrd_tool}")
-          else
-            unless conditions[:confirmed_illness].blank?
-              total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(school_id, report_date, true).size
-            else
-              total_absent = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(school_id, report_date).size
-            end
-            begin
-              RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,total_absent, total_enrolled],"#{rrd_tool}"
-            rescue
-            end
-          end         
-        end
-        create_results = create :file_name => "#{filename}.rrd"
-        rrd_id         = create_results.id
-        rrd_file_name  = create_results.file_name
-      end
-    else
-      rrd_id        = results.id
-      rrd_file_name = results.file_name
-    end
-    return {
-      :id        => rrd_id,
-      :file_name => rrd_file_name
-    }
+    return filename
   end
+
+  def self.get_total_absent report_date, conditions, school_id
+    condition_string = ""
+    condition_array  = []
+    string_flag      = false
+    condition_array.push(condition_string)
+    conditions.each{|key,value|
+      if key != :symptom && key != :startdt && key != :enddt && key != :zipcode
+        condition_array[0] += " AND " if string_flag
+        condition_array[0] += "#{key} = ?"
+        string_flag         = true unless string_flag
+        condition_array.push(value)
+      end
+    }
+    condition_array[0] += " AND " if string_flag
+    condition_array[0] += "report_date = ? AND school_id = ?"
+    condition_array.push(report_date)
+    condition_array.push(school_id)
+    daily_result = Rollcall::StudentDailyInfo.find(:all, :conditions => condition_array)
+    unless conditions[:symptom].blank?
+      symptom_id            = Rollcall::Symptom.find_by_name(conditions[:symptom]).id
+      student_symptom_count = 0
+      daily_result.each do |rec|
+        unless Rollcall::StudentReportedSymptoms.find_by_symptom_id_and_student_daily_info_id(symptom_id, rec.id).blank?
+          student_symptom_count += 1
+        end
+      end
+      total_absent = student_symptom_count
+    else
+      total_absent = daily_result.size
+    end
+    return total_absent
+  end
+
 end

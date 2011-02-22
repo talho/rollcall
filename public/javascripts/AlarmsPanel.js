@@ -36,14 +36,21 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       sortInfo:{field: 'alarm_name', direction: "ASC"},
       groupField:'alarm_name',
       restful: true,
+      container_mask: null,
       listeners:{
           scope: this,
+          beforeload: function(this_store, options)
+          {
+            this_store.container_mask = new Ext.LoadMask(this.getEl(), {msg:"Please wait..."});
+            this_store.container_mask.show();
+          },
           load: function(this_store, record)
           {
             if(typeof(this_store.alarm_icon_el) != "undefined") {
               this_store.alarm_icon_el.toggleClass('x-tool-alarm-off');
               this_store.alarm_icon_el.toggleClass('x-tool-alarm-on');
             }
+            this_store.container_mask.hide();
           }
       }
     });
@@ -157,171 +164,185 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       headers: {'Accept': 'application/json'},
       scope: this,
       params:{
-        school_id: row_record.get('school_id'),
-        report_date: row_record.get('report_date'),
-        alarm_id: row_record.get('id'),
+        school_id:      row_record.get('school_id'),
+        report_date:    row_record.get('report_date'),
+        alarm_id:       row_record.get('id'),
         saved_query_id: row_record.get('saved_query_id')
       },
       success: function(response, options)
       {
-        jsonObj      = response.responseText.replace(/"alarm_severity"/g, 'alarm_severity');
-        jsonObj      = jsonObj.replace(/"info"/g, 'info');
-        jsonObj      = jsonObj.replace(/"total_confirmed_absent"/g, 'total_confirmed_absent');
-        jsonObj      = jsonObj.replace(/"total_absent"/g, 'total_absent');
-        jsonObj      = jsonObj.replace(/"total_enrolled"/g, 'total_enrolled');
-        jsonObj      = jsonObj.replace(/"school_name"/g, 'school_name');
-        jsonObj      = jsonObj.replace(/"school_type"/g, 'school_type');
-        jsonObj      = eval(jsonObj);
-        var template = new Ext.XTemplate(
-          '<tpl for=".">',
-            '<table class="alarm-tip-table">',
-              '<tr>',
-                '<td><b>School:</b></td>',
-                '<td><span>{school_name}</span></td>',
-              '</tr>',
-              '<tr>',
-                '<td><b>School Type:</b></td>',
-                '<td><span>{school_type}</span></td>',
-              '</tr>',
-              '<tr>',
-                '<td>&nbsp;</td>',
-                '<td>&nbsp;</td>',
-              '<tr>',
-                '<td><b>Severity:</b></td>',
-                '<td><span>{alarm_severity}</span></td>',
-              '</tr>',
-              '<tr>',
-                '<td><b>Total Absent:</b></td>',
-                '<td><span>{total_absent}</span></td>',
-              '</tr>',
-              '<tr>',
-                '<td><b>Total Confirmed Absent:</b></td>',
-                '<td><span>{total_confirmed_absent}</span></td>',
-              '</tr>',
-              '<tr>',
-                '<td><b>Total Enrolled:</b></td>',
-                '<td><span>{total_enrolled}</span></td>',
-              '</tr>',
-              '<tr>',
-                '<td>&nbsp;</td>',
-                '<td>&nbsp;</td>',
-              '<tr>',
-              '<tr>',
-                '<td><b>Student Info:</b></td>',
-                '<td>&nbsp;</td>',
-              '<tr>',
-            '</table>',
-          '</tpl>',
-          '<div class="x-tip-anchor x-tip-anchor-left x-tip-anchor-adjust"></div>'
-        );
+        jsonObj                = response.responseText.replace(/"alarm_severity"/g, 'alarm_severity');
+        jsonObj                = jsonObj.replace(/"info"/g, 'info');
+        jsonObj                = jsonObj.replace(/"total_confirmed_absent"/g, 'total_confirmed_absent');
+        jsonObj                = jsonObj.replace(/"total_absent"/g, 'total_absent');
+        jsonObj                = jsonObj.replace(/"total_enrolled"/g, 'total_enrolled');
+        jsonObj                = jsonObj.replace(/"school_name"/g, 'school_name');
+        jsonObj                = jsonObj.replace(/"school_type"/g, 'school_type');
+        jsonObj                = eval(jsonObj);
+        var template           = this.build_alarm_panel_template();
         var ignore_button_text = "Ignore Alarm";
         if(row_record.get('ignore_alarm'))ignore_button_text = "Unignore Alarm";
-
         if(this.tip_array.length != 0) this.tip_array.pop().destroy();
-        tip = new Ext.Tip({
-          title: 'Alarm Information for '+ row_record.get('school_name'),
-          closable: true,
-          cls: 'alarm-tip',
-          scope: this,
-          layout:'fit',
-          items: [template,new Ext.grid.GridPanel({
-            forceLayout: true,
-            scope: this,
-            viewConfig: {
-              forceFit: true
-            },
-            store: new Ext.data.JsonStore({
-              autoDestroy: true,
-              autoSave: true,
-              data: jsonObj[0].students,
-              root: 'student_info',
-              fields: [
-                {name:'id',                type:'int'},
-                {name:'school_name',       type:'int'},
-                {name:'report_date',       renderer: Ext.util.Format.dateRenderer('m-d-Y')},
-                {name:'age',               type:'int'},
-                {name:'dob',               renderer: Ext.util.Format.dateRenderer('m-d-Y')},
-                {name:'gender',            type:'string'},
-                {name:'grade',             type:'int'},
-                {name:'confirmed_illness', type:'boolean'}
-              ]
-            }),
-            columns: [
-              {header: 'Age',       width: 35, sortable: true,  dataIndex: 'age'},
-              {header: 'DOB',       width: 70, sortable: true,  dataIndex: 'dob'},
-              {header: 'Gender',    width: 50, sortable: true,  dataIndex: 'gender'},
-              {header: 'Grade',     width: 50, sortable: true,  dataIndex: 'grade'},
-              {header: 'Confirmed', width: 75, sortable: true,  dataIndex: 'confirmed_illness'}
-            ],
-            stripeRows: true,
-            stateful: true,
-            buttonAlign: 'left',
-            fbar:[{
-              text: ignore_button_text,
-              scope: this,
-              handler: function(btn,event)
-              {
-                if(row_record.get('ignore_alarm')){
-                  row_record.set('ignore_alarm', false);
-                  this.tip_array.pop().destroy();
-                }else{
-                  this.tip_array[0].hide();
-                  Ext.MessageBox.show({
-                    title: 'Ignore Alarm for '+row_record.get('school_name'),
-                    msg: 'Are you sure you want to ignore this alarm? Ignoring an alarm prevents any alerts '+
-                    'associated with the alarm from firing. You can unignore an alarm at anytime.',
-                    buttons: {
-                      ok: 'Yes',
-                      cancel: 'No'
-                    },
-                    scope: this,
-                    icon: Ext.MessageBox.QUESTION,
-                    fn: function(btn,txt,cfg_obj)
-                    {
-                      if(btn == 'ok'){
-                        row_record.set('ignore_alarm', true);
-                        this.tip_array.pop().destroy();
-                      }else{
-                        this.tip_array[0].show();
-                      }
-                    }
-                  });
-                }
-              }
-            },'->',{
-              text: 'Delete Alarm',
-              scope: this,
-              handler: function(btn,event)
-              {
-                this.tip_array[0].hide();
-                Ext.MessageBox.show({
-                  title: 'Delete Alarm for '+row_record.get('school_name'),
-                  msg: 'Are you sure you want to delete this alarm? You can not undo this change.',
-                  buttons: {
-                    ok: 'Yes',
-                    cancel: 'No'
-                  },
-                  scope: this,
-                  icon: Ext.MessageBox.QUESTION,
-                  fn: function(btn,txt,cfg_obj)
-                  {
-                    if(btn == 'ok'){
-                      this_grid.getStore().remove(row_record);
-                      this.tip_array.pop().destroy();
-                    }else{
-                      this.tip_array[0].show();
-                    }
-                  }
-                });
-              }
-            }]
-          })]
-        });
+        tip = this.build_alarm_panel(row_record, template, ignore_button_text);
         this.tip_array.push(tip);
         tip.showBy(this_grid.getView().getRow(index), 'tl-tr');
         template.overwrite(tip.getComponent(0).getEl(),jsonObj);
         tip.getComponent(1).doLayout();
       }
     });
+  },
+
+  build_alarm_panel: function (row_record, template, btn_txt)
+  {
+    return new Ext.Tip({
+      title: 'Alarm Information for '+ row_record.get('school_name'),
+      closable: true,
+      cls: 'alarm-tip',
+      scope: this,
+      layout:'fit',
+      items: [template,new Ext.grid.GridPanel({
+        row_record: row_record,
+        forceLayout: true,
+        scope: this,
+        viewConfig: {
+          forceFit: true
+        },
+        store: new Ext.data.JsonStore({
+          autoDestroy: true,
+          autoSave: true,
+          data: jsonObj[0].students,
+          root: 'student_info',
+          fields: [
+            {name:'id',                type:'int'},
+            {name:'school_name',       type:'int'},
+            {name:'report_date',       renderer: Ext.util.Format.dateRenderer('m-d-Y')},
+            {name:'age',               type:'int'},
+            {name:'dob',               renderer: Ext.util.Format.dateRenderer('m-d-Y')},
+            {name:'gender',            type:'string'},
+            {name:'grade',             type:'int'},
+            {name:'confirmed_illness', type:'boolean'}
+          ]
+        }),
+        columns: [
+          {header: 'Age',       width: 35, sortable: true,  dataIndex: 'age'},
+          {header: 'DOB',       width: 70, sortable: true,  dataIndex: 'dob'},
+          {header: 'Gender',    width: 50, sortable: true,  dataIndex: 'gender'},
+          {header: 'Grade',     width: 50, sortable: true,  dataIndex: 'grade'},
+          {header: 'Confirmed', width: 75, sortable: true,  dataIndex: 'confirmed_illness'}
+        ],
+        stripeRows: true,
+        stateful: true,
+        buttonAlign: 'left',
+        fbar:[{
+          text: btn_txt,
+          scope: this,
+          handler: this.ignore_alarm
+        },'->',{
+          text: 'Delete Alarm',
+          scope: this,
+          handler: this.delete_alarm
+        }]
+      })]
+    });
+  },
+
+  build_alarm_panel_template: function()
+  {
+    return new Ext.XTemplate(
+      '<tpl for=".">',
+        '<table class="alarm-tip-table">',
+          '<tr>',
+            '<td><b>School:</b></td>',
+            '<td><span>{school_name}</span></td>',
+          '</tr>',
+          '<tr>',
+            '<td><b>School Type:</b></td>',
+            '<td><span>{school_type}</span></td>',
+          '</tr>',
+          '<tr>',
+            '<td>&nbsp;</td>',
+            '<td>&nbsp;</td>',
+          '<tr>',
+            '<td><b>Severity:</b></td>',
+            '<td><span>{alarm_severity}</span></td>',
+          '</tr>',
+          '<tr>',
+            '<td><b>Total Absent:</b></td>',
+            '<td><span>{total_absent}</span></td>',
+          '</tr>',
+          '<tr>',
+            '<td><b>Total Confirmed Absent:</b></td>',
+            '<td><span>{total_confirmed_absent}</span></td>',
+          '</tr>',
+          '<tr>',
+            '<td><b>Total Enrolled:</b></td>',
+            '<td><span>{total_enrolled}</span></td>',
+          '</tr>',
+          '<tr>',
+            '<td>&nbsp;</td>',
+            '<td>&nbsp;</td>',
+          '<tr>',
+          '<tr>',
+            '<td><b>Student Info:</b></td>',
+            '<td>&nbsp;</td>',
+          '<tr>',
+        '</table>',
+      '</tpl>',
+      '<div class="x-tip-anchor x-tip-anchor-left x-tip-anchor-adjust"></div>'
+    );  
+  },
+
+  delete_alarm: function(btn,event)
+  {
+    this.tip_array[0].hide();
+    Ext.MessageBox.show({
+      title: 'Delete Alarm for '+btn.ownerCt.ownerCt.row_record.get('school_name'),
+      msg: 'Are you sure you want to delete this alarm? You can not undo this change.',
+      buttons: {
+        ok: 'Yes',
+        cancel: 'No'
+      },
+      scope: this,
+      icon: Ext.MessageBox.QUESTION,
+      fn: function(btn_ok,txt,cfg_obj)
+      {
+        if(btn_ok == 'ok'){
+          this.alarms_store.remove(btn.ownerCt.ownerCt.row_record);
+          this.tip_array.pop().destroy();
+        }else{
+          this.tip_array[0].show();
+        }
+      }
+    });
+  },
+
+  ignore_alarm: function(btn,event)
+  {
+    if(btn.ownerCt.ownerCt.row_record.get('ignore_alarm')){
+      btn.ownerCt.ownerCt.row_record.set('ignore_alarm', false);
+      this.tip_array.pop().destroy();
+    }else{
+      this.tip_array[0].hide();
+      Ext.MessageBox.show({
+        title: 'Ignore Alarm for '+btn.ownerCt.ownerCt.row_record.get('school_name'),
+        msg: 'Are you sure you want to ignore this alarm? Ignoring an alarm prevents any alerts '+
+        'associated with the alarm from firing. You can unignore an alarm at anytime.',
+        buttons: {
+          ok: 'Yes',
+          cancel: 'No'
+        },
+        scope: this,
+        icon: Ext.MessageBox.QUESTION,
+        fn: function(btn_ok,txt,cfg_obj)
+        {
+          if(btn_ok == 'ok'){
+            btn.ownerCt.ownerCt.row_record.set('ignore_alarm', true);
+            this.tip_array.pop().destroy();
+          }else{
+            this.tip_array[0].show();
+          }
+        }
+      });
+    }
   }
 });

@@ -142,10 +142,9 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
 
   toggleAlarm: function(e, targetEl, panel, tc)
   {
-    var container_mask = new Ext.LoadMask(Ext.getCmp('alarm_panel').getEl(), {msg:"Please wait..."});
-    var alarm_set      = false;
+    var alarm_set = false;
     if(targetEl.hasClass('x-tool-alarm-off')) alarm_set = true;
-    container_mask.show();
+    Ext.getCmp('alarm_panel').alarms_store.container_mask.show();
     Ext.Ajax.request({
       url:    'rollcall/save_query/'+panel.param_config.query_id+'.json',
       params: {
@@ -165,7 +164,6 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
               }
             });
             else Ext.getCmp('alarm_panel').getComponent(0).getStore().load();
-            container_mask.hide();
           },
           failure: function(){
 

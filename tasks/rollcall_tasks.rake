@@ -144,8 +144,10 @@ namespace :rollcall do
         "rrdtool"
       end
       #Change current_time to desired test range to best suite your environment
-      current_time      = Time.now
-      begin_time        = Time.parse("09/01/2010")
+      #current_time      = Time.now
+      current_time      = Time.gm(Time.now.year, Time.now.month, Time.now.day)
+      #begin_time        = Time.parse("09/01/2010")
+      begin_time        = Time.gm(2010, "sep", 01)
       days_to_traverse  = ((current_time - begin_time) / 86400).to_i
 
       Rollcall::SchoolDistrict.all.each do |district|
@@ -155,15 +157,18 @@ namespace :rollcall do
           illness                 = school_illness_outbreak[rand(school_illness_outbreak.length)]
           sim_result              = [0, 0]
           event_counter           = 0
-          (0..(days_to_traverse - 1)).reverse_each do |i|
+          (0..days_to_traverse).reverse_each do |i|
             report_date  = current_time - i.days
             sim_result   = SeedRollcallData.simulate_outbreak illness, sim_result[1], name, report_date
             total_absent = sim_result[0]
             school       = Rollcall::School.find_by_tea_id(name)
+            if(i == 0)
+              RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,0,total_enrolled],"#{rrd_tool}"
+            end
             if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
-              RRD.update("#{rrd_path}#{name}_absenteeism.rrd", [report_date.to_i.to_s,0,total_enrolled], "#{rrd_tool}")
+              RRD.update("#{rrd_path}#{name}_absenteeism.rrd", [(report_date + 1.day).to_i.to_s,0,total_enrolled], "#{rrd_tool}")
             else
-              RRD.update("#{rrd_path}#{name}_absenteeism.rrd", [report_date.to_i.to_s,total_absent,total_enrolled], "#{rrd_tool}")
+              RRD.update("#{rrd_path}#{name}_absenteeism.rrd", [(report_date + 1.day).to_i.to_s,total_absent,total_enrolled], "#{rrd_tool}")
               result = Rollcall::SchoolDailyInfo.create(
                 :school_id      => school.id,
                 :total_absent   => total_absent,
@@ -173,7 +178,10 @@ namespace :rollcall do
               SeedRollcallData.do_student_daily_info result,illness
               SeedRollcallData.do_symptom_recording  result,illness
             end
-
+            if(i == days_to_traverse.to_i)
+              report_date = report_date + 1.day
+              RRD.update "#{rrd_path}#{filename}.rrd",[(report_date + 1.day).to_i.to_s,0,total_enrolled],"#{rrd_tool}"
+            end
             if sim_result[1] == 0
               if illness == 'flu' || illness == 'pox' || illness == 'strep'
                 school_illness_outbreak.delete(illness)

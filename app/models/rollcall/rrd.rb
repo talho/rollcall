@@ -54,7 +54,8 @@ class Rollcall::Rrd < Rollcall::Base
             create_results = create :file_name => "#{some_file_name}.rrd"
             rrd_id         = create_results.id
             rrd_file       = create_results.file_name
-            self.send_later(:reduce_rrd, params, tea_id, conditions, some_file_name, rrd_file, rrd_image_path, image_file, graph_title)
+            reduce_rrd(params, tea_id, conditions, some_file_name, rrd_file, rrd_image_path, image_file, graph_title)
+            #self.send_later(:reduce_rrd, params, tea_id, conditions, some_file_name, rrd_file, rrd_image_path, image_file, graph_title)
           else
             rrd_id         = results.id
             rrd_file       = results.file_name
@@ -135,8 +136,9 @@ class Rollcall::Rrd < Rollcall::Base
 
   private
 
+  # Dev Note: All Date times must be in UTC format for rrd
   def self.graph rrd_file, image_file, graph_title, params
-    test_data_date = Time.parse("08/31/2010")
+    test_data_date = Time.gm(2010, "aug", 31)
     rrd_image_path = Dir.pwd << "/public/rrd/"
     rrd_path       = Dir.pwd << "/rrd/"
     rrd_tool       = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
@@ -145,12 +147,12 @@ class Rollcall::Rrd < Rollcall::Base
     if params[:startdt].blank? || params[:startdt].index('...')
       start_date = test_data_date
     else
-      start_date = Time.parse(params[:startdt])
+      start_date = Time.gm(Time.parse(params[:startdt]).year, Time.parse(params[:startdt]).month, Time.parse(params[:startdt]).day)
     end
     if params[:enddt].blank? || params[:enddt].index('...')
-      end_date = Time.now
+      end_date = Time.gm(Time.now.year, Time.now.month, Time.now.day)
     else
-      end_date = Time.parse(params[:enddt]) + 1.day
+      end_date = Time.gm(Time.parse(params[:enddt]).year, Time.parse(params[:enddt]).month, Time.parse(params[:enddt]).day) + 1.day
     end
     #File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
     return RRD.graph(
@@ -320,15 +322,16 @@ class Rollcall::Rrd < Rollcall::Base
         YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
       end
       unless conditions[:startdt].blank?
-        start_date = Time.parse(conditions[:startdt]) - 1.day
+        parsed_date    = Time.parse(conditions[:startdt])
+        rrd_start_date = Time.gm(parsed_date.year,parsed_date.month,parsed_date.day) - 1.day
       else
-        start_date = Time.local(2010,"aug",31,0,0)
+        rrd_start_date = Time.gm(2010, "aug", 31) - 1.day
       end
 
       RRD.create "#{rrd_path}#{filename}.rrd",
       {
         :step  => 24.hours.seconds,
-        :start => start_date.to_i,
+        :start => (rrd_start_date).to_i,
         :ds    => [
           {
             :name => "Absent", :type => "GAUGE", :heartbeat => 24.hours.seconds, :min => 0, :max => 768000
@@ -358,24 +361,33 @@ class Rollcall::Rrd < Rollcall::Base
 
       school_id  = Rollcall::School.find_by_tea_id(tea_id).id
       unless conditions[:startdt].blank? && conditions[:enddt].blank?
-        start_date = Time.parse(conditions[:startdt])
-        end_date   = Time.parse(conditions[:enddt])
+        parsed_sd  = Time.parse(conditions[:startdt])
+        parsed_ed  = Time.parse(conditions[:enddt])
+        start_date = Time.gm(parsed_sd.year,parsed_sd.month,parsed_sd.day)
+        end_date   = Time.gm(parsed_ed.year,parsed_ed.month,parsed_ed.day)
       else
-        start_date = Time.parse("08/31/2010")
-        end_date   = Time.now
+        start_date = Time.gm(2010, "aug", 31)
+        end_date   = Time.gm(Time.now.year, Time.now.month, Time.now.day)
       end
       days           = ((end_date - start_date) / 86400)
       total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
       (0..days).each do |i|
         report_date = start_date + i.days
-        if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
-            RRD.update("#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,0,total_enrolled], "#{rrd_tool}")
+        if(i == 0)
+          RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,0,total_enrolled],"#{rrd_tool}"
+        end
+        if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"        
+          RRD.update("#{rrd_path}#{filename}.rrd",[(report_date + 1.day).to_i.to_s,0,total_enrolled], "#{rrd_tool}")
         else
           total_absent = get_total_absent report_date, conditions, school_id
           begin
-            RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,total_absent, total_enrolled],"#{rrd_tool}"
+            RRD.update "#{rrd_path}#{filename}.rrd",[(report_date + 1.day).to_i.to_s,total_absent, total_enrolled],"#{rrd_tool}"
           rescue
           end
+        end
+        if(i == days.to_i)
+          report_date = report_date + 1.day
+          RRD.update "#{rrd_path}#{filename}.rrd",[(report_date + 1.day).to_i.to_s,0,total_enrolled],"#{rrd_tool}"
         end
       end
     end

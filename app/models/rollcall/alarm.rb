@@ -57,9 +57,8 @@ class Rollcall::Alarm < Rollcall::Base
       school_id      = Rollcall::School.find_by_tea_id(tea_id).id
       days           = ((end_date - start_date) / 86400)
       total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
-      (0..days).each do |i|
-        report_date = start_date + i.days
-# FIX: if params[:absent] == "ConfirmedIllness"
+      (0..4).each do |i|
+        report_date  = end_date - i.days
         unless params[:absent].blank?
           student_info = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(school_id, report_date, true)
         else

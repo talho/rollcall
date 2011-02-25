@@ -48,24 +48,41 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
   writeGraphs: function(store, action, result, res, rs)
   {
-    var item_id          = null;
+    var tea_id           = null;
     var graphImageConfig = null;
     var result_obj       = null;
-    this.getComponent('rightColumn').removeAll();
-    this.getComponent('leftColumn').removeAll();
+    var leftColumn       = this.getComponent('leftColumn');
+    var rightColumn      = this.getComponent('rightColumn');
+    rightColumn.items.each(function(item){
+      if(!item.pinned) rightColumn.remove(item.id, true);
+    });
+
+    leftColumn.items.each(function(item) {
+      if(!item.pinned) leftColumn.remove(item.id, true);
+    });
+
     for(var i = 0; i < result[0]['img_urls'].length; i++){
-      item_id            = result[0]["schools"][i].school.tea_id;
-      school_name        = result[0]["schools"][i].school.display_name;
+      tea_id          = result[0]["schools"][i].school.tea_id;
+      school_name      = result[0]["schools"][i].school.display_name;
       graphImageConfig = {
         title:       'Query Result for '+school_name,
         style:       'margin:5px',
-        itemId:      item_id,
+        tea_id:      tea_id,
         school:      result[0]["schools"][i].school,
         school_name: result[0]["schools"][i].school.display_name,
         r_id:        result[0]["r_ids"][i],
+        collapsible: false,
+        pinned:      false,
         tools: [{
-          id:   'pin',
-          qtip: 'Pin This Graph'
+          id:      'pin',
+          qtip:    'Pin This Graph',
+          handler: function(e, targetEl, panel, tc)
+          {
+            targetEl.toggleClass('x-tool-pin');
+            targetEl.toggleClass('x-tool-unpin');
+            if(targetEl.hasClass('x-tool-unpin')) panel.pinned = true;
+            else panel.pinned = false;
+          }
         },{
           id:      'gear',
           qtip:    'Show School on Google Map',
@@ -76,7 +93,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           scope:   this,
           handler: function(e, targetEl, panel, tc)
           {
-            this.showSaveQueryConsole(store.baseParams, panel.itemId, panel.school_name, panel.r_id.value, panel);
+            this.showSaveQueryConsole(store.baseParams, panel.tea_id, panel.school_name, panel.r_id.value, panel);
           }
         },{
           id:      'down',
@@ -92,9 +109,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       };
 
       if(i == 0 || i%2 == 0){
-        result_obj = this.getComponent('rightColumn').add(graphImageConfig);
+        result_obj = rightColumn.add(graphImageConfig);
       }else{
-        result_obj = this.getComponent('leftColumn').add(graphImageConfig);
+        result_obj = leftColumn.add(graphImageConfig);
       }
       this.doLayout();
       this.ownerCt.ownerCt.ownerCt.renderGraphs(i, result[0]['img_urls'][i].value, result_obj, 'ux-result-graph-container');
@@ -104,9 +121,11 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   closeResult: function(e, target, panel)
   {
     panel.ownerCt.remove(panel, true);
+    //panel.destroy();
   },
 
-  showOnGoogleMap: function(e, targetEl, panel, tc) {
+  showOnGoogleMap: function(e, targetEl, panel, tc)
+  {
     var gmapPanel = new Ext.ux.GMapPanel({zoomLevel: 14});
     var win = new Ext.Window({
       title: "Google Map for '" + panel.school_name + "'",
@@ -197,7 +216,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
   showSaveQueryConsole: function(queryParams, tea_id, school_name, r_id, result_panel)
   {
-    var params       = [];
+    var params       = new Array();
     var storedParams = new Ext.data.ArrayStore({
       storeId: 'my-store',
       fields:  ['field', 'value'],

@@ -60,11 +60,16 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
   end
 
   def destroy
-    alarm = Rollcall::Alarm.find(params[:id])
+    result = false
+    if params[:saved_query_id].blank?
+      find(:all, :conditions => ['saved_query_id = ?', query.id]).each { |a| result = a.destroy }
+    else
+      result = Rollcall::Alarm.find(params[:id]).destroy
+    end
     respond_to do |format|
       format.json do
         render :json => {
-          :success => alarm.destroy
+          :success => result
         }
       end
     end

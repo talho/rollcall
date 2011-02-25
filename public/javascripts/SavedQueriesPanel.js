@@ -1,23 +1,32 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
-Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
+Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
   constructor: function(config){
 
     Ext.applyIf(config, {
-      itemId: 'portalId_south',
-      border: false,
+      layout:      'column',
+      autoScroll:  true,
+      cls:         'x-portal',
+      defaultType: 'portalcolumn',
+      itemId:      'portalId_south',
+      border:      false,
       bodyStyle:   'padding:10px;',
       saved_store: new Ext.data.JsonStore({
         autoLoad: true,
-        root:   'results',
-        fields: ['id', 'saved_queries', 'img_urls'],
+        root:     'results',
+        fields:   ['id', 'saved_queries', 'img_urls'],
         proxy: new Ext.data.HttpProxy({
-          url: '/rollcall/save_query',
-          method:'get'
+          url:    '/rollcall/save_query',
+          method: 'get'
         }),
         listeners:{
           scope: this,
+          beforeload: function(this_store, options)
+          {
+            this_store.container_mask = new Ext.LoadMask(this.getEl(), {msg:"Please wait..."});
+            this_store.container_mask.show();
+          },
           load:  this.loadSavedQueries
         }
       })
@@ -79,6 +88,8 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
             scope: this,
             img_url: record[i].data.img_urls.image_urls[cnt],
             polling_id: cnt,
+            collapsible: false,
+            draggable: false,
             tools: [{
               id:alarm_id,
               qtip: "Toggle Alarm",
@@ -105,6 +116,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
       }
 
     }
+    this_store.container_mask.hide();
     this.doLayout();
     this.setSize('auto','auto');
   },
@@ -128,6 +140,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
             method: 'DELETE',
             scope:  this,
             callback: function(options, success, response){
+              panel.ownerCt.ownerCt.destroySavedQueryAlarms(panel);
               this.hide();
               this.destroy();
             },
@@ -136,6 +149,20 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
             }
           });
         }
+      }
+    });
+  },
+
+  destroySavedQueryAlarms: function(panel)
+  {
+    Ext.Ajax.request({
+      url: 'rollcall/alarms',
+      method: 'DELETE',
+      params: {
+        saved_query_id: panel.param_config.query_id
+      },
+      callback: function(options, success, response){
+        Ext.getCmp('alarm_panel').getComponent(0).getStore().load();
       }
     });
   },
@@ -183,7 +210,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.ux.Portal, {
 
   showEditSavedQueryConsole: function(panel,south_panel)
   {
-    var params              = [];
+    var params              = new Array();
     var param_string        = '';
     var tea_id              = null;
     var query_title         = panel.param_config.query_title;

@@ -73,17 +73,15 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       '</tpl>',
       '<div class="x-clear"></div>',
       {
-        compiled: true,
+        compiled:     true,
         ignore_alarm: function(ignore)
         {
-          if(ignore){
-            return 'ignore'
-          }
+          if(ignore) return 'ignore';
         }
       }
     );
 
-    this.tip_array = [];
+    this.tip_array = new Array();
     
     Ext.applyIf(config,{
       id: 'alarm_panel',
@@ -113,6 +111,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
         view: new Ext.grid.GroupingView({
           showGroupName: false,
           startCollapsed: true,
+          emptyText: "<div style='color:#000;'>There are currently no Alarms.</div>",
           groupTextTpl: '<div class="rollcall_alarm_icon">{text}</div>'
         }),
         listeners:{
@@ -145,12 +144,12 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
     var row_record = this_grid.getStore().getAt(index);
     if(this.tip_array.length != 0) this.tip_array.pop().destroy();
     var tip = new Ext.Tip({
-      title: 'Alarm Information for '+ row_record.get('school_name'),
+      title:    'Alarm Information for '+ row_record.get('school_name'),
       closable: true,
-      cls: 'alarm-tip',
-      layout:'fit',
-      data: [1],
-      tpl: new Ext.XTemplate(
+      cls:      'alarm-tip',
+      layout:   'fit',
+      data:     [1],
+      tpl:      new Ext.XTemplate(
         '<div class="all-purpose-load-icon"></div>',
         '<div class="x-tip-anchor x-tip-anchor-left x-tip-anchor-adjust"></div>'
       )
@@ -159,11 +158,11 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
     tip.showBy(this_grid.getView().getRow(index), 'tl-tr');
 
     Ext.Ajax.request({
-      url: 'rollcall/get_info',
-      method: 'POST',
+      url:     'rollcall/get_info',
+      method:  'POST',
       headers: {'Accept': 'application/json'},
-      scope: this,
-      params:{
+      scope:   this,
+      params:  {
         school_id:      row_record.get('school_id'),
         report_date:    row_record.get('report_date'),
         alarm_id:       row_record.get('id'),
@@ -195,24 +194,24 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
   build_alarm_panel: function (row_record, template, btn_txt)
   {
     return new Ext.Tip({
-      title: 'Alarm Information for '+ row_record.get('school_name'),
+      title:    'Alarm Information for '+ row_record.get('school_name'),
       closable: true,
-      cls: 'alarm-tip',
-      scope: this,
-      layout:'fit',
-      items: [template,new Ext.grid.GridPanel({
-        row_record: row_record,
+      cls:      'alarm-tip',
+      scope:    this,
+      layout:   'fit',
+      items:    [template,new Ext.grid.GridPanel({
+        row_record:  row_record,
         forceLayout: true,
-        scope: this,
-        viewConfig: {
+        scope:       this,
+        viewConfig:  {
           forceFit: true
         },
         store: new Ext.data.JsonStore({
           autoDestroy: true,
-          autoSave: true,
-          data: jsonObj[0].students,
-          root: 'student_info',
-          fields: [
+          autoSave:    true,
+          data:        jsonObj[0].students,
+          root:        'student_info',
+          fields:      [
             {name:'id',                type:'int'},
             {name:'school_name',       type:'int'},
             {name:'report_date',       renderer: Ext.util.Format.dateRenderer('m-d-Y')},
@@ -230,16 +229,16 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
           {header: 'Grade',     width: 50, sortable: true,  dataIndex: 'grade'},
           {header: 'Confirmed', width: 75, sortable: true,  dataIndex: 'confirmed_illness'}
         ],
-        stripeRows: true,
-        stateful: true,
+        stripeRows:  true,
+        stateful:    true,
         buttonAlign: 'left',
-        fbar:[{
-          text: btn_txt,
-          scope: this,
+        fbar:        [{
+          text:    btn_txt,
+          scope:   this,
           handler: this.ignore_alarm
         },'->',{
-          text: 'Delete Alarm',
-          scope: this,
+          text:    'Delete Alarm',
+          scope:   this,
           handler: this.delete_alarm
         }]
       })]
@@ -297,14 +296,14 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
     this.tip_array[0].hide();
     Ext.MessageBox.show({
       title: 'Delete Alarm for '+btn.ownerCt.ownerCt.row_record.get('school_name'),
-      msg: 'Are you sure you want to delete this alarm? You can not undo this change.',
+      msg:   'Are you sure you want to delete this alarm? You can not undo this change.',
       buttons: {
-        ok: 'Yes',
+        ok:     'Yes',
         cancel: 'No'
       },
       scope: this,
-      icon: Ext.MessageBox.QUESTION,
-      fn: function(btn_ok,txt,cfg_obj)
+      icon:  Ext.MessageBox.QUESTION,
+      fn:    function(btn_ok,txt,cfg_obj)
       {
         if(btn_ok == 'ok'){
           this.alarms_store.remove(btn.ownerCt.ownerCt.row_record);
@@ -325,15 +324,15 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       this.tip_array[0].hide();
       Ext.MessageBox.show({
         title: 'Ignore Alarm for '+btn.ownerCt.ownerCt.row_record.get('school_name'),
-        msg: 'Are you sure you want to ignore this alarm? Ignoring an alarm prevents any alerts '+
+        msg:   'Are you sure you want to ignore this alarm? Ignoring an alarm prevents any alerts '+
         'associated with the alarm from firing. You can unignore an alarm at anytime.',
         buttons: {
-          ok: 'Yes',
+          ok:     'Yes',
           cancel: 'No'
         },
         scope: this,
-        icon: Ext.MessageBox.QUESTION,
-        fn: function(btn_ok,txt,cfg_obj)
+        icon:  Ext.MessageBox.QUESTION,
+        fn:    function(btn_ok,txt,cfg_obj)
         {
           if(btn_ok == 'ok'){
             btn.ownerCt.ownerCt.row_record.set('ignore_alarm', true);

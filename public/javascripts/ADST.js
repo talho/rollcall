@@ -138,7 +138,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         data: function(provider, e)
         {
           if(e.xhr.status == 200) {
-            var element_id = Math.floor(Math.random() * 10000);
+            var element_id = Ext.id();
             (function(provider)
             {
               this.update('<div id="'+element_id+'" class="'+class_name+'" >' +
@@ -169,10 +169,13 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     var params = new Object;
     params['authenticity_token'] = FORM_AUTH_TOKEN;
     for (key in form_values)
-      if (Ext.getCmp('advanced_query_select').isVisible())
-        params[key.replace(/_adv/,'')] = form_values[key];
-      else
-        params[key.replace(/_simple/,'')] = form_values[key];
+      if (Ext.getCmp('advanced_query_select').isVisible()){
+        if(key.indexOf('_adv') != -1)
+          params[key.replace(/_adv/,'')] = form_values[key];
+      }else{
+        if(key.indexOf('_simple') != -1)
+          params[key.replace(/_simple/,'')] = form_values[key];
+      }
     return params;
   },
   mapResultSet: function(buttonEl, eventObj)

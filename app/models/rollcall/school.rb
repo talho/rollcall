@@ -47,9 +47,17 @@ class Rollcall::School < Rollcall::Base
     end
   end
 
-  def self.search(search)
-    search_condition = "%" + search + "%"
-    find(:all, :conditions => ['display_name LIKE ? OR postal_code LIKE ? OR school_type LIKE ?', search_condition, search_condition, search_condition])
+  def self.search(params)
+    search_param     = ""
+    zipcode          = ""
+    zipcode          = params[:zip].index('...').blank? ? CGI::unescape(params[:zip]) : "" unless params[:zip].blank?
+    school_name      = params[:school].index('...').blank? ? CGI::unescape(params[:school]) : ""
+    school_type      = params[:school_type].index('...').blank? ? CGI::unescape(params[:school_type]) : ""
+    search_param     = school_name unless school_name.blank?
+    search_param     = school_type unless school_type.blank?
+    search_param     = zipcode unless zipcode.blank?
+    search_condition = "%" + search_param + "%"
+    return find(:all, :conditions => ['display_name LIKE ? OR postal_code LIKE ? OR school_type LIKE ?', search_condition, search_condition, search_condition])
   end
 
   private

@@ -12,23 +12,6 @@
 class Rollcall::Rrd < Rollcall::Base
   set_table_name "rollcall_rrds"
 
-  def self.search params
-    school_name  = params[:school].index('...').blank? ? CGI::unescape(params[:school]) : ""
-    school_type  = params[:school_type].index('...').blank? ? CGI::unescape(params[:school_type]) : ""
-    zipcode      = ""
-    zipcode      = params[:zip].index('...').blank? ? CGI::unescape(params[:zip]) : "" unless params[:zip].blank?
-    search_param = ""
-    if !school_name.blank?
-      search_param = school_name
-    elsif !school_type.blank?
-      search_param = school_type
-    elsif !zipcode.blank?
-      search_param = zipcode
-    end
-    schools = Rollcall::School.search("#{search_param}")
-    return schools
-  end
-
   def self.render_graphs params
     image_paths    = []
     rrd_ids        = []
@@ -54,8 +37,7 @@ class Rollcall::Rrd < Rollcall::Base
             create_results = create :file_name => "#{some_file_name}.rrd"
             rrd_id         = create_results.id
             rrd_file       = create_results.file_name
-            reduce_rrd(params, tea_id, conditions, some_file_name, rrd_file, rrd_image_path, image_file, graph_title)
-            #self.send_later(:reduce_rrd, params, tea_id, conditions, some_file_name, rrd_file, rrd_image_path, image_file, graph_title)
+            self.send_later(:reduce_rrd, params, tea_id, conditions, some_file_name, rrd_file, rrd_image_path, image_file, graph_title)
           else
             rrd_id         = results.id
             rrd_file       = results.file_name
@@ -104,7 +86,7 @@ class Rollcall::Rrd < Rollcall::Base
   end
 
   def self.export_rrd_data params, filename, user_obj
-    initial_result = search params
+    initial_result = Rollcall::School.search params
     test_data_date = Time.parse("11/22/2010")
     start_date     = params[:startdt].index('...') ? test_data_date : Time.parse(params[:startdt])
     end_date       = params[:enddt].index('...') ? Time.now : Time.parse(params[:enddt])

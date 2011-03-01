@@ -183,7 +183,6 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
         Ext.Ajax.request({
           url:      'rollcall/alarm/'+panel.param_config.query_id,
           callback: function(options, success, response){
-            Ext.getCmp('alarm_panel').getComponent(0).getStore().alarm_icon_el = targetEl;
             if(alarm_set) Ext.getCmp('alarm_panel').getComponent(0).getStore().load({
               add: true,
               params:{
@@ -191,6 +190,8 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
               }
             });
             else Ext.getCmp('alarm_panel').getComponent(0).getStore().load();
+            targetEl.toggleClass('x-tool-alarm-off');
+            targetEl.toggleClass('x-tool-alarm-on');
           },
           failure: function(){
 

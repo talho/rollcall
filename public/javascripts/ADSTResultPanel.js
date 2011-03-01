@@ -121,7 +121,6 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   closeResult: function(e, target, panel)
   {
     panel.ownerCt.remove(panel, true);
-    //panel.destroy();
   },
 
   showOnGoogleMap: function(e, targetEl, panel, tc)

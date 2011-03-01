@@ -3,7 +3,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   before_filter :rollcall_required
 
   def index
-    results      = Rollcall::Rrd.search(params)
+    results      = Rollcall::School.search(params)
     options      = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
     results_uniq = results.paginate(options)
     respond_to do |format|

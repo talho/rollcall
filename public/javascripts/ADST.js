@@ -62,6 +62,14 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
             {
               this.ownerCt.ownerCt.getComponent('alarm_panel').alarms_store.load();
             }
+          },'->',{
+            text:    'GIS',
+            id: 'gis_button',
+            itemId: 'gis_button',
+            disabled: true,
+            handler: function(){
+              this.ownerCt.ownerCt.getComponent('alarm_panel').load_alarm_gmap_window();
+            }
           }]
         },{
           title:       'ADST',

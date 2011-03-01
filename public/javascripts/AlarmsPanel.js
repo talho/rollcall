@@ -4,8 +4,13 @@ Ext.namespace('Talho.Rollcall.ux');
 Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
   constructor: function(config)
   {
-    this.alarm_reader = new Ext.data.JsonReader({
-      root: 'alarms',
+    //this.alarm_gmap_set       = false;
+    this.tip_array            = new Array();
+    this.alarm_gmap           = null;
+    this.alarm_gmap_displayed = false;
+    this.schools              = null;
+    this.alarm_reader         = new Ext.data.JsonReader({
+      root:          'alarms',
       totalProperty: 'total_results',
       fields: [
         {name:'absentee_rate',  type:'float'},
@@ -25,33 +30,22 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
     });
 
     this.alarms_store = new Ext.data.GroupingStore({
-      autoLoad: true,
+      autoLoad:    true,
       autoDestroy: true,
-      autoSave: true,
-      reader: this.alarm_reader,
-      writer: new Ext.data.JsonWriter({
+      autoSave:    true,
+      reader:      this.alarm_reader,
+      writer:      new Ext.data.JsonWriter({
         encode: false
       }),
-      url: '/rollcall/alarms',
-      sortInfo:{field: 'alarm_name', direction: "ASC"},
-      groupField:'alarm_name',
-      restful: true,
+      url:            '/rollcall/alarms',
+      sortInfo:       {field: 'alarm_name', direction: "ASC"},
+      groupField:     'alarm_name',
+      restful:        true,
       container_mask: null,
-      listeners:{
-          scope: this,
-          beforeload: function(this_store, options)
-          {
-            this_store.container_mask = new Ext.LoadMask(this.getEl(), {msg:"Please wait..."});
-            this_store.container_mask.show();
-          },
-          load: function(this_store, record)
-          {
-            if(typeof(this_store.alarm_icon_el) != "undefined") {
-              this_store.alarm_icon_el.toggleClass('x-tool-alarm-off');
-              this_store.alarm_icon_el.toggleClass('x-tool-alarm-on');
-            }
-            this_store.container_mask.hide();
-          }
+      listeners:      {
+        scope:      this,
+        beforeload: this.load_alarm_panel_mask,
+        load:       this.prepare_alarm_gmap
       }
     });
 
@@ -81,65 +75,64 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       }
     );
 
-    this.tip_array = new Array();
-    
     Ext.applyIf(config,{
-      id: 'alarm_panel',
+      id:     'alarm_panel',
       itemId: 'alarm_panel',
-      items: new Ext.grid.GridPanel({
-        store: this.alarms_store,
+      items:  new Ext.grid.GridPanel({
+        store:       this.alarms_store,
         hideHeaders: true,
-        columns: [
-          {
-            xtype: 'templatecolumn',
-            id:'school_name',
-            header: 'School Name',
-            sortable: true,
+        columns: [{
+            xtype:     'templatecolumn',
+            id:        'school_name',
+            header:    'School Name',
+            sortable:  true,
             dataIndex: 'school_name',
-            tpl: this.tmpl
+            tpl:       this.tmpl
           },{
-            id:'alarm_name',
+            id:        'alarm_name',
             dataIndex: 'alarm_name',
-            hidden: true
-          }
-        ],
-        stripeRows: true,
+            hidden:    true
+        }],
+        stripeRows:       true,
         autoExpandColumn: 'school_name',
-        stateful: true,
-        stateId: 'grid',
-        iconCls: 'rollcall_alarm_icon',
+        stateful:         true,
+        stateId:          'grid',
+        iconCls:          'rollcall_alarm_icon',
         view: new Ext.grid.GroupingView({
-          showGroupName: false,
+          showGroupName:  false,
           startCollapsed: true,
-          emptyText: "<div style='color:#000;'>There are currently no Alarms.</div>",
-          groupTextTpl: '<div class="rollcall_alarm_icon">{text}</div>'
+          emptyText:      "<div style='color:#000;'>There are currently no Alarms.</div>",
+          groupTextTpl:   '<div class="rollcall_alarm_icon">{text}</div>'
         }),
         listeners:{
-          scope: this,
-          collapse: this.collapse,
-          bodyscroll: this.bodyscroll,
-          rowclick: this.rowclick
+          scope:      this,
+          collapse:   this.close_alarm_tip,
+          resize:     this.close_alarm_tip,
+          hide:       this.close_alarm_tip,
+          groupclick: this.close_alarm_tip,
+          bodyscroll: this.body_scroll,
+          rowclick:   this.row_click
         }
       }),
-      layout:'fit',
-      layoutConfig:{
+      layout:       'fit',
+      layoutConfig: {
         animate:true
       }
     });
     Talho.Rollcall.AlarmsPanel.superclass.constructor.call(this, config);
   },
 
-  collapse: function(this_grid)
+  close_alarm_tip: function(this_grid)
+  {
+    if(this.tip_array.length != 0) this.tip_array.pop().destroy();  
+  },
+
+  body_scroll: function(scroll_left, scroll_right)
   {
     if(this.tip_array.length != 0) this.tip_array.pop().destroy();
   },
 
-  bodyscroll: function(scroll_left, scroll_right)
-  {
-    if(this.tip_array.length != 0) this.tip_array.pop().destroy();
-  },
-
-  rowclick: function(this_grid, index, event_obj)
+  row_click: function(this_grid, index, event_obj)
   {
     var row_record = this_grid.getStore().getAt(index);
     if(this.tip_array.length != 0) this.tip_array.pop().destroy();
@@ -343,5 +336,129 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
         }
       });
     }
+  },
+
+  prepare_alarm_gmap: function(this_store, records)
+  {
+    if(records.length != 0){
+      var school_ids      = new Array();
+      //this.alarm_gmap_set = true;
+      for(var i=0; i<records.length; i++){
+        if(school_ids[school_ids.length - 1] != records[i].get("school_id")){
+          school_ids.push(records[i].get("school_id"));
+        }
+      }
+      school_ids = school_ids.join(",");     
+      Ext.Ajax.request({
+        url:    'rollcall/get_schools',
+        method: 'POST',
+        scope:  this,
+        params: {
+          school_ids: school_ids
+        },
+        callback: function(options, success, response){
+          this.schools = Ext.decode(response.responseText).results;
+          if(!this.alarm_gmap_displayed) this.load_alarm_gmap_panel();
+          else this.load_alarm_gmap_window();
+        }
+      });
+    }else if(this.alarm_gmap != null){
+      this.alarm_gmap.destroy();
+    }
+    this_store.container_mask.hide();
+  },
+
+  load_alarm_panel_mask: function(this_store, options)
+  {
+    this_store.container_mask = new Ext.LoadMask(this.getEl(), {msg:"Please wait..."});
+    this_store.container_mask.show();
+  },
+  
+  load_alarm_gmap_panel: function()
+  {
+    Ext.getCmp('ADSTResultPanel').show();
+    var gmap_panel = new Ext.ux.GMapPanel({zoomLevel: 9});
+    this.alarm_gmap = Ext.getCmp('ADSTResultPanel').getComponent('leftColumn').add({
+      title:       "Schools in Alarm State!",
+      style:       'margin:5px',
+      id:          'school_alarm_gmap',
+      itemId:      'school_alarm_gmap',
+      collapsible: false,
+      pinned:      false,
+      height:      460,
+      items:       [gmap_panel],
+      tools: [{
+        id:      'close',
+        qtip:    "Close",
+        scope:   this,
+        handler: this.gmap_panel_close
+      }],
+      listeners: {
+        scope:      this,
+        afterrender: this.render_gmap_markers
+      }
+    });
+    Ext.getCmp('ADSTResultPanel').doLayout();
+  },
+
+  load_alarm_gmap_window: function()
+  {
+    if(this.alarm_gmap_displayed){
+      var gmap_panel = new Ext.ux.GMapPanel({zoomLevel: 9});
+      var win = new Ext.Window({
+        title:      'Google Map of Schools',
+        layout:     'fit',
+        labelAlign: 'top',
+        padding:    '5',
+        width:      510,
+        height:     450,
+        items:      [gmap_panel],
+        listeners: {
+          scope:      this,
+          afterrender: this.render_gmap_markers
+        },
+        buttons: [{
+          text:    'Dismiss',
+          width:   'auto',
+          scope:   this,
+          handler: function()
+          {
+            win.close();
+          }
+        }]
+      });
+      win.show();
+    }
+  },
+
+  render_gmap_markers: function(panel)
+  {
+    var center = new google.maps.LatLng(this.schools[0].school.gmap_lat, this.schools[0].school.gmap_lng);
+    var gmap_panel = panel.get(0);
+    gmap_panel.gmap.setCenter(center);
+    for(var i = 0; i < this.schools.length; i++) {
+      var loc           = new google.maps.LatLng(this.schools[i].school.gmap_lat, this.schools[i].school.gmap_lng);
+      var marker        = gmap_panel.addMarker(loc, this.schools[i].school.display_name, {});
+      var addr_elems    = this.schools[i].school.gmap_addr.split(",");
+      marker.info       = "<b>" + this.schools[i].school.display_name + "</b><br>";
+      marker.info      += addr_elems[0] + "<br>" + addr_elems[1] + "<br>" + addr_elems.slice(2).join(",");
+      marker.info_popup = null;
+      google.maps.event.addListener(marker, 'click', function(){
+        if (this.info_popup) {
+          this.info_popup.close(gmap_panel.gmap, this);
+          this.info_popup = null;
+        } else {
+          this.info_popup = new google.maps.InfoWindow({content: this.info});
+          this.info_popup.open(gmap_panel.gmap, this);
+        }
+      });
+    }
+  },
+
+  gmap_panel_close: function(e, target, panel)
+  {
+    this.alarm_gmap_displayed = true;
+    Ext.getCmp('gis_button').enable();
+    panel.ownerCt.remove(panel, true);
   }
 });

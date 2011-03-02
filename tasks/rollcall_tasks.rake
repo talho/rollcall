@@ -163,7 +163,7 @@ namespace :rollcall do
             total_absent = sim_result[0]
             school       = Rollcall::School.find_by_tea_id(name)
             if(i == 0)
-              RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,0,total_enrolled],"#{rrd_tool}"
+              RRD.update "#{rrd_path}#{name}_absenteeism.rrd",[report_date.to_i.to_s,0,total_enrolled],"#{rrd_tool}"
             end
             if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
               RRD.update("#{rrd_path}#{name}_absenteeism.rrd", [(report_date + 1.day).to_i.to_s,0,total_enrolled], "#{rrd_tool}")
@@ -180,7 +180,7 @@ namespace :rollcall do
             end
             if(i == days_to_traverse.to_i)
               report_date = report_date + 1.day
-              RRD.update "#{rrd_path}#{filename}.rrd",[(report_date + 1.day).to_i.to_s,0,total_enrolled],"#{rrd_tool}"
+              RRD.update "#{rrd_path}#{name}_absenteeism.rrd",[(report_date + 1.day).to_i.to_s,0,total_enrolled],"#{rrd_tool}"
             end
             if sim_result[1] == 0
               if illness == 'flu' || illness == 'pox' || illness == 'strep'

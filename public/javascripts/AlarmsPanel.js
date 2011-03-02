@@ -122,7 +122,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
     Talho.Rollcall.AlarmsPanel.superclass.constructor.call(this, config);
   },
 
-  close_alarm_tip: function(this_grid)
+  close_alarm_tip: function()
   {
     if(this.tip_array.length != 0) this.tip_array.pop().destroy();  
   },

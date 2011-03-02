@@ -134,6 +134,12 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       }]
     });
     Talho.Rollcall.ADST.superclass.constructor.call(this, config);
+    this.addListener("deactivate", function(w){
+      this.get(0).get(2).getComponent('alarm_panel').close_alarm_tip();
+    });
+    this.addListener("close", function(w){
+      this.get(0).get(2).getComponent('alarm_panel').close_alarm_tip();
+    });
   },
   renderGraphs: function(id, image, obj, class_name)
   {

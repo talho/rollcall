@@ -94,38 +94,43 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
               columnWidth: 1,
               scope:       this,
               buttons: [{
-                text: "Submit",
-                scope: this,
-                hidden: true,
-                handler: this.submitQuery,
+                text:     "Submit",
+                scope:    this,
+                hidden:   true,
+                handler:  this.submitQuery,
                 formBind: true
               },{
-                text: "Reset Form",
-                scope: this,
-                hidden: true,
+                text:    "Reset Form",
+                scope:   this,
+                hidden:  true,
                 handler: this.resetForm
               },{
-                text: "Export Result Set",
-                hidden: true,
-                scope: this,
+                text:    "Export Result Set",
+                hidden:  true,
+                scope:   this,
                 handler: this.exportResultSet
               },{
-                text: "Map Result Set",
-                hidden: true,
-                scope: this,
+                text:    "Map Result Set",
+                hidden:  true,
+                scope:   this,
                 handler: this.mapResultSet
+              },{
+                text:    "Save Result Set",
+                hidden:  true,
+                scope:   this,
+                handler: this.saveResultSet
               }],
               listeners:{
-                scope: this,
+                scope:        this,
                 beforerender: this.initFormComponent
               }
             }]
           }, resultPanel ],
           bbar: new Ext.PagingToolbar({
-            scope: this,
-            displayInfo: true,
-            pageSize: 6,
+            scope:          this,
+            displayInfo:    true,
             prependButtons: true,
+            pageSize:       6,
             listeners:{
               'beforechange': this.setNextPage
             }
@@ -192,25 +197,30 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       }
     return params;
   },
+  saveResultSet: function(buttonEl, eventObj)
+  {
+    return true;
+  },
   mapResultSet: function(buttonEl, eventObj)
   {
     var form_values = buttonEl.findParentByType('form').getForm().getValues();
     var params      = this.buildParams(form_values);
     params["limit"] = this.getResultPanel().getResultStore().getTotalCount();
     Ext.Ajax.request({
-      url:    'rollcall/adst',
-      method: 'GET',
-      params: params,
-      scope:  this,
+      url:      'rollcall/adst',
+      method:   'GET',
+      params:   params,
+      scope:    this,
       callback: function(options, success, response){
         var gmapPanel = new Ext.ux.GMapPanel({zoomLevel: 9});
-        var win = new Ext.Window({
-          title: "Google Map of Schools",
-          layout: 'fit',
+        var win       = new Ext.Window({
+          title:      "Google Map of Schools",
+          layout:     'fit',
           labelAlign: 'top',
-          padding: '5',
-          width: 510, height: 450,
-          items: [gmapPanel]
+          padding:    '5',
+          width:      510,
+          height:     450,
+          items:      [gmapPanel]
         });
         win.schools = Ext.decode(response.responseText).results;
         win.addButton({xtype: 'button', text: 'Dismiss', handler: function(){ win.close(); }, scope: this, width:'auto'});
@@ -218,11 +228,11 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           var center = new google.maps.LatLng(w.schools[0].school.gmap_lat, w.schools[0].school.gmap_lng);
           gmapPanel.gmap.setCenter(center);
           for(var i = 0; i < w.schools.length; i++) {
-            var loc = new google.maps.LatLng(w.schools[i].school.gmap_lat, w.schools[i].school.gmap_lng);
-            var marker = gmapPanel.addMarker(loc, w.schools[i].school.display_name, {});
-            var addr_elems = w.schools[i].school.gmap_addr.split(",");
-            marker.info = "<b>" + w.schools[i].school.display_name + "</b><br>";
-            marker.info += addr_elems[0] + "<br>" + addr_elems[1] + "<br>" + addr_elems.slice(2).join(",");
+            var loc           = new google.maps.LatLng(w.schools[i].school.gmap_lat, w.schools[i].school.gmap_lng);
+            var marker        = gmapPanel.addMarker(loc, w.schools[i].school.display_name, {});
+            var addr_elems    = w.schools[i].school.gmap_addr.split(",");
+            marker.info       = "<b>" + w.schools[i].school.display_name + "</b><br>";
+            marker.info      += addr_elems[0] + "<br>" + addr_elems[1] + "<br>" + addr_elems.slice(2).join(",");
             marker.info_popup = null;
             google.maps.event.addListener(marker, 'click', function(){
               if (this.info_popup) {
@@ -276,7 +286,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       result_store.setBaseParam(key, params[key]);
     buttonEl.findParentByType("form").buttons[2].show();
     buttonEl.findParentByType("form").buttons[3].show();
-
+    buttonEl.findParentByType("form").buttons[4].show();
     var panel_mask = new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(), {msg:"Please wait..."});
     panel_mask.show();
     result_store.on('write', function(){ panel_mask.hide(); });

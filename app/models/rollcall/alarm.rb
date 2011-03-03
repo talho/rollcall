@@ -53,6 +53,7 @@ class Rollcall::Alarm < Rollcall::Base
       test_data_date = Time.parse("09/01/2010")
       start_date     = params[:startdt].blank? ? test_data_date : Time.parse(params[:startdt])
       end_date       = params[:enddt].blank? ? Time.now : Time.parse(params[:enddt]) + 1.day
+      lock_date      = end_date - 1.month
       tea_id         = params[:tea_id]
       school_id      = Rollcall::School.find_by_tea_id(tea_id).id
       days           = ((end_date - start_date) / 86400)
@@ -72,26 +73,28 @@ class Rollcall::Alarm < Rollcall::Base
           severity      = (total_absent.to_f / total_enrolled.to_f)
           absentee_rate = severity * 100
           if (absentee_rate >= query.severity_min) ||
-             (query.deviation_min <= deviation && deviation <= query.deviation_max)
-            if absentee_rate >= query.severity_max
-              alarm_severity = 'extreme'
-            elsif (query.severity_min + 2) < absentee_rate && absentee_rate < query.severity_max
-              alarm_severity = 'severe'
-            elsif query.severity_min <= absentee_rate && absentee_rate <= (query.severity_min + 2)
-              alarm_severity = 'moderate'
-            else
-              alarm_severity = 'unknown'
+             (query.deviation_min <= deviation && deviation <= query.deviation_max)           
+            if(Time.parse(report_date) >= lock_date)
+              if absentee_rate >= query.severity_max
+                alarm_severity = 'extreme'
+              elsif (query.severity_min + 2) < absentee_rate && absentee_rate < query.severity_max
+                alarm_severity = 'severe'
+              elsif query.severity_min <= absentee_rate && absentee_rate <= (query.severity_min + 2)
+                alarm_severity = 'moderate'
+              else
+                alarm_severity = 'unknown'
+              end
+              create(
+                :school_id      => school_id,
+                :saved_query_id => query.id,
+                :deviation      => deviation,
+                :severity       => severity,
+                :alarm_severity => alarm_severity,
+                :absentee_rate  => absentee_rate,
+                :report_date    => report_date
+              )
+              alarm_count += 1
             end
-            create(
-              :school_id      => school_id,
-              :saved_query_id => query.id,
-              :deviation      => deviation,
-              :severity       => severity,
-              :alarm_severity => alarm_severity,
-              :absentee_rate  => absentee_rate,
-              :report_date    => report_date
-            )
-            alarm_count += 1
           end
         end
         break if alarm_count == 4

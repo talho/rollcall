@@ -11,7 +11,8 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       return resultPanel;
     };
 
-    Ext.apply(config,
+    Ext.apply(this, config);
+    Ext.apply(this,
     {
       layout:   'fit',
       closable: true,
@@ -207,7 +208,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     var params      = this.buildParams(form_values);
     params["limit"] = this.getResultPanel().getResultStore().getTotalCount();
     Ext.Ajax.request({
-      url:      'rollcall/adst',
+      url:      '/rollcall/adst',
       method:   'GET',
       params:   params,
       scope:    this,
@@ -225,13 +226,13 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         win.schools = Ext.decode(response.responseText).results;
         win.addButton({xtype: 'button', text: 'Dismiss', handler: function(){ win.close(); }, scope: this, width:'auto'});
         win.addListener("afterrender", function(w){
-          var center = new google.maps.LatLng(w.schools[0].school.gmap_lat, w.schools[0].school.gmap_lng);
+          var center = new google.maps.LatLng(w.schools[0].gmap_lat, w.schools[0].gmap_lng);
           gmapPanel.gmap.setCenter(center);
           for(var i = 0; i < w.schools.length; i++) {
-            var loc           = new google.maps.LatLng(w.schools[i].school.gmap_lat, w.schools[i].school.gmap_lng);
-            var marker        = gmapPanel.addMarker(loc, w.schools[i].school.display_name, {});
-            var addr_elems    = w.schools[i].school.gmap_addr.split(",");
-            marker.info       = "<b>" + w.schools[i].school.display_name + "</b><br>";
+            var loc           = new google.maps.LatLng(w.schools[i].gmap_lat, w.schools[i].gmap_lng);
+            var marker        = gmapPanel.addMarker(loc, w.schools[i].display_name, {});
+            var addr_elems    = w.schools[i].gmap_addr.split(",");
+            marker.info       = "<b>" + w.schools[i].display_name + "</b><br>";
             marker.info      += addr_elems[0] + "<br>" + addr_elems[1] + "<br>" + addr_elems.slice(2).join(",");
             marker.info_popup = null;
             google.maps.event.addListener(marker, 'click', function(){
@@ -253,7 +254,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   exportResultSet: function(buttonEl, eventObj)
   {
     Ext.Ajax.request({
-      url:    'rollcall/export',
+      url:    '/rollcall/export',
       method: 'GET',
       params: this.buildParams(buttonEl.findParentByType("form").getForm().getValues()),
       scope:  this,
@@ -289,7 +290,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     buttonEl.findParentByType("form").buttons[4].show();
     var panel_mask = new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(), {msg:"Please wait..."});
     panel_mask.show();
-    result_store.on('write', function(){ panel_mask.hide(); });
+    result_store.on('load', function(){ panel_mask.hide(); });
     result_store.load({params: this.buildParams(form_values)});
     return true;
   },
@@ -299,9 +300,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     var container_mask = new Ext.LoadMask(this_toolbar.ownerCt.ownerCt.ownerCt.getResultPanel().getEl(), {msg:"Please wait..."});
     params['page']     = Math.floor(params.start /  params.limit) + 1;
     container_mask.show();
-    result_store.on('write', function(){
-      container_mask.hide();
-    });
+    result_store.on('load', function(){ container_mask.hide(); });
     return true;
   },
   loadInitMask: function()

@@ -33,8 +33,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       autoSave:      true,
       listeners: {
         scope: this,
-        load:  this.loadGraphResults,
-        write: this.writeGraphs
+        load:  this.loadGraphResults
       }
     });
 
@@ -46,7 +45,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     Talho.Rollcall.ADSTResultPanel.superclass.constructor.call(this, config);
   },
 
-  writeGraphs: function(store, action, result, res, rs)
+  writeGraphs: function(store)
   {
     var tea_id           = null;
     var graphImageConfig = null;
@@ -61,16 +60,17 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       if(!item.pinned) leftColumn.remove(item.id, true);
     });
 
-    for(var i = 0; i < result[0]['img_urls'].length; i++){
-      tea_id          = result[0]["schools"][i].school.tea_id;
-      school_name      = result[0]["schools"][i].school.display_name;
+    Ext.each(store.getRange(), function(school_record,i){
+      var school = school_record.json; // TODO
+      tea_id           = school.tea_id;
+      school_name      = school.display_name;
       graphImageConfig = {
         title:       'Query Result for '+school_name,
         style:       'margin:5px',
         tea_id:      tea_id,
-        school:      result[0]["schools"][i].school,
-        school_name: result[0]["schools"][i].school.display_name,
-        r_id:        result[0]["r_ids"][i],
+        school:      school,
+        school_name: school.display_name,
+        r_id:        school.rrd_id,
         collapsible: false,
         pinned:      false,
         tools: [{
@@ -93,7 +93,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           scope:   this,
           handler: function(e, targetEl, panel, tc)
           {
-            this.showSaveQueryConsole(store.baseParams, panel.tea_id, panel.school_name, panel.r_id.value, panel);
+            this.showSaveQueryConsole(store.baseParams, panel.tea_id, panel.school_name, panel.r_id, panel);
           }
         },{
           id:      'down',
@@ -114,8 +114,8 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         result_obj = leftColumn.add(graphImageConfig);
       }
       this.doLayout();
-      this.ownerCt.ownerCt.ownerCt.renderGraphs(i, result[0]['img_urls'][i].value, result_obj, 'ux-result-graph-container');
-    }
+      this.ownerCt.ownerCt.ownerCt.renderGraphs(i, school.image_url, result_obj, 'ux-result-graph-container');
+    }, this);
   },
 
   closeResult: function(e, target, panel)
@@ -125,6 +125,19 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
   showOnGoogleMap: function(e, targetEl, panel, tc)
   {
+    var sch_info_tpl = new Ext.XTemplate(
+      '<tpl for=".">',
+        '<table class="alarm-tip-table">',
+          '<tr>',
+            '<td><b>School:</b></td>',
+            '<td><span>{display_name}</span></td>',
+          '</tr>',
+          '<tr>',
+            '<td><b>School Type:</b></td>',
+            '<td><span>{school_type}</span></td>',
+          '</tr>',
+        '</table>',
+      '</tpl>');
     var gmapPanel = new Ext.ux.GMapPanel({zoomLevel: 14});
     var win = new Ext.Window({
       title: "Google Map for '" + panel.school_name + "'",
@@ -132,7 +145,12 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       labelAlign: 'top',
       padding: '5',
       width: 510, height: 450,
-      items: [gmapPanel]
+      items: [
+        {xtype: 'container', layout: 'hbox', items: [
+          {xtype: 'container', html: sch_info_tpl.applyTemplate(panel.school)},
+          gmapPanel
+        ]}
+      ]
     });
     win.addButton({xtype: 'button', text: 'Dismiss', handler: function(){ win.close(); }, scope: this, width:'auto'});
     win.addListener("afterrender", function(){
@@ -174,7 +192,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       }
     }
     Ext.Ajax.request({
-      url:    'rollcall/export?'+param_string,
+      url:    '/rollcall/export?'+param_string,
       method: 'GET',
       scope:  this,
       callback: function(options, success, response){
@@ -195,12 +213,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   loadGraphResults: function(store, records, options)
   {
     this.show();
-    var schools = new Array();
-    for(var i = 0; i < records.length; i++){
-      schools += records[i].json.school.tea_id+',';
-    }
-    record = new store.recordType({id: null, img_urls: '', schools: schools},null);
-    store.add([record]);
+    this.writeGraphs(store);
   },
 
   processQuery: function(json_result)
@@ -249,7 +262,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       items: [{
         xtype:      'form',
         id:         'savedQueryForm',
-        url:        'rollcall/save_query',
+        url:        '/rollcall/save_query',
         border:     false,
         baseParams: {
           authenticity_token: FORM_AUTH_TOKEN,

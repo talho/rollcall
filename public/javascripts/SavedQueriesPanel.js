@@ -136,7 +136,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
       {
         if(btn == 'ok'){
           Ext.Ajax.request({
-            url:    'rollcall/save_query/'+this.param_config.query_id+'.json',
+            url:    '/rollcall/save_query/'+this.param_config.query_id+'.json',
             method: 'DELETE',
             scope:  this,
             callback: function(options, success, response){
@@ -156,7 +156,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
   destroySavedQueryAlarms: function(panel)
   {
     Ext.Ajax.request({
-      url: 'rollcall/alarms',
+      url: '/rollcall/alarms',
       method: 'DELETE',
       params: {
         saved_query_id: panel.param_config.query_id
@@ -173,7 +173,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
     if(targetEl.hasClass('x-tool-alarm-off')) alarm_set = true;
     Ext.getCmp('alarm_panel').alarms_store.container_mask.show();
     Ext.Ajax.request({
-      url:    'rollcall/save_query/'+panel.param_config.query_id+'.json',
+      url:    '/rollcall/save_query/'+panel.param_config.query_id+'.json',
       params: {
         alarm_set: alarm_set
       },
@@ -181,7 +181,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
       callback: function(options, success, response)
       {
         Ext.Ajax.request({
-          url:      'rollcall/alarm/'+panel.param_config.query_id,
+          url:      '/rollcall/alarm/'+panel.param_config.query_id,
           callback: function(options, success, response){
             if(alarm_set) Ext.getCmp('alarm_panel').getComponent(0).getStore().load({
               add: true,
@@ -255,7 +255,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
       items: [{
         xtype: 'form',
         id: 'editSavedQueryForm',
-        url: 'rollcall/save_query/'+query_id+'.json',
+        url: '/rollcall/save_query/'+query_id+'.json',
         border: false,
         method: 'PUT',
         baseParams:{
@@ -449,7 +449,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
             this.destroy();
           }, alarm_console);
           alarm_console.getComponent('editSavedQueryForm').getForm().doAction('submit',{
-            url: 'rollcall/save_query',
+            url: '/rollcall/save_query',
             method: 'post'
           });
         }

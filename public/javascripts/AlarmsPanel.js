@@ -148,7 +148,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
     tip.showBy(this_grid.getView().getRow(index), 'tl-tr');
 
     Ext.Ajax.request({
-      url:     'rollcall/get_info',
+      url:     '/rollcall/get_info',
       method:  'POST',
       headers: {'Accept': 'application/json'},
       scope:   this,
@@ -160,14 +160,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       },
       success: function(response, options)
       {
-        jsonObj                = response.responseText.replace(/"alarm_severity"/g, 'alarm_severity');
-        jsonObj                = jsonObj.replace(/"info"/g, 'info');
-        jsonObj                = jsonObj.replace(/"total_confirmed_absent"/g, 'total_confirmed_absent');
-        jsonObj                = jsonObj.replace(/"total_absent"/g, 'total_absent');
-        jsonObj                = jsonObj.replace(/"total_enrolled"/g, 'total_enrolled');
-        jsonObj                = jsonObj.replace(/"school_name"/g, 'school_name');
-        jsonObj                = jsonObj.replace(/"school_type"/g, 'school_type');
-        jsonObj                = eval(jsonObj);
+        jsonObj                = Ext.decode(response.responseText).info;
         var template           = this.build_alarm_console_template();
         var ignore_button_text = "Ignore Alarm";
         if(row_record.get('ignore_alarm'))ignore_button_text = "Unignore Alarm";
@@ -347,7 +340,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
 
       school_ids = school_ids.join(",");     
       Ext.Ajax.request({
-        url:    'rollcall/get_schools',
+        url:    '/rollcall/get_schools',
         method: 'POST',
         scope:  this,
         params: {

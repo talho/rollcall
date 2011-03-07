@@ -3,41 +3,30 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   before_filter :rollcall_required
 
   def index
-    results      = Rollcall::School.search(params)
-    options      = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
-    results_uniq = results.paginate(options)
+    schools       = Rollcall::School.search(params)
+    options       = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
+    schools_paged = schools.paginate(options)
+
+    rrd_info = Rollcall::Rrd.render_graphs(params, schools_paged)
+    schools_with_rrd = Array.new
+    schools_paged.each_index { |i|
+      schools_with_rrd.push(schools_paged[i].attributes.merge(rrd_info[i]))
+    }
+
+    original_included_root = ActiveRecord::Base.include_root_in_json
+    ActiveRecord::Base.include_root_in_json = false
     respond_to do |format|
       format.json do
         render :json => {
           :success       => true,
-          :total_results => results.length,
-          :results       => results_uniq.as_json
+          :total_results => schools.length,
+          :results       => schools_with_rrd
         }
       end
     end
+    ActiveRecord::Base.include_root_in_json = original_included_root
   end
   
-  def create
-    results      = Rollcall::Rrd.render_graphs(params)
-    schools      = params[:results][:schools].blank? ? "" : params[:results][:schools]
-    school_descs = schools.split(",").collect { |school| Rollcall::School.find_by_tea_id(school) }
-
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success       => true,
-          :total_results => results[:image_urls].length,
-          :results       => {
-            :id          => 1,
-            :img_urls    => results[:image_urls],
-            :r_ids       => results[:rrd_ids],
-            :schools     => school_descs
-          }.as_json
-        }
-      end
-    end
-  end
-
   def export
     filename = "rollcall_csv_export"
     params.each { |key,value|

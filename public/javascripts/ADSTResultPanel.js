@@ -140,8 +140,8 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       gmapPanel.gmap.setCenter(loc);
       var addr_elems = panel.school.gmap_addr.split(",");
       var marker = gmapPanel.addMarker(loc, panel.school.display_name, {});
-      marker.info = "<b>" + panel.school.display_name + "</b><br>";
-      marker.info += addr_elems[0] + "<br>" + addr_elems[1] + "<br>" + addr_elems.slice(2).join(",");
+      marker.info = "<b>" + panel.school.display_name + "</b><br/>";
+      marker.info += addr_elems[0] + "<br/>" + addr_elems[1] + "<br/>" + addr_elems.slice(2).join(",");
       marker.info_popup = null;
       google.maps.event.addListener(marker, 'click', function(){
         if (marker.info_popup) {

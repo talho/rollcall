@@ -218,15 +218,7 @@ class Rollcall::Rrd < Rollcall::Base
 
   def self.build_elements options
     elements       = []
-    alpha          = ["A","B","C","D","E","F"]
-    numeric        = ["0","1","2","3","4","5","6","7","8","9"]
-    alpha_numeric  = [alpha,numeric]
-    school_color   = ""
-
-    for c in 0..5
-      alpha_or_numeric = rand(2)
-      school_color    += alpha_numeric[alpha_or_numeric][rand(alpha_numeric[alpha_or_numeric].length)]
-    end
+    school_color   = get_random_color   
     if options[:data_func] == "Standard+Deviation"
       elements.push({
         :key     => 'a',
@@ -234,11 +226,7 @@ class Rollcall::Rrd < Rollcall::Base
         :color   => school_color,
         :text    => "Total Absent"
       })
-      school_color = ""
-      for c in 0..5
-        alpha_or_numeric = rand(2)
-        school_color    += alpha_numeric[alpha_or_numeric][rand(alpha_numeric[alpha_or_numeric].length)]
-      end
+      school_color = get_random_color
       elements.push({
         :key     => 'msd',
         :element => "LINE1",
@@ -253,11 +241,7 @@ class Rollcall::Rrd < Rollcall::Base
           :color   => school_color,
           :text    => "Total Absent"
         })
-        school_color = ""
-        for c in 0..5
-          alpha_or_numeric = rand(2)
-          school_color    += alpha_numeric[alpha_or_numeric][rand(alpha_numeric[alpha_or_numeric].length)]
-        end
+        school_color = get_random_color
         elements.push({
           :key     => 'mavg',
           :element => "LINE1",
@@ -271,19 +255,15 @@ class Rollcall::Rrd < Rollcall::Base
           :color   => school_color,
           :text    => "Total Absent"
         })
-        school_color = ""
-        for c in 0..5
-          alpha_or_numeric = rand(2)
-          school_color    += alpha_numeric[alpha_or_numeric][rand(alpha_numeric[alpha_or_numeric].length)]
-        end
-        elements.push({
-          :key     => 'b',
-          :element => "LINE1",
-          :color   => school_color,
-          :text    => "Total Enrolled"
-        }) if options[:enrolled_base_line] == "on"
       end
     end
+    school_color = get_random_color
+    elements.push({
+      :key     => 'b',
+      :element => "LINE1",
+      :color   => school_color,
+      :text    => "Total Enrolled"
+    }) if options[:enrolled_base_line] == "on"
     return elements
   end
 
@@ -452,4 +432,15 @@ class Rollcall::Rrd < Rollcall::Base
     return total_absent
   end
 
+  def self.get_random_color
+    alpha          = ["A","B","C","D","E","F"]
+    numeric        = ["0","1","2","3","4","5","6","7","8","9"]
+    alpha_numeric  = [alpha,numeric]
+    color          = ""
+    (0..5).each do
+      alpha_or_numeric = rand(2)
+      color           += alpha_numeric[alpha_or_numeric][rand(alpha_numeric[alpha_or_numeric].length)]
+    end
+    return color
+  end
 end

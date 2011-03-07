@@ -14,6 +14,9 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
       if query.alarm_set
         result = Rollcall::Alarm.find_all_by_saved_query_id(query.id).each do |alarm|
           alarm[:school_name] = alarm.school.display_name
+          alarm[:school_lat]  = alarm.school.gmap_lat
+          alarm[:school_lng]  = alarm.school.gmap_lng
+          alarm[:school_addr] = alarm.school.gmap_addr
           alarm[:alarm_name]  = alarm.saved_query.name
         end
         alarms.push(result)

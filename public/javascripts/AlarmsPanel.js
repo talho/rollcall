@@ -6,8 +6,6 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
   {
     this.tip_array            = new Array();
     this.alarm_gmap_displayed = false;
-    this.alarm_gmap           = null;
-    this.schools              = null;
     this.alarm_reader         = new Ext.data.JsonReader({
       root:          'alarms',
       totalProperty: 'total_results',
@@ -19,6 +17,9 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
         {name:'saved_query_id', type:'int'},
         {name:'school_id',      type:'int'},
         {name:'school_name',    type:'string'},
+        {name:'school_lat',     type:'float'},
+        {name:'school_lng',     type:'float'},
+        {name:'school_addr',    type:'string'},
         {name:'alarm_name',     type:'string'},
         {name:'severity',       type:'float'},
         {name:'alarm_severity', type:'string'},
@@ -42,10 +43,15 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       listeners:      {
         scope:      this,
         beforeload: this.load_alarm_panel_mask,
-        load:       this.prepare_alarm_gmap
+        load:       this.load_alarm_gmap_window
       }
     });
 
+    this.get_store    = function()
+    {
+      return this.alarms_store;
+    };
+    
     this.tmpl = new Ext.XTemplate(
       '<tpl for=".">',
         '<div class="thumb-wrap {[this.ignore_alarm(values.ignore_alarm)]}">',
@@ -77,6 +83,8 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       itemId: 'alarm_panel',
       items:  new Ext.grid.GridPanel({
         store:       this.alarms_store,
+        id:          'alarm_grid_panel',
+        itemId:      'alarm_grid_panel',
         hideHeaders: true,
         columns: [{
             xtype:     'templatecolumn',
@@ -116,6 +124,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
         animate:true
       }
     });
+
     Talho.Rollcall.AlarmsPanel.superclass.constructor.call(this, config);
   },
 
@@ -328,36 +337,6 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
     }
   },
 
-  prepare_alarm_gmap: function(this_store, records)
-  {
-    if(records.length != 0){
-      var school_ids = new Array();
-      this_store.each(function(record){
-        if(school_ids[school_ids.length - 1] != record.get("school_id")){
-          school_ids.push(record.get("school_id"));
-        }
-      });
-
-      school_ids = school_ids.join(",");     
-      Ext.Ajax.request({
-        url:    '/rollcall/get_schools',
-        method: 'POST',
-        scope:  this,
-        params: {
-          school_ids: school_ids
-        },
-        callback: function(options, success, response){
-          this.schools = Ext.decode(response.responseText).results;
-          if(!this.alarm_gmap_displayed) this.load_alarm_gmap_window();
-        }
-      });
-    }else if(this.alarm_gmap != null){
-      this.alarm_gmap.destroy();
-      Ext.getCmp('ADSTResultPanel').hide();
-    }
-    this_store.container_mask.hide();
-  },
-
   load_alarm_panel_mask: function(this_store, options)
   {
     this_store.container_mask = new Ext.LoadMask(this.getEl(), {msg:"Please wait..."});
@@ -366,56 +345,74 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
 
   load_alarm_gmap_window: function()
   {
-    this.alarm_gmap_displayed = true;
-    var gmap_panel            = new Ext.ux.GMapPanel({zoomLevel: 9});
-    var win                   = new Ext.Window({
-      title:      'Schools in Alarm State!',
-      layout:     'fit',
-      labelAlign: 'top',
-      padding:    '5',
-      width:      510,
-      height:     450,
-      items:      [gmap_panel],
-      listeners: {
-        scope:        this,
-        close:        this.enable_gis_button,
-        beforerender: this.disable_gis_button,
-        afterrender:  this.render_gmap_markers
-      },
-      buttons: [{
-        text:    'Dismiss',
-        width:   'auto',
-        scope:   this,
-        handler: function()
-        {
-          win.close();
-        }
-      }]
-    });
-    win.show();
+    if(this.get_store().getTotalCount() != 0){
+      this.alarm_gmap_displayed = true;
+      var gmap_panel            = new Ext.ux.GMapPanel({zoomLevel: 9});
+      var win                   = new Ext.Window({
+        title:      'Schools in Alarm State!',
+        layout:     'fit',
+        labelAlign: 'top',
+        padding:    '5',
+        width:      510,
+        height:     450,
+        items:      [gmap_panel],
+        listeners: {
+          scope:        this,
+          close:        this.enable_gis_button,
+          beforerender: this.disable_gis_button,
+          afterrender:  this.render_gmap_markers
+        },
+        buttons: [{
+          text:    'Dismiss',
+          width:   'auto',
+          scope:   this,
+          handler: function()
+          {
+            win.close();
+          }
+        }]
+      });
+      win.show();
+    }
+    this.get_store().container_mask.hide();
   },
 
   render_gmap_markers: function(panel)
   {
-    var center     = new google.maps.LatLng(this.schools[0].school.gmap_lat, this.schools[0].school.gmap_lng);
-    var gmap_panel = panel.get(0);
-    gmap_panel.gmap.setCenter(center);
-    for(var i = 0; i < this.schools.length; i++) {
-      var loc           = new google.maps.LatLng(this.schools[i].school.gmap_lat, this.schools[i].school.gmap_lng);
-      var marker        = gmap_panel.addMarker(loc, this.schools[i].school.display_name, {});
-      var addr_elems    = this.schools[i].school.gmap_addr.split(",");
-      marker.info       = "<b>" + this.schools[i].school.display_name + "</b><br>";
-      marker.info      += addr_elems[0] + "<br>" + addr_elems[1] + "<br>" + addr_elems.slice(2).join(",");
-      marker.info_popup = null;
-      google.maps.event.addListener(marker, 'click', function(){
-        if (this.info_popup) {
-          this.info_popup.close(gmap_panel.gmap, this);
-          this.info_popup = null;
-        } else {
-          this.info_popup = new google.maps.InfoWindow({content: this.info});
-          this.info_popup.open(gmap_panel.gmap, this);
+    var gmap_panel  = panel.get(0);
+    var school_ids  = new Array();
+    var store_index = 0;
+    var set_markers = function()
+    {
+      this.get_store().each(function(record)
+      {
+        if(school_ids[school_ids.length - 1] != record.get("school_id")){
+          school_ids.push(record.get("school_id"));
+          var color         = this.get_alarm_color_code(record.get("alarm_severity"));
+          var loc           = new google.maps.LatLng(record.get("school_lat"), record.get("school_lng"));
+          var marker        = gmap_panel.addStyledMarker(loc, record.get("school_name"), {color:color});
+          marker.info       = this.build_gmap_marker_info(record, store_index);                  
+          marker.info_popup = null;
+          google.maps.event.addListener(marker, 'click', function(){
+            if (this.info_popup) {
+              this.info_popup.close(gmap_panel.gmap, this);
+              this.info_popup = null;
+            } else {
+              this.info_popup = new google.maps.InfoWindow({content: this.info});
+              this.info_popup.open(gmap_panel.gmap, this);
+            }
+          });
+          gmap_panel.centerMap(loc);
         }
-      });
+        store_index++;
+      }, this);
+    };
+
+    if(!gmap_panel.map_ready){
+      gmap_panel.on('mapready', set_markers, this);
+    }
+    else{
+      set_markers.call(this);
     }
   },
 
@@ -427,5 +424,45 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
   disable_gis_button: function()
   {
     Ext.getCmp('gis_button').disable();
+  },
+
+  get_alarm_color_code: function(alarm_status)
+  {
+    var color = "";
+    if(alarm_status == "unknown"){
+      color = "808080";
+    }else if(alarm_status == "minor"){
+      color = "008000";
+    }else if(alarm_status == "moderate"){
+      color = "ffff00";
+    }else if(alarm_status == "severe"){
+      color = "ffa500";
+    }else if(alarm_status == "extreme"){
+      color = "ff0000";
+    }
+    return color;
+  },
+
+  remote_row_click: function(store_index)
+  {
+    Ext.getCmp('alarm_panel').getComponent('alarm_grid_panel').view.toggleAllGroups(false);
+    Ext.getCmp('alarm_panel').getComponent('alarm_grid_panel').view.toggleRowIndex(store_index, true);
+    this.row_click(Ext.getCmp('alarm_panel').getComponent('alarm_grid_panel'),store_index,null);  
+  },
+
+  build_gmap_marker_info: function(record, store_index)
+  {
+    var addr_elems    = record.get("school_addr").split(",");
+    var click_string  = "javascript:Ext.getCmp(\'alarm_panel\').remote_row_click("+store_index+")";
+    var marker_info   = '<div class="school_marker_info">';
+    marker_info      += "<b>School Name: </b>" + record.get("school_name") + "<br/>";
+    marker_info      += '<b>Absentee Rate: </b>'+record.get("absentee_rate")+'%<br/>';
+    marker_info      += '<b>Deviation Rate: </b>'+record.get("deviation")+'%<br/>';
+    marker_info      += '<b>Severity: </b>'+record.get("severity")+'%<br/>';
+    marker_info      += '<a href="'+click_string+'">Click for more info</a>';
+    marker_info      += '<br/><br/>';
+    marker_info      += addr_elems[0] + "<br/>" + addr_elems[1] + "<br/>" + addr_elems.slice(2).join(",");
+    marker_info      += '</div>';
+    return marker_info;
   }
 });

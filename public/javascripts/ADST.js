@@ -57,18 +57,20 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           width:     200,
           items:     new Talho.Rollcall.AlarmsPanel({}),
           bbar:[{
-            text: 'Refresh',
+            text:    'Refresh',
             iconCls: 'x-tbar-loading',
             handler: function(btn,event)
             {
               this.ownerCt.ownerCt.getComponent('alarm_panel').alarms_store.load();
             }
           },'->',{
-            text:    'GIS',
-            id: 'gis_button',
-            itemId: 'gis_button',
+            text:     'GIS',
+            id:       'gis_button',
+            itemId:   'gis_button',
+            iconCls:  'x-tbar-gis',
             disabled: true,
-            handler: function(){
+            handler:  function()
+            {
               this.ownerCt.ownerCt.getComponent('alarm_panel').load_alarm_gmap_window();
             }
           }]
@@ -150,9 +152,9 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   renderGraphs: function(id, image, obj, class_name)
   {
     provider = new Ext.direct.PollingProvider({
-      id: 'image' + id + '-provider',
-      type: 'polling',
-      url: image,
+      id:        'image' + id + '-provider',
+      type:      'polling',
+      url:       image,
       listeners: {
         scope: obj,
         data: function(provider, e)
@@ -282,7 +284,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     var result_store = this.getResultPanel().getResultStore();
     buttonEl.findParentByType('form').findParentByType('panel').getBottomToolbar().bindStore(result_store);
     result_store.baseParams = {}; // clear previous search values
-    var params = this.buildParams(form_values);
+    var params              = this.buildParams(form_values);
     for(key in params)
       result_store.setBaseParam(key, params[key]);
     buttonEl.findParentByType("form").buttons[2].show();

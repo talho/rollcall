@@ -119,3 +119,12 @@
   position: relative;
   z-index: 100;
 }
+
+.school_marker_info{
+  height: 120px;
+}
+
+.x-tbar-gis{
+ background: url(images/globe1.png) 0px 0px no-repeat;
+ padding-left: 22px;
+}

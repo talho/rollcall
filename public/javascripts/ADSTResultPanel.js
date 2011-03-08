@@ -47,11 +47,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
   writeGraphs: function(store)
   {
-    var tea_id           = null;
-    var graphImageConfig = null;
-    var result_obj       = null;
     var leftColumn       = this.getComponent('leftColumn');
     var rightColumn      = this.getComponent('rightColumn');
+    var storeBaseParams  = store.baseParams;
     rightColumn.items.each(function(item){
       if(!item.pinned) rightColumn.remove(item.id, true);
     });
@@ -61,10 +59,11 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
 
     Ext.each(store.getRange(), function(school_record,i){
-      var school = school_record.json; // TODO
-      tea_id           = school.tea_id;
-      school_name      = school.display_name;
-      graphImageConfig = {
+      var school           = school_record.json; // TODO
+      var tea_id           = school.tea_id;
+      var school_name      = school.display_name;
+      var result_obj       = null;
+      var graphImageConfig = {
         title:       'Query Result for '+school_name,
         style:       'margin:5px',
         tea_id:      tea_id,
@@ -76,15 +75,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         tools: [{
           id:      'pin',
           qtip:    'Pin This Graph',
-          handler: function(e, targetEl, panel, tc)
-          {
-            targetEl.toggleClass('x-tool-pin');
-            targetEl.toggleClass('x-tool-unpin');
-            if(targetEl.hasClass('x-tool-unpin')) panel.pinned = true;
-            else panel.pinned = false;
-          }
+          handler: this.pinGraph
         },{
-          id:      'gear',
+          id:      'gis',
           qtip:    'Show School on Google Map',
           handler: this.showOnGoogleMap
         },{
@@ -93,7 +86,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           scope:   this,
           handler: function(e, targetEl, panel, tc)
           {
-            this.showSaveQueryConsole(store.baseParams, panel.tea_id, panel.school_name, panel.r_id, panel);
+            this.showSaveQueryConsole(storeBaseParams, panel.tea_id, panel.school_name, panel.r_id, panel);
           }
         },{
           id:      'down',
@@ -514,5 +507,14 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       item.disconnect();
     });
     this.providers = new Array();
+  },
+
+  pinGraph: function(e, targetEl, panel, tc)
+  {
+    targetEl.findParent('div.x-panel-tl', 50, true).toggleClass('x-panel-pinned')
+    targetEl.toggleClass('x-tool-pin');
+    targetEl.toggleClass('x-tool-unpin');
+    if(targetEl.hasClass('x-tool-unpin')) panel.pinned = true;
+    else panel.pinned = false;
   }
 });

@@ -63,7 +63,6 @@ class Rollcall::Rrd < Rollcall::Base
         unless params[:symptoms].blank?
           graph_title = "Absenteeism Rate for #{school_name} based on #{params[:symptoms]}"
         end
-        #self.graph rrd_file, image_file, graph_title, params
         rrd_image_path = Dir.pwd << "/public/rrd/"
         File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
         self.send_later(:graph, rrd_file, image_file, graph_title, params)

@@ -43,7 +43,10 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       listeners:      {
         scope:      this,
         beforeload: this.load_alarm_panel_mask,
-        load:       this.load_alarm_gmap_window
+        load:       function()
+        {
+          if(!this.alarm_gmap_displayed) this.load_alarm_gmap_window();
+        }
       }
     });
 
@@ -345,7 +348,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
 
   load_alarm_gmap_window: function()
   {
-    if(this.get_store().getTotalCount() != 0){
+    if(this.get_store().getTotalCount() != 0 ){
       this.alarm_gmap_displayed = true;
       var gmap_panel            = new Ext.ux.GMapPanel({zoomLevel: 9});
       var win                   = new Ext.Window({

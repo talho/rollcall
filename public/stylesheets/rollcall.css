@@ -85,6 +85,16 @@
   width: 15px !important;
   height: 15px !important;
 }
+.x-tool-gis{
+  background:url(images/tool-globe.png) 0px 1px no-repeat !important;
+  width: 12px !important;
+  height: 12px !important;
+}
+.x-tool-gis-off{
+  background:url(images/globe1-off.png) 0px 0px no-repeat !important;
+  width: 12px !important;
+  height: 12px !important;
+}
 .base-line-check{
   clear:both;
   position: relative;
@@ -127,4 +137,13 @@
 .x-tbar-gis{
  background: url(images/globe1.png) 0px 0px no-repeat;
  padding-left: 22px;
+}
+
+.x-panel-pinned .x-panel-tr,
+.x-panel-pinned{
+  background-image: url(images/pinned-corners-sprite.gif) !important;
+}
+
+.x-panel-pinned .x-panel-tc{
+  background-image: url(images/pinned-top-bottom.gif) !important;
 }

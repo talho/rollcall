@@ -29,16 +29,16 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           margins:     '5 0 0 0'
         },
         items: [{
-          title:      'Saved Queries',
-          itemId:     'saved_queries',
-          id:         'saved_queries',
+          title:      'Alarm Queries',
+          itemId:     'alarm_queries',
+          id:         'alarm_queries',
           region:     'south',
           height:     180,
           minSize:    180,
           maxSize:    300,
           autoScroll: true,
           layout:     'fit',
-          items:      new Talho.Rollcall.SavedQueriesPanel({})
+          items:      new Talho.Rollcall.AlarmQueriesPanel({})
         },{
           title:       'Reports',
           region:      'east',
@@ -143,9 +143,11 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     });
     Talho.Rollcall.ADST.superclass.constructor.call(this, config);
     this.addListener("deactivate", function(w){
+      if(Ext.getCmp('gmap_alarm_window')) Ext.getCmp('gmap_alarm_window').close();
       this.get(0).get(2).getComponent('alarm_panel').close_alarm_tip();
     });
     this.addListener("close", function(w){
+      if(Ext.getCmp('gmap_alarm_window')) Ext.getCmp('gmap_alarm_window').close();
       this.get(0).get(2).getComponent('alarm_panel').close_alarm_tip();
     });
   },

@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: saved_queries
+# Table name: alarm_queries
 #
 #  id                  :integer(4)      not null, primary key
 #  user_id             :integer(4)
@@ -14,9 +14,9 @@
 #  alarm               :boolean
 #
 
-class Rollcall::SavedQuery < Rollcall::Base
+class Rollcall::AlarmQuery < Rollcall::Base
   belongs_to :user, :class_name => "User", :foreign_key => "user_id"
   belongs_to :rrd, :class_name => "Rollcall::Rrd", :foreign_key => "rrd_id"
   
-  set_table_name "rollcall_saved_queries"  
+  set_table_name "rollcall_alarm_queries"  
 end

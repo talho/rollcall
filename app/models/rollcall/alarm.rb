@@ -4,7 +4,7 @@
 #
 #  id                 :integer(4)      not null, primary key
 #  school_id          :integer(4)
-#  saved_query_id     :integer(4)
+#  alarm_query_id     :integer(4)
 #  alarm_severity     :string
 #  deviation          :float
 #  severity           :float
@@ -16,13 +16,13 @@
 
 class Rollcall::Alarm < Rollcall::Base
   belongs_to :school, :class_name => "Rollcall::School", :foreign_key => "school_id"
-  belongs_to :saved_query, :class_name => "Rollcall::SavedQuery", :foreign_key => "saved_query_id"
+  belongs_to :alarm_query, :class_name => "Rollcall::AlarmQuery", :foreign_key => "alarm_query_id"
     
   set_table_name "rollcall_alarms"
 
-  def self.generate_alarm(query)
-    if query.alarm_set
-      result = create_alarm query
+  def self.generate_alarm(alarm_query)
+    if alarm_query.alarm_set
+      result = create_alarm alarm_query
     else
       result = false
     end
@@ -30,22 +30,22 @@ class Rollcall::Alarm < Rollcall::Base
   end
 
   def self.generate_alarms(user_id)
-    saved_queries = Rollcall::SavedQuery.find_all_by_user_id(user_id)
-    saved_queries.each do |saved_query|
-      generate_alarm saved_query
+    alarm_queries = Rollcall::AlarmQuery.find_all_by_user_id(user_id)
+    alarm_queries.each do |alarm_query|
+      generate_alarm alarm_query
     end
   end
 
   private
 
-  def self.create_alarm query
+  def self.create_alarm alarm_query
     # clear previous alarms and before generating new ones
-    find(:all, :conditions => ['saved_query_id = ?', query.id]).each { |a| a.destroy }
+    find(:all, :conditions => ['alarm_query_id = ?', alarm_query.id]).each { |a| a.destroy }
 
     return_success   = false
     begin
       data_set       = []
-      query_params   = query.query_params.split("|")
+      query_params   = alarm_query.query_params.split("|")
       params         = {}
       query_params.each do |param|
         params[:"#{param.split('=')[0]}"] = param.split('=')[1]
@@ -72,21 +72,21 @@ class Rollcall::Alarm < Rollcall::Base
           deviation     = calculate_deviation data_set
           severity      = (total_absent.to_f / total_enrolled.to_f)
           absentee_rate = severity * 100
-          if (absentee_rate >= query.severity_min) ||
-             (query.deviation_min <= deviation && deviation <= query.deviation_max)           
+          if (absentee_rate >= alarm_query.severity_min) ||
+             (alarm_query.deviation_min <= deviation && deviation <= alarm_query.deviation_max)
             if(Time.parse(report_date) >= lock_date)
-              if absentee_rate >= query.severity_max
+              if absentee_rate >= alarm_query.severity_max
                 alarm_severity = 'extreme'
-              elsif (query.severity_min + 2) < absentee_rate && absentee_rate < query.severity_max
+              elsif (alarm_query.severity_min + 2) < absentee_rate && absentee_rate < alarm_query.severity_max
                 alarm_severity = 'severe'
-              elsif query.severity_min <= absentee_rate && absentee_rate <= (query.severity_min + 2)
+              elsif alarm_query.severity_min <= absentee_rate && absentee_rate <= (alarm_query.severity_min + 2)
                 alarm_severity = 'moderate'
               else
                 alarm_severity = 'unknown'
               end
               create(
                 :school_id      => school_id,
-                :saved_query_id => query.id,
+                :alarm_query_id => alarm_query.id,
                 :deviation      => deviation,
                 :severity       => severity,
                 :alarm_severity => alarm_severity,
@@ -103,7 +103,7 @@ class Rollcall::Alarm < Rollcall::Base
     rescue
       return false
     end
-    return_success = true unless find(:all, :conditions => ['saved_query_id = ?', query.id]).blank?
+    return_success = true unless find(:all, :conditions => ['alarm_query_id = ?', alarm_query.id]).blank?
     return return_success
   end
 

@@ -14,7 +14,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
         {name:'deviation',      type:'float'},
         {name:'id',             type:'int'},
         {name:'report_date',    renderer: Ext.util.Format.dateRenderer('m-d-Y')},
-        {name:'saved_query_id', type:'int'},
+        {name:'alarm_query_id', type:'int'},
         {name:'school_id',      type:'int'},
         {name:'school_name',    type:'string'},
         {name:'school_lat',     type:'float'},
@@ -46,6 +46,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
         load:       function()
         {
           if(!this.alarm_gmap_displayed) this.load_alarm_gmap_window();
+          this.get_store().container_mask.hide();
         }
       }
     });
@@ -168,7 +169,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
         school_id:      row_record.get('school_id'),
         report_date:    row_record.get('report_date'),
         alarm_id:       row_record.get('id'),
-        saved_query_id: row_record.get('saved_query_id')
+        alarm_query_id: row_record.get('alarm_query_id')
       },
       success: function(response, options)
       {
@@ -353,6 +354,8 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       var gmap_panel            = new Ext.ux.GMapPanel({zoomLevel: 9});
       var win                   = new Ext.Window({
         title:      'Schools in Alarm State!',
+        id:         'gmap_alarm_window',
+        itemId:     'gmap_alarm_window',
         layout:     'fit',
         labelAlign: 'top',
         padding:    '5',
@@ -377,7 +380,6 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       });
       win.show();
     }
-    this.get_store().container_mask.hide();
   },
 
   render_gmap_markers: function(panel)

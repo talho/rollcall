@@ -15,23 +15,23 @@ module Rollcall
       schools.map{|school| school.absentee_reports.absenses.recent(20).sort_by{|report| report.report_date}}.flatten.uniq[0..19].sort_by{|report| report.school_id}
     end
 
-    def saved_queries(options={})
-      unless options[:query_id].blank?
-        saved_queries = []
+    def alarm_queries(options={})
+      unless options[:alarm_query_id].blank?
+        alarm_queries = []
         unless options[:clone].blank?
-          saved_query = Rollcall::SavedQuery.find(:all).last
+          alarm_query = Rollcall::AlarmQuery.find(:all).last
         else
-          saved_query = Rollcall::SavedQuery.find(options[:query_id])
+          alarm_query = Rollcall::AlarmQuery.find(options[:alarm_query_id])
         end
-        saved_queries.push(saved_query)
+        alarm_queries.push(alarm_query)
       else
         unless options[:r_id].blank?
-          saved_queries = Rollcall::SavedQuery.find_all_by_user_id_and_rrd_id(id, options[:r_id])
+          alarm_queries = Rollcall::AlarmQuery.find_all_by_user_id_and_rrd_id(id, options[:r_id])
         else
-          saved_queries = Rollcall::SavedQuery.find_all_by_user_id(id)
+          alarm_queries = Rollcall::AlarmQuery.find_all_by_user_id(id)
         end
       end
-      saved_queries
+      alarm_queries
     end
   end
 

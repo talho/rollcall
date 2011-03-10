@@ -113,9 +113,7 @@ class Rollcall::Rrd < Rollcall::Base
     test_data_date = Time.gm(2010, "aug", 31)
     rrd_image_path = Dir.pwd << "/public/rrd/"
     rrd_path       = Dir.pwd << "/rrd/"
-    rrd_tool       = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
-      YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
-    end
+    rrd_tool       = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
     if params[:startdt].blank? || params[:startdt].index('...')
       start_date = test_data_date
     else
@@ -270,9 +268,7 @@ class Rollcall::Rrd < Rollcall::Base
   def self.reduce_rrd params, tea_id, conditions, filename, rrd_file, rrd_image_path, image_file, graph_title
     rrd_path = Dir.pwd << "/rrd/"
     unless conditions.blank?
-      rrd_tool = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
-        YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
-      end
+      rrd_tool = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
       unless conditions[:startdt].blank?
         parsed_date    = Time.parse(conditions[:startdt])
         rrd_start_date = Time.gm(parsed_date.year,parsed_date.month,parsed_date.day) - 1.day

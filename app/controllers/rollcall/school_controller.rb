@@ -3,6 +3,8 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
   before_filter :rollcall_required
 
   def index
+    original_included_root = ActiveRecord::Base.include_root_in_json
+    ActiveRecord::Base.include_root_in_json = false
     results = Rollcall::School.search(params)
     respond_to do |format|
       format.json do
@@ -13,6 +15,7 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
         }
       end
     end
+    ActiveRecord::Base.include_root_in_json = original_included_root
   end
 
   def show

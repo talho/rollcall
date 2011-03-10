@@ -210,7 +210,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     var params      = this.buildParams(form_values);
     params["limit"] = this.getResultPanel().getResultStore().getTotalCount();
     Ext.Ajax.request({
-      url:      '/rollcall/adst',
+      url:      '/rollcall/schools',
       method:   'GET',
       params:   params,
       scope:    this,

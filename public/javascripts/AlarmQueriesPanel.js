@@ -1,7 +1,7 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
-Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
+Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
   constructor: function(config){
 
     Ext.applyIf(config, {
@@ -15,9 +15,9 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
       saved_store: new Ext.data.JsonStore({
         autoLoad: true,
         root:     'results',
-        fields:   ['id', 'saved_queries', 'img_urls'],
+        fields:   ['id', 'alarm_queries', 'img_urls'],
         proxy: new Ext.data.HttpProxy({
-          url:    '/rollcall/save_query',
+          url:    '/rollcall/alarm_query',
           method: 'get'
         }),
         listeners:{
@@ -27,15 +27,15 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
             this_store.container_mask = new Ext.LoadMask(this.getEl(), {msg:"Please wait..."});
             this_store.container_mask.show();
           },
-          load:  this.loadSavedQueries
+          load:  this.loadAlarmQueries
         }
       })
     });
 
-    Talho.Rollcall.SavedQueriesPanel.superclass.constructor.call(this, config);
+    Talho.Rollcall.AlarmQueriesPanel.superclass.constructor.call(this, config);
   },
 
-  loadSavedQueries: function(this_store, record)
+  loadAlarmQueries: function(this_store, record)
   {
     var result_obj          = null;
     var column_obj          = null;
@@ -43,33 +43,33 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
     var alarm_id            = '';
     var q_tip               = '';
     for(var i=0;i<record.length;i++){
-      if(record[i].data.saved_queries.length == 0){
+      if(record[i].data.alarm_queries.length == 0){
         column_obj = this.add({
           columnWidth: .25,
-          itemId: 'empty_saved_query_container',
+          itemId: 'empty_alarm_query_container',
           listeners:{
             scope: this
           }
         });
         result_obj = column_obj.add({
-          cls: 'ux-saved-graphs',
-          html: '<div class="ux-empty-saved-query-container"><p>There are no saved queries.</p></div>'
+          cls: 'ux-alarm-graphs',
+          html: '<div class="ux-empty-alarm-query-container"><p>There are no alarm queries.</p></div>'
         });
       }else{
-        if(this.getComponent('empty_saved_query_container')){
-          this.getComponent('empty_saved_query_container').destroy();
+        if(this.getComponent('empty_alarm_query_container')){
+          this.getComponent('empty_alarm_query_container').destroy();
         }
-        for(var cnt=0;cnt<record[i].data.saved_queries.length;cnt++){
+        for(var cnt=0;cnt<record[i].data.alarm_queries.length;cnt++){
           param_config = {
-            query_id:            record[i].data.saved_queries[cnt].id,
-            query_title:         record[i].data.saved_queries[cnt].name,
-            query_params:        record[i].data.saved_queries[cnt].query_params,
-            severity_min:        record[i].data.saved_queries[cnt].severity_min,
-            severity_max:        record[i].data.saved_queries[cnt].severity_max,
-            deviation_min:       record[i].data.saved_queries[cnt].deviation_min,
-            deviation_max:       record[i].data.saved_queries[cnt].deviation_max,
-            r_id:                record[i].data.saved_queries[cnt].rrd_id,
-            alarm_set:           record[i].data.saved_queries[cnt].alarm_set
+            alarm_query_id:      record[i].data.alarm_queries[cnt].id,
+            alarm_query_title:   record[i].data.alarm_queries[cnt].name,
+            alarm_query_params:  record[i].data.alarm_queries[cnt].query_params,
+            severity_min:        record[i].data.alarm_queries[cnt].severity_min,
+            severity_max:        record[i].data.alarm_queries[cnt].severity_max,
+            deviation_min:       record[i].data.alarm_queries[cnt].deviation_min,
+            deviation_max:       record[i].data.alarm_queries[cnt].deviation_max,
+            r_id:                record[i].data.alarm_queries[cnt].rrd_id,
+            alarm_set:           record[i].data.alarm_queries[cnt].alarm_set
           };
           if(param_config.alarm_set){
             alarm_id = 'alarm-on';
@@ -83,7 +83,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
             }
           });
           result_obj = column_obj.add({
-            title: param_config.query_title,
+            title: param_config.alarm_query_title,
             param_config: param_config,
             scope: this,
             img_url: record[i].data.img_urls.image_urls[cnt],
@@ -97,21 +97,21 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
               handler: this.toggleAlarm
             },{
               id:'save',
-              qtip: 'Edit Query',
+              qtip: 'Edit Alarm Query',
               scope: this,
               handler: function(e, targetEl, panel, tc){
-                this.showEditSavedQueryConsole(panel,this);
+                this.showEditAlarmQueryConsole(panel,this);
               }
             },{
               id:'close',
-              qtip: 'Delete Query',
+              qtip: 'Delete Alarm Query',
               scope: this,
-              handler: this.deleteSavedQuery
+              handler: this.deleteAlarmQuery
             }],
-            cls: 'ux-saved-graphs',
-            html: '<div class="ux-saved-graph-container"><img class="ux-ajax-loader" src="/images/Ajax-loader.gif" /></div>'
+            cls: 'ux-alarm-graphs',
+            html: '<div class="ux-alarm-graph-container"><img class="ux-ajax-loader" src="/images/Ajax-loader.gif" /></div>'
           });
-          this.ownerCt.ownerCt.ownerCt.renderGraphs(cnt, record[i].data.img_urls.image_urls[cnt], result_obj, 'ux-saved-graph-container');
+          this.ownerCt.ownerCt.ownerCt.renderGraphs(cnt, record[i].data.img_urls.image_urls[cnt], result_obj, 'ux-alarm-graph-container');
         }
       }
 
@@ -121,11 +121,11 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
     this.setSize('auto','auto');
   },
 
-  deleteSavedQuery: function(e, targetEl, panel, tc)
+  deleteAlarmQuery: function(e, targetEl, panel, tc)
   {
     Ext.MessageBox.show({
       title: 'Delete '+panel.title,
-      msg:   'Are you sure you want to delete this query?',
+      msg:   'Are you sure you want to delete this alarm query?',
       buttons: {
         ok:     'Yes',
         cancel: 'No'
@@ -136,11 +136,11 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
       {
         if(btn == 'ok'){
           Ext.Ajax.request({
-            url:    '/rollcall/save_query/'+this.param_config.query_id+'.json',
+            url:    '/rollcall/alarm_query/'+this.param_config.alarm_query_id+'.json',
             method: 'DELETE',
             scope:  this,
             callback: function(options, success, response){
-              panel.ownerCt.ownerCt.destroySavedQueryAlarms(panel);
+              panel.ownerCt.ownerCt.destroyQueryAlarms(panel);
               this.hide();
               this.destroy();
             },
@@ -153,13 +153,13 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
     });
   },
 
-  destroySavedQueryAlarms: function(panel)
+  destroyQueryAlarms: function(panel)
   {
     Ext.Ajax.request({
       url: '/rollcall/alarms',
       method: 'DELETE',
       params: {
-        saved_query_id: panel.param_config.query_id
+        alarm_query_id: panel.param_config.alarm_query_id
       },
       callback: function(options, success, response){
         Ext.getCmp('alarm_panel').getComponent(0).getStore().load();
@@ -173,7 +173,7 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
     if(targetEl.hasClass('x-tool-alarm-off')) alarm_set = true;
     Ext.getCmp('alarm_panel').alarms_store.container_mask.show();
     Ext.Ajax.request({
-      url:    '/rollcall/save_query/'+panel.param_config.query_id+'.json',
+      url:    '/rollcall/alarm_query/'+panel.param_config.alarm_query_id+'.json',
       params: {
         alarm_set: alarm_set
       },
@@ -181,12 +181,12 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
       callback: function(options, success, response)
       {
         Ext.Ajax.request({
-          url:      '/rollcall/alarm/'+panel.param_config.query_id,
+          url:      '/rollcall/alarm/'+panel.param_config.alarm_query_id,
           callback: function(options, success, response){
             if(alarm_set) Ext.getCmp('alarm_panel').getComponent(0).getStore().load({
               add: true,
               params:{
-                query_id: panel.param_config.query_id
+                alarm_query_id: panel.param_config.alarm_query_id
               }
             });
             else Ext.getCmp('alarm_panel').getComponent(0).getStore().load();
@@ -204,34 +204,34 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
     });
   },
 
-  updateSavedQueries: function(options)
+  updateAlarmQueries: function(options)
   {
     this.saved_store.load(options);
   },
 
-  showEditSavedQueryConsole: function(panel,south_panel)
+  showEditAlarmQueryConsole: function(panel,south_panel)
   {
     var params              = new Array();
     var param_string        = '';
     var tea_id              = null;
-    var query_title         = panel.param_config.query_title;
-    var query_params        = panel.param_config.query_params;
+    var alarm_query_title   = panel.param_config.alarm_query_title;
+    var alarm_query_params  = panel.param_config.alarm_query_params;
     var severity_min        = panel.param_config.severity_min;
     var severity_max        = panel.param_config.severity_max;
     var deviation_min       = panel.param_config.deviation_min;
     var deviation_max       = panel.param_config.deviation_max;
     var r_id                = panel.param_config.r_id;
-    var query_id            = panel.param_config.query_id;
+    var alarm_query_id      = panel.param_config.alarm_query_id;
     var storedParams        = new Ext.data.ArrayStore({
         storeId: 'edit-store',
         fields: ['field', 'value'],
         idIndex: 0
     });
 
-    query_params = query_params.split("|");
+    alarm_query_params = alarm_query_params.split("|");
 
-    for(var i=0; i<query_params.length;i++){
-      var key_value = query_params[i].split("=");
+    for(var i=0; i<alarm_query_params.length;i++){
+      var key_value = alarm_query_params[i].split("=");
       if(key_value[0] == "tea_id") tea_id = key_value[1];
       params.push([key_value[0], key_value[1]]);
     }
@@ -250,26 +250,26 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
       constrain: true,
       renderTo: 'adst_container',
       closeAction:'close',
-      title: query_title,
+      title: alarm_query_title,
       plain: true,
       items: [{
         xtype: 'form',
-        id: 'editSavedQueryForm',
-        url: '/rollcall/save_query/'+query_id+'.json',
+        id: 'editAlarmQueryForm',
+        url: '/rollcall/alarm_query/'+alarm_query_id+'.json',
         border: false,
         method: 'PUT',
         baseParams:{
           authenticity_token: FORM_AUTH_TOKEN,
-          query_params: param_string,
+          alarm_query_params: param_string,
           r_id: r_id,
           tea_id: tea_id
         },
         items:[{
           xtype:'textfield',
           labelStyle: 'margin: 10px 0px 0px 5px',
-          fieldLabel: 'Query Name',
-          value: query_title,
-          id: 'query_name',
+          fieldLabel: 'Alarm Query Name',
+          value: alarm_query_title,
+          id: 'alarm_query_name',
           allowBlank: false,
           blankText: "This field is required.",
           minLength: 3,
@@ -443,28 +443,28 @@ Talho.Rollcall.SavedQueriesPanel = Ext.extend(Ext.Panel, {
       buttons: [{
         text:'Save As New',
         handler: function(buttonEl, eventObj){
-          alarm_console.getComponent('editSavedQueryForm').getForm().on('actioncomplete', function(){
-            south_panel.updateSavedQueries({params: {query_id: query_id,clone: true}});
+          alarm_console.getComponent('editAlarmQueryForm').getForm().on('actioncomplete', function(){
+            south_panel.updateAlarmQueries({params: {alarm_query_id: alarm_query_id,clone: true}});
             this.hide();
             this.destroy();
           }, alarm_console);
-          alarm_console.getComponent('editSavedQueryForm').getForm().doAction('submit',{
-            url: '/rollcall/save_query',
+          alarm_console.getComponent('editAlarmQueryForm').getForm().doAction('submit',{
+            url: '/rollcall/alarm_query',
             method: 'post'
           });
         }
       },{
         text:'Submit',
         handler: function(buttonEl, eventObj){
-          alarm_console.getComponent('editSavedQueryForm').getForm().on('actioncomplete', function(){
-            south_panel.updateSavedQueries({params: {query_id: query_id}});
-            south_panel.ownerCt.ownerCt.ownerCt.renderGraphs(panel.polling_id, panel.img_url, panel, 'ux-saved-graph-container');
+          alarm_console.getComponent('editAlarmQueryForm').getForm().on('actioncomplete', function(){
+            south_panel.updateAlarmQueries({params: {alarm_query_id: alarm_query_id}});
+            south_panel.ownerCt.ownerCt.ownerCt.renderGraphs(panel.polling_id, panel.img_url, panel, 'ux-alarm-graph-container');
             panel.hide();
             panel.destroy();
             this.hide();
             this.destroy();
           }, alarm_console);
-          alarm_console.getComponent('editSavedQueryForm').getForm().submit();
+          alarm_console.getComponent('editAlarmQueryForm').getForm().submit();
         }
       },{
         text: 'Close',

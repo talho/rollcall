@@ -4,7 +4,7 @@
 #
 #  id                 :integer(4)      not null, primary key
 #  school_id          :integer(4)
-#  saved_query_id     :integer(4)
+#  alarm_query_id     :integer(4)
 #  deviation          :float
 #  severity           :float
 #  absentee_rate      :float

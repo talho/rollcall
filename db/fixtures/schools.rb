@@ -4,10 +4,11 @@ def build_rrd(identifier)
   rrd_path = Dir.pwd << "/rrd/"
   rrd_tool = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
 
+  rrd_start_date = Time.gm(2010,"sep",01,0,0) - 1.day
   RRD.create("#{rrd_path}#{identifier}_absenteeism.rrd",
     {
       :step  => 24.hours.seconds,
-      :start => Time.gm(2010,"aug",31,0,0).to_i,
+      :start => rrd_start_date.to_i,
       :ds    => [{
         :name => "Absent", :type => "GAUGE", :heartbeat => 72.hours.seconds, :min => 0, :max => 768000
       },{

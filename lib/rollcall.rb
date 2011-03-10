@@ -23,6 +23,14 @@ require File.join(File.dirname(__FILE__), '..', 'vendor', 'plugins', 'rails_rrdt
 $expansion_list = [] unless defined?($expansion_list)
 $expansion_list.push(:rollcall) unless $expansion_list.index(:rollcall)
 
+# Build the menu in the $menu_config global variable
+$menu_config = {} unless defined?($menu_config)
+$menu_config[:rollcall] = "{name: 'Rollcall', items:[
+            {name: 'ADST', tab:{id: 'rollcall_adst', title:'Rollcall ADST', url:'', initializer: 'Talho.Rollcall.ADST'}},
+            {name: 'Nurse Assistant', tab:{id: 'rollcall_nurse', title:'Nurse Assistant', url:'', initializer: 'Talho.Rollcall.NurseAssistant'}},
+            {name: 'Schools', tab:{id: 'rollcall_schools', title:'Rollcall Schools', url:'', initializer: 'Talho.Rollcall'}},
+            {name: 'About Rollcall', tab:{id: 'about_rollcall', title:'About Rollcall', url:''}}]}"
+
 # Register any required javascript or stylesheet files with the appropriate
 # rails expansion helper
 ActionView::Helpers::AssetTagHelper.register_javascript_expansion(

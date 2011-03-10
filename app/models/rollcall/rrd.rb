@@ -3,7 +3,7 @@
 # Table name: rollcall_rrd
 #
 #  id                 :integer(4)      not null, primary key
-#  saved_query_id     :integer(4)      foreign key
+#  alarm_query_id     :integer(4)      foreign key
 #  file_name          :string(255)
 #  created_at         :datetime
 #  updated_at         :datetime
@@ -46,24 +46,23 @@ class Rollcall::Rrd < Rollcall::Base
     end
   end
 
-  def self.render_saved_graphs saved_queries
+  def self.render_alarm_graphs alarm_queries
     image_urls = []
-    unless saved_queries.blank?
-      saved_queries.each do |query|
-        query_params   = query.query_params.split("|")
+    unless alarm_queries.blank?
+      alarm_queries.each do |alarm_query|
+        query_params   = alarm_query.query_params.split("|")
         params         = {}
         query_params.each do |param|
           params[:"#{param.split('=')[0]}"] = param.split('=')[1]
         end
         tea_id      = params[:tea_id]
-        rrd_file    = find(:all, :conditions => ['id LIKE ?', "#{query.rrd_id}"]).first.file_name
+        rrd_file    = find(:all, :conditions => ['id LIKE ?', "#{alarm_query.rrd_id}"]).first.file_name
         image_file  = rrd_file.gsub(".rrd", ".png")
         school_name = Rollcall::School.find_by_tea_id(tea_id).display_name.gsub(" ", "_")
         graph_title = "Absenteeism Rate for #{school_name}"
         unless params[:symptoms].blank?
           graph_title = "Absenteeism Rate for #{school_name} based on #{params[:symptoms]}"
         end
-        #self.graph rrd_file, image_file, graph_title, params
         rrd_image_path = Dir.pwd << "/public/rrd/"
         File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
         self.send_later(:graph, rrd_file, image_file, graph_title, params)
@@ -110,7 +109,7 @@ class Rollcall::Rrd < Rollcall::Base
 
   # Dev Note: All Date times must be in UTC format for rrd
   def self.graph rrd_file, image_file, graph_title, params
-    test_data_date = Time.gm(2010, "aug", 31)
+    test_data_date = Time.gm(2010, "sep", 01,0,0)
     rrd_image_path = Dir.pwd << "/public/rrd/"
     rrd_path       = Dir.pwd << "/rrd/"
     rrd_tool       = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
@@ -273,7 +272,7 @@ class Rollcall::Rrd < Rollcall::Base
         parsed_date    = Time.parse(conditions[:startdt])
         rrd_start_date = Time.gm(parsed_date.year,parsed_date.month,parsed_date.day) - 1.day
       else
-        rrd_start_date = Time.gm(2010, "aug", 31) - 1.day
+        rrd_start_date = Time.gm(2010, "sep", 01,0,0) - 1.day
       end
 
       RRD.create "#{rrd_path}#{filename}.rrd",
@@ -308,13 +307,16 @@ class Rollcall::Rrd < Rollcall::Base
       } , "#{rrd_tool}"
 
       school_id  = Rollcall::School.find_by_tea_id(tea_id).id
-      unless conditions[:startdt].blank? && conditions[:enddt].blank?
+      if !conditions[:startdt].blank?
         parsed_sd  = Time.parse(conditions[:startdt])
-        parsed_ed  = Time.parse(conditions[:enddt])
         start_date = Time.gm(parsed_sd.year,parsed_sd.month,parsed_sd.day)
+      else
+        start_date = Time.gm(2010, "sep", 01,0,0)
+      end
+      if !conditions[:enddt].blank?
+        parsed_ed  = Time.parse(conditions[:enddt])
         end_date   = Time.gm(parsed_ed.year,parsed_ed.month,parsed_ed.day)
       else
-        start_date = Time.gm(2010, "aug", 31)
         end_date   = Time.gm(Time.now.year, Time.now.month, Time.now.day)
       end
       days           = ((end_date - start_date) / 86400)

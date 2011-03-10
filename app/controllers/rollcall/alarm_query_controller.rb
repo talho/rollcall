@@ -1,21 +1,21 @@
-class Rollcall::SavedQueryController < Rollcall::RollcallAppController
+class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
   helper :rollcall
   before_filter :rollcall_required
 
   def index
-    saved_queries      = current_user.saved_queries(params)
-    saved_query_graphs = Rollcall::Rrd.render_saved_graphs saved_queries
+    alarm_queries      = current_user.alarm_queries(params)
+    alarm_query_graphs = Rollcall::Rrd.render_alarm_graphs alarm_queries
     respond_to do |format|
       format.json do
         original_included_root = ActiveRecord::Base.include_root_in_json
         ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :success       => true,
-          :total_results => saved_query_graphs[:image_urls].length,
+          :total_results => alarm_query_graphs[:image_urls].length,
           :results       => {
             :id            => 1,
-            :saved_queries => saved_queries,
-            :img_urls      => saved_query_graphs,
+            :alarm_queries => alarm_queries,
+            :img_urls      => alarm_query_graphs,
           }.as_json
         }
         ActiveRecord::Base.include_root_in_json = original_included_root
@@ -24,10 +24,10 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
   end
 
   def create
-    saved_result = Rollcall::SavedQuery.create(
-      :name                => params[:query_name],
+    saved_result = Rollcall::AlarmQuery.create(
+      :name                => params[:alarm_query_name],
       :user_id             => current_user.id,
-      :query_params        => params[:query_params],
+      :query_params        => params[:alarm_query_params],
       :severity_min        => params[:severity_min],
       :severity_max        => params[:severity_max],
       :deviation_min       => params[:deviation_min],
@@ -45,14 +45,14 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
   end
 
   def update
-    query     = Rollcall::SavedQuery.find(params[:id])
+    query     = Rollcall::AlarmQuery.find(params[:id])
     alarm_set = params[:alarm_set].blank? ? query.alarm_set : params[:alarm_set]
     unless params[:alarm_set].blank?
       success = query.update_attributes :alarm_set => alarm_set
     else
       success = query.update_attributes(
-        :name                => params[:query_name],
-        :query_params        => params[:query_params],
+        :name                => params[:alarm_query_name],
+        :query_params        => params[:alarm_query_params],
         :severity_min        => params[:severity_min],
         :severity_max        => params[:severity_max],
         :deviation_min       => params[:deviation_min],
@@ -71,11 +71,11 @@ class Rollcall::SavedQueryController < Rollcall::RollcallAppController
   end
 
   def destroy
-    query   = Rollcall::SavedQuery.find(params[:id])
+    alarm_query = Rollcall::AlarmQuery.find(params[:id])
     respond_to do |format|
       format.json do
         render :json => {
-          :success => query.destroy
+          :success => alarm_query.destroy
         }
       end
     end

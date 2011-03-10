@@ -47,11 +47,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
   writeGraphs: function(store)
   {
-    var tea_id           = null;
-    var graphImageConfig = null;
-    var result_obj       = null;
     var leftColumn       = this.getComponent('leftColumn');
     var rightColumn      = this.getComponent('rightColumn');
+    var storeBaseParams  = store.baseParams;
     rightColumn.items.each(function(item){
       if(!item.pinned) rightColumn.remove(item.id, true);
     });
@@ -61,10 +59,11 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
 
     Ext.each(store.getRange(), function(school_record,i){
-      var school = school_record.json; // TODO
-      tea_id           = school.tea_id;
-      school_name      = school.display_name;
-      graphImageConfig = {
+      var school           = school_record.json; // TODO
+      var tea_id           = school.tea_id;
+      var school_name      = school.display_name;
+      var result_obj       = null;
+      var graphImageConfig = {
         title:       'Query Result for '+school_name,
         style:       'margin:5px',
         tea_id:      tea_id,
@@ -76,28 +75,22 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         tools: [{
           id:      'pin',
           qtip:    'Pin This Graph',
-          handler: function(e, targetEl, panel, tc)
-          {
-            targetEl.toggleClass('x-tool-pin');
-            targetEl.toggleClass('x-tool-unpin');
-            if(targetEl.hasClass('x-tool-unpin')) panel.pinned = true;
-            else panel.pinned = false;
-          }
+          handler: this.pinGraph
         },{
-          id:      'gear',
+          id:      'gis',
           qtip:    'Show School on Google Map',
           handler: this.showOnGoogleMap
         },{
           id:      'save',
-          qtip:    'Save Query',
+          qtip:    'Save As Alarm',
           scope:   this,
           handler: function(e, targetEl, panel, tc)
           {
-            this.showSaveQueryConsole(store.baseParams, panel.tea_id, panel.school_name, panel.r_id, panel);
+            this.showAlarmQueryConsole(storeBaseParams, panel.tea_id, panel.school_name, panel.r_id, panel);
           }
         },{
           id:      'down',
-          qtip:    'Export Query Result',
+          qtip:    'Export Result',
           handler: this.exportResult
         },{
           id:      'close',
@@ -226,7 +219,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     return this._getResultStore();
   },
 
-  showSaveQueryConsole: function(queryParams, tea_id, school_name, r_id, result_panel)
+  showAlarmQueryConsole: function(queryParams, tea_id, school_name, r_id, result_panel)
   {
     var params       = new Array();
     var storedParams = new Ext.data.ArrayStore({
@@ -255,26 +248,26 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       constrain:    true,
 	    renderTo:     'adst_container',
       closeAction:  'close',
-      title:        'Save Query for '+school_name,
+      title:        'Alarm Query for '+school_name,
       plain:        true,
       result_panel: result_panel,
       r_id:         r_id,
       items: [{
         xtype:      'form',
-        id:         'savedQueryForm',
-        url:        '/rollcall/save_query',
+        id:         'alarmQueryForm',
+        url:        '/rollcall/alarm_query',
         border:     false,
         baseParams: {
           authenticity_token: FORM_AUTH_TOKEN,
-          query_params: param_string,
-          r_id:         r_id,
-          tea_id:       tea_id
+          alarm_query_params: param_string,
+          r_id:               r_id,
+          tea_id:             tea_id
         },
         items:[{
           xtype:         'textfield',
           labelStyle:    'margin: 10px 0px 0px 5px',
-          fieldLabel:    'Query Name',
-          id:            'query_name',
+          fieldLabel:    'Alarm Query Name',
+          id:            'alarm_query_name',
           minLengthText: 'The minimum length for this field is 3',
           blankText:     "This field is required.",
           minLength:     3,
@@ -447,7 +440,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       buttonAlign: 'right',
       buttons: [{
         text:    'Submit',
-        handler: this.submitSavedQuery
+        handler: this.submitAlarmQueryForm
       },{
         text: 'Close',
         handler: function(buttonEl, eventObj){
@@ -464,7 +457,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     return String(thumb.value) + '%';
   },
 
-  submitSavedQuery: function(buttonEl, eventObj)
+  submitAlarmQueryForm: function(buttonEl, eventObj)
   {
     var obj_options = {
       result_panel: this.ownerCt.ownerCt.result_panel
@@ -474,13 +467,13 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         r_id: this.ownerCt.ownerCt.r_id
       }
     }
-    this.ownerCt.ownerCt.getComponent('savedQueryForm').getForm().on('actioncomplete', function(){
+    this.ownerCt.ownerCt.getComponent('alarmQueryForm').getForm().on('actioncomplete', function(){
       var adst_panel = obj_options.result_panel.ownerCt.ownerCt.ownerCt.ownerCt;
-      adst_panel.getComponent('saved_queries').getComponent('portalId_south').updateSavedQueries(update_params);
+      adst_panel.getComponent('alarm_queries').getComponent('portalId_south').updateAlarmQueries(update_params);
       this.hide();
       this.destroy();
     }, this.ownerCt.ownerCt, obj_options);
-    this.ownerCt.ownerCt.getComponent('savedQueryForm').getForm().submit();
+    this.ownerCt.ownerCt.getComponent('alarmQueryForm').getForm().submit();
   },
 
   changeTextField: function(obj, new_number, old_number)
@@ -514,5 +507,14 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       item.disconnect();
     });
     this.providers = new Array();
+  },
+
+  pinGraph: function(e, targetEl, panel, tc)
+  {
+    targetEl.findParent('div.x-panel-tl', 50, true).toggleClass('x-panel-pinned')
+    targetEl.toggleClass('x-tool-pin');
+    targetEl.toggleClass('x-tool-unpin');
+    if(targetEl.hasClass('x-tool-unpin')) panel.pinned = true;
+    else panel.pinned = false;
   }
 });

@@ -138,16 +138,14 @@ namespace :rollcall do
       end
 
       rrd_path = Dir.pwd << "/rrd/"
-      rrd_tool = if File.exist?(doc_yml = RAILS_ROOT+"/config/rrdtool.yml")
+      rrd_tool = if File.exist?(doc_yml = RAILS_ROOT+"/vendor/plugins/rollcall/config/rrdtool.yml")
         YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
       else
         "rrdtool"
       end
       #Change current_time to desired test range to best suite your environment
-      #current_time      = Time.now
       current_time      = Time.gm(Time.now.year, Time.now.month, Time.now.day)
-      #begin_time        = Time.parse("09/01/2010")
-      begin_time        = Time.gm(2010, "sep", 01)
+      begin_time        = Time.gm(2010,"sep",01,0,0)
       days_to_traverse  = ((current_time - begin_time) / 86400).to_i
 
       Rollcall::SchoolDistrict.all.each do |district|
@@ -162,7 +160,7 @@ namespace :rollcall do
             sim_result   = SeedRollcallData.simulate_outbreak illness, sim_result[1], name, report_date
             total_absent = sim_result[0]
             school       = Rollcall::School.find_by_tea_id(name)
-            if(i == 0)
+            if(i == days_to_traverse.to_i)
               RRD.update "#{rrd_path}#{name}_absenteeism.rrd",[report_date.to_i.to_s,0,total_enrolled],"#{rrd_tool}"
             end
             if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
@@ -178,9 +176,8 @@ namespace :rollcall do
               SeedRollcallData.do_student_daily_info result,illness
               SeedRollcallData.do_symptom_recording  result,illness
             end
-            if(i == days_to_traverse.to_i)
-              report_date = report_date + 1.day
-              RRD.update "#{rrd_path}#{name}_absenteeism.rrd",[(report_date + 1.day).to_i.to_s,0,total_enrolled],"#{rrd_tool}"
+            if(i == 0)
+              RRD.update "#{rrd_path}#{name}_absenteeism.rrd",[(report_date + 2.days).to_i.to_s,0,total_enrolled],"#{rrd_tool}"
             end
             if sim_result[1] == 0
               if illness == 'flu' || illness == 'pox' || illness == 'strep'

@@ -13,17 +13,17 @@
 .ux-result-graph-container{
   text-align: center;
 }
-.ux-saved-graphs{
+.ux-alarm-graphs{
   top: -5px;
   margin-right: 5px;
   margin-bottom: 5px;
 
 }
-.ux-saved-graph-container{
+.ux-alarm-graph-container{
   text-align:center;
   height:80px;
 }
-.ux-saved-graphs img{
+.ux-alarm-graphs img{
   width: 400px;
   height: 80px;
 }
@@ -31,11 +31,11 @@
   width:32px !important;
   height:32px !important;
 }
-.ux-empty-saved-query-container{
+.ux-empty-alarm-query-container{
   background: url(images/saved_query_icon_ext.png) no-repeat;
   height: 80px; 
 }
-.ux-empty-saved-query-container p{
+.ux-empty-alarm-query-container p{
   padding-left:90px;
   padding-top: 25px;
   font-size: 2em;
@@ -85,6 +85,16 @@
   width: 15px !important;
   height: 15px !important;
 }
+.x-tool-gis{
+  background:url(images/tool-globe.png) 0px 1px no-repeat !important;
+  width: 12px !important;
+  height: 12px !important;
+}
+.x-tool-gis-off{
+  background:url(images/globe1-off.png) 0px 0px no-repeat !important;
+  width: 12px !important;
+  height: 12px !important;
+}
 .base-line-check{
   clear:both;
   position: relative;
@@ -127,4 +137,13 @@
 .x-tbar-gis{
  background: url(images/globe1.png) 0px 0px no-repeat;
  padding-left: 22px;
+}
+
+.x-panel-pinned .x-panel-tr,
+.x-panel-pinned{
+  background-image: url(images/pinned-corners-sprite.gif) !important;
+}
+
+.x-panel-pinned .x-panel-tc{
+  background-image: url(images/pinned-top-bottom.gif) !important;
 }

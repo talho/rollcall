@@ -1,6 +1,6 @@
 class CreateStudentReportedSymptoms < ActiveRecord::Migration
   def self.up
-    create_table :rollcall_student_reported_symptoms, :id => false do |t|
+    create_table :rollcall_student_reported_symptoms do |t|
       t.integer :symptom_id
       t.integer :student_daily_info_id
     end

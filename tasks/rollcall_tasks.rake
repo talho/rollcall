@@ -43,39 +43,39 @@ namespace :rollcall do
           day_count   += 1
           if illness == 'flu' || illness == 'pox' || illness == 'strep'
             if day_count <= 2
-              total_absent = (1..3).to_a[rand((1..3).to_a.length)]
+              total_absent = (5..10).to_a[rand((5..10).to_a.length)]
             elsif day_count >= 3 && day_count < 5
-              total_absent = (3..4).to_a[rand((3..4).to_a.length)]
+              total_absent = (11..21).to_a[rand((11..21).to_a.length)]
             elsif day_count >= 5 && day_count < 14
-              total_absent = (5..7).to_a[rand((5..7).to_a.length)]
+              total_absent = (22..45).to_a[rand((22..45).to_a.length)]
             elsif day_count >= 14 && day_count < 16
-              total_absent = (1..3).to_a[rand((1..3).to_a.length)]
+              total_absent = (25..15).to_a[rand((25..15).to_a.length)]
             elsif day_count >= 16
               day_count    = 0
-              total_absent = (0..1).to_a[rand((0..1).to_a.length)]
+              total_absent = (2..10).to_a[rand((2..10).to_a.length)]
             end
           elsif illness == 'cold'
             if day_count <= 2
-              total_absent = (1..2).to_a[rand((1..2).to_a.length)]
+              total_absent = (3..10).to_a[rand((3..8).to_a.length)]
             elsif day_count >= 3 && day_count < 6
-              total_absent = (1..3).to_a[rand((1..3).to_a.length)]
+              total_absent = (15..25).to_a[rand((10..20).to_a.length)]
             elsif day_count >= 6 && day_count < 7
-              total_absent = (1..2).to_a[rand((1..2).to_a.length)]
+              total_absent = (25..15).to_a[rand((25..35).to_a.length)]
             elsif day_count >= 7
               day_count    = 0
-              total_absent = (0..1).to_a[rand((0..1).to_a.length)]
+              total_absent = (5..10).to_a[rand((5..10).to_a.length)]
             end
           elsif illness == 'event'
             if day_count == 1
-              total_absent = (4..15).to_a[rand((4..15).to_a.length)]
+              total_absent = (20..50).to_a[rand((20..50).to_a.length)]
             else
               day_count    = 0
-              total_absent = (1..4).to_a[rand((1..4).to_a.length)]
+              total_absent = (5..10).to_a[rand((5..10).to_a.length)]
             end
           else
             if day_count == 1
               day_count    = 0
-              total_absent = (0..3).to_a[rand((0..3).to_a.length)]
+              total_absent = (0..20).to_a[rand((0..20).to_a.length)]
             end
           end
           puts "Generating #{illness} outbreak on day #{day_count}, report date #{report_date}, for school #{tea_id}"
@@ -150,7 +150,7 @@ namespace :rollcall do
 
       Rollcall::SchoolDistrict.all.each do |district|
         (district.schools.map(&:tea_id)).compact.each do |name|
-          total_enrolled          = (1..3).to_a[rand((1..3).to_a.length)] * 100
+          total_enrolled          = (2..6).to_a[rand((2..6).to_a.length)] * 100
           school_illness_outbreak = ['flu','pox','strep','cold','event','none']
           illness                 = school_illness_outbreak[rand(school_illness_outbreak.length)]
           sim_result              = [0, 0]

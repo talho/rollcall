@@ -18,21 +18,29 @@
 
 class Rollcall::School < Rollcall::Base
   belongs_to :district, :class_name => "Rollcall::SchoolDistrict", :foreign_key => "district_id"
-  has_many :absentee_reports, :class_name => "Rollcall::AbsenteeReport"
+  has_many :school_daily_infos, :class_name => "Rollcall::SchoolDailyInfo"
+  has_many :student_daily_infos, :class_name => "Rollcall::StudentDailyInfo"
+  has_many :alarms, :class_name => "Rollcall::Alarm"
 
   before_create :set_display_name
   default_scope :order => "display_name"
 
-  named_scope :with_alerts,
+  named_scope :in_alert,
               :select     => "distinct schools.*",
-              :include    => :absentee_reports,
-              :conditions => ["(rollcall_absentee_reports.absent / rollcall_absentee_reports.enrolled) >= 0.11 AND rollcall_absentee_reports.report_date >= ?", 30.days.ago],
-              :order      => "(rollcall_absentee_reports.absent/rollcall_absentee_reports.enrolled) desc"
+              :include    => :school_daily_infos,
+              :conditions => ["(rollcall_school_daily_infos.total_absent / rollcall_school_daily_infos.total_enrolled)
+                              >= 0.10 AND rollcall_school_daily_infos.report_date >= ?", 30.days.ago],
+              :order      => "(rollcall_school_daily_infos.total_absent/rollcall_school_daily_infos.total_enrolled) desc"
+
+  named_scope :with_alarms,
+              :select     => "distinct schools.*",
+              :include    => :alarms,
+              :conditions => ["rollcall_alarms.school_id = rollcall_schools.id"]
 
   set_table_name "rollcall_schools"
 
   def average_absence_rate(date=nil)
-    date = Date.today if date.nil?
+    date      = Date.today if date.nil?
     absentees = rollcall_absentee_reports.for_date(date).map do |report|
       unless report.enrolled.blank?
         report.absent.to_f/report.enrolled.to_f

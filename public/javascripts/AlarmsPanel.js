@@ -209,7 +209,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
           root:        'student_info',
           fields:      [
             {name:'id',                type:'int'},
-            {name:'school_name',       type:'int'},
+            {name:'school_name',       type:'string'},
             {name:'report_date',       renderer: Ext.util.Format.dateRenderer('m-d-Y')},
             {name:'age',               type:'int'},
             {name:'dob',               renderer: Ext.util.Format.dateRenderer('m-d-Y')},

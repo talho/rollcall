@@ -267,7 +267,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
         items:[{
           xtype:'textfield',
           labelStyle: 'margin: 10px 0px 0px 5px',
-          fieldLabel: 'Alarm Query Name',
+          fieldLabel: 'Name',
           value: alarm_query_title,
           id: 'alarm_query_name',
           allowBlank: false,

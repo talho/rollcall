@@ -44,5 +44,27 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
       end
     end
   end
-  
+
+  def get_school_data
+    school             = Rollcall::School.find_by_tea_id(params[:tea_id])
+    time_span          = params[:time_span].to_i * 10
+    student_daily_info = school.student_daily_infos.find(:all,:conditions => ["report_date >= ?", Time.now - time_span.days])
+    school_daily_info  = school.school_daily_infos.find(:all, :conditions => ["report_date >= ?", Time.now - time_span.days])
+
+
+    respond_to do |format|
+      format.json do
+        original_included_root = ActiveRecord::Base.include_root_in_json
+        ActiveRecord::Base.include_root_in_json = false
+        render :json => {
+          :success => true,
+          :results => {
+            :school_daily_infos  => school_daily_info,
+            :student_daily_infos => student_daily_info
+          }
+        }
+        ActiveRecord::Base.include_root_in_json = original_included_root
+      end
+    end
+  end
 end

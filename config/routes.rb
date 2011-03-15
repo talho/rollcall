@@ -8,4 +8,5 @@ ActionController::Routing::Routes.draw do |map|
   map.export "/rollcall/export", :controller => "rollcall/adst", :action => "export"
   map.activate_alarm "/rollcall/alarm/:alarm_query_id", :controller => "rollcall/alarm", :action => "create"
   map.get_schools "/rollcall/get_schools", :controller => "rollcall/school", :action => "get_schools"
+  map.get_school_data "/rollcall/get_school_data", :controller => "rollcall/school", :action => "get_school_data"
 end

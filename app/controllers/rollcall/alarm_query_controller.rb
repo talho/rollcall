@@ -3,19 +3,24 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
   before_filter :rollcall_required
 
   def index
-    alarm_queries      = current_user.alarm_queries(params)
-    alarm_query_graphs = Rollcall::Rrd.render_alarm_graphs alarm_queries
+    alarm_queries = current_user.alarm_queries(params).collect { |aq|
+      aq_attrs = aq.attributes
+      aq_attrs["query_params"] =~ /tea_id=(\d+)/
+      aq_attrs["school_name"] = Rollcall::School.find_by_tea_id($1).display_name
+      aq_attrs
+    }
+    #alarm_query_graphs = Rollcall::Rrd.render_alarm_graphs alarm_queries
     respond_to do |format|
       format.json do
         original_included_root = ActiveRecord::Base.include_root_in_json
         ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :success       => true,
-          :total_results => alarm_query_graphs[:image_urls].length,
+          :total_results => alarm_queries.length,
           :results       => {
             :id            => 1,
             :alarm_queries => alarm_queries,
-            :img_urls      => alarm_query_graphs,
+            #:img_urls      => alarm_query_graphs,
           }.as_json
         }
         ActiveRecord::Base.include_root_in_json = original_included_root
@@ -33,6 +38,8 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
       :deviation_min       => params[:deviation_min],
       :deviation_max       => params[:deviation_max],
       :rrd_id              => params[:r_id],
+# TODO:
+      #:rrd_id              => Rollcall::School.find_by_display_name(params[:school]).rrd_id,
       :alarm_set           => false
     )
     respond_to do |format|

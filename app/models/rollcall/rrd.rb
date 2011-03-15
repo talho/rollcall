@@ -24,7 +24,12 @@ class Rollcall::Rrd < Rollcall::Base
       rrd_image_path = Dir.pwd << "/public/rrd/"
       results        = find(:all, :conditions => ['file_name LIKE ?', "#{some_file_name}.rrd"]).first
       school_name    = school.display_name.gsub(" ", "_")
-      graph_title    = "Absenteeism Rate for #{school_name}"
+      if conditions[:confirmed_illness].blank?
+        graph_title    = "Gross Absenteeism Rate for #{school_name}"
+      else
+        graph_title    = "Confirmed Absenteeism Rate for #{school_name}" 
+      end
+
       unless params[:symptoms].blank?
         if params[:symptoms].index("...").blank?
           graph_title = "Absenteeism Rate for #{school_name} based on #{params[:symptoms]}"
@@ -215,13 +220,18 @@ class Rollcall::Rrd < Rollcall::Base
 
   def self.build_elements options
     elements       = []
-    school_color   = get_random_color   
+    school_color   = get_random_color
+    if options[:absent] == "Confirmed+Illness"
+      absent_text = "Total Confirmed Absent"
+    else
+      absent_text = "Total Gross Absent"
+    end 
     if options[:data_func] == "Standard+Deviation"
       elements.push({
         :key     => 'a',
         :element => "AREA",
         :color   => school_color,
-        :text    => "Total Absent"
+        :text    => absent_text
       })
       school_color = get_random_color
       elements.push({
@@ -236,7 +246,7 @@ class Rollcall::Rrd < Rollcall::Base
           :key     => 'a',
           :element => "AREA",
           :color   => school_color,
-          :text    => "Total Absent"
+          :text    => absent_text
         })
         school_color = get_random_color
         elements.push({
@@ -250,7 +260,7 @@ class Rollcall::Rrd < Rollcall::Base
           :key     => 'a',
           :element => "AREA",
           :color   => school_color,
-          :text    => "Total Absent"
+          :text    => absent_text
         })
       end
     end

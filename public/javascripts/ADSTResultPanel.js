@@ -129,22 +129,96 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
             '<td><b>School Type:</b></td>',
             '<td><span>{school_type}</span></td>',
           '</tr>',
+          '<tr>',
+            '<td><b>School Daily Info (3 months):</b></td>',
+            '<td><span>&nbsp;</span></td>',
+          '</tr>',
         '</table>',
       '</tpl>');
-    var gmapPanel = new Ext.ux.GMapPanel({zoomLevel: 14, width: 450, height: 450});
+    var html_pad  = '<table class="alarm-tip-table"><tr><td><b>Student Daily Info (3 months):</b></td>'+
+                    '<td><span>&nbsp;</span></td></tr></table>';
+    var gmapPanel = new Ext.ux.GMapPanel({zoomLevel: 12, width: 325, height: 270});
+    var school_grid_panel = new Ext.grid.GridPanel({
+      forceLayout: true,
+      scope:       this,
+      height: 100,
+      viewConfig:  {
+        forceFit: true
+      },
+      store: new Ext.data.JsonStore({
+        autoDestroy: true,
+        autoSave:    true,
+        autLoad:     false,
+        root:        'school_daily_infos',
+        fields:      [
+          {name:'id',                type:'int'},
+          {name:'school_id',         type:'int'},
+          {name:'report_date',       renderer: Ext.util.Format.dateRenderer('m-d-Y')},
+          {name:'total_absent',      type:'int'},
+          {name:'total_enrolled',    type:'int'}
+        ]
+      }),
+      columns: [
+        {header: 'Absent',      sortable: true,  dataIndex: 'total_absent'},
+        {header: 'Enrolled',    sortable: true,  dataIndex: 'total_enrolled'},
+        {header: 'Report Date', sortable: true,  dataIndex: 'report_date'}
+      ],
+      stripeRows:  true,
+      stateful:    true
+    });
+    var student_grid_panel = new Ext.grid.GridPanel({
+      forceLayout: true,
+      scope:       this,
+      height: 100,
+      viewConfig:  {
+        forceFit: true
+      },
+      store: new Ext.data.JsonStore({
+        autoDestroy: true,
+        autoSave:    true,
+        autLoad:     false,
+        root:        'student_daily_infos',
+        fields:      [
+          {name:'id',                type:'int'},
+          {name:'age',               type:'int'},
+          {name:'confirmed_illness', type:'bool'},
+          {name:'gender',            type:'string'},
+          {name:'grade',             type:'int'},
+          {name:'school_id',         type:'int'},
+          {name:'report_date',       renderer: Ext.util.Format.dateRenderer('m-d-Y')}
+        ]
+      }),
+      columns: [
+        {header: 'Age',           sortable: true,  dataIndex: 'age'},
+        {header: 'Gender',        sortable: true,  dataIndex: 'gender'},
+        {header: 'Grade',         sortable: true,  dataIndex: 'grade'},
+        {header: 'Confirmed', sortable: true,  dataIndex: 'confirmed_illness'},
+        {header: 'Report Date',   sortable: true,  dataIndex: 'report_date'},
+      ],
+      stripeRows:  true,
+      stateful:    true
+    });
     var win = new Ext.Window({
       title: "Google Map for '" + panel.school_name + "'",
-      layout: 'hbox', layoutConfig: {height: 450},
+      layout: 'fit',
       labelAlign: 'top',
       padding: '5',
-      width: 650,
-      items: [
-        {xtype: 'container', html: sch_info_tpl.applyTemplate(panel.school)},
-        gmapPanel
-      ]
+      width: 350,
+      height: 625,
+      items: [{
+        xtype: 'container',
+        layout: 'vbox',
+        items: [
+          {xtype: 'container', html: sch_info_tpl.applyTemplate(panel.school)},
+          school_grid_panel,
+          {xtype:'container', html: html_pad},
+          student_grid_panel,
+          {xtype:'spacer', height: '10'},
+          gmapPanel]
+      }]
     });
     win.addButton({xtype: 'button', text: 'Dismiss', handler: function(){ win.close(); }, scope: this, width:'auto'});
-    gmapPanel.addListener("mapready", function(){
+    gmapPanel.addListener("mapready", function(obj){
       var loc = new google.maps.LatLng(panel.school.gmap_lat, panel.school.gmap_lng);
       gmapPanel.gmap.setCenter(loc);
       var addr_elems = panel.school.gmap_addr.split(",");
@@ -161,6 +235,26 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           this.info_popup.open(gmapPanel.gmap, this);
         }
       });
+    });
+    win.addListener("afterrender", function(obj){
+      Ext.Ajax.request({
+        url:     '/rollcall/get_school_data',
+        method:  'POST',
+        headers: {'Accept': 'application/json'},
+        scope:   obj,
+        params:  {
+          tea_id:    panel.tea_id,
+          time_span: 3
+        },
+        success: function(response, options)
+        {
+          jsonObj = Ext.decode(response.responseText).results;
+          school_grid_panel.store.loadData(jsonObj);
+          student_grid_panel.store.loadData(jsonObj);
+          this.doLayout();
+        }
+      });
+
     });
     win.show();
   },
@@ -263,7 +357,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         items:[{
           xtype:         'textfield',
           labelStyle:    'margin: 10px 0px 0px 5px',
-          fieldLabel:    'Alarm Query Name',
+          fieldLabel:    'Name',
           id:            'alarm_query_name',
           minLengthText: 'The minimum length for this field is 3',
           blankText:     "This field is required.",

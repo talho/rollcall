@@ -35,7 +35,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           region:     'south',
           height:     130,
           minSize:    130,
-          maxSize:    300,
+          maxSize:    180,
           autoScroll: true,
           layout:     'fit',
           items:      new Talho.Rollcall.AlarmQueriesPanel({})

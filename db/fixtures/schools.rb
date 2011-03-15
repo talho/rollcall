@@ -5,6 +5,7 @@ def build_rrd(identifier)
   rrd_tool = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
 
   rrd_start_date = Time.gm(2010,"sep",01,0,0) - 1.day
+  File.delete("#{rrd_path}#{identifier}_absenteeism.rrd") if File.exist?("#{rrd_path}#{identifier}_absenteeism.rrd")
   RRD.create("#{rrd_path}#{identifier}_absenteeism.rrd",
     {
       :step  => 24.hours.seconds,

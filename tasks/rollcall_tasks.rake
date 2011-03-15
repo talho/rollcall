@@ -49,7 +49,7 @@ namespace :rollcall do
             elsif day_count >= 5 && day_count < 14
               total_absent = (22..45).to_a[rand((22..45).to_a.length)]
             elsif day_count >= 14 && day_count < 16
-              total_absent = (25..15).to_a[rand((25..15).to_a.length)]
+              total_absent = (15..25).to_a[rand((15..25).to_a.length)]
             elsif day_count >= 16
               day_count    = 0
               total_absent = (2..10).to_a[rand((2..10).to_a.length)]
@@ -60,7 +60,7 @@ namespace :rollcall do
             elsif day_count >= 3 && day_count < 6
               total_absent = (15..25).to_a[rand((10..20).to_a.length)]
             elsif day_count >= 6 && day_count < 7
-              total_absent = (25..15).to_a[rand((25..35).to_a.length)]
+              total_absent = (25..35).to_a[rand((25..35).to_a.length)]
             elsif day_count >= 7
               day_count    = 0
               total_absent = (5..10).to_a[rand((5..10).to_a.length)]

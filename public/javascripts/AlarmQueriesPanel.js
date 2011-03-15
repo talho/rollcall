@@ -52,7 +52,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           }
         });
         result_obj = column_obj.add({
-          cls: 'ux-alarm-graphs',
+          cls: 'ux-alarm-thumbnails',
           html: '<div class="ux-empty-alarm-query-container"><p>There are no alarm queries.</p></div>'
         });
       }else{
@@ -63,6 +63,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           param_config = {
             alarm_query_id:      record[i].data.alarm_queries[cnt].id,
             alarm_query_title:   record[i].data.alarm_queries[cnt].name,
+            school_name:         record[i].data.alarm_queries[cnt].school_name,
             alarm_query_params:  record[i].data.alarm_queries[cnt].query_params,
             severity_min:        record[i].data.alarm_queries[cnt].severity_min,
             severity_max:        record[i].data.alarm_queries[cnt].severity_max,
@@ -77,7 +78,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
             alarm_id = 'alarm-off';
           }
           column_obj = this.add({
-            columnWidth: .25,
+            //columnWidth: .25,
             listeners:{
               scope: this
             }
@@ -86,8 +87,8 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
             title: param_config.alarm_query_title,
             param_config: param_config,
             scope: this,
-            img_url: record[i].data.img_urls.image_urls[cnt],
-            polling_id: cnt,
+            //img_url: record[i].data.img_urls.image_urls[cnt],
+            //polling_id: cnt,
             collapsible: false,
             draggable: false,
             tools: [{
@@ -108,10 +109,16 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
               scope: this,
               handler: this.deleteAlarmQuery
             }],
-            cls: 'ux-alarm-graphs',
-            html: '<div class="ux-alarm-graph-container"><img class="ux-ajax-loader" src="/images/Ajax-loader.gif" /></div>'
+            cls: 'ux-alarm-thumbnails',
+            //html: '<div class="ux-alarm-graph-container"><img class="ux-ajax-loader" src="/images/Ajax-loader.gif" /></div>'
+            html: '<div class="ux-alarm-tn-container">' +
+                  '<b>School:</b> ' + param_config.school_name + '<br>' +
+                  '<b>Severity:</b> ' + param_config.severity_min + ' - ' + param_config.severity_max + '<br>' +
+                  '<b>Deviation:</b> ' + param_config.deviation_min + ' - ' + param_config.deviation_max +
+                  '</div>'
           });
-          this.ownerCt.ownerCt.ownerCt.renderGraphs(cnt, record[i].data.img_urls.image_urls[cnt], result_obj, 'ux-alarm-graph-container');
+          // TODO:
+          //this.ownerCt.ownerCt.ownerCt.renderGraphs(cnt, record[i].data.img_urls.image_urls[cnt], result_obj, 'ux-alarm-graph-container');
         }
       }
 
@@ -215,6 +222,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
     var param_string        = '';
     var tea_id              = null;
     var alarm_query_title   = panel.param_config.alarm_query_title;
+    var school_name         = panel.param_config.school_name;
     var alarm_query_params  = panel.param_config.alarm_query_params;
     var severity_min        = panel.param_config.severity_min;
     var severity_max        = panel.param_config.severity_max;
@@ -244,7 +252,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
 
     var alarm_console = new Ext.Window({
       layout:'fit',
-      width: 300,
+      width: 350,
       autoHeight:true,
       modal: true,
       constrain: true,
@@ -278,7 +286,22 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
             marginTop: '10px',
             marginBottom: '5px'
           }
-        },{
+        },new Talho.Rollcall.ux.ComboBox({
+          labelStyle: 'margin: 10px 0px 0px 5px',
+          fieldLabel: 'School Name',
+          emptyText:'Select School...',
+          allowBlank: true,
+          name: 'school',
+          displayField: 'display_name',
+          value: school_name,
+          mode: 'local',
+          store: new Ext.data.JsonStore({
+            autoLoad: true,
+            url: '/rollcall/get_schools_for_combobox',
+            root: 'results',
+            fields: ['id', 'display_name']
+          })
+        }),{
           xtype: 'fieldset',
           title: 'Absentee Rate Deviation',
           style:{

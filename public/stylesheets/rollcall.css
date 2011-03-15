@@ -13,19 +13,14 @@
 .ux-result-graph-container{
   text-align: center;
 }
-.ux-alarm-graphs{
+.ux-alarm-thumbnails{
   top: -5px;
   margin-right: 5px;
   margin-bottom: 5px;
 
 }
-.ux-alarm-graph-container{
-  text-align:center;
-  height:80px;
-}
-.ux-alarm-graphs img{
-  width: 400px;
-  height: 80px;
+.ux-alarm-tn-container{
+  text-align:left;
 }
 .ux-ajax-loader{
   width:32px !important;
@@ -33,11 +28,9 @@
 }
 .ux-empty-alarm-query-container{
   background: url(images/saved_query_icon_ext.png) no-repeat;
-  height: 80px; 
 }
 .ux-empty-alarm-query-container p{
-  padding-left:90px;
-  padding-top: 25px;
+  padding:25px 90px;
   font-size: 2em;
 }
 .clear{

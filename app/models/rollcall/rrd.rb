@@ -134,7 +134,7 @@ class Rollcall::Rrd < Rollcall::Base
         :height     => 120,
         :image_type => "PNG",
         :title      => graph_title,
-        :vlabel     => "percent absent",
+        :vlabel     => "total absent",
         :lowerlimit => 0,
         :defs       => build_defs(params),
         :cdefs      => build_cdefs(params),

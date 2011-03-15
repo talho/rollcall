@@ -131,22 +131,20 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           '</tr>',
         '</table>',
       '</tpl>');
-    var gmapPanel = new Ext.ux.GMapPanel({zoomLevel: 14});
+    var gmapPanel = new Ext.ux.GMapPanel({zoomLevel: 14, width: 450, height: 450});
     var win = new Ext.Window({
       title: "Google Map for '" + panel.school_name + "'",
-      layout: 'fit',
+      layout: 'hbox', layoutConfig: {height: 450},
       labelAlign: 'top',
       padding: '5',
-      width: 510, height: 450,
+      width: 650,
       items: [
-        {xtype: 'container', layout: 'hbox', items: [
-          {xtype: 'container', html: sch_info_tpl.applyTemplate(panel.school)},
-          gmapPanel
-        ]}
+        {xtype: 'container', html: sch_info_tpl.applyTemplate(panel.school)},
+        gmapPanel
       ]
     });
     win.addButton({xtype: 'button', text: 'Dismiss', handler: function(){ win.close(); }, scope: this, width:'auto'});
-    win.addListener("afterrender", function(){
+    gmapPanel.addListener("mapready", function(){
       var loc = new google.maps.LatLng(panel.school.gmap_lat, panel.school.gmap_lng);
       gmapPanel.gmap.setCenter(loc);
       var addr_elems = panel.school.gmap_addr.split(",");
@@ -242,7 +240,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
     var alarm_console = new Ext.Window({
       layout:       'fit',
-      width:        300,
+      width:        350,
       autoHeight:   true,
       modal:        true,
       constrain:    true,
@@ -260,8 +258,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         baseParams: {
           authenticity_token: FORM_AUTH_TOKEN,
           alarm_query_params: param_string,
-          r_id:               r_id,
-          tea_id:             tea_id
+          r_id:               r_id
         },
         items:[{
           xtype:         'textfield',
@@ -276,7 +273,22 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
             marginTop:    '10px',
             marginBottom: '5px'
           }
-        },{
+        },new Talho.Rollcall.ux.ComboBox({
+          labelStyle: 'margin: 10px 0px 0px 5px',
+          fieldLabel: 'School Name',
+          emptyText:'Select School...',
+          allowBlank: true,
+          name: 'school',
+          displayField: 'display_name',
+          value: school_name,
+          mode: 'local',
+          store: new Ext.data.JsonStore({
+            autoLoad: true,
+            url: '/rollcall/get_schools_for_combobox',
+            root: 'results',
+            fields: ['id', 'display_name']
+          })
+        }),{
           xtype: 'fieldset',
           title: 'Absentee Rate Deviation',
           style: {

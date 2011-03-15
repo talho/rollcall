@@ -43,10 +43,10 @@ class Rollcall::SchoolDistrict < Rollcall::Base
   end
 
   def zipcodes
-    schools.find(:all, :select => "DISTINCT postal_code", :order => "postal_code").map(&:postal_code)
+    schools.find(:all, :select => "DISTINCT postal_code, display_name", :order => "postal_code").map(&:postal_code)
   end
 
   def school_types
-    schools.find(:all, :select => "DISTINCT school_type", :order => "school_type").map(&:school_type)
+    schools.find(:all, :select => "DISTINCT school_type, display_name", :order => "school_type").map(&:school_type)
   end
 end

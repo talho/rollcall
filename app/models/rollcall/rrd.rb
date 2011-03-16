@@ -14,43 +14,41 @@ class Rollcall::Rrd < Rollcall::Base
   belongs_to :school, :class_name => "Rollcall::School"
   set_table_name "rollcall_rrds"
 
-  def self.render_graphs(params, schools)
+  def self.render_graphs(params, school)
     conditions = set_conditions params
 
-    return [] if schools.blank?
-    schools.collect do |school|
-      tea_id         = school.tea_id
-      filename       = "#{tea_id}_absenteeism"
-      some_file_name = set_filename conditions, filename
-      image_file     = "#{some_file_name}.png"
-      rrd_image_path = Dir.pwd << "/public/rrd/"
-      results        = find(:all, :conditions => ['file_name LIKE ?', "#{some_file_name}.rrd"]).first
-      school_name    = school.display_name.gsub(" ", "_")
-      if conditions[:confirmed_illness].blank?
-        graph_title    = "Gross Absenteeism Rate for #{school_name}"
-      else
-        graph_title    = "Confirmed Absenteeism Rate for #{school_name}" 
-      end
-
-      unless params[:symptoms].blank?
-        if params[:symptoms].index("...").blank?
-          graph_title = "Absenteeism Rate for #{school_name} based on #{params[:symptoms]}"
-        end
-      end
-      if results.blank?
-        create_results = create :file_name => "#{some_file_name}.rrd"
-        rrd_id         = create_results.id
-        rrd_file       = create_results.file_name
-        self.send_later(:reduce_rrd, params, tea_id, conditions, some_file_name, rrd_file, rrd_image_path, image_file, graph_title)
-      else
-        rrd_id         = results.id
-        rrd_file       = results.file_name
-        File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
-        self.send_later(:graph, rrd_file, image_file, graph_title, params)
-      end
-
-      { "image_url" => "/rrd/#{image_file}", "rrd_id" => rrd_id }
+    return [] if school.blank?
+    tea_id         = school.tea_id
+    filename       = "#{tea_id}_absenteeism"
+    some_file_name = set_filename conditions, filename
+    image_file     = "#{some_file_name}.png"
+    rrd_image_path = Dir.pwd << "/public/rrd/"
+    results        = find(:all, :conditions => ['file_name LIKE ?', "#{some_file_name}.rrd"]).first
+    school_name    = school.display_name.gsub(" ", "_")
+    if conditions[:confirmed_illness].blank?
+      graph_title    = "Gross Absenteeism Rate for #{school_name}"
+    else
+      graph_title    = "Confirmed Absenteeism Rate for #{school_name}"
     end
+
+    unless params[:symptoms].blank?
+      if params[:symptoms].index("...").blank?
+        graph_title = "Absenteeism Rate for #{school_name} based on #{params[:symptoms]}"
+      end
+    end
+    if results.blank?
+      create_results = create :file_name => "#{some_file_name}.rrd"
+      rrd_id         = create_results.id
+      rrd_file       = create_results.file_name
+      self.send_later(:reduce_rrd, params, tea_id, conditions, some_file_name, rrd_file, rrd_image_path, image_file, graph_title)
+    else
+      rrd_id         = results.id
+      rrd_file       = results.file_name
+      File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
+      self.send_later(:graph, rrd_file, image_file, graph_title, params)
+    end
+
+    { "image_url" => "/rrd/#{image_file}", "rrd_id" => rrd_id }
   end
 
   def self.render_alarm_graphs alarm_queries

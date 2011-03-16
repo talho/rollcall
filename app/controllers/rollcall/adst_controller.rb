@@ -6,8 +6,11 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     schools       = Rollcall::School.search(params)
     options       = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
     schools_paged = schools.paginate(options)
+    rrd_info = Array.new
+    schools_paged.each do |school|
+      rrd_info.push(Rollcall::Rrd.render_graphs(params, school))
+    end
 
-    rrd_info = Rollcall::Rrd.render_graphs(params, schools_paged)
     schools_with_rrd = Array.new
     schools_paged.each_index { |i|
       schools_with_rrd.push(schools_paged[i].attributes.merge(rrd_info[i]))

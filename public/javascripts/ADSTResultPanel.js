@@ -80,8 +80,8 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           handler: this.pinGraph
         },{
           id:      'gis',
-          qtip:    'Show School on Google Map',
-          handler: this.showOnGoogleMap
+          qtip:    'Show School Profile',
+          handler: this.showSchoolProfile
         },{
           id:      'save',
           qtip:    'Save As Alarm',
@@ -118,9 +118,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     panel.ownerCt.remove(panel, true);
   },
 
-  showOnGoogleMap: function(e, targetEl, panel, tc)
+  showSchoolProfile: function(e, targetEl, panel, tc)
   {
-    var html_pad          = '<table class="alarm-tip-table"><tr><td><b>Student Daily Info (3 months):</b></td>'+
+    var html_pad          = '<table class="alarm-tip-table"><tr><td><b>Student Daily Info:</b></td>'+
                             '<td><span>&nbsp;</span></td></tr></table>';
     var gmapPanel         = new Ext.ux.GMapPanel({zoomLevel: 12, width: 325, height: 270});
     var sch_info_tpl      = new Ext.XTemplate(
@@ -135,7 +135,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
             '<td><span>{school_type}</span></td>',
           '</tr>',
           '<tr>',
-            '<td><b>School Daily Info (3 months):</b></td>',
+            '<td><b>School Daily Info:</b></td>',
             '<td><span>&nbsp;</span></td>',
           '</tr>',
         '</table>',
@@ -200,8 +200,38 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       stripeRows:  true,
       stateful:    true
     });
+    var school_radio_group = new Ext.form.RadioGroup({
+      fieldLabel: 'School Daily Info',
+      id: 'school_radio_group',
+      items: [
+          {boxLabel: '1 month',  name: 'school_time', value: 1, checked: true},
+          {boxLabel: '2 months', name: 'school_time', value: 2},
+          {boxLabel: '3 months', name: 'school_time', value: 3}
+      ],
+      scope: this
+    });
+    var student_radio_group = new Ext.form.RadioGroup({
+      fieldLabel: 'Student Daily Info',
+      id: 'student_radio_group',
+      items: [
+          {boxLabel: '1 month',  name: 'student_time', value: 1, checked: true},
+          {boxLabel: '2 months', name: 'student_time', value: 2},
+          {boxLabel: '3 months', name: 'student_time', value: 3}
+      ],
+      scope: this
+    });
+    school_radio_group.addListener("change", function(group, chkd_radio )
+      {
+        panel.ownerCt.ownerCt.getSchoolData(chkd_radio.value, win, panel, school_grid_panel, 'school');
+      }
+    );
+    student_radio_group.addListener("change", function(group, chkd_radio )
+      {
+        panel.ownerCt.ownerCt.getSchoolData(chkd_radio.value, win, panel, student_grid_panel, 'student');
+      }
+    );
     var win = new Ext.Window({
-      title:      "Google Map for '" + panel.school_name + "'",
+      title:      "School Profile for '" + panel.school_name + "'",
       layout:     'fit',
       labelAlign: 'top',
       padding:    '5',
@@ -212,11 +242,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         layout: 'vbox',
         items: [
           {xtype: 'container', html: sch_info_tpl.applyTemplate(panel.school)},
-          school_grid_panel,
+          school_radio_group, school_grid_panel,
           {xtype:'container', html: html_pad},
-          student_grid_panel,
-          {xtype:'spacer', height: '10'},
-          gmapPanel]
+          student_radio_group, student_grid_panel, gmapPanel]
       }]
     });
     win.addButton({xtype: 'button', text: 'Dismiss', handler: function(){ win.close(); }, scope: this, width:'auto'});
@@ -239,26 +267,34 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       });
     });
     win.addListener("afterrender", function(obj){
-      Ext.Ajax.request({
-        url:     '/rollcall/get_school_data',
-        method:  'POST',
-        headers: {'Accept': 'application/json'},
-        scope:   obj,
-        params:  {
-          tea_id:    panel.tea_id,
-          time_span: 3
-        },
-        success: function(response, options)
-        {
-          jsonObj = Ext.decode(response.responseText).results;
-          school_grid_panel.store.loadData(jsonObj);
-          student_grid_panel.store.loadData(jsonObj);
-          this.doLayout();
-        }
-      });
+      panel.ownerCt.ownerCt.getSchoolData(1, obj, panel, school_grid_panel, 'school');
+      panel.ownerCt.ownerCt.getSchoolData(1, obj, panel, student_grid_panel, 'student');
 
     });
     win.show();
+  },
+
+  getSchoolData: function(month, win_obj, main_panel, grid_panel, type)
+  {
+    var grid_mask = new Ext.LoadMask(grid_panel.getEl(), {msg:"Please wait...", removeMask: true});
+    grid_mask.show();
+    Ext.Ajax.request({
+      url:     '/rollcall/get_'+type+'_data',
+      method:  'POST',
+      headers: {'Accept': 'application/json'},
+      scope:   win_obj,
+      params:  {
+        tea_id:    main_panel.tea_id,
+        time_span: month
+      },
+      success: function(response, options)
+      {
+        jsonObj = Ext.decode(response.responseText).results;
+        grid_panel.store.loadData(jsonObj);
+        this.doLayout();
+        grid_mask.hide();
+      }
+    });
   },
 
   exportResult: function(e, targetEl, panel, tc)

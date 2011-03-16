@@ -295,7 +295,6 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
             marginBottom: '5px'
           }
         },new Talho.Rollcall.ux.ComboBox({
-         // xtype: 'combo',
           labelStyle: 'margin: 10px 0px 0px 5px',
           fieldLabel: 'School Name',
           emptyText:'Select School...',
@@ -305,7 +304,15 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           displayField: 'display_name',
           value: school_name,
           mode: 'local',
-          store: schools
+          store: schools//,
+//          listeners:{
+//            change: function(obj, newValue, oldValue)
+//            {
+//              obj.ownerCt.params({
+//                school_id:
+//              });
+//            }
+//          }
         }),{
           xtype: 'fieldset',
           title: 'Absentee Rate Deviation',

@@ -5,11 +5,13 @@
 #  id                 :integer(4)      not null, primary key
 #  alarm_query_id     :integer(4)      foreign key
 #  file_name          :string(255)
+#  school_id          :integer
 #  created_at         :datetime
 #  updated_at         :datetime
 #
 
 class Rollcall::Rrd < Rollcall::Base
+  belongs_to :school, :class_name => "Rollcall::School"
   set_table_name "rollcall_rrds"
 
   def self.render_graphs(params, schools)

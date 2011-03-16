@@ -22,6 +22,7 @@ class Rollcall::School < Rollcall::Base
   has_many :student_daily_infos, :class_name => "Rollcall::StudentDailyInfo"
   has_many :alarms, :class_name => "Rollcall::Alarm"
   has_many :alarm_queries, :class_name => "Rollcall::AlarmQuery"
+  has_many :rrds, :class_name => "Rollcall::Rrd"
   before_create :set_display_name
   #default_scope :order => "display_name"
 

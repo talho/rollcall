@@ -14,6 +14,8 @@ class Rollcall::Rrd < Rollcall::Base
   belongs_to :school, :class_name => "Rollcall::School"
   set_table_name "rollcall_rrds"
 
+  validates_presence_of :school_id, :file_name
+
   def self.render_graphs(params, school)
     conditions = set_conditions params
 
@@ -37,10 +39,11 @@ class Rollcall::Rrd < Rollcall::Base
       end
     end
     if results.blank?
-      create_results = create :file_name => "#{some_file_name}.rrd"
+      school_id      = Rollcall::School.find_by_tea_id(tea_id).id
+      create_results = create :file_name => "#{some_file_name}.rrd", :school_id => school_id
       rrd_id         = create_results.id
       rrd_file       = create_results.file_name
-      self.send_later(:reduce_rrd, params, tea_id, conditions, some_file_name, rrd_file, rrd_image_path, image_file, graph_title)
+      self.send_later(:reduce_rrd, params, school_id, conditions, some_file_name, rrd_file, rrd_image_path, image_file, graph_title)
     else
       rrd_id         = results.id
       rrd_file       = results.file_name
@@ -274,7 +277,7 @@ class Rollcall::Rrd < Rollcall::Base
     return elements
   end
 
-  def self.reduce_rrd params, tea_id, conditions, filename, rrd_file, rrd_image_path, image_file, graph_title
+  def self.reduce_rrd params, school_id, conditions, filename, rrd_file, rrd_image_path, image_file, graph_title
     rrd_path = Dir.pwd << "/rrd/"
     unless conditions.blank?
       rrd_tool = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
@@ -316,7 +319,6 @@ class Rollcall::Rrd < Rollcall::Base
         }]
       } , "#{rrd_tool}"
 
-      school_id  = Rollcall::School.find_by_tea_id(tea_id).id
       if !conditions[:startdt].blank?
         parsed_sd  = Time.parse(conditions[:startdt])
         start_date = Time.gm(parsed_sd.year,parsed_sd.month,parsed_sd.day)

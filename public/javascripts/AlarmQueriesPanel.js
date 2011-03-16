@@ -237,11 +237,6 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
         fields: ['field', 'value'],
         idIndex: 0
     });
-    var raw_school_array = Ext.getCmp('rollcall_adst').init_store.getAt(6).get('schools');
-    var schools          = new Array();
-    for(var s = 0; s < raw_school_array.length; s++){
-      schools[s] = [raw_school_array[s].id, raw_school_array[s].display_name];
-    }
 
     alarm_query_params = alarm_query_params.split("|");
 
@@ -301,18 +296,10 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           allowBlank: true,
           name: 'school',
           width: 150,
-          displayField: 'display_name',
           value: school_name,
           mode: 'local',
-          store: schools//,
-//          listeners:{
-//            change: function(obj, newValue, oldValue)
-//            {
-//              obj.ownerCt.params({
-//                school_id:
-//              });
-//            }
-//          }
+          displayField: 'display_name',
+          store: new Ext.data.JsonStore({fields: ['id', 'display_name'], data: Ext.getCmp('rollcall_adst').init_store.getAt(0).get('schools')})
         }),{
           xtype: 'fieldset',
           title: 'Absentee Rate Deviation',

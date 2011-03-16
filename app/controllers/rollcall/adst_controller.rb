@@ -122,22 +122,19 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       {:id => 13,:value => '12th Grade'}
     ]
     symptoms       = Rollcall::Symptom.find(:all)
-    data_functions = if params[:type] == 'simple' || params[:type].blank?
-      [
-        {:id => 0, :value => 'Raw'},
-        {:id => 1, :value => 'Average'},
-        {:id => 2, :value => 'Standard Deviation'}
-      ]
-    elsif params[:type] == 'advanced'
-      [
-        {:id => 0, :value => 'Raw'},
-        {:id => 1, :value => 'Average'},
-        {:id => 2, :value => 'Moving Average 30 Day'},
-        {:id => 3, :value => 'Moving Average 60 Day'},
-        {:id => 4, :value => 'Standard Deviation'},
-        {:id => 5, :value => 'Cusum'}
-      ]
-    end
+    data_functions = [
+      {:id => 0, :value => 'Raw'},
+      {:id => 1, :value => 'Average'},
+      {:id => 2, :value => 'Standard Deviation'}
+    ]
+    data_functions_adv = [
+      {:id => 0, :value => 'Raw'},
+      {:id => 1, :value => 'Average'},
+      {:id => 2, :value => 'Moving Average 30 Day'},
+      {:id => 3, :value => 'Moving Average 60 Day'},
+      {:id => 4, :value => 'Standard Deviation'},
+      {:id => 5, :value => 'Cusum'}
+    ]
 
     schools      = current_user.schools(:order => "display_name")
     zipcodes     = current_user.school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
@@ -148,17 +145,18 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
         original_included_root = ActiveRecord::Base.include_root_in_json
         ActiveRecord::Base.include_root_in_json = false
         render :json => {
-          :options => [
-            {:absenteeism    => absenteeism.as_json},
-            {:age            => age.as_json},
-            {:data_functions => data_functions.as_json},
-            {:gender         => gender.as_json},
-            {:grade          => grade.as_json},
-            {:school_type    => school_types.as_json},
-            {:schools        => schools.as_json},
-            {:symptoms       => symptoms.as_json},
-            {:zipcode        => zipcodes.as_json}
-          ]
+          :options => [{
+            :absenteeism        => absenteeism,
+            :age                => age,
+            :data_functions     => data_functions,
+            :data_functions_adv => data_functions_adv,
+            :gender             => gender,
+            :grade              => grade,
+            :school_type        => school_types,
+            :schools            => schools,
+            :symptoms           => symptoms,
+            :zipcode            => zipcodes
+          }]
         }
         ActiveRecord::Base.include_root_in_json = original_included_root
       end

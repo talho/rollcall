@@ -61,6 +61,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     Ext.each(store.getRange(), function(school_record,i){
       var school           = school_record.json; // TODO
       var tea_id           = school.tea_id;
+      var school_id        = school.id;
       var school_name      = school.display_name;
       var result_obj       = null;
       var graphImageConfig = {
@@ -70,6 +71,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         school:      school,
         school_name: school.display_name,
         r_id:        school.rrd_id,
+        school_id:   school_id,
         collapsible: false,
         pinned:      false,
         tools: [{
@@ -86,7 +88,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           scope:   this,
           handler: function(e, targetEl, panel, tc)
           {
-            this.showAlarmQueryConsole(storeBaseParams, panel.tea_id, panel.school_name, panel.r_id, panel);
+            this.showAlarmQueryConsole(storeBaseParams, panel.school_id, panel.tea_id, panel.school_name, panel.r_id, panel);
           }
         },{
           id:      'down',
@@ -311,7 +313,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     return this._getResultStore();
   },
 
-  showAlarmQueryConsole: function(queryParams, tea_id, school_name, r_id, result_panel)
+  showAlarmQueryConsole: function(queryParams, school_id, tea_id, school_name, r_id, result_panel)
   {
     var params       = new Array();
     var storedParams = new Ext.data.ArrayStore({
@@ -352,7 +354,8 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         baseParams: {
           authenticity_token: FORM_AUTH_TOKEN,
           alarm_query_params: param_string,
-          r_id:               r_id
+          r_id:               r_id,
+          school_id:          school_id
         },
         items:[{
           xtype:         'textfield',

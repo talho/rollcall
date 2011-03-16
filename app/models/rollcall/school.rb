@@ -17,11 +17,11 @@
 #
 
 class Rollcall::School < Rollcall::Base
-  belongs_to :district, :class_name => "Rollcall::SchoolDistrict", :foreign_key => "district_id"
+  belongs_to :district, :class_name => "Rollcall::SchoolDistrict"
   has_many :school_daily_infos, :class_name => "Rollcall::SchoolDailyInfo"
   has_many :student_daily_infos, :class_name => "Rollcall::StudentDailyInfo"
   has_many :alarms, :class_name => "Rollcall::Alarm"
-
+  has_many :alarm_queries, :class_name => "Rollcall::AlarmQuery"
   before_create :set_display_name
   #default_scope :order => "display_name"
 

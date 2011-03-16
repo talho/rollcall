@@ -70,6 +70,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
             deviation_min:       record[i].data.alarm_queries[cnt].deviation_min,
             deviation_max:       record[i].data.alarm_queries[cnt].deviation_max,
             r_id:                record[i].data.alarm_queries[cnt].rrd_id,
+            school_id:           record[i].data.alarm_queries[cnt].school_id,
             alarm_set:           record[i].data.alarm_queries[cnt].alarm_set
           };
           if(param_config.alarm_set){
@@ -229,12 +230,18 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
     var deviation_min       = panel.param_config.deviation_min;
     var deviation_max       = panel.param_config.deviation_max;
     var r_id                = panel.param_config.r_id;
+    var school_id           = panel.param_config.school_id;
     var alarm_query_id      = panel.param_config.alarm_query_id;
     var storedParams        = new Ext.data.ArrayStore({
         storeId: 'edit-store',
         fields: ['field', 'value'],
         idIndex: 0
     });
+    var raw_school_array = Ext.getCmp('rollcall_adst').init_store.getAt(6).get('schools');
+    var schools          = new Array();
+    for(var s = 0; s < raw_school_array.length; s++){
+      schools[s] = [raw_school_array[s].id, raw_school_array[s].display_name];
+    }
 
     alarm_query_params = alarm_query_params.split("|");
 
@@ -269,8 +276,9 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
         baseParams:{
           authenticity_token: FORM_AUTH_TOKEN,
           alarm_query_params: param_string,
-          r_id: r_id,
-          tea_id: tea_id
+          r_id:               r_id,
+          tea_id:             tea_id,
+          school_id:          school_id
         },
         items:[{
           xtype:'textfield',
@@ -286,8 +294,8 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
             marginTop: '10px',
             marginBottom: '5px'
           }
-        },{
-          xtype: 'combo',
+        },new Talho.Rollcall.ux.ComboBox({
+         // xtype: 'combo',
           labelStyle: 'margin: 10px 0px 0px 5px',
           fieldLabel: 'School Name',
           emptyText:'Select School...',
@@ -297,8 +305,8 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           displayField: 'display_name',
           value: school_name,
           mode: 'local',
-          store: Ext.getCmp('rollcall_adst').init_store.getAt(6).get('schools')
-        },{
+          store: schools
+        }),{
           xtype: 'fieldset',
           title: 'Absentee Rate Deviation',
           style:{

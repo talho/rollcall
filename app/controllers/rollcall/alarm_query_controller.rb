@@ -38,6 +38,7 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
       :deviation_min       => params[:deviation_min],
       :deviation_max       => params[:deviation_max],
       :rrd_id              => params[:r_id],
+      :school_id           => params[:school_id],
 # TODO:
       #:rrd_id              => Rollcall::School.find_by_display_name(params[:school]).rrd_id,
       :alarm_set           => false
@@ -65,6 +66,7 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
         :deviation_min       => params[:deviation_min],
         :deviation_max       => params[:deviation_max],
         :rrd_id              => params[:r_id],
+        :school_id           => params[:school_id],
         :alarm_set           => alarm_set)
     end   
     query.save if success

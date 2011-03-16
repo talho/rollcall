@@ -4,6 +4,7 @@
 #
 #  id                  :integer(4)      not null, primary key
 #  user_id             :integer(4)
+#  school_id           :integer(4)
 #  query_params        :string(255)
 #  name                :string(255)
 #  severity_min        :integer(4)
@@ -15,9 +16,9 @@
 #
 
 class Rollcall::AlarmQuery < Rollcall::Base
-  belongs_to :user, :class_name => "User", :foreign_key => "user_id"
-  belongs_to :rrd, :class_name => "Rollcall::Rrd", :foreign_key => "rrd_id"
-  
+  belongs_to :user,   :class_name => "User"
+  belongs_to :rrd,    :class_name => "Rollcall::Rrd"
+  belongs_to :school, :class_name => "Rollcall::School"
   set_table_name "rollcall_alarm_queries"
 
   def generate_alarm

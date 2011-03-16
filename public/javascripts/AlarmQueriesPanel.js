@@ -252,7 +252,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
 
     var alarm_console = new Ext.Window({
       layout:'fit',
-      width: 350,
+      width: 300,
       autoHeight:true,
       modal: true,
       constrain: true,
@@ -286,22 +286,19 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
             marginTop: '10px',
             marginBottom: '5px'
           }
-        },new Talho.Rollcall.ux.ComboBox({
+        },{
+          xtype: 'combo',
           labelStyle: 'margin: 10px 0px 0px 5px',
           fieldLabel: 'School Name',
           emptyText:'Select School...',
           allowBlank: true,
           name: 'school',
+          width: 150,
           displayField: 'display_name',
           value: school_name,
           mode: 'local',
-          store: new Ext.data.JsonStore({
-            autoLoad: true,
-            url: '/rollcall/get_schools_for_combobox',
-            root: 'results',
-            fields: ['id', 'display_name']
-          })
-        }),{
+          store: Ext.getCmp('rollcall_adst').init_store.getAt(6).get('schools')
+        },{
           xtype: 'fieldset',
           title: 'Absentee Rate Deviation',
           style:{
@@ -481,7 +478,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
         handler: function(buttonEl, eventObj){
           alarm_console.getComponent('editAlarmQueryForm').getForm().on('actioncomplete', function(){
             south_panel.updateAlarmQueries({params: {alarm_query_id: alarm_query_id}});
-            south_panel.ownerCt.ownerCt.ownerCt.renderGraphs(panel.polling_id, panel.img_url, panel, 'ux-alarm-graph-container');
+            //south_panel.ownerCt.ownerCt.ownerCt.renderGraphs(panel.polling_id, panel.img_url, panel, 'ux-alarm-graph-container');
             panel.hide();
             panel.destroy();
             this.hide();

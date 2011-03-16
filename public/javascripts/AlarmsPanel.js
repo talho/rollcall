@@ -199,6 +199,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
         row_record:  row_record,
         forceLayout: true,
         scope:       this,
+        maxHeight:   150,
         viewConfig:  {
           forceFit: true
         },

@@ -23,7 +23,7 @@ class Rollcall::School < Rollcall::Base
   has_many :alarms, :class_name => "Rollcall::Alarm"
 
   before_create :set_display_name
-  default_scope :order => "display_name"
+  #default_scope :order => "display_name"
 
   named_scope :in_alert,
               :select     => "distinct schools.*",

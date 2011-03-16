@@ -118,7 +118,10 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
   showOnGoogleMap: function(e, targetEl, panel, tc)
   {
-    var sch_info_tpl = new Ext.XTemplate(
+    var html_pad          = '<table class="alarm-tip-table"><tr><td><b>Student Daily Info (3 months):</b></td>'+
+                            '<td><span>&nbsp;</span></td></tr></table>';
+    var gmapPanel         = new Ext.ux.GMapPanel({zoomLevel: 12, width: 325, height: 270});
+    var sch_info_tpl      = new Ext.XTemplate(
       '<tpl for=".">',
         '<table class="alarm-tip-table">',
           '<tr>',
@@ -135,13 +138,10 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           '</tr>',
         '</table>',
       '</tpl>');
-    var html_pad  = '<table class="alarm-tip-table"><tr><td><b>Student Daily Info (3 months):</b></td>'+
-                    '<td><span>&nbsp;</span></td></tr></table>';
-    var gmapPanel = new Ext.ux.GMapPanel({zoomLevel: 12, width: 325, height: 270});
     var school_grid_panel = new Ext.grid.GridPanel({
       forceLayout: true,
       scope:       this,
-      height: 100,
+      height:      100,
       viewConfig:  {
         forceFit: true
       },
@@ -169,7 +169,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     var student_grid_panel = new Ext.grid.GridPanel({
       forceLayout: true,
       scope:       this,
-      height: 100,
+      height:      100,
       viewConfig:  {
         forceFit: true
       },
@@ -199,14 +199,14 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       stateful:    true
     });
     var win = new Ext.Window({
-      title: "Google Map for '" + panel.school_name + "'",
-      layout: 'fit',
+      title:      "Google Map for '" + panel.school_name + "'",
+      layout:     'fit',
       labelAlign: 'top',
-      padding: '5',
-      width: 350,
-      height: 625,
+      padding:    '5',
+      width:      350,
+      height:     625,
       items: [{
-        xtype: 'container',
+        xtype:  'container',
         layout: 'vbox',
         items: [
           {xtype: 'container', html: sch_info_tpl.applyTemplate(panel.school)},
@@ -221,10 +221,10 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     gmapPanel.addListener("mapready", function(obj){
       var loc = new google.maps.LatLng(panel.school.gmap_lat, panel.school.gmap_lng);
       gmapPanel.gmap.setCenter(loc);
-      var addr_elems = panel.school.gmap_addr.split(",");
-      var marker = gmapPanel.addMarker(loc, panel.school.display_name, {});
-      marker.info = "<b>" + panel.school.display_name + "</b><br/>";
-      marker.info += addr_elems[0] + "<br/>" + addr_elems[1] + "<br/>" + addr_elems.slice(2).join(",");
+      var addr_elems    = panel.school.gmap_addr.split(",");
+      var marker        = gmapPanel.addMarker(loc, panel.school.display_name, {});
+      marker.info       = "<b>" + panel.school.display_name + "</b><br/>";
+      marker.info      += addr_elems[0] + "<br/>" + addr_elems[1] + "<br/>" + addr_elems.slice(2).join(",");
       marker.info_popup = null;
       google.maps.event.addListener(marker, 'click', function(){
         if (marker.info_popup) {
@@ -334,7 +334,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
     var alarm_console = new Ext.Window({
       layout:       'fit',
-      width:        350,
+      width:        300,
       autoHeight:   true,
       modal:        true,
       constrain:    true,
@@ -367,22 +367,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
             marginTop:    '10px',
             marginBottom: '5px'
           }
-        },new Talho.Rollcall.ux.ComboBox({
-          labelStyle: 'margin: 10px 0px 0px 5px',
-          fieldLabel: 'School Name',
-          emptyText:'Select School...',
-          allowBlank: true,
-          name: 'school',
-          displayField: 'display_name',
-          value: school_name,
-          mode: 'local',
-          store: new Ext.data.JsonStore({
-            autoLoad: true,
-            url: '/rollcall/get_schools_for_combobox',
-            root: 'results',
-            fields: ['id', 'display_name']
-          })
-        }),{
+        },{
           xtype: 'fieldset',
           title: 'Absentee Rate Deviation',
           style: {

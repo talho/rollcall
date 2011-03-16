@@ -144,9 +144,20 @@ namespace :rollcall do
         "rrdtool"
       end
       #Change current_time to desired test range to best suite your environment
-      current_time      = Time.gm(Time.now.year, Time.now.month, Time.now.day)
-      begin_time        = Time.gm(2010,"sep",01,0,0)
-      days_to_traverse  = ((current_time - begin_time) / 86400).to_i
+      y = Time.now.year
+      m = Time.now.month
+      d = Time.now.day
+      current_time = Time.gm(y, m, d)
+      if !ARGV[1].blank?
+        months_to_generate = ARGV[1].to_i.abs
+        y_begin = y + (m - months_to_generate - 1).div(12)
+        m_begin = (m - months_to_generate - 1) % 12 + 1
+        begin_time = Time.gm(y_begin, m_begin, d)
+      else
+        begin_time = Time.gm(2010,"sep",01,0,0)
+      end
+      days_to_traverse = ((current_time - begin_time) / 86400).to_i
+      puts "Generating data for #{days_to_traverse} days ..."
 
       Rollcall::SchoolDistrict.all.each do |district|
         (district.schools.map(&:tea_id)).compact.each do |name|
@@ -195,8 +206,6 @@ namespace :rollcall do
       end
       #Create School District Daily Infos
       Rollcall::SchoolDistrict.all.each do |district|
-        current_time      = Time.parse(Rollcall::SchoolDailyInfo.find(:last).report_date.to_s)
-        begin_time        = Time.parse("09/01/2010")
         days_to_traverse  = ((current_time - begin_time) / 86400).to_i
         (0..(days_to_traverse - 1)).reverse_each do |i|
           report_date    = current_time - i.days

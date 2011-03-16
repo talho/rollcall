@@ -320,38 +320,10 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       autoLoad: false,
       listeners:{
         scope: form_panel,
-        load:  function(this_store, record)
-        {
-          var simple_config = {};
-          var adv_config    = {};
-          for(var i =0; i < record.length; i++){
-            if(record[i].data.schools != ""){
-              simple_config.schools = adv_config.schools = new Array();
-              for(var s = 0; s < record[i].data.schools.length; s++){
-                simple_config.schools[s] = adv_config.schools[s] = [
-                  record[i].data.schools[s].id, record[i].data.schools[s].display_name
-                ];
-              }
-            }else if(record[i].data.symptoms != ""){
-              simple_config['symptoms'] = adv_config['symptoms'] = new Array();
-              for(var c =0; c< record[i].data.symptoms.length; c++){
-                simple_config.symptoms[c] = adv_config.symptoms[c] = [
-                  record[i].data.symptoms[c].id, record[i].data.symptoms[c].name
-                ];
-              }
-            }else{
-              simple_config[this_store.fields.items[i].name] = adv_config[this_store.fields.items[i].name] = new Array();
-              for(var a = 0; a < record[i].data[this_store.fields.items[i].name].length; a++) {
-                simple_config[this_store.fields.items[i].name][a] = adv_config[
-                  this_store.fields.items[i].name][a] = [record[i].data[this_store.fields.items[i].name][a].id,
-                  record[i].data[this_store.fields.items[i].name][a].value
-                ]
-              }
-            }
-          }
+        load:  function(this_store, records){
           this.ownerCt.show();
-          this.add(new Talho.Rollcall.SimpleADSTContainer(simple_config));
-          this.add(new Talho.Rollcall.AdvancedADSTContainer(adv_config));
+          this.add(new Talho.Rollcall.SimpleADSTContainer({options: records[0].data}));
+          this.add(new Talho.Rollcall.AdvancedADSTContainer({options: records[0].data}));
           this.buttons[0].show();
           this.buttons[1].show();
           this.doLayout();

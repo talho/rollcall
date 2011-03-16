@@ -28,7 +28,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             fieldLabel: 'Absenteeism',
             emptyText:  'Gross',
             id: 'absent_adv',
-            store: config.absenteeism
+            store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.absenteeism})
           })
         },{
           items: new Talho.Rollcall.ux.ComboBox({
@@ -36,7 +36,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             emptyText:     'Select Age...',
             allowBlank: true,
             id: 'age_adv',
-            store: config.age
+            store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.age})
           })
         },{
           items: new Talho.Rollcall.ux.ComboBox({
@@ -44,7 +44,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             emptyText:  'Select Gender...',
             allowBlank: true,
             id: 'gender_adv',
-            store: config.gender
+            store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.gender})
           })
         },{
           items: new Talho.Rollcall.ux.ComboBox({
@@ -52,7 +52,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             emptyText:  'Select Grade...',
             allowBlank: true,
             id: 'grade_adv',
-            store: config.grade
+            store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.grade})
           })
         },{
           items: new Talho.Rollcall.ux.ComboBox({
@@ -60,7 +60,8 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             emptyText:  'Select School...',
             allowBlank: true,
             id: 'school_adv',
-            store: config.schools,
+            displayField: 'display_name',
+            store: new Ext.data.JsonStore({fields: ['id', 'display_name'], data: config.options.schools}),
             listeners:{
               select: function(comboBox, record, index){
                 Ext.getCmp('school_type_adv').clearValue();
@@ -74,7 +75,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             emptyText:  'Select School Type...',
             allowBlank: true,
             id: 'school_type_adv',
-            store: config.school_type,
+            store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.school_type}),
             listeners:{
               select: function(comboBox, record, index){
                 Ext.getCmp('school_adv').clearValue();
@@ -110,7 +111,8 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             emptyText:  'Select Symptom...',
             allowBlank: true,
             id: 'symptoms_adv',
-            store: config.symptoms
+            displayField: 'name',
+            store: new Ext.data.JsonStore({fields: ['id', 'name'], data: config.options.symptoms})
           })
         },{
           items: new Talho.Rollcall.ux.ComboBox({
@@ -118,7 +120,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             emptyText:  'Select Zipcode...',
             allowBlank: true,
             id: 'zip_adv',
-            store: config.zipcode,
+            store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.zipcode}),
             listeners:{
               select: function(comboBox, record, index){
                 Ext.getCmp('school_adv').clearValue();
@@ -131,7 +133,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             fieldLabel: 'Data Function',
             emptyText:  'Raw',
             id: 'data_func_adv',
-            store: config.data_functions
+            store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.data_functions_adv})
           })
         },{
           cls: 'base-line-check',

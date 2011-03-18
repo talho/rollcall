@@ -5,20 +5,20 @@ Talho.Rollcall.SimpleADSTContainer = Ext.extend(Ext.Container, {
   constructor: function(config)
   {
     Ext.applyIf(config, {
-      title: "Simple Query Select",
-      id: "simple_query_select",
-      itemId: "simple_query_select",
-      layout: 'auto',    
-      padding: '0 0 5 5',
-      defaults:{
-        xtype: 'container',
+      title:    "Simple Query Select",
+      id:       "simple_query_select",
+      itemId:   "simple_query_select",
+      layout:   'auto',
+      padding:  '0 0 5 5',
+      defaults: {
+        xtype:  'container',
         layout: 'form',
-        cls: 'ux-layout-auto-float-item',
-        style: {
-          width: 'auto',
+        cls:    'ux-layout-auto-float-item',
+        style:  {
+          width:    'auto',
           minWidth: '200px'
         },
-        defaults:{
+        defaults: {
           width: 200
         }
       },

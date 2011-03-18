@@ -48,7 +48,15 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           minSize:     175,
           maxSize:     400,
           autoScroll:  true,
-          items:       new Talho.Rollcall.ReportsPanel({})
+          items:       new Talho.Rollcall.ReportsPanel({}),
+          bbar:[{
+            text:    'Create',
+            iconCls: 'documents-add-icon',
+            handler: function(btn,event)
+            {
+              this.ownerCt.ownerCt.getComponent('report_panel').load_report_window();  
+            }
+          }]
         },{
           title:     'Alarms',
           region:    'west',

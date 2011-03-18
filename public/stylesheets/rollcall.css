@@ -140,3 +140,7 @@
 .x-panel-pinned .x-panel-tc{
   background-image: url(images/pinned-top-bottom.gif) !important;
 }
+.x-add {
+  background: url(/images/add.png) no-repeat scroll 0 0 transparent !important;
+  padding-left: 20px !important;  
+}

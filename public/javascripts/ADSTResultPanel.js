@@ -194,7 +194,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         {header: 'Age',           sortable: true,  dataIndex: 'age'},
         {header: 'Gender',        sortable: true,  dataIndex: 'gender'},
         {header: 'Grade',         sortable: true,  dataIndex: 'grade'},
-        {header: 'Confirmed', sortable: true,  dataIndex: 'confirmed_illness'},
+        {header: 'Confirmed',     sortable: true,  dataIndex: 'confirmed_illness'},
         {header: 'Report Date',   sortable: true,  dataIndex: 'report_date'},
       ],
       stripeRows:  true,
@@ -202,7 +202,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
     var school_radio_group = new Ext.form.RadioGroup({
       fieldLabel: 'School Daily Info',
-      id: 'school_radio_group',
+      id:         'school_radio_group',
       items: [
           {boxLabel: '1 month',  name: 'school_time', value: 1, checked: true},
           {boxLabel: '2 months', name: 'school_time', value: 2},
@@ -212,7 +212,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
     var student_radio_group = new Ext.form.RadioGroup({
       fieldLabel: 'Student Daily Info',
-      id: 'student_radio_group',
+      id:         'student_radio_group',
       items: [
           {boxLabel: '1 month',  name: 'student_time', value: 1, checked: true},
           {boxLabel: '2 months', name: 'student_time', value: 2},

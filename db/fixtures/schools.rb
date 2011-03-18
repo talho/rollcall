@@ -70,7 +70,7 @@ FasterCSV.open(File.dirname(__FILE__) + '/schools.csv', :headers => true) do |sc
     end
     build_rrd(school.tea_id)
     Rollcall::Rrd.find_or_create_by_file_name(
-      :file_name => "#{school.tea_id}_absenteeism.rrd"  
+      :file_name => "#{school.tea_id}_absenteeism.rrd", :school_id => row["school_id"].strip
     )
   end
 end

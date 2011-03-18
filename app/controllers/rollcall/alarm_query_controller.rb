@@ -5,8 +5,7 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
   def index
     alarm_queries = current_user.alarm_queries(params).collect { |aq|
       aq_attrs = aq.attributes
-      aq_attrs["query_params"] =~ /tea_id=(\d+)/
-      aq_attrs["school_name"] = Rollcall::School.find_by_tea_id($1).display_name
+      aq_attrs["school_name"] = Rollcall::School.find(aq.school_id).display_name
       aq_attrs
     }
     #alarm_query_graphs = Rollcall::Rrd.render_alarm_graphs alarm_queries
@@ -29,6 +28,9 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
   end
 
   def create
+    school = Rollcall::School.find(params[:school_id])
+    rrd_info = Rollcall::Rrd.render_graphs(ActiveSupport::JSON.decode(params[:alarm_query_params]), school)
+
     saved_result = Rollcall::AlarmQuery.create(
       :name                => params[:alarm_query_name],
       :user_id             => current_user.id,
@@ -37,10 +39,8 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
       :severity_max        => params[:severity_max],
       :deviation_min       => params[:deviation_min],
       :deviation_max       => params[:deviation_max],
-      :rrd_id              => params[:r_id],
+      :rrd_id              => rrd_info["rrd_id"],
       :school_id           => params[:school_id],
-# TODO:
-      #:rrd_id              => Rollcall::School.find_by_display_name(params[:school]).rrd_id,
       :alarm_set           => false
     )
     respond_to do |format|
@@ -53,6 +53,9 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
   end
 
   def update
+    school = Rollcall::School.find(params[:school_id])
+    rrd_info = Rollcall::Rrd.render_graphs(ActiveSupport::JSON.decode(params[:alarm_query_params]), school)
+
     query     = Rollcall::AlarmQuery.find(params[:id])
     alarm_set = params[:alarm_set].blank? ? query.alarm_set : params[:alarm_set]
     unless params[:alarm_set].blank?
@@ -65,7 +68,7 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
         :severity_max        => params[:severity_max],
         :deviation_min       => params[:deviation_min],
         :deviation_max       => params[:deviation_max],
-        :rrd_id              => params[:r_id],
+        :rrd_id              => rrd_info["rrd_id"],
         :school_id           => params[:school_id],
         :alarm_set           => alarm_set)
     end   

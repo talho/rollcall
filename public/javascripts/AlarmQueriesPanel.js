@@ -69,7 +69,6 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
             severity_max:        record[i].data.alarm_queries[cnt].severity_max,
             deviation_min:       record[i].data.alarm_queries[cnt].deviation_min,
             deviation_max:       record[i].data.alarm_queries[cnt].deviation_max,
-            r_id:                record[i].data.alarm_queries[cnt].rrd_id,
             school_id:           record[i].data.alarm_queries[cnt].school_id,
             alarm_set:           record[i].data.alarm_queries[cnt].alarm_set
           };
@@ -221,15 +220,13 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
   {
     var params              = new Array();
     var param_string        = '';
-    var tea_id              = null;
     var alarm_query_title   = panel.param_config.alarm_query_title;
     var school_name         = panel.param_config.school_name;
-    var alarm_query_params  = panel.param_config.alarm_query_params;
+    var alarm_query_params  = Ext.decode(panel.param_config.alarm_query_params);
     var severity_min        = panel.param_config.severity_min;
     var severity_max        = panel.param_config.severity_max;
     var deviation_min       = panel.param_config.deviation_min;
     var deviation_max       = panel.param_config.deviation_max;
-    var r_id                = panel.param_config.r_id;
     var school_id           = panel.param_config.school_id;
     var alarm_query_id      = panel.param_config.alarm_query_id;
     var storedParams        = new Ext.data.ArrayStore({
@@ -238,19 +235,8 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
         idIndex: 0
     });
 
-    alarm_query_params = alarm_query_params.split("|");
-
-    for(var i=0; i<alarm_query_params.length;i++){
-      var key_value = alarm_query_params[i].split("=");
-      if(key_value[0] == "tea_id") tea_id = key_value[1];
-      params.push([key_value[0], key_value[1]]);
-    }
-
+    for(key in alarm_query_params){ params.push([key, alarm_query_params[key]]); }
     storedParams.loadData(params);
-
-    for(key in params){
-      if(key != "remove" && params[key][0] != '') param_string += params[key][0] + '=' + params[key][1] + "|"
-    }
 
     var alarm_console = new Ext.Window({
       layout:'fit',
@@ -268,13 +254,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
         url: '/rollcall/alarm_query/'+alarm_query_id+'.json',
         border: false,
         method: 'PUT',
-        baseParams:{
-          authenticity_token: FORM_AUTH_TOKEN,
-          alarm_query_params: param_string,
-          r_id:               r_id,
-          tea_id:             tea_id,
-          school_id:          school_id
-        },
+        baseParams: {authenticity_token: FORM_AUTH_TOKEN, alarm_query_params: Ext.encode(alarm_query_params), school_id: school_id},
         items:[{
           xtype:'textfield',
           labelStyle: 'margin: 10px 0px 0px 5px',
@@ -294,10 +274,11 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           fieldLabel: 'School Name',
           emptyText:'Select School...',
           allowBlank: true,
-          name: 'school',
           width: 150,
           value: school_name,
           mode: 'local',
+          name: 'school',
+          hiddenName: 'school_id', valueField: 'id', hiddenValue: school_id,
           displayField: 'display_name',
           store: new Ext.data.JsonStore({fields: ['id', 'display_name'], data: Ext.getCmp('rollcall_adst').init_store.getAt(0).get('schools')})
         }),{

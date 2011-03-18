@@ -36,25 +36,22 @@ class Rollcall::AlarmQuery < Rollcall::Base
     # clear previous alarms and before generating new ones
     Rollcall::Alarm.find_all_by_alarm_query_id(id).each { |a| a.destroy }
 
+    query_params = ActiveSupport::JSON.decode(params[:alarm_query_params])
+
     return_success   = false
     begin
       data_set       = []
-      params         = {}
-      query_params.split("|").each do |param|
-        params[:"#{param.split('=')[0]}"] = param.split('=')[1]
-      end
       test_data_date = Time.parse("09/01/2010")
-      start_date     = params[:startdt].blank? ? test_data_date : Time.parse(params[:startdt])
-      end_date       = params[:enddt].blank? ? Time.now : Time.parse(params[:enddt]) + 1.day
+      start_date     = query_params[:startdt].blank? ? test_data_date : Time.parse(query_params[:startdt])
+      end_date       = query_params[:enddt].blank? ? Time.now : Time.parse(query_params[:enddt]) + 1.day
       lock_date      = end_date - 1.month
-      tea_id         = params[:tea_id]
-      school_id      = Rollcall::School.find_by_tea_id(tea_id).id
+      school_id      = Rollcall::School.find(params[:school_id])
       days           = ((end_date - start_date) / 86400)
       total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
       alarm_count    = 0
       (0..days).each do |i|
         report_date  = (end_date - i.days).strftime("%Y-%m-%d")
-        if params[:absent] == "Gross"
+        if query_params[:absent] == "Gross"
           student_info = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(school_id, report_date)
         else
           student_info = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(school_id, report_date, true)

@@ -62,7 +62,7 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
   end
 
   def get_school_data
-    school             = Rollcall::School.find_by_tea_id(params[:tea_id])
+    school             = Rollcall::School.find(params[:school_id])
     time_span          = params[:time_span].to_i * 10
     school_daily_info  = school.school_daily_infos.find(:all, :conditions => ["report_date >= ?", Time.now - time_span.days])
 
@@ -83,7 +83,7 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
   end
 
   def get_student_data
-    school             = Rollcall::School.find_by_tea_id(params[:tea_id])
+    school             = Rollcall::School.find(params[:school_id])
     time_span          = params[:time_span].to_i * 10
     student_daily_info = school.student_daily_infos.find(:all,:conditions => ["report_date >= ?", Time.now - time_span.days])
 

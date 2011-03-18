@@ -26,9 +26,9 @@ module Rollcall
         alarm_queries.push(alarm_query)
       else
         unless options[:r_id].blank?
-          alarm_queries = Rollcall::AlarmQuery.find_all_by_user_id_and_rrd_id(id, options[:r_id])
+          alarm_queries = Rollcall::AlarmQuery.find_all_by_user_id_and_rrd_id(id, options[:r_id], :order => "name")
         else
-          alarm_queries = Rollcall::AlarmQuery.find_all_by_user_id(id)
+          alarm_queries = Rollcall::AlarmQuery.find_all_by_user_id(id, :order => "name")
         end
       end
       alarm_queries

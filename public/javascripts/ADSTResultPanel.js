@@ -49,7 +49,6 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   {
     var leftColumn       = this.getComponent('leftColumn');
     var rightColumn      = this.getComponent('rightColumn');
-    var storeBaseParams  = store.baseParams;
     rightColumn.items.each(function(item){
       if(!item.pinned) rightColumn.remove(item.id, true);
     });
@@ -60,17 +59,14 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
     Ext.each(store.getRange(), function(school_record,i){
       var school           = school_record.json; // TODO
-      var tea_id           = school.tea_id;
       var school_id        = school.id;
       var school_name      = school.display_name;
       var result_obj       = null;
       var graphImageConfig = {
         title:       'Query Result for '+school_name,
         style:       'margin:5px',
-        tea_id:      tea_id,
         school:      school,
         school_name: school.display_name,
-        r_id:        school.rrd_id,
         school_id:   school_id,
         collapsible: false,
         pinned:      false,
@@ -88,7 +84,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           scope:   this,
           handler: function(e, targetEl, panel, tc)
           {
-            this.showAlarmQueryConsole(storeBaseParams, panel.school_id, panel.tea_id, panel.school_name, panel.r_id, panel);
+            this.showAlarmQueryConsole(panel.school_id, panel.school_name, panel);
           }
         },{
           id:      'down',
@@ -284,7 +280,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       headers: {'Accept': 'application/json'},
       scope:   win_obj,
       params:  {
-        tea_id:    main_panel.tea_id,
+        school_id: main_panel.school_id,
         time_span: month
       },
       success: function(response, options)
@@ -349,7 +345,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     return this._getResultStore();
   },
 
-  showAlarmQueryConsole: function(queryParams, school_id, tea_id, school_name, r_id, result_panel)
+  showAlarmQueryConsole: function(school_id, school_name, result_panel)
   {
     var params       = new Array();
     var storedParams = new Ext.data.ArrayStore({
@@ -357,18 +353,15 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       fields:  ['field', 'value'],
       idIndex: 0
     });
-    
-    for(key in queryParams){
-      if(queryParams[key].indexOf("...") == -1 && key != "authenticity_token") params.push([key, queryParams[key]]);
+
+    baseParams = this._getResultStore().baseParams;
+    queryParams = {};
+    for(key in baseParams){
+      if(baseParams[key].indexOf("...") == -1 && key != "authenticity_token") queryParams[key] = baseParams[key];
     }
-    params.push(['tea_id', tea_id]);
+    for(key in queryParams){ params.push([key, queryParams[key]]); }
+
     storedParams.loadData(params);
-
-    param_string = '';
-
-    for(key in params){
-      if(key != "remove") param_string += params[key][0] + '=' + params[key][1] + "|"
-    }
 
     var alarm_console = new Ext.Window({
       layout:       'fit',
@@ -381,18 +374,12 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       title:        'Alarm Query for '+school_name,
       plain:        true,
       result_panel: result_panel,
-      r_id:         r_id,
       items: [{
         xtype:      'form',
         id:         'alarmQueryForm',
         url:        '/rollcall/alarm_query',
         border:     false,
-        baseParams: {
-          authenticity_token: FORM_AUTH_TOKEN,
-          alarm_query_params: param_string,
-          r_id:               r_id,
-          school_id:          school_id
-        },
+        baseParams: {authenticity_token: FORM_AUTH_TOKEN, alarm_query_params: Ext.encode(queryParams), school_id: school_id},
         items:[{
           xtype:         'textfield',
           labelStyle:    'margin: 10px 0px 0px 5px',
@@ -592,14 +579,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     var obj_options = {
       result_panel: this.ownerCt.ownerCt.result_panel
     };
-    var update_params = {
-      params:{
-        r_id: this.ownerCt.ownerCt.r_id
-      }
-    }
     this.ownerCt.ownerCt.getComponent('alarmQueryForm').getForm().on('actioncomplete', function(){
       var adst_panel = obj_options.result_panel.ownerCt.ownerCt.ownerCt.ownerCt;
-      adst_panel.getComponent('alarm_queries').getComponent('portalId_south').updateAlarmQueries(update_params);
+      adst_panel.getComponent('alarm_queries').getComponent('portalId_south').updateAlarmQueries();
       this.hide();
       this.destroy();
     }, this.ownerCt.ownerCt, obj_options);

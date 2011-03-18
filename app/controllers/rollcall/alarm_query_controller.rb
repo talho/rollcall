@@ -53,14 +53,13 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
   end
 
   def update
-    school = Rollcall::School.find(params[:school_id])
-    rrd_info = Rollcall::Rrd.render_graphs(ActiveSupport::JSON.decode(params[:alarm_query_params]), school)
-
-    query     = Rollcall::AlarmQuery.find(params[:id])
+    query = Rollcall::AlarmQuery.find(params[:id])
     alarm_set = params[:alarm_set].blank? ? query.alarm_set : params[:alarm_set]
     unless params[:alarm_set].blank?
       success = query.update_attributes :alarm_set => alarm_set
     else
+      school = Rollcall::School.find(query.school_id)
+      rrd_info = Rollcall::Rrd.render_graphs(ActiveSupport::JSON.decode(params[:alarm_query_params]), school)
       success = query.update_attributes(
         :name                => params[:alarm_query_name],
         :query_params        => params[:alarm_query_params],

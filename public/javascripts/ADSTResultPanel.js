@@ -84,7 +84,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           scope:   this,
           handler: function(e, targetEl, panel, tc)
           {
-            this.showAlarmQueryConsole(panel.school_id, panel.school_name, panel);
+            this.showAlarmQueryConsole(panel.school_name);
           }
         },{
           id:      'down',
@@ -345,7 +345,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     return this._getResultStore();
   },
 
-  showAlarmQueryConsole: function(school_id, school_name, result_panel)
+  showAlarmQueryConsole: function(school_name)
   {
     var params       = new Array();
     var storedParams = new Ext.data.ArrayStore({
@@ -359,8 +359,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     for(key in baseParams){
       if(baseParams[key].indexOf("...") == -1 && key != "authenticity_token") queryParams[key] = baseParams[key];
     }
-    for(key in queryParams){ params.push([key, queryParams[key]]); }
+    if (school_name) queryParams["school"] = school_name;
 
+    for(key in queryParams){ params.push([key, queryParams[key]]); }
     storedParams.loadData(params);
 
     var alarm_console = new Ext.Window({
@@ -371,15 +372,15 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       constrain:    true,
 	    renderTo:     'adst_container',
       closeAction:  'close',
-      title:        'Alarm Query for '+school_name,
+      title:        (school_name) ? 'Alarm Query for '+school_name : 'Alarm Query',
       plain:        true,
-      result_panel: result_panel,
+      result_panel: this,
       items: [{
         xtype:      'form',
         id:         'alarmQueryForm',
         url:        '/rollcall/alarm_query',
         border:     false,
-        baseParams: {authenticity_token: FORM_AUTH_TOKEN, alarm_query_params: Ext.encode(queryParams), school_id: school_id},
+        baseParams: {authenticity_token: FORM_AUTH_TOKEN, alarm_query_params: Ext.encode(queryParams)},
         items:[{
           xtype:         'textfield',
           labelStyle:    'margin: 10px 0px 0px 5px',

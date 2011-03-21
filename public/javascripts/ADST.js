@@ -126,7 +126,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                 scope:   this,
                 handler: this.mapResultSet
               },{
-                text:    "Save Result Set",
+                text:    "Create Alarm from Result Set",
                 hidden:  true,
                 scope:   this,
                 handler: this.saveResultSet
@@ -212,6 +212,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   },
   saveResultSet: function(buttonEl, eventObj)
   {
+    this.getResultPanel().showAlarmQueryConsole(null);
     return true;
   },
   mapResultSet: function(buttonEl, eventObj)

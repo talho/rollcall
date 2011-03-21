@@ -39,7 +39,6 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
   {
     var result_obj          = null;
     var column_obj          = null;
-    var param_config        = {};
     var alarm_id            = '';
     var q_tip               = '';
     for(var i=0;i<record.length;i++){
@@ -60,35 +59,28 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           this.getComponent('empty_alarm_query_container').destroy();
         }
         for(var cnt=0;cnt<record[i].data.alarm_queries.length;cnt++){
-          param_config = {
-            alarm_query_id:      record[i].data.alarm_queries[cnt].id,
-            alarm_query_title:   record[i].data.alarm_queries[cnt].name,
-            school_name:         record[i].data.alarm_queries[cnt].school_name,
-            alarm_query_params:  record[i].data.alarm_queries[cnt].query_params,
-            severity_min:        record[i].data.alarm_queries[cnt].severity_min,
-            severity_max:        record[i].data.alarm_queries[cnt].severity_max,
-            deviation_min:       record[i].data.alarm_queries[cnt].deviation_min,
-            deviation_max:       record[i].data.alarm_queries[cnt].deviation_max,
-            school_id:           record[i].data.alarm_queries[cnt].school_id,
-            alarm_set:           record[i].data.alarm_queries[cnt].alarm_set
-          };
+          var param_config = record[i].data.alarm_queries[cnt];
+          param_config.query_params = Ext.decode(record[i].data.alarm_queries[cnt].query_params);
           if(param_config.alarm_set){
             alarm_id = 'alarm-on';
           }else{
             alarm_id = 'alarm-off';
           }
           column_obj = this.add({
-            //columnWidth: .25,
             listeners:{
               scope: this
             }
           });
+          alarm_html_desc = '<div class="ux-alarm-tn-container">' +
+            '<b>Severity:</b> ' + param_config.severity_min + ' - ' + param_config.severity_max + '<br>' +
+            '<b>Deviation:</b> ' + param_config.deviation_min + ' - ' + param_config.deviation_max + '<br>';
+          for (param in param_config.query_params)
+            alarm_html_desc += '<b>'+param+':</b> ' + param_config.query_params[param] + '<br>';
+          alarm_html_desc += '</div>';
           result_obj = column_obj.add({
-            title: param_config.alarm_query_title,
+            title: param_config.name,
             param_config: param_config,
             scope: this,
-            //img_url: record[i].data.img_urls.image_urls[cnt],
-            //polling_id: cnt,
             collapsible: false,
             draggable: false,
             tools: [{
@@ -110,15 +102,8 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
               handler: this.deleteAlarmQuery
             }],
             cls: 'ux-alarm-thumbnails',
-            //html: '<div class="ux-alarm-graph-container"><img class="ux-ajax-loader" src="/images/Ajax-loader.gif" /></div>'
-            html: '<div class="ux-alarm-tn-container">' +
-                  '<b>School:</b> ' + param_config.school_name + '<br>' +
-                  '<b>Severity:</b> ' + param_config.severity_min + ' - ' + param_config.severity_max + '<br>' +
-                  '<b>Deviation:</b> ' + param_config.deviation_min + ' - ' + param_config.deviation_max +
-                  '</div>'
+            html: alarm_html_desc
           });
-          // TODO:
-          //this.ownerCt.ownerCt.ownerCt.renderGraphs(cnt, record[i].data.img_urls.image_urls[cnt], result_obj, 'ux-alarm-graph-container');
         }
       }
 
@@ -143,7 +128,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
       {
         if(btn == 'ok'){
           Ext.Ajax.request({
-            url:    '/rollcall/alarm_query/'+this.param_config.alarm_query_id+'.json',
+            url:    '/rollcall/alarm_query/'+this.param_config.id+'.json',
             method: 'DELETE',
             scope:  this,
             callback: function(options, success, response){
@@ -166,7 +151,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
       url: '/rollcall/alarms',
       method: 'DELETE',
       params: {
-        alarm_query_id: panel.param_config.alarm_query_id
+        alarm_query_id: panel.param_config.id
       },
       callback: function(options, success, response){
         Ext.getCmp('alarm_panel').getComponent(0).getStore().load();
@@ -180,7 +165,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
     if(targetEl.hasClass('x-tool-alarm-off')) alarm_set = true;
     Ext.getCmp('alarm_panel').alarms_store.container_mask.show();
     Ext.Ajax.request({
-      url:    '/rollcall/alarm_query/'+panel.param_config.alarm_query_id+'.json',
+      url:    '/rollcall/alarm_query/'+panel.param_config.id+'.json',
       params: {
         alarm_set: alarm_set
       },
@@ -188,12 +173,12 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
       callback: function(options, success, response)
       {
         Ext.Ajax.request({
-          url:      '/rollcall/alarm/'+panel.param_config.alarm_query_id,
+          url:      '/rollcall/alarm/'+panel.param_config.id,
           callback: function(options, success, response){
             if(alarm_set) Ext.getCmp('alarm_panel').getComponent(0).getStore().load({
               add: true,
               params:{
-                alarm_query_id: panel.param_config.alarm_query_id
+                alarm_query_id: panel.param_config.id
               }
             });
             else Ext.getCmp('alarm_panel').getComponent(0).getStore().load();
@@ -220,15 +205,15 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
   {
     var params              = new Array();
     var param_string        = '';
-    var alarm_query_title   = panel.param_config.alarm_query_title;
+    var alarm_query_title   = panel.param_config.name;
     var school_name         = panel.param_config.school_name;
-    var alarm_query_params  = Ext.decode(panel.param_config.alarm_query_params);
+    var alarm_query_params  = panel.param_config.query_params;
     var severity_min        = panel.param_config.severity_min;
     var severity_max        = panel.param_config.severity_max;
     var deviation_min       = panel.param_config.deviation_min;
     var deviation_max       = panel.param_config.deviation_max;
     var school_id           = panel.param_config.school_id;
-    var alarm_query_id      = panel.param_config.alarm_query_id;
+    var alarm_query_id      = panel.param_config.id;
     var storedParams        = new Ext.data.ArrayStore({
         storeId: 'edit-store',
         fields: ['field', 'value'],
@@ -254,7 +239,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
         url: '/rollcall/alarm_query/'+alarm_query_id+'.json',
         border: false,
         method: 'PUT',
-        baseParams: {authenticity_token: FORM_AUTH_TOKEN, alarm_query_params: Ext.encode(alarm_query_params), school_id: school_id},
+        baseParams: {authenticity_token: FORM_AUTH_TOKEN, alarm_query_params: Ext.encode(alarm_query_params)},
         items:[{
           xtype:'textfield',
           labelStyle: 'margin: 10px 0px 0px 5px',
@@ -269,19 +254,19 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
             marginTop: '10px',
             marginBottom: '5px'
           }
-        },new Talho.Rollcall.ux.ComboBox({
+        },((alarm_query_params.school == null) ? {xtype: 'spacer'} : new Talho.Rollcall.ux.ComboBox({
           labelStyle: 'margin: 10px 0px 0px 5px',
           fieldLabel: 'School Name',
           emptyText:'Select School...',
           allowBlank: true,
           width: 150,
-          value: school_name,
+          value: alarm_query_params.school,
           mode: 'local',
           name: 'school',
-          hiddenName: 'school_id', valueField: 'id', hiddenValue: school_id,
+          //hiddenName: 'school_id', valueField: 'id', hiddenValue: school_id,
           displayField: 'display_name',
           store: new Ext.data.JsonStore({fields: ['id', 'display_name'], data: Ext.getCmp('rollcall_adst').init_store.getAt(0).get('schools')})
-        }),{
+        })),{
           xtype: 'fieldset',
           title: 'Absentee Rate Deviation',
           style:{
@@ -461,7 +446,6 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
         handler: function(buttonEl, eventObj){
           alarm_console.getComponent('editAlarmQueryForm').getForm().on('actioncomplete', function(){
             south_panel.updateAlarmQueries({params: {alarm_query_id: alarm_query_id}});
-            //south_panel.ownerCt.ownerCt.ownerCt.renderGraphs(panel.polling_id, panel.img_url, panel, 'ux-alarm-graph-container');
             panel.hide();
             panel.destroy();
             this.hide();

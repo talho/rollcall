@@ -23,77 +23,70 @@ class Rollcall::AlarmQuery < Rollcall::Base
 
   def generate_alarm
     if alarm_set
-      result = create_alarm
+      create_alarm
     else
-      result = false
+      false
     end
-    return result
   end
 
   private
 
   def create_alarm
-    # clear previous alarms and before generating new ones
+    # clear previous alarms before generating new ones
     Rollcall::Alarm.find_all_by_alarm_query_id(id).each { |a| a.destroy }
 
     query = ActiveSupport::JSON.decode(query_params)
 
-    return_success   = false
-    begin
-      data_set       = []
-      test_data_date = Time.parse("09/01/2010")
-      start_date     = query[:startdt].blank? ? test_data_date : Time.parse(query[:startdt])
-      end_date       = query[:enddt].blank? ? Time.now : Time.parse(query[:enddt]) + 1.day
-      lock_date      = end_date - 1.month
-      days           = ((end_date - start_date) / 86400)
-      total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
-      alarm_count    = 0
-      (0..days).each do |i|
-        report_date  = (end_date - i.days).strftime("%Y-%m-%d")
-        if query[:absent] == "Gross"
-          student_info = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(school_id, report_date)
-        else
-          student_info = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(school_id, report_date, true)
-        end
-        unless student_info.blank?
-          total_absent  = student_info.size
-          data_set.push(total_absent)
-          deviation     = calculate_deviation data_set
-          severity      = (total_absent.to_f / total_enrolled.to_f)
-          absentee_rate = severity * 100
-          if (absentee_rate >= severity_min) ||
-             (deviation_min <= deviation && deviation <= deviation_max)
-            if(Time.parse(report_date) >= lock_date)
-              if absentee_rate >= severity_max
-                alarm_severity = 'extreme'
-              elsif (severity_min + 2) < absentee_rate && absentee_rate < severity_max
-                alarm_severity = 'severe'
-              elsif severity_min <= absentee_rate && absentee_rate <= (severity_min + 2)
-                alarm_severity = 'moderate'
-              else
-                alarm_severity = 'unknown'
-              end
-              Rollcall::Alarm.create(
-                :school_id      => school_id,
-                :alarm_query_id => id,
-                :deviation      => deviation,
-                :severity       => severity,
-                :alarm_severity => alarm_severity,
-                :absentee_rate  => absentee_rate,
-                :report_date    => report_date
-              )
-              alarm_count += 1
-            end
-          end
-        end
-        break if alarm_count == 4
-      end
-      data_set.clear
-    rescue
-      return false
+    schools = Rollcall::School.search(query)
+    schools.each { |school| create_alarms_for_school(school, query) }
+    !Rollcall::Alarm.find_all_by_alarm_query_id(id).blank?
+  end
+
+private
+
+  def create_alarms_for_school(school, query)
+    @data_set      = []
+    test_data_date = Time.parse("09/01/2010")
+    start_date     = query["startdt"].blank? ? test_data_date : Time.parse(query["startdt"])
+    end_date       = query["enddt"].blank? ? Time.now : Time.parse(query["enddt"]) + 1.day
+    lock_date      = end_date - 1.month
+    days           = ((end_date - start_date) / 86400)
+    alarm_count    = 0
+    (0..days).each do |i|
+      report_date = (end_date - i.days).strftime("%Y-%m-%d")
+      alarm_count += 1 if create_alarm_for_date(school.id, report_date, lock_date, query["absent"])
+      break if alarm_count == 4
     end
-    return_success = true unless Rollcall::Alarm.find_all_by_alarm_query_id(id).blank?
-    return return_success
+    @data_set.clear
+  end
+
+  def create_alarm_for_date(school_id, report_date, lock_date, absent_func)
+    if absent_func == "Gross"
+      student_info = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(school_id, report_date)
+    else
+      student_info = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(school_id, report_date, true)
+    end
+    @data_set.push(student_info.size)
+    unless student_info.blank?
+      total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(school_id, report_date).total_enrolled
+      deviation      = calculate_deviation(@data_set)
+      severity       = (student_info.size.to_f / total_enrolled.to_f)
+      absentee_rate  = severity * 100
+      if (absentee_rate >= severity_min) || (deviation_min <= deviation && deviation <= deviation_max)
+        if(Time.parse(report_date) >= lock_date)
+          Rollcall::Alarm.create(
+            :school_id      => school_id,
+            :alarm_query_id => id,
+            :deviation      => deviation,
+            :severity       => severity,
+            :alarm_severity => calc_alarm_severity(absentee_rate),
+            :absentee_rate  => absentee_rate,
+            :report_date    => report_date
+          )
+          true
+        end
+      end
+    end
   end
 
   def calculate_deviation(data_set)
@@ -109,5 +102,17 @@ class Rollcall::AlarmQuery < Rollcall::Base
     end
     deviation = Math.sqrt((data_mean_diff_total / data_set.length))
     return deviation
+  end
+
+  def calc_alarm_severity(absentee_rate)
+    if absentee_rate >= severity_max
+      'extreme'
+    elsif (severity_min + 2) < absentee_rate && absentee_rate < severity_max
+      'severe'
+    elsif severity_min <= absentee_rate && absentee_rate <= (severity_min + 2)
+      'moderate'
+    else
+      'unknown'
+    end
   end
 end

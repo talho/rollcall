@@ -38,7 +38,6 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
 
   def create
     result  = Rollcall::AlarmQuery.find(params[:alarm_query_id]).generate_alarm
-    #result = Rollcall::AlarmQuery.generate_alarm query
     respond_to do |format|
       format.json do
         render :json => {

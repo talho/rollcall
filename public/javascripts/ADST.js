@@ -38,7 +38,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           maxSize:    180,
           autoScroll: true,
           layout:     'fit',
-          items:      new Talho.Rollcall.AlarmQueriesPanel({})
+          items:      new Talho.Rollcall.AlarmQueriesPanel({adst_panel: this})
         },{
           title:       'Reports',
           region:      'east',
@@ -291,16 +291,17 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   submitQuery: function(buttonEl, eventObj)
   {
     this.getResultPanel().clearProviders();
-    var form_values  = buttonEl.findParentByType('form').getForm().getValues();
+    var form_panel   = this.find('id', 'ADSTFormPanel')[0];
+    var form_values  = form_panel.getForm().getValues();
     var result_store = this.getResultPanel().getResultStore();
-    buttonEl.findParentByType('form').findParentByType('panel').getBottomToolbar().bindStore(result_store);
+    form_panel.findParentByType('panel').getBottomToolbar().bindStore(result_store);
     result_store.baseParams = {}; // clear previous search values
     var params              = this.buildParams(form_values);
     for(key in params)
       result_store.setBaseParam(key, params[key]);
-    buttonEl.findParentByType("form").buttons[2].show();
-    buttonEl.findParentByType("form").buttons[3].show();
-    buttonEl.findParentByType("form").buttons[4].show();
+    form_panel.buttons[2].show();
+    form_panel.buttons[3].show();
+    form_panel.buttons[4].show();
     var panel_mask = new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(), {msg:"Please wait..."});
     panel_mask.show();
     result_store.on('load', function(){ panel_mask.hide(); });

@@ -15,11 +15,8 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
       saved_store: new Ext.data.JsonStore({
         autoLoad: true,
         root:     'results',
-        fields:   ['id', 'alarm_queries', 'img_urls'],
-        proxy: new Ext.data.HttpProxy({
-          url:    '/rollcall/alarm_query',
-          method: 'get'
-        }),
+        fields:   ['id', 'name'],
+        proxy:    new Ext.data.HttpProxy({url: '/rollcall/alarm_query', method: 'get'}),
         listeners:{
           scope: this,
           beforeload: function(this_store, options)
@@ -27,7 +24,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
             this_store.container_mask = new Ext.LoadMask(this.getEl(), {msg:"Please wait..."});
             this_store.container_mask.show();
           },
-          load:  this.loadAlarmQueries
+          load: this.loadAlarmQueries
         }
       })
     });
@@ -35,78 +32,74 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
     Talho.Rollcall.AlarmQueriesPanel.superclass.constructor.call(this, config);
   },
 
-  loadAlarmQueries: function(this_store, record)
+  loadAlarmQueries: function(this_store, alarm_queries)
   {
     var result_obj          = null;
     var column_obj          = null;
     var alarm_id            = '';
     var q_tip               = '';
-    for(var i=0;i<record.length;i++){
-      if(record[i].data.alarm_queries.length == 0){
-        column_obj = this.add({
-          columnWidth: .25,
-          itemId: 'empty_alarm_query_container',
-          listeners:{
-            scope: this
-          }
-        });
+    if(alarm_queries.length == 0){
+      column_obj = this.add({itemId: 'empty_alarm_query_container'});
+      result_obj = column_obj.add({
+        cls: 'ux-alarm-thumbnails',
+        html: '<div class="ux-empty-alarm-query-container"><p>There are no alarm queries.</p></div>'
+      });
+    }else{
+      if(this.getComponent('empty_alarm_query_container'))
+        this.getComponent('empty_alarm_query_container').destroy();
+      for(var cnt=0;cnt<alarm_queries.length;cnt++){
+        var param_config = alarm_queries[cnt].json;
+        param_config.query_params = Ext.decode(alarm_queries[cnt].json.query_params);
+        alarm_id = (param_config.alarm_set) ? 'alarm-on' : 'alarm-off';
+        column_obj = this.add({});
+        var alarm_html_desc = '<div class="ux-alarm-tn-container">' +
+          '<b>Severity:</b> ' + param_config.severity_min + ' - ' + param_config.severity_max + '<br>' +
+          '<b>Deviation:</b> ' + param_config.deviation_min + ' - ' + param_config.deviation_max + '<br>';
+        for (param in param_config.query_params)
+          alarm_html_desc += '<b>'+param+':</b> ' + param_config.query_params[param] + '<br>';
+        alarm_html_desc += '</div>';
         result_obj = column_obj.add({
-          cls: 'ux-alarm-thumbnails',
-          html: '<div class="ux-empty-alarm-query-container"><p>There are no alarm queries.</p></div>'
-        });
-      }else{
-        if(this.getComponent('empty_alarm_query_container')){
-          this.getComponent('empty_alarm_query_container').destroy();
-        }
-        for(var cnt=0;cnt<record[i].data.alarm_queries.length;cnt++){
-          var param_config = record[i].data.alarm_queries[cnt];
-          param_config.query_params = Ext.decode(record[i].data.alarm_queries[cnt].query_params);
-          if(param_config.alarm_set){
-            alarm_id = 'alarm-on';
-          }else{
-            alarm_id = 'alarm-off';
-          }
-          column_obj = this.add({
-            listeners:{
-              scope: this
-            }
-          });
-          alarm_html_desc = '<div class="ux-alarm-tn-container">' +
-            '<b>Severity:</b> ' + param_config.severity_min + ' - ' + param_config.severity_max + '<br>' +
-            '<b>Deviation:</b> ' + param_config.deviation_min + ' - ' + param_config.deviation_max + '<br>';
-          for (param in param_config.query_params)
-            alarm_html_desc += '<b>'+param+':</b> ' + param_config.query_params[param] + '<br>';
-          alarm_html_desc += '</div>';
-          result_obj = column_obj.add({
-            title: param_config.name,
-            param_config: param_config,
+          title: param_config.name,
+          param_config: param_config,
+          collapsible: false,
+          draggable: false,
+          tools: [{
+            id:alarm_id,
+            qtip: "Toggle Alarm",
             scope: this,
-            collapsible: false,
-            draggable: false,
-            tools: [{
-              id:alarm_id,
-              qtip: "Toggle Alarm",
-              scope: this,
-              handler: this.toggleAlarm
-            },{
-              id:'save',
-              qtip: 'Edit Alarm Query',
-              scope: this,
-              handler: function(e, targetEl, panel, tc){
-                this.showEditAlarmQueryConsole(panel,this);
-              }
-            },{
-              id:'close',
-              qtip: 'Delete Alarm Query',
-              scope: this,
-              handler: this.deleteAlarmQuery
-            }],
-            cls: 'ux-alarm-thumbnails',
-            html: alarm_html_desc
-          });
-        }
+            handler: this.toggleAlarm
+          },{
+            id:'save',
+            qtip: 'Edit Alarm Query',
+            scope: this,
+            handler: function(e, targetEl, panel, tc){
+              this.showEditAlarmQueryConsole(panel,this);
+            }
+          },{
+            id:'close',
+            qtip: 'Delete Alarm Query',
+            scope: this,
+            handler: this.deleteAlarmQuery
+          }],
+          cls: 'ux-alarm-thumbnails',
+          html: alarm_html_desc,
+          adst_panel: this.adst_panel,
+          listeners: {
+            scope: result_obj,
+            'render': function(aq){ aq.body.on('click', this._alarmQueryClick, this); }
+          },
+          _alarmQueryClick: function(){
+            this.addClass("ux-alarm-selected");
+            var form = this.adst_panel.find('id', 'ADSTFormPanel')[0].getForm();
+            var vals = new Object;
+            for (prop in this.param_config.query_params)
+              vals[prop+"_simple"] = this.param_config.query_params[prop];
+            form.reset();
+            form.setValues(vals);
+            this.adst_panel.submitQuery();
+          }
+        });
       }
-
     }
     this_store.container_mask.hide();
     this.doLayout();

@@ -11,10 +11,7 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
         render :json => {
           :success       => true,
           :total_results => alarm_queries.length,
-          :results       => {
-            :id            => 1,
-            :alarm_queries => alarm_queries,
-          }.as_json
+          :results       => alarm_queries
         }
         ActiveRecord::Base.include_root_in_json = original_included_root
       end

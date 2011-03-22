@@ -11,7 +11,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
       defaultType: 'portalcolumn',
       itemId:      'portalId_south',
       border:      false,
-      bodyStyle:   'padding:10px;',
+      bodyStyle:   'padding:10 10 0 10;',
       saved_store: new Ext.data.JsonStore({
         autoLoad: true,
         root:     'results',
@@ -45,13 +45,13 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
       if(record[i].data.alarm_queries.length == 0){
         column_obj = this.add({
           columnWidth: .25,
-          itemId: 'empty_alarm_query_container',
+          itemId:      'empty_alarm_query_container',
           listeners:{
             scope: this
           }
         });
         result_obj = column_obj.add({
-          cls: 'ux-alarm-thumbnails',
+          cls:  'ux-alarm-thumbnails',
           html: '<div class="ux-empty-alarm-query-container"><p>There are no alarm queries.</p></div>'
         });
       }else{
@@ -59,7 +59,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           this.getComponent('empty_alarm_query_container').destroy();
         }
         for(var cnt=0;cnt<record[i].data.alarm_queries.length;cnt++){
-          var param_config = record[i].data.alarm_queries[cnt];
+          var param_config          = record[i].data.alarm_queries[cnt];
           param_config.query_params = Ext.decode(record[i].data.alarm_queries[cnt].query_params);
           if(param_config.alarm_set){
             alarm_id = 'alarm-on';
@@ -72,33 +72,36 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
             }
           });
           alarm_html_desc = '<div class="ux-alarm-tn-container">' +
-            '<b>Severity:</b> ' + param_config.severity_min + ' - ' + param_config.severity_max + '<br>' +
+            '<b>Severity:</b> '  + param_config.severity_min  + ' - ' + param_config.severity_max  + '<br>' +
             '<b>Deviation:</b> ' + param_config.deviation_min + ' - ' + param_config.deviation_max + '<br>';
-          for (param in param_config.query_params)
+          for (param in param_config.query_params){
             alarm_html_desc += '<b>'+param+':</b> ' + param_config.query_params[param] + '<br>';
+          }
           alarm_html_desc += '</div>';
-          result_obj = column_obj.add({
-            title: param_config.name,
+          result_obj       = column_obj.add({
+            title:        param_config.name,
             param_config: param_config,
-            scope: this,
-            collapsible: false,
-            draggable: false,
+            scope:        this,
+            width:        250,
+            height:       90,
+            collapsible:  false,
+            draggable:    false,
             tools: [{
-              id:alarm_id,
-              qtip: "Toggle Alarm",
-              scope: this,
+              id:      alarm_id,
+              qtip:    "Toggle Alarm",
+              scope:   this,
               handler: this.toggleAlarm
             },{
-              id:'save',
-              qtip: 'Edit Alarm Query',
-              scope: this,
+              id:      'save',
+              qtip:    'Edit Alarm Query',
+              scope:   this,
               handler: function(e, targetEl, panel, tc){
                 this.showEditAlarmQueryConsole(panel,this);
               }
             },{
-              id:'close',
-              qtip: 'Delete Alarm Query',
-              scope: this,
+              id:      'close',
+              qtip:    'Delete Alarm Query',
+              scope:   this,
               handler: this.deleteAlarmQuery
             }],
             cls: 'ux-alarm-thumbnails',

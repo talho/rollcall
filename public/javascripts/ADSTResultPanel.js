@@ -580,9 +580,14 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     var obj_options = {
       result_panel: this.ownerCt.ownerCt.result_panel
     };
+    var update_params = {
+      params:{
+        latest: true
+      }
+    }
     this.ownerCt.ownerCt.getComponent('alarmQueryForm').getForm().on('actioncomplete', function(){
-      var adst_panel = obj_options.result_panel.ownerCt.ownerCt.ownerCt.ownerCt;
-      adst_panel.getComponent('alarm_queries').getComponent('portalId_south').updateAlarmQueries();
+     // var adst_panel = obj_options.result_panel.ownerCt.ownerCt.ownerCt.ownerCt;
+      Ext.getCmp('alarm_queries').getComponent('portalId_south').updateAlarmQueries(update_params);
       this.hide();
       this.destroy();
     }, this.ownerCt.ownerCt, obj_options);

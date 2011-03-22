@@ -410,10 +410,9 @@ class Rollcall::Rrd < Rollcall::Base
   end
 
   def self.get_total_absent report_date, conditions, school_id
-    condition_string = ""
     condition_array  = []
     string_flag      = false
-    condition_array.push(condition_string)
+    condition_array.push("")
     conditions.each{|key,value|
       if key != :symptom && key != :startdt && key != :enddt && key != :zipcode
         condition_array[0] += " AND " if string_flag

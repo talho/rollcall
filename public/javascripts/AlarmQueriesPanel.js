@@ -11,7 +11,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
       defaultType: 'portalcolumn',
       itemId:      'portalId_south',
       border:      false,
-      bodyStyle:   'padding:10px;',
+      bodyStyle:   'padding:10 10 0 10;',
       saved_store: new Ext.data.JsonStore({
         autoLoad: true,
         root:     'results',

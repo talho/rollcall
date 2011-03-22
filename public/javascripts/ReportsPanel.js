@@ -56,7 +56,6 @@ Talho.Rollcall.ReportsPanel = Ext.extend(Ext.grid.GridPanel, {
       title:       'Create Report',
       layout:      'vbox',
       padding:     '5',
-      //autoHeight:  true,
       modal:       true,
       constrain:   true,
       renderTo:    'adst_container',
@@ -76,11 +75,11 @@ Talho.Rollcall.ReportsPanel = Ext.extend(Ext.grid.GridPanel, {
         }
       },
       items: [{
-        xtype: 'fieldset',
-        title: 'Report',
-        autoHeight: true,
-        layout: 'form',
-        collapsed: false,
+        xtype:       'fieldset',
+        title:       'Report',
+        autoHeight:  true,
+        layout:      'form',
+        collapsed:   false,
         collapsible: false,
         defaults: {
           xtype:  'container',
@@ -95,14 +94,14 @@ Talho.Rollcall.ReportsPanel = Ext.extend(Ext.grid.GridPanel, {
           }
         },
         items:[{
-          xtype:'textfield',
-          labelStyle: 'margin: 0px 0px 0px 5px',
-          fieldLabel: 'Report Name',
+          xtype:         'textfield',
+          labelStyle:    'margin: 0px 0px 0px 5px',
+          fieldLabel:    'Report Name',
           //value: alarm_query_title,
-          id: 'report_name',
-          allowBlank: false,
-          blankText: "This field is required.",
-          minLength: 3,
+          id:            'report_name',
+          allowBlank:    false,
+          blankText:     "This field is required.",
+          minLength:     3,
           minLengthText: 'The minimum length for this field is 3.'
         },{
           items: new Talho.Rollcall.ux.ComboBox({
@@ -113,11 +112,11 @@ Talho.Rollcall.ReportsPanel = Ext.extend(Ext.grid.GridPanel, {
           })
         }]
       },{
-        xtype: 'fieldset',
-        title: 'Data Functions',
-        autoHeight: true,
-        layout: 'form',
-        collapsed: false,   // initially collapse the group
+        xtype:       'fieldset',
+        title:       'Data Functions',
+        autoHeight:  true,
+        layout:      'form',
+        collapsed:   false,   // initially collapse the group
         collapsible: false,
         items: [{
           items:{
@@ -135,11 +134,11 @@ Talho.Rollcall.ReportsPanel = Ext.extend(Ext.grid.GridPanel, {
           }
         }]
       },{
-        xtype: 'fieldset',
-        title: 'Filter Schools By',
-        autoHeight: true,
-        layout: 'form',
-        collapsed: false,   // initially collapse the group
+        xtype:       'fieldset',
+        title:       'Filter Schools By',
+        autoHeight:  true,
+        layout:      'form',
+        collapsed:   false,   // initially collapse the group
         collapsible: false,
         defaults: {
           xtype:  'container',
@@ -156,15 +155,16 @@ Talho.Rollcall.ReportsPanel = Ext.extend(Ext.grid.GridPanel, {
         items:[{
           items:
             new Talho.Rollcall.ux.ComboBox({
-              fieldLabel: 'School',
-              emptyText:'Select School...',
-              allowBlank: true,
-              id: 'report_school',
-              itemId: 'report_school',
+              fieldLabel:   'School',
+              emptyText:    'Select School...',
+              allowBlank:    true,
+              id:           'report_school',
+              itemId:       'report_school',
               displayField: 'display_name',
-              store: new Ext.data.JsonStore({fields: ['id', 'display_name'], data: Ext.getCmp('rollcall_adst').init_store.getAt(0).get('schools')}),
+              store:        new Ext.data.JsonStore({fields: ['id', 'display_name'], data: Ext.getCmp('rollcall_adst').init_store.getAt(0).get('schools')}),
               listeners:{
-                select: function(comboBox, record, index){
+                select: function(comboBox, record, index)
+                {
                   Ext.getCmp('report_school_type').clearValue();
                 }
               }
@@ -175,10 +175,10 @@ Talho.Rollcall.ReportsPanel = Ext.extend(Ext.grid.GridPanel, {
               fieldLabel: 'School Type',
               emptyText:'Select School Type...',
               allowBlank: true,
-              id: 'report_school_type',
-              itemId: 'report_school_type',
-              store: new Ext.data.JsonStore({fields: ['id', 'value'], data: Ext.getCmp('rollcall_adst').init_store.getAt(0).get('school_type')}),
-              listeners:{
+              id:        'report_school_type',
+              itemId:    'report_school_type',
+              store:     new Ext.data.JsonStore({fields: ['id', 'value'], data: Ext.getCmp('rollcall_adst').init_store.getAt(0).get('school_type')}),
+              listeners: {
                 select: function(comboBox, record, index){
                   Ext.getCmp('report_school').clearValue();
                 }

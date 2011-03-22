@@ -20,10 +20,10 @@
 
 }
 .ux-alarm-selected{
-  border: 2px solid black;
-  background-color: red;
+  border: 2px solid black !important;
 }
 .ux-alarm-tn-container{
+  cursor:pointer;
   text-align:left;
 }
 .ux-ajax-loader{

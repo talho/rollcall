@@ -85,15 +85,23 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           html: alarm_html_desc,
           adst_panel: this.adst_panel,
           listeners: {
-            scope: result_obj,
             'render': function(aq){ aq.body.on('click', this._alarmQueryClick, this); }
           },
           _alarmQueryClick: function(){
+            Ext.select(".ux-alarm-thumbnails").removeClass("ux-alarm-selected");
             this.addClass("ux-alarm-selected");
             var form = this.adst_panel.find('id', 'ADSTFormPanel')[0].getForm();
+            var qtype = this.param_config.query_params["type"];
+            if (qtype == "adv") {
+              Ext.getCmp('simple_query_select').hide();
+              Ext.getCmp('advanced_query_select').show();
+            } else {
+              Ext.getCmp('advanced_query_select').hide();
+              Ext.getCmp('simple_query_select').show();
+            }
             var vals = new Object;
             for (prop in this.param_config.query_params)
-              vals[prop+"_simple"] = this.param_config.query_params[prop];
+              vals[prop+"_"+qtype] = this.param_config.query_params[prop];
             form.reset();
             form.setValues(vals);
             this.adst_panel.submitQuery();

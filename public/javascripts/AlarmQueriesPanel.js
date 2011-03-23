@@ -48,64 +48,103 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
       if(this.getComponent('empty_alarm_query_container'))
         this.getComponent('empty_alarm_query_container').destroy();
       for(var cnt=0;cnt<alarm_queries.length;cnt++){
-        var param_config = alarm_queries[cnt].json;
+        var param_config          = alarm_queries[cnt].json;
         param_config.query_params = Ext.decode(alarm_queries[cnt].json.query_params);
-        alarm_id = (param_config.alarm_set) ? 'alarm-on' : 'alarm-off';
-        column_obj = this.add({});
-        var alarm_html_desc = '<div class="ux-alarm-tn-container">' +
-          '<b>Severity:</b> ' + param_config.severity_min + ' - ' + param_config.severity_max + '<br>' +
+        alarm_id                  = (param_config.alarm_set) ? 'alarm-on' : 'alarm-off';
+        column_obj                = this.add({});
+
+        var alarm_html_desc       = '<div class="ux-alarm-tn-container">' +
+          '<b>Severity:</b> '  + param_config.severity_min  + ' - ' + param_config.severity_max  + '<br>' +
           '<b>Deviation:</b> ' + param_config.deviation_min + ' - ' + param_config.deviation_max + '<br>';
-        for (param in param_config.query_params)
+        for (param in param_config.query_params){
           alarm_html_desc += '<b>'+param+':</b> ' + param_config.query_params[param] + '<br>';
+        }
         alarm_html_desc += '</div>';
-        result_obj = column_obj.add({
-          title: param_config.name,
+
+        var myData = new Array();
+        myData.push(['severity_min', param_config.severity_min]);
+        myData.push(['severity_max', param_config.severity_max]);
+        myData.push(['deviation_min', param_config.deviation_min]);
+        myData.push(['deviation_max', param_config.deviation_max]);
+        for(param in param_config.query_params){
+          myData.push([param, param_config.query_params[param]]);
+        }
+        var store = new Ext.data.ArrayStore({
+          fields: [
+            {name: 'settings'},
+            {name: 'values'}
+          ]
+        });
+        store.loadData(myData);
+        var grid_obj = {
+          xtype:   'grid',
+          store:   store,
+          id:      'reports_grid',
+          itemId:  'reports_grid',
+          columns: [
+            {id:'settings', header: 'Settings', sortable: true, dataIndex: 'settings'},
+            {id:'values', header: 'values', sortable: true, dataIndex: 'values'}
+          ],
+          stripeRows: true,
+          autoExpandColumn: 'settings',
+          autoHeight: true,
+          autoWidth: true,
+          stateful: true
+        };
+
+
+        result_obj       = column_obj.add({
+          title:        param_config.name,
           param_config: param_config,
-          collapsible: false,
-          draggable: false,
-          tools: [{
-            id:alarm_id,
-            qtip: "Toggle Alarm",
-            scope: this,
+          collapsible:  false,
+          draggable:    false,
+          width:        200,
+          height:       90,
+          tools:        [{
+            id:      'run-query',
+            qtip:    "Run This Query",
+            handler: function(e, targetEl, panel, tc)
+            {
+              var form  = panel.adst_panel.find('id', 'ADSTFormPanel')[0].getForm();
+              var qtype = panel.param_config.query_params["type"];
+              if (qtype == "adv") {
+                Ext.getCmp('simple_query_select').hide();
+                Ext.getCmp('advanced_query_select').show();
+              } else {
+                Ext.getCmp('advanced_query_select').hide();
+                Ext.getCmp('simple_query_select').show();
+              }
+              var vals = new Object;
+              for (prop in panel.param_config.query_params){
+                vals[prop+"_"+qtype] = panel.param_config.query_params[prop];
+              }
+              form.reset();
+              form.setValues(vals);
+              panel.adst_panel.submitQuery();
+            }
+          },{
+            id:      alarm_id,
+            qtip:    "Toggle Alarm",
+            scope:   this,
             handler: this.toggleAlarm
           },{
-            id:'save',
-            qtip: 'Edit Alarm Query',
-            scope: this,
-            handler: function(e, targetEl, panel, tc){
+            id:      'save',
+            qtip:    'Edit Alarm Query',
+            scope:   this,
+            handler: function(e, targetEl, panel, tc)
+            {
               this.showEditAlarmQueryConsole(panel,this);
             }
           },{
-            id:'close',
-            qtip: 'Delete Alarm Query',
-            scope: this,
+            id:      'close',
+            qtip:    'Delete Alarm Query',
+            scope:   this,
             handler: this.deleteAlarmQuery
           }],
-          cls: 'ux-alarm-thumbnails',
-          html: alarm_html_desc,
+          cls:        'ux-alarm-thumbnails',
+          //html:       alarm_html_desc,
           adst_panel: this.adst_panel,
-          listeners: {
-            'render': function(aq){ aq.body.on('click', this._alarmQueryClick, this); }
-          },
-          _alarmQueryClick: function(){
-            Ext.select(".ux-alarm-thumbnails").removeClass("ux-alarm-selected");
-            this.addClass("ux-alarm-selected");
-            var form = this.adst_panel.find('id', 'ADSTFormPanel')[0].getForm();
-            var qtype = this.param_config.query_params["type"];
-            if (qtype == "adv") {
-              Ext.getCmp('simple_query_select').hide();
-              Ext.getCmp('advanced_query_select').show();
-            } else {
-              Ext.getCmp('advanced_query_select').hide();
-              Ext.getCmp('simple_query_select').show();
-            }
-            var vals = new Object;
-            for (prop in this.param_config.query_params)
-              vals[prop+"_"+qtype] = this.param_config.query_params[prop];
-            form.reset();
-            form.setValues(vals);
-            this.adst_panel.submitQuery();
-          }
+          items: [grid_obj]
         });
       }
     }

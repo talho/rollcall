@@ -138,7 +138,7 @@ class Rollcall::Rrd < Rollcall::Base
         :start      => start_date,
         :end        => end_date,
         :step       => 24.hours.seconds,
-        :width      => 500,
+        :width      => 400,
         :height     => 120,
         :image_type => "PNG",
         :title      => graph_title,

@@ -96,6 +96,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           handler: this.closeResult
         }],
         height: 230,
+        boxMinWidth: 420,
         html:   '<div class="ux-result-graph-container"><img src="/images/Ajax-loader.gif" /></div>'
       };
 

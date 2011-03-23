@@ -24,7 +24,7 @@
 }
 .ux-alarm-tn-container{
   cursor:pointer;
-  text-align:left;
+  text-align:left;;
 }
 .ux-ajax-loader{
   width:32px !important;
@@ -91,6 +91,11 @@
   background:url(images/globe1-off.png) 0px 0px no-repeat !important;
   width: 12px !important;
   height: 12px !important;
+}
+.x-tool-run-query{
+  background: url(images/run-query-icon.png) 0px 0px no-repeat !important;
+  width: 15px !important;
+  height: 15px !important;
 }
 .base-line-check{
   clear:both;

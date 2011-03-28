@@ -248,14 +248,18 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         });
         win.schools = Ext.decode(response.responseText).results;
         win.addButton({xtype: 'button', text: 'Dismiss', handler: function(){ win.close(); }, scope: this, width:'auto'});
-        win.addListener("afterrender", function(w){
-          var center = new google.maps.LatLng(w.schools[0].gmap_lat, w.schools[0].gmap_lng);
+        gmapPanel.addListener("mapready", function(obj){
+          min_lat = Ext.min(win.schools, function(a,b){ return (a.gmap_lat<b.gmap_lat) ? -1 : (a.gmap_lat>b.gmap_lat) ? 1 : 0; });
+          max_lat = Ext.max(win.schools, function(a,b){ return (a.gmap_lat<b.gmap_lat) ? -1 : (a.gmap_lat>b.gmap_lat) ? 1 : 0; });
+          min_lng = Ext.min(win.schools, function(a,b){ return (a.gmap_lng<b.gmap_lng) ? -1 : (a.gmap_lng>b.gmap_lng) ? 1 : 0; });
+          max_lng = Ext.max(win.schools, function(a,b){ return (a.gmap_lng<b.gmap_lng) ? -1 : (a.gmap_lng>b.gmap_lng) ? 1 : 0; });
+          var center = new google.maps.LatLng((max_lat.gmap_lat+min_lat.gmap_lat)/2, (max_lng.gmap_lng+min_lng.gmap_lng)/2);
           gmapPanel.gmap.setCenter(center);
-          for(var i = 0; i < w.schools.length; i++) {
-            var loc           = new google.maps.LatLng(w.schools[i].gmap_lat, w.schools[i].gmap_lng);
-            var marker        = gmapPanel.addMarker(loc, w.schools[i].display_name, {});
-            var addr_elems    = w.schools[i].gmap_addr.split(",");
-            marker.info       = "<b>" + w.schools[i].display_name + "</b><br>";
+          for(var i = 0; i < win.schools.length; i++) {
+            var loc           = new google.maps.LatLng(win.schools[i].gmap_lat, win.schools[i].gmap_lng);
+            var marker        = gmapPanel.addMarker(loc, win.schools[i].display_name, {});
+            var addr_elems    = win.schools[i].gmap_addr.split(",");
+            marker.info       = "<b>" + win.schools[i].display_name + "</b><br>";
             marker.info      += addr_elems[0] + "<br>" + addr_elems[1] + "<br>" + addr_elems.slice(2).join(",");
             marker.info_popup = null;
             google.maps.event.addListener(marker, 'click', function(){

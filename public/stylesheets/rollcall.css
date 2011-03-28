@@ -42,22 +42,27 @@
 }
 .alarm{
   height: 40px;
-  padding-left: 15px;
+  /*padding-left: 15px;*/
 }
 .extreme{
-  background:url(images/status_extreme.png) 0px 1px no-repeat;
+  /*background:url(images/status_extreme.png) 0px 1px no-repeat;*/
+  background-color: #cc0000;
 }
 .severe{
-  background:url(images/status_severe.png) 0px 1px no-repeat;
+  /*background:url(images/status_severe.png) 0px 1px no-repeat;*/
+  background-color: #fe6600;
 }
 .moderate{
-  background:url(images/status_moderate.png) 0px 1px no-repeat;
+  /*background:url(images/status_moderate.png) 0px 1px no-repeat;*/
+  background-color: #f6f600;
 }
 .minor{
-  background:url(images/status_minor.png) 0px 1px no-repeat;
+  /*background:url(images/status_minor.png) 0px 1px no-repeat;*/
+  background-color: #66cc00;
 }
 .unknown{
-  background:url(images/status_unknown.png) 0px 1px no-repeat;
+  /*background:url(images/status_unknown.png) 0px 1px no-repeat;*/
+  background-color: #cacaca;
 }
 .rollcall_alarm_icon {
   background:url(../images/alert.gif) no-repeat;

@@ -138,7 +138,7 @@ class Rollcall::Rrd < Rollcall::Base
         :start      => start_date,
         :end        => end_date,
         :step       => 24.hours.seconds,
-        :width      => 400,
+        :width      => 300,
         :height     => 120,
         :image_type => "PNG",
         :title      => graph_title,
@@ -354,7 +354,7 @@ class Rollcall::Rrd < Rollcall::Base
       end
     end
     File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
-    self.send_later(:graph, rrd_file, image_file, graph_title, params)   
+    self.send_later(:graph, rrd_file, image_file, graph_title, params)
   end
 
   def self.set_conditions options

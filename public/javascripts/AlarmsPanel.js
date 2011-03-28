@@ -10,8 +10,8 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       root:          'alarms',
       totalProperty: 'total_results',
       fields: [
-        {name:'absentee_rate',  type:'float'},
-        {name:'deviation',      type:'float'},
+        {name:'absentee_rate',  type:'float', renderer: Ext.util.Format.numberRenderer('0.00')},
+        {name:'deviation',      type:'float', renderer: Ext.util.Format.numberRenderer('0.00')},
         {name:'id',             type:'int'},
         {name:'report_date',    renderer: Ext.util.Format.dateRenderer('m-d-Y')},
         {name:'alarm_query_id', type:'int'},
@@ -58,19 +58,19 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
     
     this.tmpl = new Ext.XTemplate(
       '<tpl for=".">',
-        '<div class="thumb-wrap {[this.ignore_alarm(values.ignore_alarm)]}">',
-          '<div class="alarm {alarm_severity}">',
+        //'<div class="{[this.ignore_alarm(values.ignore_alarm)]}">',
+          '<div class="{[this.ignore_alarm(values.ignore_alarm)]} alarm {alarm_severity}" id="{id}">',
             '<div>',
               '<b>Report Date:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b><span>{report_date}</span>',
             '</div>',
             '<div>',
-              '<b>Absentee Rate: </b><span>{absentee_rate}%</span>',
+              '<b>Absentee Rate: </b><span>{[this.format_number(values.absentee_rate)]}%</span>',
             '</div>',
             '<div>',
-              '<b>Deviation Rate: </b><span>{deviation}%</span>',
+              '<b>Deviation Rate: </b><span>{[this.format_number(values.deviation)]}%</span>',
             '</div>',
           '</div>',
-        '</div>',
+        //'</div>',
       '</tpl>',
       '<div class="x-clear"></div>',
       {
@@ -78,6 +78,10 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
         ignore_alarm: function(ignore)
         {
           if(ignore) return 'ignore';
+        },
+        format_number: function(number)
+        {
+          return Ext.util.Format.number(number, '0.00');
         }
       }
     );
@@ -85,6 +89,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
     Ext.applyIf(config,{
       id:     'alarm_panel',
       itemId: 'alarm_panel',
+      hideBorders: true,
       items:  new Ext.grid.GridPanel({
         store:       this.alarms_store,
         id:          'alarm_grid_panel',
@@ -123,6 +128,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
           rowclick:   this.row_click
         }
       }),
+      setToScroll:  false,
       layout:       'fit',
       layoutConfig: {
         animate:true
@@ -139,7 +145,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
 
   body_scroll: function(scroll_left, scroll_right)
   {
-    if(this.tip_array.length != 0) this.tip_array.pop().destroy();
+    if(this.tip_array.length != 0 && !this.setToScroll) this.tip_array.pop().destroy();
   },
 
   row_click: function(this_grid, index, event_obj)
@@ -152,6 +158,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       cls:      'alarm-tip',
       layout:   'fit',
       data:     [1],
+      //bodyStyle: 'background:#fff;',
       tpl:      new Ext.XTemplate(
         '<div class="all-purpose-load-icon"></div>',
         '<div class="x-tip-anchor x-tip-anchor-left x-tip-anchor-adjust"></div>'
@@ -183,6 +190,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
         tip.showBy(this_grid.getView().getRow(index), 'tl-tr');
         template.overwrite(tip.getComponent(0).getEl(),jsonObj);
         tip.getComponent(1).doLayout();
+        if(this.setToScroll) this.setToScroll = false;
       }
     });
   },
@@ -195,6 +203,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       cls:      'alarm-tip',
       scope:    this,
       layout:   'fit',
+      //bodyStyle: 'background:#fff;',
       items:    [template,new Ext.grid.GridPanel({
         row_record:  row_record,
         forceLayout: true,
@@ -417,8 +426,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
 
     if(!gmap_panel.map_ready){
       gmap_panel.on('mapready', set_markers, this);
-    }
-    else{
+    }else{
       set_markers.call(this);
     }
   },
@@ -452,9 +460,13 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
 
   remote_row_click: function(store_index)
   {
-    Ext.getCmp('alarm_panel').getComponent('alarm_grid_panel').view.toggleAllGroups(false);
-    Ext.getCmp('alarm_panel').getComponent('alarm_grid_panel').view.toggleRowIndex(store_index, true);
-    this.row_click(Ext.getCmp('alarm_panel').getComponent('alarm_grid_panel'),store_index,null);  
+    var grid         = this.getComponent('alarm_grid_panel');
+    var row_record   = grid.getStore().getAt(store_index);
+    this.setToScroll = true;
+    grid.view.toggleAllGroups(false);
+    grid.view.toggleRowIndex(store_index, true);
+    this.getEl().select("div[id='"+row_record.get('id')+"']").first().dom.scrollIntoView(this.getEl());
+    this.row_click(grid,store_index,null);  
   },
 
   build_gmap_marker_info: function(record, store_index)

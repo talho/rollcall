@@ -11,7 +11,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
       defaultType: 'portalcolumn',
       itemId:      'portalId_south',
       border:      false,
-      bodyStyle:   'padding:10 10 0 10;',
+      bodyStyle:   'padding:6px 10px 0px;',
       saved_store: new Ext.data.JsonStore({
         autoLoad: true,
         root:     'results',
@@ -45,21 +45,14 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
         html: '<div class="ux-empty-alarm-query-container"><p>There are no alarm queries.</p></div>'
       });
     }else{
-      if(this.getComponent('empty_alarm_query_container'))
+      if(this.getComponent('empty_alarm_query_container')){
         this.getComponent('empty_alarm_query_container').destroy();
+      }
       for(var cnt=0;cnt<alarm_queries.length;cnt++){
         var param_config          = alarm_queries[cnt].json;
         param_config.query_params = Ext.decode(alarm_queries[cnt].json.query_params);
         alarm_id                  = (param_config.alarm_set) ? 'alarm-on' : 'alarm-off';
         column_obj                = this.add({});
-
-        var alarm_html_desc       = '<div class="ux-alarm-tn-container">' +
-          '<b>Severity:</b> '  + param_config.severity_min  + ' - ' + param_config.severity_max  + '<br>' +
-          '<b>Deviation:</b> ' + param_config.deviation_min + ' - ' + param_config.deviation_max + '<br>';
-        for (param in param_config.query_params){
-          alarm_html_desc += '<b>'+param+':</b> ' + param_config.query_params[param] + '<br>';
-        }
-        alarm_html_desc += '</div>';
 
         var myData = new Array();
         myData.push(['severity_min', param_config.severity_min]);
@@ -79,8 +72,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
         var grid_obj = {
           xtype:   'grid',
           store:   store,
-          id:      'reports_grid',
-          itemId:  'reports_grid',
+          hideHeaders: true,
           columns: [
             {id:'settings', header: 'Settings', sortable: true, dataIndex: 'settings'},
             {id:'values', header: 'values', sortable: true, dataIndex: 'values'}
@@ -99,7 +91,8 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           collapsible:  false,
           draggable:    false,
           width:        200,
-          height:       90,
+          height:       100,
+          autoScroll:   true,
           tools:        [{
             id:      'run-query',
             qtip:    "Run This Query",
@@ -142,7 +135,6 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
             handler: this.deleteAlarmQuery
           }],
           cls:        'ux-alarm-thumbnails',
-          //html:       alarm_html_desc,
           adst_panel: this.adst_panel,
           items: [grid_obj]
         });

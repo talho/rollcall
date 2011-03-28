@@ -9,14 +9,14 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
       id:          "advanced_query_select",
       itemId:      "advanced_query_select",
       hidden:      true,
-      padding:     '0 0 5 5',
+      //padding:     '0 0 5 5',
       layout:     'auto',
       defaults:{
         xtype: 'container',
         layout: 'form',
         cls: 'ux-layout-auto-float-item',
         style: {
-          width: 'auto' ,
+          width:    '200px',
           minWidth: '200px'
         },
         defaults:{

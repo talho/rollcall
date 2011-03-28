@@ -24,9 +24,9 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         scope:      this,
         defaults: {
           collapsible: true,
-          split:       true,
-          cmargins:    '5 5 0 0',
-          margins:     '5 0 0 0'
+          split:       true//,
+          //cmargins:    '5 0 0 0',
+          //margins:     '5 0 0 0'
         },
         items: [{
           title:      'Alarm Queries',
@@ -39,17 +39,18 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           autoScroll: true,
           layout:     'fit',
           items:      new Talho.Rollcall.AlarmQueriesPanel({adst_panel: this})
-        },{
+        },/*{
           title:       'Reports',
           id:          'reports_panel',
           itemId:      'reports_panel',
           region:      'east',
           bodyStyle:   'padding:0px',
           layout:      'fit',
-          width:       150,
-          minSize:     100,
-          maxSize:     150,
+          width:       175,
+          minSize:     150,
+          maxSize:     175,
           autoScroll:  true,
+          hideBorders: true,
           items:       new Talho.Rollcall.ReportsPanel({}),
           bbar:[{
             text:    'Create',
@@ -62,14 +63,15 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
               this.ownerCt.ownerCt.getComponent('reports_grid').load_report_window();  
             }
           }]
-        },{
+        },*/{
           title:     'Alarms',
           region:    'west',
           layout:    'fit',
           bodyStyle: 'padding:0px',
-          width:     150,
-          minSize:   100,
-          maxSize:   150,
+          width:     175,
+          minSize:   150,
+          maxSize:   175,
+          hideBorders: true,
           items:     new Talho.Rollcall.AlarmsPanel({}),
           bbar:[{
             text:    'Refresh',
@@ -102,6 +104,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
             itemId: 'query_container',
             layout: 'column',
             scope:  this,
+            hideBorders: true,
             items:[{
               xtype:       'form',
               itemId:      'ADSTFormPanel',
@@ -159,11 +162,11 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     Talho.Rollcall.ADST.superclass.constructor.call(this, config);
     this.addListener("deactivate", function(w){
       if(Ext.getCmp('gmap_alarm_window')) Ext.getCmp('gmap_alarm_window').close();
-      this.get(0).get(2).getComponent('alarm_panel').close_alarm_tip();
+      this.get(0).get(1).getComponent('alarm_panel').close_alarm_tip();
     });
     this.addListener("close", function(w){
       if(Ext.getCmp('gmap_alarm_window')) Ext.getCmp('gmap_alarm_window').close();
-      this.get(0).get(2).getComponent('alarm_panel').close_alarm_tip();
+      this.get(0).get(1).getComponent('alarm_panel').close_alarm_tip();
     });
   },
   renderGraphs: function(id, image, obj, class_name)
@@ -343,7 +346,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           this.add(new Talho.Rollcall.AdvancedADSTContainer({options: records[0].data}));
           this.buttons[0].show();
           this.buttons[1].show();
-          this.ownerCt.ownerCt.ownerCt.getComponent('reports_panel').getBottomToolbar().findById('create_report_button').enable();
+          //this.ownerCt.ownerCt.ownerCt.getComponent('reports_panel').getBottomToolbar().findById('create_report_button').enable();
           this.doLayout();
         }
       }

@@ -117,6 +117,13 @@ class Rollcall::Rrd < Rollcall::Base
     end
     return true
   end
+
+  def self.update_rrd_data report_date, total_absent, total_enrolled, filename
+    rrd_path = Dir.pwd << "/rrd/"
+    rrd_tool = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
+    return RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,total_absent,total_enrolled],"#{rrd_tool}"   
+  end
+  
   private
 
   # Dev Note: All Date times must be in UTC format for rrd
@@ -135,7 +142,6 @@ class Rollcall::Rrd < Rollcall::Base
     else
       end_date = Time.gm(Time.parse(params[:enddt]).year, Time.parse(params[:enddt]).month, Time.parse(params[:enddt]).day) + 1.day
     end
-    #File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
     return RRD.graph(
       "#{rrd_path}#{rrd_file}","#{rrd_image_path}#{image_file}",
       {
@@ -376,20 +382,24 @@ class Rollcall::Rrd < Rollcall::Base
       (0..days).each do |i|
         report_date = start_date + i.days
         if(i == 0)
-          RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,0,total_enrolled],"#{rrd_tool}"
+          update_rrd_data report_date, 0, total_enrolled, filename
+          #RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,0,total_enrolled],"#{rrd_tool}"
         end
-        if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"        
-          RRD.update("#{rrd_path}#{filename}.rrd",[(report_date + 1.day).to_i.to_s,0,total_enrolled], "#{rrd_tool}")
+        if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
+          update_rrd_data report_date, 0, total_enrolled, filename
+          #RRD.update("#{rrd_path}#{filename}.rrd",[(report_date + 1.day).to_i.to_s,0,total_enrolled], "#{rrd_tool}")
         else
           total_absent = get_total_absent report_date, conditions, school_id
           begin
-            RRD.update "#{rrd_path}#{filename}.rrd",[(report_date + 1.day).to_i.to_s,total_absent, total_enrolled],"#{rrd_tool}"
+            update_rrd_data report_date + 1.day, total_absent, total_enrolled, filename
+            #RRD.update "#{rrd_path}#{filename}.rrd",[(report_date + 1.day).to_i.to_s,total_absent, total_enrolled],"#{rrd_tool}"
           rescue
           end
         end
         if(i == days.to_i)
           report_date = report_date + 1.day
-          RRD.update "#{rrd_path}#{filename}.rrd",[(report_date + 1.day).to_i.to_s,0,total_enrolled],"#{rrd_tool}"
+          update_rrd_data (report_date + 1.day), 0, total_enrolled, filename
+          #RRD.update "#{rrd_path}#{filename}.rrd",[(report_date + 1.day).to_i.to_s,0,total_enrolled],"#{rrd_tool}"
         end
       end
     end

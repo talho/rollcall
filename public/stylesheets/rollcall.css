@@ -102,6 +102,11 @@
   width: 15px !important;
   height: 15px !important;
 }
+.x-tool-report{
+  background: url(images/run-report-icon.png) 0px 0px no-repeat !important;
+  width: 14px !important;
+  height: 14px !important;
+}
 .base-line-check{
   clear:both;
   position: relative;

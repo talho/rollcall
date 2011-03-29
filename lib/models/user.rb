@@ -33,6 +33,10 @@ module Rollcall
       end
       alarm_queries
     end
+
+    def nurse_assistant(options={})
+      Rollcall::NurseAssistant.find_all_by_user_id(id)    
+    end
   end
 
   Dispatcher.to_prepare do

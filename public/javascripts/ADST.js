@@ -140,6 +140,20 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                 hidden:  true,
                 scope:   this,
                 handler: this.saveResultSet
+              },{
+                text:    "Generate Report from Result Set",
+                hidden:  true,
+                scope:   this,
+                handler: function()
+                {
+                  Ext.MessageBox.show({
+                    title: 'Generating Report',
+                    msg: 'Your report will be placed in the report portal when the system '+
+                    'is done generating it. Please check the report portal in a few minutes.',
+                    buttons: Ext.MessageBox.OK,
+                    icon: Ext.MessageBox.INFO
+                  });
+                }
               }],
               listeners:{
                 scope:        this,
@@ -316,6 +330,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     form_panel.buttons[2].show();
     form_panel.buttons[3].show();
     form_panel.buttons[4].show();
+    form_panel.buttons[5].show();
     var panel_mask = new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(), {msg:"Please wait..."});
     panel_mask.show();
     result_store.on('load', function(){ panel_mask.hide(); });

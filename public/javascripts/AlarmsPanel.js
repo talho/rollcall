@@ -153,7 +153,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
     var row_record = this_grid.getStore().getAt(index);
     if(this.tip_array.length != 0) this.tip_array.pop().destroy();
     var tip = new Ext.Tip({
-      title:    'Alarm Information for '+ row_record.get('school_name'),
+      title:    '<b>Alarm Information for '+ row_record.get('school_name')+'</b>',
       closable: true,
       cls:      'alarm-tip',
       layout:   'fit',
@@ -198,7 +198,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
   build_alarm_console: function (row_record, template, btn_txt)
   {
     return new Ext.Tip({
-      title:    'Alarm Information for '+ row_record.get('school_name'),
+      title:    '<b>Alarm Information for '+ row_record.get('school_name')+'</b>',
       closable: true,
       cls:      'alarm-tip',
       scope:    this,
@@ -475,9 +475,9 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
     var click_string  = "javascript:Ext.getCmp(\'alarm_panel\').remote_row_click("+store_index+")";
     var marker_info   = '<div class="school_marker_info">';
     marker_info      += "<b>School Name: </b>" + record.get("school_name") + "<br/>";
-    marker_info      += '<b>Absentee Rate: </b>'+record.get("absentee_rate")+'%<br/>';
-    marker_info      += '<b>Deviation Rate: </b>'+record.get("deviation")+'%<br/>';
-    marker_info      += '<b>Severity: </b>'+record.get("severity")+'%<br/>';
+    marker_info      += '<b>Absentee Rate: </b>'+Math.round(record.get("absentee_rate")*100)/100+'%<br/>';
+    marker_info      += '<b>Deviation Rate: </b>'+Math.round(record.get("deviation")*100)/100+'%<br/>';
+    marker_info      += '<b>Severity: </b>'+Math.round(record.get("severity")*100)/100+'%<br/>';
     marker_info      += '<a href="'+click_string+'">Click for more info</a>';
     marker_info      += '<br/><br/>';
     marker_info      += addr_elems[0] + "<br/>" + addr_elems[1] + "<br/>" + addr_elems.slice(2).join(",");

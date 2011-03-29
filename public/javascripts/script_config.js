@@ -7,6 +7,8 @@ Talho.ScriptManager.addInitializer('Talho.Rollcall.ADST', {
      '/javascripts/rollcall/AlarmsPanel.js /javascripts/rollcall/AdvancedADSTContainer.js ' +
      '( $(ext_extensions)/Portal.js > /javascripts/rollcall/ADSTResultPanel.js /javascripts/ext_extensions/GMapPanel.js )'
 });
+Talho.ScriptManager.addInitializer('Talho.Rollcall.Schools', {js:'/javascripts/rollcall/Schools.js'});
+
 Ext.sequence(Ext.form.SliderField.prototype, 'setValue', function() {
 	this.fireEvent('change', this, this.getValue());
 }); 

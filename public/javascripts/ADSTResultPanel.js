@@ -76,6 +76,19 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           qtip:    'Pin This Graph',
           handler: this.pinGraph
         },{
+          id:      'report',
+          qtip:    'Generate Report',
+          handler: function(e, targetEl, panel, tc)
+          {
+            Ext.MessageBox.show({
+              title: 'Generating Report',
+              msg: 'Your report will be placed in the report portal when the system '+
+              'is done generating it. Please check the report portal in a few minutes.',
+              buttons: Ext.MessageBox.OK,
+              icon: Ext.MessageBox.INFO
+            });
+          }
+        },{
           id:      'gis',
           qtip:    'Show School Profile',
           handler: this.showSchoolProfile

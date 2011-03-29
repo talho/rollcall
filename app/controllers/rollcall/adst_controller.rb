@@ -73,6 +73,17 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     end
   end
 
+  def report
+    Rollcall::Rrd.send_later(:generate_report, params, current_user)
+    respond_to do |format|
+      format.json do
+        render :json => {
+          :success => true  
+        }
+      end
+    end
+  end
+
   def get_options
     absenteeism = [
       {:id => 0, :value => 'Gross'},

@@ -28,14 +28,14 @@ class Rollcall::Rrd < Rollcall::Base
     results        = find(:all, :conditions => ['file_name LIKE ?', "#{some_file_name}.rrd"]).first
     school_name    = school.display_name.gsub(" ", "_")
     if conditions[:confirmed_illness].blank?
-      graph_title    = "Gross Absenteeism Rate for #{school_name}"
+      graph_title    = "Gross Absenteeism for #{school_name}"
     else
-      graph_title    = "Confirmed Absenteeism Rate for #{school_name}"
+      graph_title    = "Confirmed Absenteeism for #{school_name}"
     end
 
     unless params[:symptoms].blank?
       if params[:symptoms].index("...").blank?
-        graph_title = "Absenteeism Rate for #{school_name} based on #{params[:symptoms]}"
+        graph_title = "Absenteeism for #{school_name} based on #{params[:symptoms]}"
       end
     end
     if results.blank?
@@ -67,9 +67,9 @@ class Rollcall::Rrd < Rollcall::Base
         rrd_file    = find(:all, :conditions => ['id LIKE ?', "#{alarm_query.rrd_id}"]).first.file_name
         image_file  = rrd_file.gsub(".rrd", ".png")
         school_name = Rollcall::School.find_by_tea_id(tea_id).display_name.gsub(" ", "_")
-        graph_title = "Absenteeism Rate for #{school_name}"
+        graph_title = "Absenteeism for #{school_name}"
         unless params[:symptoms].blank?
-          graph_title = "Absenteeism Rate for #{school_name} based on #{params[:symptoms]}"
+          graph_title = "Absenteeism for #{school_name} based on #{params[:symptoms]}"
         end
         rrd_image_path = Dir.pwd << "/public/rrd/"
         File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
@@ -83,24 +83,12 @@ class Rollcall::Rrd < Rollcall::Base
   end
 
   def self.export_rrd_data params, filename, user_obj
-    initial_result = Rollcall::School.search params
-    test_data_date = Time.parse("11/22/2010")
-    start_date     = params[:startdt].index('...') ? test_data_date : Time.parse(params[:startdt])
-    end_date       = params[:enddt].index('...') ? Time.now : Time.parse(params[:enddt])
-    conditions     = set_conditions params
-    @csv_data      = "School Name,TEA ID,Total Absent,Total Enrolled,Report Date\n"
-    initial_result.each do |rec|
-      days = ((end_date - start_date) / 86400)
-      (0..days).each do |i|
-        report_date = start_date + i.days
-        school_info = Rollcall::SchoolDailyInfo.find_by_report_date_and_school_id(report_date, rec.id)
-        unless school_info.blank?
-          total_enrolled = school_info.total_enrolled
-          total_absent   = get_total_absent report_date, conditions, rec.id
-          @csv_data      = "#{@csv_data}#{rec.display_name},#{rec.tea_id},#{total_absent},#{total_enrolled},#{report_date}\n"
-        end
-      end
-    end
+    initial_result     = Rollcall::School.search params
+    test_data_date     = Time.parse("11/22/2010")
+    start_date         = params[:startdt].index('...') ? test_data_date : Time.parse(params[:startdt])
+    end_date           = params[:enddt].index('...') ? Time.now : Time.parse(params[:enddt])
+    conditions         = set_conditions params
+    @csv_data          = build_csv_string initial_result, end_date, start_date, conditions
     newfile            = File.join(Rails.root,'tmp',"#{filename}.csv")
     file_result        = File.open(newfile, 'wb') {|f| f.write(@csv_data) }
     file               = File.new(newfile, "r")
@@ -113,6 +101,22 @@ class Rollcall::Rrd < Rollcall::Base
     return true
   end
 
+  def self.generate_report params, user_obj
+    initial_result     = Rollcall::School.search params
+    test_data_date     = Time.parse("11/22/2010")
+    start_date         = params[:startdt].index('...') ? test_data_date : Time.parse(params[:startdt])
+    end_date           = params[:enddt].index('...') ? Time.now : Time.parse(params[:enddt])
+    conditions         = set_conditions params
+    report_data        = build_report initial_result, end_date, start_date, conditions
+    report_file        = user_obj.reports.build({:report => report_data, :template => report_template})
+    @document          = user_obj.documents.build({:folder_id => nil, :file => report_file})
+    @document.owner_id = user_obj.id
+    @document.save!
+    if !@document.folder.nil? && @document.folder.notify_of_document_addition
+      DocumentMailer.deliver_document_addition(@document, user_obj)
+    end
+    return true
+  end
   private
 
   # Dev Note: All Date times must be in UTC format for rrd
@@ -148,6 +152,42 @@ class Rollcall::Rrd < Rollcall::Base
         :cdefs      => build_cdefs(params),
         :elements   => build_elements(params)
       }, "#{rrd_tool}")
+  end
+
+  def self.build_csv_string data_obj, end_date, start_date, conditions
+    csv_data = "School Name,TEA ID,Total Absent,Total Enrolled,Report Date\n"
+    data_obj.each do |rec|
+      days = ((end_date - start_date) / 86400)
+      (0..days).each do |i|
+        report_date = start_date + i.days
+        school_info = Rollcall::SchoolDailyInfo.find_by_report_date_and_school_id(report_date, rec.id)
+        unless school_info.blank?
+          total_enrolled = school_info.total_enrolled
+          total_absent   = get_total_absent report_date, conditions, rec.id
+          csv_data       = "#{csv_data}#{rec.display_name},#{rec.tea_id},#{total_absent},#{total_enrolled},#{report_date}\n"
+        end
+      end
+    end
+    csv_data
+  end
+
+  def self.build_report data_obj, end_date, start_date, conditions
+    result = [];
+    data_obj.each do |rec|
+      days = ((end_date - start_date) / 86400)
+      (0..days).each do |i|
+        report_date = start_date + i.days
+        school_info = Rollcall::SchoolDailyInfo.find_by_report_date_and_school_id(report_date, rec.id)
+        unless school_info.blank?
+          result.push({
+            :total_enrolled => school_info.total_enrolled,
+            :total_absent   => get_total_absent(report_date, conditions, rec.id),
+            :report_date    => report_date
+          })
+        end
+      end
+    end
+    result
   end
 
   def self.build_defs options

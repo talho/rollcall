@@ -124,10 +124,10 @@ Rollcall::SchoolDistrict.all.each do |district|
       # Attendance
       attendance_fp.puts [curdate, tea_id, school.display_name, total_absent].join(",")
       # ILI
-      ili_fp.puts ["CID", begin_time.year, tea_id, school.display_name, curdate, curdate,
+      ili_fp.puts [i, begin_time.year, tea_id, school.display_name, curdate, curdate,
         98.6, "\"Lethargy,Cough\"", school.postal_code, "7th", "inSchool",
         "confirmed", "released", "diagnosis", "treatment", "student name",
-        "emg contact", "emg phone", "DOB", "gender", "race",
+        "emg contact", "emg phone", "DOB", "M", "race",
         "physician follow-up date", "doctor", "doctor addr"
       ].join(",")
     end

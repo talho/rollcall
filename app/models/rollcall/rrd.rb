@@ -198,73 +198,35 @@ class Rollcall::Rrd < Rollcall::Base
 
   def self.build_defs options
     defs = []
-    defs.push({
-      :key     => "a",
-      :cf      => "LAST",
-      :ds_name => "Absent"
-    })
+    defs.push({:key => "a", :cf => "LAST", :ds_name => "Absent"})
     if options[:enrolled_base_line] == "on"
-      defs.push({
-        :key     => "b",
-        :cf      => "LAST",
-        :ds_name => "Enrolled"
-      })
+      defs.push({:key => "b", :cf => "LAST", :ds_name => "Enrolled"})
     end
-    return defs
+    defs
   end
 
   def self.build_cdefs options
-    cdefs   = []
-    if options[:data_func] == "Standard+Deviation"
-      cdefs.push({
-        :key     => 'a',
-        :new_key => 'avg',
-        :rpn     => ['POP','a','PREV','UN','0','PREV','IF','+']
-      })
-      cdefs.push({
-        :key     => 'avg',
-        :new_key => 'meanavg',
-        :rpn     => ['COUNT','/']
-      })
-      cdefs.push({
-        :key     => 'a',
-        :new_key => 'avgdiff',
-        :rpn     => ['POP','meanavg','PREV','UN','0','PREV','IF','-']
-      })
-      cdefs.push({
-        :key     => 'avgdiff',
-        :new_key => 'avgsqr',
-        :rpn     => ['avgdiff','*']
-      })
-      cdefs.push({
-        :key     => 'avgsqr',
-        :new_key => 'avgsqrttl',
-        :rpn     => ['POP','avgsqr','PREV','UN','0','PREV','IF','+']
-      })
-      cdefs.push({
-        :key     => 'avgsqrttl',
-        :new_key => 'avgsqrdiv',
-        :rpn     => ['COUNT','/']
-      })
-      cdefs.push({
-        :key     => 'avgsqrdiv',
-        :new_key => 'msd',
-        :rpn     => ['SQRT']
-      })
+    cdefs = []
+    case options[:data_func]
+    when "Standard+Deviation"
+      cdefs.push({:key => 'a', :new_key => 'sum', :rpn => ['PREV','UN','0','PREV','IF','+']})
+      cdefs.push({:key => 'sum', :new_key => 'meanavg', :rpn => ['COUNT','/']})
+      cdefs.push({:key => 'meanavg', :new_key => 'avgdiff', :rpn => ['PREV','UN','0','PREV','IF','-']})
+      cdefs.push({:key => 'avgdiff', :new_key => 'avgsqr', :rpn => ['avgdiff','*']})
+      cdefs.push({:key => 'avgsqr', :new_key => 'avgsqrttl', :rpn => ['PREV','UN','0','PREV','IF','+']})
+      cdefs.push({:key => 'avgsqrttl', :new_key => 'avgsqrdiv', :rpn => ['COUNT','/']})
+      cdefs.push({:key => 'avgsqrdiv', :new_key => 'msd', :rpn => ['SQRT']})
+    when "Average"
+      cdefs.push({:key => 'a', :new_key => 'sum', :rpn => ['PREV','UN','0','PREV','IF','+']})
+      cdefs.push({:key => 'sum', :new_key => 'mavg', :rpn => ['COUNT','/']})
+    when "Moving+Average+30+Day"
+      cdefs.push({:key => 'a', :new_key => 'mavg30d', :rpn => [2592000,'TREND']})
+    when "Moving+Average+60+Day"
+      cdefs.push({:key => 'a', :new_key => 'mavg60d', :rpn => [5184000,'TREND']})
+    when "Cusum"
+      cdefs.push({:key => 'a', :new_key => 'cusum', :rpn => ['PREV','UN','0','PREV','IF','+','20','-','0','MAX']})
     end
-    if options[:data_func] == "Average"
-      cdefs.push({
-        :key     => 'a',
-        :new_key => 'avg',
-        :rpn     => ['POP','a','PREV','UN','0','PREV','IF','+']
-      })
-      cdefs.push({
-        :key     => 'avg',
-        :new_key => 'mavg',
-        :rpn     => ['COUNT','/']
-      })
-    end
-    return cdefs
+    cdefs
   end
 
   def self.build_elements options
@@ -275,52 +237,29 @@ class Rollcall::Rrd < Rollcall::Base
     else
       absent_text = "Total Gross Absent"
     end 
-    if options[:data_func] == "Standard+Deviation"
-      elements.push({
-        :key     => 'a',
-        :element => "AREA",
-        :color   => school_color,
-        :text    => absent_text
-      })
+    elements.push({:key => 'a', :element => "AREA", :color => school_color, :text => absent_text})
+    case options[:data_func]
+    when "Standard+Deviation"
       school_color = get_random_color
-      elements.push({
-        :key     => 'msd',
-        :element => "LINE1",
-        :color   => school_color,
-        :text    => "Moving Standard Deviation"
-      })
-    else
-      if options[:data_func] == "Average"
-        elements.push({
-          :key     => 'a',
-          :element => "AREA",
-          :color   => school_color,
-          :text    => absent_text
-        })
-        school_color = get_random_color
-        elements.push({
-          :key     => 'mavg',
-          :element => "LINE1",
-          :color   => school_color,
-          :text    => "Moving Absent Average"
-        })
-      else
-        elements.push({
-          :key     => 'a',
-          :element => "AREA",
-          :color   => school_color,
-          :text    => absent_text
-        })
-      end
+      elements.push({:key => 'msd', :element => "LINE1", :color => school_color, :text => "Moving Standard Deviation"})
+    when "Average"
+      school_color = get_random_color
+      elements.push({:key => 'mavg', :element => "LINE1", :color => school_color, :text => "Average"})
+    when "Moving+Average+30+Day"
+      school_color = get_random_color
+      elements.push({:key => 'mavg30d', :element => "LINE1", :color => school_color, :text => "Moving Average 30 Day"})
+    when "Moving+Average+60+Day"
+      school_color = get_random_color
+      elements.push({:key => 'mavg60d', :element => "LINE1", :color => school_color, :text => "Moving Average 60 Day"})
+    when "Cusum"
+      school_color = get_random_color
+      elements.push({:key => 'cusum', :element => "LINE1", :color => school_color, :text => "Cusum"})
     end
     school_color = get_random_color
-    elements.push({
-      :key     => 'b',
-      :element => "LINE1",
-      :color   => school_color,
-      :text    => "Total Enrolled"
-    }) if options[:enrolled_base_line] == "on"
-    return elements
+    if options[:enrolled_base_line] == "on"
+      elements.push({:key => 'b', :element => "LINE1", :color => school_color, :text => "Total Enrolled"})
+    end
+    elements
   end
 
   def self.reduce_rrd params, school_id, conditions, filename, rrd_file, rrd_image_path, image_file, graph_title
@@ -383,23 +322,19 @@ class Rollcall::Rrd < Rollcall::Base
         report_date = start_date + i.days
         if(i == 0)
           update_rrd_data report_date, 0, total_enrolled, filename
-          #RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,0,total_enrolled],"#{rrd_tool}"
         end
         if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
-          update_rrd_data report_date, 0, total_enrolled, filename
-          #RRD.update("#{rrd_path}#{filename}.rrd",[(report_date + 1.day).to_i.to_s,0,total_enrolled], "#{rrd_tool}")
+          update_rrd_data report_date + 1.day, 0, total_enrolled, filename
         else
           total_absent = get_total_absent report_date, conditions, school_id
           begin
             update_rrd_data report_date + 1.day, total_absent, total_enrolled, filename
-            #RRD.update "#{rrd_path}#{filename}.rrd",[(report_date + 1.day).to_i.to_s,total_absent, total_enrolled],"#{rrd_tool}"
           rescue
           end
         end
         if(i == days.to_i)
           report_date = report_date + 1.day
           update_rrd_data (report_date + 1.day), 0, total_enrolled, filename
-          #RRD.update "#{rrd_path}#{filename}.rrd",[(report_date + 1.day).to_i.to_s,0,total_enrolled],"#{rrd_tool}"
         end
       end
     end

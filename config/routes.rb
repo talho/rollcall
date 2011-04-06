@@ -6,7 +6,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :nurse_assistant, :controller => "rollcall/nurse_assistant", :as => "rollcall/nurse_assistant"
   map.get_schools_for_combobox "/rollcall/get_schools_for_combobox", :controller => "rollcall/school", :action => "get_schools_for_combobox"
   map.get_query_options "/rollcall/query_options", :controller => "rollcall/adst", :action => "get_options"
-  map.get_nurse_assistant_options "rollcall/nurse_assistant", :controller => "rollcall/nurse_assistant", :action => "get_options"
+  map.get_nurse_assistant_options "rollcall/nurse_assistant_options", :controller => "rollcall/nurse_assistant", :action => "get_options"
   map.get_info "/rollcall/get_info", :controller => "rollcall/adst", :action => "get_info"
   map.export "/rollcall/export", :controller => "rollcall/adst", :action => "export"
   map.report "/rollcall/report", :controller => "rollcall/adst", :action => "report"

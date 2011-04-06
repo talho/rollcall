@@ -1,9 +1,20 @@
 class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
   def index
-    student_records = current_user.nurse_assistant(params)
+    student_records = Rollcall::StudentDailyInfo.find(:all, :include => :student, :conditions => ["student_id = rollcall_students.id"])
+    student_records.each do |record|
+      symptom_array  = []
+      student_obj    = record.student
+      record.symptoms.each do |symptom|
+        symptom_array.push(symptom.name)
+      end
+      record[:symptom]    = symptom_array.join(",")
+      record[:first_name] = record.student.first_name
+      record[:last_name]  = record.student.last_name
+      record[:student]    = record.student
+    end
     respond_to do |format|
       format.json do
-        original_included_root = ActiveRecord::Base.include_root_in_json
+        original_included_root                  = ActiveRecord::Base.include_root_in_json
         ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :success       => true,
@@ -16,18 +27,79 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
   end
 
   def create
-    result = Rollcall::NurseAssistant.create_associative_data params, current_user.id
+    report_date    = Time.now
+    school_info    = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date params[:school_id], report_date
+    total_absent   = nil
+    total_enrolled = nil
+
+    if school_info.blank?
+      if params[:total_enrolled_alpha_value]
+        total_enrolled = params[:total_enrolled_alpha_value]
+      else
+        sdi            = Rollcall::SchoolDailyInfo.find_all_by_school_id(params[:school_id], :order => "report_date ASC")
+        total_enrolled = sdi.last.total_enrolled
+      end
+      total_absent = 1
+      school_info  = Rollcall::SchoolDailyInfo.create(
+        :school_id          => params[:school_id],
+        :total_absent       => total_absent,
+        :total_enrolled     => total_enrolled,
+        :report_date        => report_date
+      )
+    else
+      total_enrolled = school_info.total_enrolled
+      total_absent   = school_info.total_absent + 1
+      school_info.update_attributes(
+        :total_absent => total_absent,
+        :report_date  => report_date
+      )
+      school_info.save!
+    end
+
+    student_obj = Rollcall::Student.create(
+      :first_name         => params[:first_name],
+      :last_name          => params[:last_name],
+      :contact_first_name => params[:contact_first_name],
+      :contact_last_name  => params[:contact_last_name],
+      :address            => params[:address],
+      :zip                => params[:zip],
+      :gender             => params[:gender],
+      :phone              => params[:phone].to_i,
+      :race               => params[:race].to_i,
+      :school_id          => params[:school_id].to_i,
+      :dob                => Time.parse("#{params[:dob]}"),
+      :student_number     => 0001,
+      :user_id            => current_user.id
+    )
+    daily_info = Rollcall::StudentDailyInfo.create(
+      :school_id          => params[:school_id],
+      :grade              => params[:grade],
+      :confirmed_illness  => !params[:symptoms].blank?,
+
+      :treatment          => params[:action],
+      :report_date        => report_date,
+      :student_id         => student_obj.id,
+      :date_of_onset      => report_date,
+      :in_school          => true,
+      :released           => true
+    )
+    symptom_id      = Rollcall::Symptom.find_by_name('Temperature').id
+    student_symptom = Rollcall::StudentReportedSymptoms.create :student_daily_info_id => daily_info.id, :symptom_id => symptom_id
+    tea_id          = Rollcall::School.find_by_id(params[:school_id]).tea_id
+    file_name       = "#{tea_id}_absenteeism"
+    rrd_result      = Rollcall::Rrd.update_rrd_data report_date, total_absent, total_enrolled, file_name
+   
     respond_to do |format|
       format.json do
         render :json => {
-          :success => result
+          :success => !student_obj.blank?
         }
       end
     end
   end
 
   def update
-    student_record = Rollcall::NurseAssistant.find(params[:id])
+    student_record = Rollcall::StudentDailyInfo.find(params[:id])
     success        = student_record.update_attributes params
     student_record.save if success
     respond_to do |format|
@@ -106,10 +178,18 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
     ]
     symptoms             = Rollcall::Symptom.find(:all)
     zipcodes             = current_user.school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
-    total_enrolled_alpha = Rollcall::SchoolDailyInfo.find_all_by_school_id(obj.school_id).blank?
+    unless Rollcall::Student.find_by_user_id(current_user.id).blank?
+      school_id            = Rollcall::Student.find_by_user_id(current_user.id).school_id
+      app_init             = false
+      total_enrolled_alpha = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id).blank?
+    else
+      app_init             = true
+      total_enrolled_alpha = true
+    end
+
     respond_to do |format|
       format.json do
-        original_included_root = ActiveRecord::Base.include_root_in_json
+        original_included_root                  = ActiveRecord::Base.include_root_in_json
         ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :options => [{
@@ -118,8 +198,9 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
             :gender               => gender,
             :grade                => grade,
             :symptoms             => symptoms,
-            :zipcode              => zipcodes,
-            :total_enrolled_alpha => total_enrolled_alpha
+            :zip                  => zipcodes,
+            :total_enrolled_alpha => total_enrolled_alpha,
+            :app_init             => app_init
           }]
         }
         ActiveRecord::Base.include_root_in_json = original_included_root

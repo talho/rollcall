@@ -41,8 +41,9 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
     if(alarm_queries.length == 0){
       column_obj = this.add({itemId: 'empty_alarm_query_container'});
       result_obj = column_obj.add({
-        cls: 'ux-alarm-thumbnails',
-        html: '<div class="ux-empty-alarm-query-container"><p>There are no alarm queries.</p></div>'
+        cls:    'ux-alarm-thumbnails',
+        html:   '<div class="ux-empty-alarm-query-container"><p>There are no alarm queries.</p></div>',
+        height: 100
       });
     }else{
       if(this.getComponent('empty_alarm_query_container')){

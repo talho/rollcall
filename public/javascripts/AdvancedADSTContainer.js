@@ -112,7 +112,12 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             allowBlank: true,
             id: 'symptoms_adv',
             displayField: 'name',
-            store: new Ext.data.JsonStore({fields: ['id', 'name'], data: config.options.symptoms})
+            valueField: 'icd9_code',
+            hiddenName: 'icd9_code_adv',
+            store: new Ext.data.JsonStore({fields: ['id', 'name', 'icd9_code'], data: config.options.symptoms}),
+            tpl: new Ext.XTemplate(
+              '<tpl for="."><div ext:qtip="{name} - {icd9_code}" class="x-combo-list-item">{name} - {icd9_code}</div></tpl>'
+            )
           })
         },{
           items: new Talho.Rollcall.ux.ComboBox({

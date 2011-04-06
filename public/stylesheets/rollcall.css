@@ -32,9 +32,10 @@
 }
 .ux-empty-alarm-query-container{
   background: url(images/saved_query_icon_ext.png) no-repeat;
+  height: 60px;
 }
 .ux-empty-alarm-query-container p{
-  padding:25px 90px;
+  padding:5px 0px 0px 70px;
   font-size: 2em;
 }
 .clear{

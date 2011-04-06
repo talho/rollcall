@@ -144,17 +144,15 @@ namespace :rollcall do
         "rrdtool"
       end
       #Change current_time to desired test range to best suite your environment
-      y = Time.now.year
-      m = Time.now.month
-      d = Time.now.day
-      current_time = Time.gm(y, m, d)
+      begin_time = Time.gm(2010,"sep",01,0,0)
       if !ARGV[1].blank?
         months_to_generate = ARGV[1].to_i.abs
-        y_begin = y + (m - months_to_generate - 1).div(12)
-        m_begin = (m - months_to_generate - 1) % 12 + 1
-        begin_time = Time.gm(y_begin, m_begin, d)
+        current_time       = begin_time + months_to_generate.to_i.months
       else
-        begin_time = Time.gm(2010,"sep",01,0,0)
+        y            = Time.now.year
+        m            = Time.now.month
+        d            = Time.now.day
+        current_time = Time.gm(y, m, d)
       end
       days_to_traverse = ((current_time - begin_time) / 86400).to_i
       puts "Generating data for #{days_to_traverse} days ..."

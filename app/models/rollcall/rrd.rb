@@ -308,13 +308,15 @@ class Rollcall::Rrd < Rollcall::Base
         parsed_sd  = Time.parse(conditions[:startdt])
         start_date = Time.gm(parsed_sd.year,parsed_sd.month,parsed_sd.day)
       else
-        start_date = Time.gm(2010, "sep", 01,0,0)
+        first_start_date = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id, :order => "report_date DESC").last.report_date
+        start_date       = Time.gm(first_start_date.year, first_start_date.month, first_start_date.day)
       end
       if !conditions[:enddt].blank?
         parsed_ed  = Time.parse(conditions[:enddt])
         end_date   = Time.gm(parsed_ed.year,parsed_ed.month,parsed_ed.day)
       else
-        end_date   = Time.gm(Time.now.year, Time.now.month, Time.now.day)
+        last_end_date  = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id, :order => "report_date ASC").last.report_date
+        end_date       = Time.gm(last_end_date.year, last_end_date.month, last_end_date.day)
       end
       days           = ((end_date - start_date) / 86400)
       total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
@@ -352,18 +354,20 @@ class Rollcall::Rrd < Rollcall::Base
             conditions[:confirmed_illness] = true
           end
         when "gender"
-          conditions[:gender]  = 'M' if value == "Male"
-          conditions[:gender]  = 'F' if value == "Female"
+          conditions[:gender]    = 'M' if value == "Male"
+          conditions[:gender]    = 'F' if value == "Female"
         when "age"
-          conditions[:age]     = value.to_i
+          conditions[:age]       = value.to_i
         when "grade"
-          conditions[:grade]   = value.to_i
+          conditions[:grade]     = value.to_i
+        when "icd9_code"
+          conditions[:icd9_code] = value
         when "symptoms"
-          conditions[:symptom] = value.gsub("+", " ")
+          conditions[:symptom]   = value.gsub("+", " ")
         when "startdt"
-          conditions[:startdt] = value
+          conditions[:startdt]   = value
         when "enddt"
-          conditions[:enddt]   = value
+          conditions[:enddt]     = value
         else
         end
       end
@@ -384,6 +388,8 @@ class Rollcall::Rrd < Rollcall::Base
         filename = "GRD-#{value.to_i}_#{filename}"
       when :symptoms
         filename = "SYM-#{value.gsub("+", "_")}_#{filename}"
+      when :icd9_code
+        filename = "ICD9-#{value}_#{filename}"
       when :startdt
         filename = "SD-#{Time.parse(value).strftime("%s")}_#{filename}"
       when :enddt
@@ -395,11 +401,11 @@ class Rollcall::Rrd < Rollcall::Base
   end
 
   def self.get_total_absent report_date, conditions, school_id
-    condition_array  = []
+    condition_array = []
     string_flag      = false
     condition_array.push("")
     conditions.each{|key,value|
-      if key != :symptom && key != :startdt && key != :enddt && key != :zipcode
+      if key != :symptom && key != :icd9_code && key != :startdt && key != :enddt && key != :zipcode
         condition_array[0] += " AND " if string_flag
         condition_array[0] += "#{key} = ?"
         string_flag         = true unless string_flag
@@ -410,19 +416,18 @@ class Rollcall::Rrd < Rollcall::Base
     condition_array[0] += "report_date = ? AND school_id = ?"
     condition_array.push(report_date)
     condition_array.push(school_id)
-    daily_result = Rollcall::StudentDailyInfo.find(:all, :conditions => condition_array)
-    unless conditions[:symptom].blank?
-      symptom_id            = Rollcall::Symptom.find_by_name(conditions[:symptom]).id
-      student_symptom_count = 0
-      daily_result.each do |rec|
-        unless Rollcall::StudentReportedSymptoms.find_by_symptom_id_and_student_daily_info_id(symptom_id, rec.id).blank?
-          student_symptom_count += 1
-        end
-      end
-      total_absent = student_symptom_count
+
+    unless conditions[:icd9_code].blank?
+      symptom_id   = Rollcall::Symptom.find_by_icd9_code(conditions[:icd9_code]).id
+      join_string  = "INNER JOIN rollcall_student_reported_symptoms ON
+                     rollcall_student_daily_infos.id = rollcall_student_reported_symptoms.student_daily_info_id AND
+                     rollcall_student_reported_symptoms.symptom_id = #{symptom_id}"
+      total_absent = Rollcall::StudentDailyInfo.find(:all, :include => :student_reported_symptoms, :joins => join_string, :conditions => condition_array).size
+
     else
-      total_absent = daily_result.size
+      total_absent = Rollcall::StudentDailyInfo.find(:all, :conditions => condition_array).size
     end
+
     return total_absent
   end
 

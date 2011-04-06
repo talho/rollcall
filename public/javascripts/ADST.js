@@ -39,31 +39,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           autoScroll: true,
           layout:     'fit',
           items:      new Talho.Rollcall.AlarmQueriesPanel({adst_panel: this})
-        },/*{
-          title:       'Reports',
-          id:          'reports_panel',
-          itemId:      'reports_panel',
-          region:      'east',
-          bodyStyle:   'padding:0px',
-          layout:      'fit',
-          width:       175,
-          minSize:     150,
-          maxSize:     175,
-          autoScroll:  true,
-          hideBorders: true,
-          items:       new Talho.Rollcall.ReportsPanel({}),
-          bbar:[{
-            text:    'Create',
-            iconCls: 'documents-add-icon',
-            id:      'create_report_button',
-            itemId:  'create_report_button',
-            disabled: true,
-            handler: function(btn,event)
-            {
-              this.ownerCt.ownerCt.getComponent('reports_grid').load_report_window();  
-            }
-          }]
-        },*/{
+        },{
           title:     'Alarms',
           region:    'west',
           layout:    'fit',

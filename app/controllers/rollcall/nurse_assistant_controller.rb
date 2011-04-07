@@ -55,7 +55,15 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       )
       school_info.save!
     end
-
+    race = [
+      {:id => 0, :value => 'Select Race...'},
+      {:id => 1, :value => 'White'},
+      {:id => 2, :value => 'Black'},
+      {:id => 3, :value => 'Asian'},
+      {:id => 4, :value => 'Hispanic'},
+      {:id => 5, :value => 'Native American'},
+      {:id => 6, :value => 'Other'}
+    ]
     student_obj = Rollcall::Student.create(
       :first_name         => params[:first_name],
       :last_name          => params[:last_name],
@@ -63,9 +71,9 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       :contact_last_name  => params[:contact_last_name],
       :address            => params[:address],
       :zip                => params[:zip],
-      :gender             => params[:gender],
+      :gender             => params[:gender].first,
       :phone              => params[:phone].to_i,
-      :race               => params[:race].to_i,
+      :race               => race.each do |rec, index| rec[:value] == params[:race] ? index : 0  end,
       :school_id          => params[:school_id].to_i,
       :dob                => Time.parse("#{params[:dob]}"),
       :student_number     => 0001,
@@ -73,17 +81,17 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
     )
     daily_info = Rollcall::StudentDailyInfo.create(
       :school_id          => params[:school_id],
-      :grade              => params[:grade],
+      :grade              => params[:grade].to_i,
       :confirmed_illness  => !params[:symptoms].blank?,
 
-      :treatment          => params[:action],
+      :treatment          => params[:treatment],
       :report_date        => report_date,
       :student_id         => student_obj.id,
       :date_of_onset      => report_date,
       :in_school          => true,
       :released           => true
     )
-    symptom_id      = Rollcall::Symptom.find_by_name('Temperature').id
+    symptom_id      = Rollcall::Symptom.find_by_name(params[:symptoms]).id
     student_symptom = Rollcall::StudentReportedSymptoms.create :student_daily_info_id => daily_info.id, :symptom_id => symptom_id
     tea_id          = Rollcall::School.find_by_id(params[:school_id]).tea_id
     file_name       = "#{tea_id}_absenteeism"
@@ -132,10 +140,10 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
     race = [
       {:id => 0, :value => 'Select Race...'},
       {:id => 1, :value => 'White'},
-      {:id => 2, :value => 'Black or African American'},
+      {:id => 2, :value => 'Black'},
       {:id => 3, :value => 'Asian'},
-      {:id => 4, :value => 'American Indian or Alaska Native'},
-      {:id => 5, :value => 'Native Hawaiian or other Pacific Islande'},
+      {:id => 4, :value => 'Hispanic'},
+      {:id => 5, :value => 'Native American'},
       {:id => 6, :value => 'Other'}
     ]
     age = [

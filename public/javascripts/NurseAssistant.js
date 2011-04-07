@@ -3,11 +3,11 @@ Ext.ns("Talho.Rollcall");
 Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
   constructor: function(config){
     this.init_store = new Ext.data.JsonStore({
-      root:     'options',
-      fields:   ['race', 'age', 'gender', 'grade', 'symptoms', 'zipcode', 'total_enrolled_alpha', 'app_init'],
-      url:      '/rollcall/nurse_assistant_options',
-      autoLoad: true,
-      listeners:{
+      root:      'options',
+      fields:    ['race', 'age', 'gender', 'grade', 'symptoms', 'zip', 'total_enrolled_alpha', 'app_init'],
+      url:       '/rollcall/nurse_assistant_options',
+      autoLoad:  true,
+      listeners: {
         scope: this,
         load:  function(this_store, records){}
       }
@@ -17,22 +17,11 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
       root:          'results',
       totalProperty: 'total_results',
       fields: [
-        //{name:'id',                 type:'int'},
-        //{name:'school_id',          type:'int'},
         {name:'first_name',         type:'string'},
         {name:'last_name',          type:'string'},
-        //{name:'contact_first_name', type:'string'},
-        //{name:'contact_last_name',  type:'string'},
-        //{name:'address',            type:'string'},
-        //{name:'zip',                type:'string'},
-
-        //{name:'phone',              type:'string'},
         {name:'symptom',            type:'string'},
         {name:'treatment',          type:'string'},
-        //{name:'created_at',         type:'date', dateFormat:'timestamp'},
-        //{name:'updated_at',         type:'date', dateFormat:'timestamp'},
-        {name:'report_date',        renderer: Ext.util.Format.dateRenderer('m-d-Y')},
-        //{name:'report_month',       renderer: Ext.util.Format.dateRenderer('M')},
+        {name:'report_date',        renderer: Ext.util.Format.dateRenderer('m-d-Y')}
       ]
     });
 
@@ -115,127 +104,175 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
 
   show_new_window:function(){
     var win = new Ext.Window({
-      layout:'fit',
-      title:'New Visit',
-      width: 600,
+      layout: 'fit',
+      title:  'New Visit',
+      width:  600,
       height: 425,
-      scope: this,
-      items:{
-        xtype: 'form',
-        layout: 'hbox',
-        layoutConfig:{align:'stretch'},
-        url: '/rollcall/nurse_assistant',
-        border: false,
-        method: 'POST',
-        baseParams: {authenticity_token: FORM_AUTH_TOKEN, school_id: 1},
+      scope:  this,
+      items:  {
+        xtype:        'form',
+        layout:       'hbox',
+        layoutConfig: {align:'stretch'},
+        url:          '/rollcall/nurse_assistant',
+        border:       false,
+        method:       'POST',
+        baseParams:   {authenticity_token: FORM_AUTH_TOKEN, school_id: 1},
         items:[{
-          xtype:'container',
-          layout:'form',
-          labelAlign:'top',
-          flex:1,
-          items:[
-            {
-              xtype:    'container',
-              layout:   'auto',
-              defaults: {
-                xtype:  'container',
-                layout: 'form',
-                cls:    'ux-layout-auto-float-item',
-                style:  {
-                  width:    '120px',
-                  minWidth: '120px'
-                },
-                defaults: {
-                  width: 120
-                }
+          xtype:      'container',
+          layout:     'form',
+          labelAlign: 'top',
+          flex:       1,
+          items:      [{
+            xtype:    'container',
+            layout:   'auto',
+            defaults: {
+              xtype:  'container',
+              layout: 'form',
+              cls:    'ux-layout-auto-float-item',
+              style:  {
+                width:    '120px',
+                minWidth: '120px'
               },
-              items:[{
-                items:{
-                  xtype: 'textfield',
-                  fieldLabel: 'Student First Name',
-                  id: 'first_name',
-                  name: 'first_name'
-                }
-              },{
-                items:{
-                  xtype: 'textfield',
-                  fieldLabel: 'Student Last Name',
-                  id: 'last_name',
-                  name: 'last_name'
-                }
-              },{
-                items:{
-                  xtype: 'textfield',
-                  fieldLabel: 'Contact First Name',
-                  id: 'contact_first_name'
-                }
-              },{
-                items:{
-                  xtype: 'textfield',
-                  fieldLabel: 'Contact Last Name',
-                  id: 'contact_last_name'
-                }
-              },{
-                items:{
-                  xtype: 'textfield',
-                  fieldLabel: 'Address',
-                  id: 'address'
-                }
-              },{
-                items:{
-                  xtype: 'textfield',
-                  fieldLabel: 'Zip',
-                  id: 'zip'
-                }
-              },{
-                items:{
-                  xtype: 'textfield',
-                  fieldLabel: 'Phone Number',
-                  id: 'phone'
-                }
-              },{
-                items:{
-                  xtype: 'textfield',
-                  fieldLabel: 'DOB',
-                  id: 'dob'
-                }
-              },{
-                items:{
-                  xtype: 'textfield',
-                  fieldLabel: 'Gender',
-                  id: 'gender'
-                }
-              },{
-                items:{
-                  xtype: 'textfield',
-                  fieldLabel: 'Race',
-                  id: 'race'
-                }
-              },{
-                items:{
-                  xtype: 'textfield',
-                  fieldLabel: 'Grade',
-                  id: 'grade'
-                }
-              },{
-                items:{
-                  xtype:'textfield',
-                  fieldLabel:'Temperature',
-                  id: 'temperature'
-                }
-              },{
-                items:{
-                  fieldLabel:'Symptoms',
-                  xtype:'combo',
-                  store:['High Fever', 'Nausea', 'Headache', 'Extreme Headache'],
-                  typeAhead: true,
-                  mode:'local',
-                  forceSelection:false,
-                  id: 'symptoms'
-                }
-              }]
-            }
-          ]
+              defaults: {
+                width: 120,
+                allowBlank: false
+              }
+            },
+            items:[{
+              items:{
+                xtype: 'textfield',
+                fieldLabel: 'Student First Name',
+                id: 'first_name',
+                name: 'first_name'
+              }
+            },{
+              items:{
+                xtype: 'textfield',
+                fieldLabel: 'Student Last Name',
+                id: 'last_name',
+                name: 'last_name'
+              }
+            },{
+              items:{
+                xtype: 'textfield',
+                fieldLabel: 'Contact First Name',
+                id: 'contact_first_name'
+              }
+            },{
+              items:{
+                xtype: 'textfield',
+                fieldLabel: 'Contact Last Name',
+                id: 'contact_last_name'
+              }
+            },{
+              items:{
+                xtype: 'textfield',
+                fieldLabel: 'Address',
+                id: 'address'
+              }
+            },{
+              items: new Ext.form.ComboBox({
+                fieldLabel: 'Zip',
+                emptyText:  'Select Zipcode...',
+                allowBlank: false,
+                id: 'zip',
+                store: new Ext.data.JsonStore({fields: ['id', 'value'], data: this.init_store.getAt(0).get("zip")}),
+                typeAhead:     true,
+                triggerAction: 'all',
+                mode:          'local',
+                lazyRender:    true,
+                autoSelect:    true,
+                selectOnFocus: true,
+                valueField:    'id',
+                displayField:  'value'
+              })
+            },{
+              items:{
+                xtype: 'textfield',
+                fieldLabel: 'Phone Number',
+                id: 'phone'
+              }
+            },{
+              items:{
+                fieldLabel: 'DOB',
+                id: 'dob',
+                xtype: 'datefield',
+                emptyText:'Select Date of Birth...',
+                allowBlank: false,
+                selectOnFocus:true
+              }
+            },{
+              items: new Ext.form.ComboBox({
+                fieldLabel: 'Gender',
+                emptyText:  'Select Gender...',
+                allowBlank: false,
+                id: 'gender',
+                store: new Ext.data.JsonStore({fields: ['id', 'value'], data: this.init_store.getAt(0).get("gender")}),
+                typeAhead:     true,
+                triggerAction: 'all',
+                mode:          'local',
+                lazyRender:    true,
+                autoSelect:    true,
+                selectOnFocus: true,
+                valueField:    'id',
+                displayField:  'value'
+              })
+            },{
+              items: new Ext.form.ComboBox({
+                fieldLabel: 'Race',
+                emptyText:  'Select Race...',
+                allowBlank: false,
+                id: 'race',
+                store: new Ext.data.JsonStore({fields: ['id', 'value'], data: this.init_store.getAt(0).get("race")}),
+                typeAhead:     true,
+                triggerAction: 'all',
+                mode:          'local',
+                lazyRender:    true,
+                autoSelect:    true,
+                selectOnFocus: true,
+                valueField:    'id',
+                displayField:  'value'
+              })
+            },{
+              items: new Ext.form.ComboBox({
+                fieldLabel: 'Grade',
+                emptyText:  'Select Zipcode...',
+                allowBlank: false,
+                id: 'grade',
+                store: new Ext.data.JsonStore({fields: ['id', 'value'], data: this.init_store.getAt(0).get("grade")}),
+                typeAhead:     true,
+                triggerAction: 'all',
+                mode:          'local',
+                lazyRender:    true,
+                autoSelect:    true,
+                selectOnFocus: true,
+                valueField:    'id',
+                displayField:  'value'
+              })
+            },{
+              items:{
+                xtype:'textfield',
+                fieldLabel:'Temperature',
+                id: 'temperature'
+              }
+            },{
+              items: new Ext.form.ComboBox({
+                fieldLabel: 'Symptoms',
+                emptyText:  'Select Symptoms...',
+                allowBlank: false,
+                id: 'symptoms',
+                store: new Ext.data.JsonStore({fields: ['id', 'name', 'icd9_code'], data: this.init_store.getAt(0).get("symptoms")}),
+                typeAhead:     true,
+                triggerAction: 'all',
+                mode:          'local',
+                lazyRender:    true,
+                autoSelect:    true,
+                selectOnFocus: true,
+                valueField:    'id',
+                displayField:  'name'
+              })
+            }]
+          }]
         },{
           xtype: 'container',
           flex:1,
@@ -247,7 +284,9 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           items:[{
             xtype:'textarea',
             fieldLabel:'Action Taken',
-            anchor:'100%'
+            id: 'treatment',
+            anchor:'100%',
+            allowBlank: false
           },{
             xtype:'container',
             anchor:'100% -55',
@@ -255,6 +294,8 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             items:[{
               region:'center',
               xtype:'grid',
+              //id: 'symptoms',
+              allowBlank: false,
               autoExpandColumn: 'symptom_column',
               emptyText:        '<div style="color:#000;">No symptom selected.</div>',
               store: new Ext.data.JsonStore({fields:['symptom'], data:[]}),

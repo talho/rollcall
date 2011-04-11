@@ -133,7 +133,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   {
     var html_pad          = '<table class="alarm-tip-table"><tr><td><b>Student Daily Info:</b></td>'+
                             '<td><span>&nbsp;</span></td></tr></table>';
-    var gmapPanel         = new Ext.ux.GMapPanel({zoomLevel: 12, width: 325, height: 270});
+    var gmapPanel         = new Ext.ux.GMapPanel({zoomLevel: 12, width: 450, height: 400});
     var sch_info_tpl      = new Ext.XTemplate(
       '<tpl for=".">',
         '<table class="alarm-tip-table">',
@@ -154,7 +154,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     var school_grid_panel = new Ext.grid.GridPanel({
       forceLayout: true,
       scope:       this,
-      height:      100,
+      height:      125,
       viewConfig:  {
         forceFit: true
       },
@@ -182,7 +182,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     var student_grid_panel = new Ext.grid.GridPanel({
       forceLayout: true,
       scope:       this,
-      height:      100,
+      height:      125,
       viewConfig:  {
         forceFit: true
       },
@@ -243,20 +243,22 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     );
     var win = new Ext.Window({
       title:      "School Profile for '" + panel.school_name + "'",
-      layout:     'fit',
+      layout:     'hbox',
       labelAlign: 'top',
       padding:    '5',
-      width:      350,
-      height:     625,
+      width:      810,
       items: [{
         xtype:  'container',
         layout: 'vbox',
+        width: 350, height: 400,
         items: [
           {xtype: 'container', html: sch_info_tpl.applyTemplate(panel.school)},
           school_radio_group, school_grid_panel,
           {xtype:'container', html: html_pad},
-          student_radio_group, student_grid_panel, gmapPanel]
-      }]
+          student_radio_group, student_grid_panel]
+      },
+      {xtype: 'spacer', width: 10},
+      gmapPanel]
     });
     win.addButton({xtype: 'button', text: 'Dismiss', handler: function(){ win.close(); }, scope: this, width:'auto'});
     gmapPanel.addListener("mapready", function(obj){

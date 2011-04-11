@@ -97,10 +97,10 @@ class IliImporter < SchoolDataImporter
     { :name => :campus_name, :action => :ignoreCsvField },
     { :name => :report_date, :format => /^\d{4}-(?:0\d|1[12])-(?:0\d|1\d|2\d|3[01])$/ },
 
-    { :name => :date_of_onset },
+    { :name => :date_of_onset, :format => /^\d{4}-(?:0\d|1[12])-(?:0\d|1\d|2\d|3[01])$/ },
     { :name => :temperature },
     { :name => :description, :action => :ignoreCsvField },
-    { :name => :zip },
+    { :name => :zip, :format => /^\d{5}(?:-\d{4})?$/ },
     { :name => :grade, :action => :str2grade },
 
     { :name => :in_school },

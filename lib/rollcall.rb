@@ -27,7 +27,7 @@ $expansion_list.push(:rollcall) unless $expansion_list.index(:rollcall)
 $menu_config = {} unless defined?($menu_config)
 $menu_config[:rollcall] = "{name: 'Rollcall', items:[
             {name: 'ADST', tab:{id: 'rollcall_adst', title:'Rollcall ADST', url:'', initializer: 'Talho.Rollcall.ADST'}},
-            {name: 'Nurse Assistant', tab:{id: 'rollcall_nurse', title:'Nurse Assistant', url:'', initializer: 'Talho.Rollcall.NurseAssistant'}},
+            {name: 'Nurse Assistant', tab:{id: 'rollcall_nurse_assistant', title:'Nurse Assistant', url:'', initializer: 'Talho.Rollcall.NurseAssistant'}},
             {name: 'Schools', tab:{id: 'rollcall_schools', title:'Rollcall Schools', url:'', initializer: 'Talho.Rollcall.Schools'}},
             {name: 'About Rollcall', tab:{id: 'about_rollcall', title:'About Rollcall', url:''}}]}"
 

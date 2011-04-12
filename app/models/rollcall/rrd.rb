@@ -123,7 +123,12 @@ class Rollcall::Rrd < Rollcall::Base
     rrd_tool = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
     return RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,total_absent,total_enrolled],"#{rrd_tool}"   
   end
-  
+
+  def self.nurse_update_rrd_data time_string, total_absent, total_enrolled, filename
+    rrd_path = Dir.pwd << "/rrd/"
+    rrd_tool = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
+    return RRD.update "#{rrd_path}#{filename}.rrd",[time_string,total_absent,total_enrolled],"#{rrd_tool}" 
+  end
   private
 
   # Dev Note: All Date times must be in UTC format for rrd
@@ -389,7 +394,7 @@ class Rollcall::Rrd < Rollcall::Base
       when :symptoms
         filename = "SYM-#{value.gsub("+", "_")}_#{filename}"
       when :icd9_code
-        filename = "ICD9-#{value}_#{filename}"
+        filename = "ICD9-#{value}_#{filename}" unless value.blank? 
       when :startdt
         filename = "SD-#{Time.parse(value).strftime("%s")}_#{filename}"
       when :enddt

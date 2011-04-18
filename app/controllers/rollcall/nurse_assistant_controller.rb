@@ -13,7 +13,7 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       st              = "%" + CGI::unescape(params[:search_term]) + "%"
       students        = Rollcall::Student.find(
         :all,
-        :conditions => ["student_number LIKE ? OR first_name LIKE ? OR last_name LIKE ?", st, st, st])
+        :conditions => ["student_number LIKE ? OR first_name LIKE ? OR last_name LIKE ? AND school_id", st, st, st, params[:school_id]])
       student_ids     = []
       students.collect{|rec| student_ids.push(rec.id) }
       unless student_ids.blank?
@@ -21,16 +21,16 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       else
         student_records = []
       end
-
     elsif !params[:filter_report_date].blank?
-      student_records = Rollcall::StudentDailyInfo.find_all_by_report_date(
+      student_records = Rollcall::StudentDailyInfo.find_all_by_report_date_and_school_id(
         params[:filter_report_date],
+        params[:school_id],
         :include    => :student,
         :conditions => ["student_id = rollcall_students.id"]
       )
     else
-      student_records = Rollcall::StudentDailyInfo.find(
-        :all,
+      student_records = Rollcall::StudentDailyInfo.find_all_by_school_id(
+        params[:school_id],
         :include    => :student,
         :conditions => ["student_id = rollcall_students.id"]
       )
@@ -69,6 +69,18 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
     end
   end
 
+  def destroy
+    result = false
+    result = Rollcall::StudentDailyInfo.find(params[:id]).destroy
+    respond_to do |format|
+      format.json do
+        render :json => {
+          :success => result
+        }
+      end
+    end
+  end
+  
   def get_options
     gender = [
       {:id => 0, :value => 'Select Gender...'},
@@ -124,11 +136,13 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
     ]
     symptoms             = Rollcall::Symptom.find(:all)
     zipcodes             = current_user.school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
-    unless Rollcall::Student.find_by_user_id(current_user.id).blank?
-      school_id            = Rollcall::Student.find_by_user_id(current_user.id).school_id
+    schools              = current_user.schools
+    student              = Rollcall::Student.find_by_user_id(current_user.id, :order => "created_at DESC")
+    unless student.blank?
+      school_id            = student.school_id
       app_init             = false
       total_enrolled_alpha = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id).blank?
-    else
+    else     
       school_id            = 0
       app_init             = true
       total_enrolled_alpha = true
@@ -148,7 +162,9 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
             :zip                  => zipcodes,
             :total_enrolled_alpha => total_enrolled_alpha,
             :app_init             => app_init,
-            :school_id            => school_id
+            :school_id            => school_id,
+            :school_name          => Rollcall::School.find_by_id(school_id).display_name,
+            :schools              => schools
           }]
         }
         ActiveRecord::Base.include_root_in_json = original_included_root

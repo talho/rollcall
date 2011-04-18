@@ -1,6 +1,9 @@
 class Rollcall::StudentController < Rollcall::RollcallAppController
   def index
     students = Rollcall::Student.find_all_by_school_id(params[:school_id])
+    students.each do |record|
+      record[:grade] = Rollcall::StudentDailyInfo.find_by_student_id(record.id, :order => "created_at DESC").grade
+    end
     respond_to do |format|
       format.json do
         original_included_root                  = ActiveRecord::Base.include_root_in_json
@@ -83,10 +86,16 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       :in_school          => true,
       :released           => true
     )
-    ActiveSupport::JSON.decode(params[:symptom_list]).each do |rec|
-      symptom_id      = Rollcall::Symptom.find_by_name(rec["name"]).id
+    unless ActiveSupport::JSON.decode(params[:symptom_list]).blank?
+      ActiveSupport::JSON.decode(params[:symptom_list]).each do |rec|
+        symptom_id      = Rollcall::Symptom.find_by_name(rec["name"]).id
+        student_symptom = Rollcall::StudentReportedSymptoms.create :student_daily_info_id => daily_info.id, :symptom_id => symptom_id
+      end
+    else
+      symptom_id      = Rollcall::Symptom.find_by_name("None").id
       student_symptom = Rollcall::StudentReportedSymptoms.create :student_daily_info_id => daily_info.id, :symptom_id => symptom_id
     end
+
 
     respond_to do |format|
       format.json do
@@ -133,18 +142,6 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       format.json do
         render :json => {
           :success => student_daily_success
-        }
-      end
-    end
-  end
-
-  def destroy
-    result = false
-    result = Rollcall::StudentDailyInfo.find(params[:id]).destroy
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => result
         }
       end
     end

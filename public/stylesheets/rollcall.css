@@ -172,7 +172,12 @@
   border: 1px solid #8899AA;
   margin: 5px auto;
   padding: 0px 5px 5px;
-  width: 225px;
+  width: 325px;
+}
+
+.details-info .left{
+  float: left;
+  width: 125px;
 }
 
 .details-info b{
@@ -181,4 +186,10 @@
 
 .details-info span{
   padding-left: 10px;
+}
+
+.settings-btn{
+  background: url(images/tool-cog.png) no-repeat;
+  width: 16px;
+  height: 16px;
 }

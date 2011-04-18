@@ -8,6 +8,7 @@ Talho.Rollcall.SimpleADSTContainer = Ext.extend(Ext.Container, {
       title:    "Simple Query Select",
       id:       "simple_query_select",
       itemId:   "simple_query_select",
+      hidden:  true,
       layout:   'auto',
       //padding:  '0 0 5 5',
       defaults: {

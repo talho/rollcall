@@ -58,15 +58,29 @@ class Rollcall::School < Rollcall::Base
   end
 
   def self.search(params)
-    search_param = ""
-    zipcode = CGI::unescape(params["zip"]) if params["zip"] && params["zip"].index('...').blank?
-    school_name = CGI::unescape(params["school"]) if params["school"] && params["school"].index('...').blank?
-    school_type = CGI::unescape(params["school_type"]) if params["school_type"] && params["school_type"].index('...').blank?
-    search_param = school_type unless school_type.blank?
-    search_param = zipcode unless zipcode.blank?
-    search_param = school_name unless school_name.blank?
-    search_condition = "%" + search_param + "%"
-    find(:all, :conditions => ['display_name LIKE ? OR postal_code LIKE ? OR school_type LIKE ?', search_condition, search_condition, search_condition])
+    school_type_qstr = "school_type IN ('#{params["school_type"].join("','")}')" unless params["school_type"].blank?
+    postal_code_qstr = "postal_code IN ('#{params["zip"].join("','")}')" unless params["zip"].blank?
+    school_qstr = "display_name IN ('#{params["school"].join("','")}')" unless params["school"].blank?
+
+    cond_part1 = case
+    when school_type_qstr && postal_code_qstr
+      "(#{school_type_qstr} AND #{postal_code_qstr})"
+    when school_type_qstr
+      school_type_qstr
+    when postal_code_qstr
+      postal_code_qstr
+    end
+
+    condition = case
+    when cond_part1 && school_qstr
+      "#{cond_part1} OR #{school_qstr}"
+    when cond_part1
+      cond_part1
+    when school_qstr
+      school_qstr
+    end
+
+    find(:all, :conditions => [condition])
   end
 
   private

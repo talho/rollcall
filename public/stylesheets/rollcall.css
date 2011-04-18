@@ -38,6 +38,7 @@
   padding:5px 0px 0px 70px;
   font-size: 1.5em;
 }
+.ux-query-form { border: 1px solid black; }
 .clear{
   clear: both;
 }

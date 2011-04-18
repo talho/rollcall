@@ -15,6 +15,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     Ext.apply(this,
     {
       layout:   'fit',
+      border:   false,
       closable: true,
       scope:    this,
       items:[{
@@ -71,6 +72,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           title:       'ADST',
           itemId:      'ADST_panel',
           id:          'ADST_panel',
+          border:      false,
           collapsible: false,
           region:      'center',
           autoScroll:  true,
@@ -291,16 +293,33 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   resetForm: function(buttonEl, eventObj)
   {
     buttonEl.findParentByType("form").getForm().reset();
+    this.find('id', 'school_adv')[0].clearSelections();
+    this.find('id', 'school_type_adv')[0].clearSelections();
+    this.find('id', 'zip_adv')[0].clearSelections();
+    this.find('id', 'age_adv')[0].clearSelections();
+    this.find('id', 'grade_adv')[0].clearSelections();
+    this.find('id', 'symptoms_adv')[0].clearSelections();
+  },
+  _grabListViewFormValues: function(params, topEl)
+  {
+    var list_fields  = ["school", "school_type", "zip"];
+    for (var i=0; i < list_fields.length; i++) {
+      var selected_records = topEl.find('id', list_fields[i]+'_adv')[0].getSelectedRecords();
+      var vals = jQuery.map(selected_records, function(e,i){ return e.get('value'); });
+      if (vals.length > 0) params[list_fields[i]+'[]'] = vals;
+    }
   },
   submitQuery: function(buttonEl, eventObj)
   {
     this.getResultPanel().clearProviders();
     var form_panel   = this.find('id', 'ADSTFormPanel')[0];
     var form_values  = form_panel.getForm().getValues();
+
     var result_store = this.getResultPanel().getResultStore();
     form_panel.findParentByType('panel').getBottomToolbar().bindStore(result_store);
     result_store.baseParams = {}; // clear previous search values
-    var params              = this.buildParams(form_values);
+    var params = this.buildParams(form_values);
+    this._grabListViewFormValues(params, this);
     for(key in params)
       result_store.setBaseParam(key, params[key]);
     form_panel.buttons[2].show();
@@ -310,7 +329,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     var panel_mask = new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(), {msg:"Please wait..."});
     panel_mask.show();
     result_store.on('load', function(){ panel_mask.hide(); });
-    result_store.load({params: this.buildParams(form_values)});
+    result_store.load({params: params});
     return true;
   },
   setNextPage: function(this_toolbar, params)

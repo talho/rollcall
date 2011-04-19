@@ -162,3 +162,32 @@
   background: url(/images/add.png) no-repeat scroll 0 0 transparent !important;
   padding-left: 20px !important;  
 }
+
+.details-info{
+  font-size: .9em;
+  -moz-border-radius: 5px 5px 5px 5px;
+  background: none repeat scroll 0 0 white;
+  border: 1px solid #8899AA;
+  margin: 5px auto;
+  padding: 0px 5px 5px;
+  width: 325px;
+}
+
+.details-info .left{
+  float: left;
+  width: 125px;
+}
+
+.details-info b{
+  display: block;
+}
+
+.details-info span{
+  padding-left: 10px;
+}
+
+.settings-btn{
+  background: url(images/tool-cog.png) no-repeat;
+  width: 16px;
+  height: 16px;
+}

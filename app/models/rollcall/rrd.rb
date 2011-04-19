@@ -121,7 +121,7 @@ class Rollcall::Rrd < Rollcall::Base
   def self.update_rrd_data report_date, total_absent, total_enrolled, filename
     rrd_path = Dir.pwd << "/rrd/"
     rrd_tool = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
-    return RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,total_absent,total_enrolled],"#{rrd_tool}"   
+    return RRD.update "#{rrd_path}#{filename}.rrd",[report_date.to_i.to_s,total_absent,total_enrolled],"#{rrd_tool}"
   end
 
   def self.nurse_update_rrd_data time_string, total_absent, total_enrolled, filename
@@ -325,25 +325,20 @@ class Rollcall::Rrd < Rollcall::Base
       end
       days           = ((end_date - start_date) / 86400)
       total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
+      update_ary = [ [start_date.to_i.to_s, 0, total_enrolled] ]
       (0..days).each do |i|
         report_date = start_date + i.days
-        if(i == 0)
-          update_rrd_data report_date, 0, total_enrolled, filename
-        end
         if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
-          update_rrd_data report_date + 1.day, 0, total_enrolled, filename
+          update_ary.push([(report_date + 1.day).to_i.to_s, 0, total_enrolled])
         else
           total_absent = get_total_absent report_date, conditions, school_id
-          begin
-            update_rrd_data report_date + 1.day, total_absent, total_enrolled, filename
-          rescue
-          end
-        end
-        if(i == days.to_i)
-          report_date = report_date + 1.day
-          update_rrd_data (report_date + 1.day), 0, total_enrolled, filename
+          update_ary.push([(report_date + 1.day).to_i.to_s, total_absent, total_enrolled])
         end
       end
+      update_ary.push([(start_date + (days+2).days).to_i.to_s, 0, total_enrolled])
+      rrd_path = Dir.pwd << "/rrd/"
+      rrd_tool = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
+      RRD.update_batch("#{rrd_path}/#{filename}.rrd", update_ary, rrd_tool)
     end
     File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
     self.send_later(:graph, rrd_file, image_file, graph_title, params)

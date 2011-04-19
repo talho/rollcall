@@ -302,7 +302,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   },
   _grabListViewFormValues: function(params, topEl)
   {
-    var list_fields  = ["school", "school_type", "zip"];
+    var list_fields  = ["school", "school_type", "zip", "age", "grade", "symptoms"];
     for (var i=0; i < list_fields.length; i++) {
       var selected_records = topEl.find('id', list_fields[i]+'_adv')[0].getSelectedRecords();
       var vals = jQuery.map(selected_records, function(e,i){ return e.get('value'); });

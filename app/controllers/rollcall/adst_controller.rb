@@ -90,7 +90,6 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       {:id => 1, :value => 'Confirmed Illness'}
     ]
     age = [
-      {:id => 0, :value => 'Select Age...'},
       {:id => 1, :value => '0'},
       {:id => 2, :value => '1'},
       {:id => 3, :value => '2'},
@@ -117,7 +116,6 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       {:id => 2, :value => 'Female'}
     ]
     grade = [
-      {:id => 0, :value => 'Select Grade...'},
       {:id => 1, :value => 'Kindergarten (Pre-K)'},
       {:id => 2, :value => '1st Grade'},
       {:id => 3, :value => '2nd Grade'},

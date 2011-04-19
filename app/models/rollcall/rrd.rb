@@ -362,13 +362,11 @@ class Rollcall::Rrd < Rollcall::Base
           conditions[:gender]    = 'M' if value == "Male"
           conditions[:gender]    = 'F' if value == "Female"
         when "age"
-          conditions[:age]       = value.to_i
+          conditions[:age]       = value.collect{|v| v.to_i}
         when "grade"
-          conditions[:grade]     = value.to_i
-        when "icd9_code"
-          conditions[:icd9_code] = value
+          conditions[:grade]     = value.collect{|v| v.to_i}
         when "symptoms"
-          conditions[:symptom]   = value.gsub("+", " ")
+          conditions[:symptoms]   = value
         when "startdt"
           conditions[:startdt]   = value
         when "enddt"
@@ -388,13 +386,11 @@ class Rollcall::Rrd < Rollcall::Base
       when :gender
         filename = "GNDR-#{value}_#{filename}"
       when :age
-        filename = "AGE-#{value}_#{filename}"
+        filename = "AGE-#{value.join("-")}_#{filename}"
       when :grade
-        filename = "GRD-#{value.to_i}_#{filename}"
+        filename = "GRD-#{value.collect{|v| v.to_i}.join("-")}_#{filename}"
       when :symptoms
-        filename = "SYM-#{value.gsub("+", "_")}_#{filename}"
-      when :icd9_code
-        filename = "ICD9-#{value}_#{filename}" unless value.blank? 
+        filename = "ICD9-#{value.join("-")}_#{filename}" unless value.blank? 
       when :startdt
         filename = "SD-#{Time.parse(value).strftime("%s")}_#{filename}"
       when :enddt
@@ -410,11 +406,15 @@ class Rollcall::Rrd < Rollcall::Base
     string_flag      = false
     condition_array.push("")
     conditions.each{|key,value|
-      if key != :symptom && key != :icd9_code && key != :startdt && key != :enddt && key != :zipcode
+      if key != :symptoms && key != :startdt && key != :enddt && key != :zipcode
         condition_array[0] += " AND " if string_flag
-        condition_array[0] += "#{key} = ?"
-        string_flag         = true unless string_flag
-        condition_array.push(value)
+        if value.is_a?(Array)
+          condition_array[0] += "#{key} IN (#{value.join(",")})"
+        else
+          condition_array[0] += "#{key} = ?"
+          condition_array.push(value)
+        end
+        string_flag = true
       end
     }
     condition_array[0] += " AND " if string_flag
@@ -422,11 +422,11 @@ class Rollcall::Rrd < Rollcall::Base
     condition_array.push(report_date)
     condition_array.push(school_id)
 
-    unless conditions[:icd9_code].blank?
-      symptom_id   = Rollcall::Symptom.find_by_icd9_code(conditions[:icd9_code]).id
+    unless conditions[:symptoms].blank?
+      symptom_ids  = conditions[:symptoms].collect {|s| Rollcall::Symptom.find_by_icd9_code(s).id}
       join_string  = "INNER JOIN rollcall_student_reported_symptoms ON
                      rollcall_student_daily_infos.id = rollcall_student_reported_symptoms.student_daily_info_id AND
-                     rollcall_student_reported_symptoms.symptom_id = #{symptom_id}"
+                     rollcall_student_reported_symptoms.symptom_id IN (#{symptom_ids.join(",")})"
       total_absent = Rollcall::StudentDailyInfo.find(:all, :include => :student_reported_symptoms, :joins => join_string, :conditions => condition_array).size
 
     else

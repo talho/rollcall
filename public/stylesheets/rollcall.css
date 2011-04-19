@@ -110,10 +110,7 @@
   height: 14px !important;
 }
 .base-line-check{
-  clear:both;
-  position: relative;
-  top: -10px;
-  left: 6px;
+  margin: 0 0 0 8px !important;
 }
 #x-form-el-enrolled_base_line_simple,
 #x-form-el-enrolled_base_line_adv{

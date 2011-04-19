@@ -14,18 +14,18 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
           {xtype: 'panel', layout: 'hbox', padding: 5, width: 330, defaults: {margins: '0 5'}, title: 'School Query', items: [
             {xtype: 'container', layout: 'vbox', width: 150, height: 300, defaults: {width:150}, items: [
               {xtype: 'label', html: 'School Type:'},
-              new Ext.ListView({id: 'school_type_adv', multiSelect: true,
+              new Ext.ListView({id: 'school_type_adv', multiSelect: true, simpleSelect: true,
                 cls: 'ux-query-form', columns: [{dataIndex: 'value'}], hideHeaders: true,
                 store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.school_type})}),
               {xtype: 'spacer', height: 10},
               {xtype: 'label', html: 'Zipcode:'},
-              new Ext.ListView({id: 'zip_adv', flex: 1, multiSelect: true,
+              new Ext.ListView({id: 'zip_adv', flex: 1, multiSelect: true, simpleSelect: true,
                 cls: 'ux-query-form', columns: [{dataIndex: 'value'}], hideHeaders: true,
                 store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.zipcode})})
             ]},
             {xtype: 'container', layout: 'vbox', width: 150, height: 300, defaults: {width:150}, items: [
               {xtype: 'label', html: 'School Name:'},
-              new Ext.ListView({id: 'school_adv', flex: 1, multiSelect: true,
+              new Ext.ListView({id: 'school_adv', flex: 1, multiSelect: true, simpleSelect: true,
                 cls: 'ux-query-form', columns: [{dataIndex: 'value'}], hideHeaders: true,
                 store: new Ext.data.JsonStore({fields: ['id', {name:'value', mapping:'display_name'}], data: config.options.schools})})
             ]}
@@ -38,12 +38,12 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
                 store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.absenteeism})}),
               {xtype: 'spacer', height: 10},
               {xtype: 'label', html: 'Age:'},
-              new Ext.ListView({id: 'age_adv', flex: 1, multiSelect: true,
+              new Ext.ListView({id: 'age_adv', flex: 1, multiSelect: true, simpleSelect: true,
                 cls: 'ux-query-form', columns: [{dataIndex: 'value'}], hideHeaders: true,
                 store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.age})}),
               {xtype: 'spacer', height: 10},
               {xtype: 'label', html: 'Grade:'},
-              new Ext.ListView({id: 'grade_adv', flex: 1, multiSelect: true,
+              new Ext.ListView({id: 'grade_adv', flex: 1, multiSelect: true, simpleSelect: true,
                 cls: 'ux-query-form', columns: [{dataIndex: 'value'}], hideHeaders: true,
                 store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.grade})}),
               {xtype: 'spacer', height: 10},
@@ -57,10 +57,9 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
                 store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.data_functions_adv})}),
               {xtype: 'spacer', height: 10},
               {xtype: 'label', html: 'Symptoms:'},
-              new Ext.ListView({id: 'symptoms_adv', multiSelect: true, flex: 1,
-                /*valueField: 'icd9_code', hiddenName: 'icd9_code_adv'*/
-                cls: 'ux-query-form', columns: [{dataIndex: 'name', width: 0.75}, {dataIndex: 'icd9_code'}], hideHeaders: true,
-                store: new Ext.data.JsonStore({fields: ['id', 'name', 'icd9_code'], data: config.options.symptoms})}),
+              new Ext.ListView({id: 'symptoms_adv', multiSelect: true, simpleSelect: true, flex: 1,
+                cls: 'ux-query-form', columns: [{dataIndex: 'name', width: 0.75}, {dataIndex: 'value'}], hideHeaders: true,
+                store: new Ext.data.JsonStore({fields: ['id', 'name', {name:'value', mapping:'icd9_code'}], data: config.options.symptoms})}),
               {xtype: 'spacer', height: 10},
               {xtype: 'label', html: 'Date Range:'},
               {xtype: 'datefield', fieldLabel: 'Start Date', name: 'startdt_adv', id: 'startdt_adv',
@@ -70,15 +69,8 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
             ]}
           ]}
         ]},
-        {xtype: 'spacer', height: 30},
-        {
-          cls: 'base-line-check',
-          items:{
-            xtype: 'checkbox',
-            id: 'enrolled_base_line_adv',
-            boxLabel: "Display Total Enrolled Base Line"
-          }
-        }
+        {xtype: 'checkbox', id: 'enrolled_base_line_adv', cls: 'base-line-check', boxLabel: "Display Total Enrolled Base Line",
+          hideLabel: true}
       ]
     });
     Talho.Rollcall.AdvancedADSTContainer.superclass.constructor.call(this, config);

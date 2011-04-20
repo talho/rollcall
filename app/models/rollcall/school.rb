@@ -73,14 +73,14 @@ class Rollcall::School < Rollcall::Base
 
     condition = case
     when cond_part1 && school_qstr
-      "#{cond_part1} OR #{school_qstr}"
+      ["#{cond_part1} OR #{school_qstr}"]
     when cond_part1
-      cond_part1
+      [cond_part1]
     when school_qstr
-      school_qstr
+      [school_qstr]
     end
 
-    find(:all, :conditions => [condition])
+    find(:all, :conditions => condition)
   end
 
   private

@@ -32,12 +32,10 @@ class Rollcall::AlarmQuery < Rollcall::Base
   private
 
   def create_alarm
-    # clear previous alarms before generating new ones
     Rollcall::Alarm.find_all_by_alarm_query_id(id).each { |a| a.destroy }
-
-    query = ActiveSupport::JSON.decode(query_params)
-
-    schools = Rollcall::School.search(query)
+    query_params.gsub!("[]", "")
+    query   = ActiveSupport::JSON.decode(query_params).symbolize_keys
+    schools = Rollcall::School.search(query, user)
     schools.each { |school| create_alarms_for_school(school, query) }
     !Rollcall::Alarm.find_all_by_alarm_query_id(id).blank?
   end

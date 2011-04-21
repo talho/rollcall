@@ -38,32 +38,28 @@
   padding:5px 0px 0px 70px;
   font-size: 1.5em;
 }
-.ux-query-form { border: 1px solid black; }
+.ux-query-form{
+  border: 1px solid #CCCCCC;
+}
 .clear{
   clear: both;
 }
 .alarm{
   height: 40px;
-  /*padding-left: 15px;*/
 }
 .extreme{
-  /*background:url(images/status_extreme.png) 0px 1px no-repeat;*/
   background-color: #cc0000;
 }
 .severe{
-  /*background:url(images/status_severe.png) 0px 1px no-repeat;*/
   background-color: #fe6600;
 }
 .moderate{
-  /*background:url(images/status_moderate.png) 0px 1px no-repeat;*/
   background-color: #f6f600;
 }
 .minor{
-  /*background:url(images/status_minor.png) 0px 1px no-repeat;*/
   background-color: #66cc00;
 }
 .unknown{
-  /*background:url(images/status_unknown.png) 0px 1px no-repeat;*/
   background-color: #cacaca;
 }
 .rollcall_alarm_icon {
@@ -190,4 +186,8 @@
   background: url(images/tool-cog.png) no-repeat;
   width: 16px;
   height: 16px;
+}
+
+#x-form-el-school_adv, #x-form-el-zip_adv, #x-form-el-school_type_adv{
+  padding-left: 0px !important;
 }

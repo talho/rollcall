@@ -57,10 +57,36 @@ class Rollcall::School < Rollcall::Base
     end
   end
 
-  def self.search(params)
-    school_type_qstr = "school_type IN ('#{params["school_type"].join("','")}')" unless params["school_type"].blank?
-    postal_code_qstr = "postal_code IN ('#{params["zip"].join("','")}')" unless params["zip"].blank?
-    school_qstr = "display_name IN ('#{params["school"].join("','")}')" unless params["school"].blank?
+  def self.search(params, user_obj)
+    return simple_search(params, user_obj) if params[:type] == "simple"
+    return adv_search(params, user_obj) if params[:type] == "adv"
+  end
+
+  private
+  def set_display_name
+    self.display_name = self.name if self.display_name.nil? || self.display_name.strip.blank?
+  end
+
+  def self.simple_search(params, user_obj)
+    search_param = ""
+    search_param = params[:school_type] unless params[:school_type].blank?
+    search_param = params[:zip]         unless params[:zip].blank?
+    search_param = params[:school]      unless params[:school].blank?
+    search_condition = "%" + search_param + "%"
+    find(:all, :conditions => [
+      '(display_name LIKE ? OR postal_code LIKE ? OR school_type LIKE ?) AND district_id IN (?)',
+      search_condition,
+      search_condition,
+      search_condition,
+      user_obj.school_districts.map(&:id)
+    ])
+  end
+
+  def self.adv_search(params, user_obj)
+    school_type_qstr     = "school_type IN ('#{params[:school_type].join("','")}')" unless params[:school_type].blank?
+    postal_code_qstr     = "postal_code IN ('#{params[:zip].join("','")}')" unless params[:zip].blank?
+    school_qstr          = "display_name IN ('#{params[:school].join("','")}')" unless params[:school].blank?
+    district_qstr        = "district_id IN ('#{user_obj.school_districts.map(&:id)}')"
 
     cond_part1 = case
     when school_type_qstr && postal_code_qstr
@@ -80,11 +106,12 @@ class Rollcall::School < Rollcall::Base
       [school_qstr]
     end
 
-    find(:all, :conditions => condition)
-  end
+    if condition.blank?
+      condition = district_qstr
+    else
+      condition = "(#{condition}) AND #{district_qstr}"
+    end
 
-  private
-  def set_display_name
-    self.display_name = self.name if self.display_name.nil? || self.display_name.strip.blank?
+    find(:all, :conditions => [condition])
   end
 end

@@ -83,7 +83,7 @@ class Rollcall::Rrd < Rollcall::Base
   end
 
   def self.export_rrd_data params, filename, user_obj
-    initial_result     = Rollcall::School.search params
+    initial_result     = Rollcall::School.search params, user_obj
     test_data_date     = Time.parse("11/22/2010")
     start_date         = params[:startdt].index('...') ? test_data_date : Time.parse(params[:startdt])
     end_date           = params[:enddt].index('...') ? Time.now : Time.parse(params[:enddt])
@@ -102,7 +102,7 @@ class Rollcall::Rrd < Rollcall::Base
   end
 
   def self.generate_report params, user_obj
-    initial_result     = Rollcall::School.search params
+    initial_result     = Rollcall::School.search params, user_obj
     test_data_date     = Time.parse("11/22/2010")
     start_date         = params[:startdt].index('...') ? test_data_date : Time.parse(params[:startdt])
     end_date           = params[:enddt].index('...') ? Time.now : Time.parse(params[:enddt])

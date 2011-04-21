@@ -98,25 +98,8 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           tools:        [{
             id:      'run-query',
             qtip:    "Run This Query",
-            handler: function(e, targetEl, panel, tc)
-            {
-              var form  = panel.adst_panel.find('id', 'ADSTFormPanel')[0].getForm();
-              var qtype = panel.param_config.query_params["type"];
-              if (qtype == "adv") {
-                Ext.getCmp('simple_query_select').hide();
-                Ext.getCmp('advanced_query_select').show();
-              } else {
-                Ext.getCmp('advanced_query_select').hide();
-                Ext.getCmp('simple_query_select').show();
-              }
-              var vals = new Object;
-              for (prop in panel.param_config.query_params){
-                vals[prop+"_"+qtype] = panel.param_config.query_params[prop];
-              }
-              form.reset();
-              form.setValues(vals);
-              panel.adst_panel.submitQuery();
-            }
+            scope:   this,
+            handler: this.runSavedQuery
           },{
             id:      alarm_id,
             qtip:    "Toggle Alarm",
@@ -147,6 +130,37 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
     this.setSize('auto','auto');
   },
 
+  runSavedQuery: function(e, targetEl, panel, tc)
+  {
+    var form      = panel.adst_panel.find('id', 'ADSTFormPanel')[0].getForm();
+    var qtype     = panel.param_config.query_params["type"];
+    var vals      = new Object;
+    this.adst_panel.resetForm();
+    if (qtype == "adv") {
+      Ext.getCmp('simple_query_select').hide();
+      Ext.getCmp('advanced_query_select').show().doLayout();
+      //Ext.getCmp('advanced_query_select').doLayout();
+    } else {
+      Ext.getCmp('advanced_query_select').hide();
+      form_view = Ext.getCmp('simple_query_select').show().doLayout();
+    }  
+    for (prop in panel.param_config.query_params){
+      var temp_array = new Array();
+      var new_key    = prop.replace(/\[]/g, "")+"_"+qtype;
+      vals[new_key]  = panel.param_config.query_params[prop];
+      if(vals[new_key].constructor == Array){
+        var list_store = Ext.getCmp(new_key).getStore();
+        for(var cnt=0; cnt < vals[new_key].length; cnt++){
+          var index = list_store.findExact('value', vals[new_key][cnt]);
+          if(index != -1) temp_array.push(index)
+        }
+        Ext.getCmp(new_key).select(temp_array);
+      }
+    }
+    form.setValues(vals);
+    panel.adst_panel.submitQuery();
+  },
+  
   deleteAlarmQuery: function(e, targetEl, panel, tc)
   {
     Ext.MessageBox.show({

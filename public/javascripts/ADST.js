@@ -25,9 +25,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         scope:      this,
         defaults: {
           collapsible: true,
-          split:       true//,
-          //cmargins:    '5 0 0 0',
-          //margins:     '5 0 0 0'
+          split:       true
         },
         items: [{
           title:      'Alarm Queries',
@@ -202,7 +200,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   {
     var params = new Object;
     params['authenticity_token'] = FORM_AUTH_TOKEN;
-    for (key in form_values)
+    for (key in form_values){
       if (Ext.getCmp('advanced_query_select').isVisible()){
         if(key.indexOf('_adv') != -1)
           params[key.replace(/_adv/,'')] = form_values[key];
@@ -210,6 +208,9 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         if(key.indexOf('_simple') != -1)
           params[key.replace(/_simple/,'')] = form_values[key];
       }
+    }
+    if (Ext.getCmp('advanced_query_select').isVisible()) params['type'] = 'adv'
+    else params['type'] = 'simple'
     return params;
   },
   saveResultSet: function(buttonEl, eventObj)
@@ -290,9 +291,10 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       }
     });  
   },
-  resetForm: function(buttonEl, eventObj)
+  resetForm: function()
   {
-    buttonEl.findParentByType("form").getForm().reset();
+    this.find('id', 'ADSTFormPanel')[0].getForm().reset();
+    //buttonEl.findParentByType("form").getForm().reset();
     this.find('id', 'school_adv')[0].clearSelections();
     this.find('id', 'school_type_adv')[0].clearSelections();
     this.find('id', 'zip_adv')[0].clearSelections();
@@ -305,7 +307,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     var list_fields  = ["school", "school_type", "zip", "age", "grade", "symptoms"];
     for (var i=0; i < list_fields.length; i++) {
       var selected_records = topEl.find('id', list_fields[i]+'_adv')[0].getSelectedRecords();
-      var vals = jQuery.map(selected_records, function(e,i){ return e.get('value'); });
+      var vals             = jQuery.map(selected_records, function(e,i){ return e.get('value'); });
       if (vals.length > 0) params[list_fields[i]+'[]'] = vals;
     }
   },
@@ -320,8 +322,14 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     result_store.baseParams = {}; // clear previous search values
     var params = this.buildParams(form_values);
     this._grabListViewFormValues(params, this);
-    for(key in params)
-      result_store.setBaseParam(key, params[key]);
+    for(key in params){
+      if(params[key].indexOf('...') == -1){
+        if(params["type"] == "simple")
+          result_store.setBaseParam(key, params[key].replace(/\+/g, " "));
+        else
+          result_store.setBaseParam(key, params[key]);
+      }      
+    }
     form_panel.buttons[2].show();
     form_panel.buttons[3].show();
     form_panel.buttons[4].show();
@@ -329,7 +337,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     var panel_mask = new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(), {msg:"Please wait..."});
     panel_mask.show();
     result_store.on('load', function(){ panel_mask.hide(); });
-    result_store.load({params: params});
+    result_store.load();
     return true;
   },
   setNextPage: function(this_toolbar, params)

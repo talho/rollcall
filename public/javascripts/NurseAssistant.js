@@ -162,7 +162,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           ]
         }),
         viewConfig: {
-          emptyText:     '<div><b style="color:#000">There are no student visits for '+Ext.util.Format.date(new Date(), 'm/d/Y')+'</b></div>',
+          emptyText:     '<div><b style="color:#000">There are no student visits for this date</b></div>',
           enableRowBody: true
         },
         autoExpandColumn: 'symptom_column',
@@ -345,7 +345,8 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
       this.update_student_detail_panel_msg();
       this.main_panel_store.load({
         params:{
-          search_term: field_value
+          search_term: field_value,
+          school_id:   this.user_school_id
         },
         callback: function(records, options, success)
         {

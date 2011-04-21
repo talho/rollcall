@@ -5,7 +5,7 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
   def index
     original_included_root = ActiveRecord::Base.include_root_in_json
     ActiveRecord::Base.include_root_in_json = false
-    results = Rollcall::School.search(params)
+    results = Rollcall::School.search(params, current_user)
     respond_to do |format|
       format.json do
         render :json => {

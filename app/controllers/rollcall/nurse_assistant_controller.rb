@@ -137,9 +137,10 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
     symptoms             = Rollcall::Symptom.find(:all)
     zipcodes             = current_user.school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
     schools              = current_user.schools
-    student              = Rollcall::Student.find_by_user_id(current_user.id, :order => "created_at DESC")
-    unless student.blank?
-      school_id            = student.school_id
+    student_daily_info   = Rollcall::StudentDailyInfo.find(:all, :conditions => ["student_id >= ?", 1], :order => "created_at DESC", :limit => 1)
+    #student              = Rollcall::Student.find_by_user_id(current_user.id, :order => "created_at DESC")
+    unless student_daily_info.blank?
+      school_id            = student_daily_info.first.student.school_id
       app_init             = false
       total_enrolled_alpha = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id).blank?
     else     

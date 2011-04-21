@@ -3,7 +3,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   before_filter :rollcall_required
 
   def index
-    schools       = Rollcall::School.search(params)
+    schools       = Rollcall::School.search(params, current_user)
     options       = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
     schools_paged = schools.paginate(options)
     rrd_info = Array.new
@@ -35,7 +35,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     params.each { |key,value|
       case key
       when "absent"
-        if value == "Confirmed+Illness"
+        if value == "Confirmed Illness"
           filename = "AB_#{filename}"
         end
       when "gender"

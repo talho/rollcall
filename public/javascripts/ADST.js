@@ -316,19 +316,17 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     this.getResultPanel().clearProviders();
     var form_panel   = this.find('id', 'ADSTFormPanel')[0];
     var form_values  = form_panel.getForm().getValues();
-
     var result_store = this.getResultPanel().getResultStore();
     form_panel.findParentByType('panel').getBottomToolbar().bindStore(result_store);
     result_store.baseParams = {}; // clear previous search values
     var params = this.buildParams(form_values);
     this._grabListViewFormValues(params, this);
     for(key in params){
-      if(params[key].indexOf('...') == -1){
-        if(params["type"] == "simple")
-          result_store.setBaseParam(key, params[key].replace(/\+/g, " "));
-        else
-          result_store.setBaseParam(key, params[key]);
-      }      
+      if(params[key].indexOf('...') == -1 && key.indexOf("[]") == -1 && key != 'authenticity_token'){
+        result_store.setBaseParam(key, params[key].replace(/\+/g, " "));
+      }else if(params[key].indexOf('...') == -1){
+        result_store.setBaseParam(key, params[key]);      
+      }
     }
     form_panel.buttons[2].show();
     form_panel.buttons[3].show();

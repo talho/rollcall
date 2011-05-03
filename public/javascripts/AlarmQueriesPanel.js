@@ -139,7 +139,6 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
     if (qtype == "adv") {
       Ext.getCmp('simple_query_select').hide();
       Ext.getCmp('advanced_query_select').show().doLayout();
-      //Ext.getCmp('advanced_query_select').doLayout();
     } else {
       Ext.getCmp('advanced_query_select').hide();
       form_view = Ext.getCmp('simple_query_select').show().doLayout();

@@ -5,7 +5,7 @@ begin
     desc = "Rollcall plugin, add any cmd args after --"
     Cucumber::Rake::Task.new({:rollcall => 'db:test:prepare'}, desc) do |t|
       t.cucumber_opts = "RAILS_ENV=cucumber -r features " +
-                        "-r vendor/plugins/rollcall/spec/factories.rb " +
+                       # "-r vendor/plugins/rollcall/spec/factories.rb " +
                         "-r vendor/plugins/rollcall/features/step_definitions " +
                         " #{ARGV[1..-1].join(" ") if ARGV[1..-1]}" +
                         # add all rollcall features if none are passed in
@@ -15,5 +15,5 @@ begin
     end
   end
 rescue LoadError
-  # to catch if cucmber is not installed, as in production
+  # to catch if cucumber is not installed, as in production
 end

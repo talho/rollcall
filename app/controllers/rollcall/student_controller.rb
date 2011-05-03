@@ -1,4 +1,7 @@
 class Rollcall::StudentController < Rollcall::RollcallAppController
+  helper :rollcall
+  before_filter :rollcall_required
+  
   def index
     students = Rollcall::Student.find_all_by_school_id(params[:school_id])
     students.each do |record|

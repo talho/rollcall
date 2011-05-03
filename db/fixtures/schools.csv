@@ -1,4 +1,4 @@
-name,district_id,school_id,tea_id,school_type,postal_code,gmap_lat,gmap_lng,gmap_addr
+name,district_id,school_number,tea_id,school_type,postal_code,gmap_lat,gmap_lng,gmap_addr
 9th Grade Preparatory Academy,101912,309,101912309,High School,77076,29.846399,-95.3624627,"Ninth Grade College Preparatory Academy, 9400 Irvington Blvd, Houston, TX 77076, USA"
 Alcott Elementary,101912,102,101912102,Elementary School,77033,29.6666196,-95.330493,"Alcott Elementary School, 5859 Bellfort St, Houston, TX 77033-2199, USA"
 Almeda Elementary,101912,104,101912104,Elementary School,77047,29.6002333,-95.4199402,"Almeda Elementary School, Houston, TX 77047, USA"

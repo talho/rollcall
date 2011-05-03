@@ -206,7 +206,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         {header: 'Gender',        sortable: true,  dataIndex: 'gender'},
         {header: 'Grade',         sortable: true,  dataIndex: 'grade'},
         {header: 'Confirmed',     sortable: true,  dataIndex: 'confirmed_illness'},
-        {header: 'Report Date',   sortable: true,  dataIndex: 'report_date'},
+        {header: 'Report Date',   sortable: true,  dataIndex: 'report_date'}
       ],
       stripeRows:  true,
       stateful:    true
@@ -250,15 +250,24 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       items: [{
         xtype:  'container',
         layout: 'vbox',
-        width: 350, height: 400,
-        items: [
-          {xtype: 'container', html: sch_info_tpl.applyTemplate(panel.school)},
-          school_radio_group, school_grid_panel,
-          {xtype:'container', html: html_pad},
-          student_radio_group, student_grid_panel]
-      },
-      {xtype: 'spacer', width: 10},
-      gmapPanel]
+        width:  350,
+        height: 400,
+        defaults:{
+          xtype: 'container',
+          width: 345
+        },
+        items: [{
+          html:  sch_info_tpl.applyTemplate(panel.school)
+        },{
+          items: [school_radio_group,school_grid_panel],
+          html:  '<table class="alarm-tip-table"><tr><td><b>Student Daily Info:</b></td><td><span>&nbsp;</span></td></tr></table>'
+        },{
+          items: [student_radio_group,student_grid_panel]
+        }]
+      },{
+        xtype: 'spacer',
+        width: 10
+      },gmapPanel]
     });
     win.addButton({xtype: 'button', text: 'Dismiss', handler: function(){ win.close(); }, scope: this, width:'auto'});
     gmapPanel.addListener("mapready", function(obj){
@@ -278,6 +287,8 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           this.info_popup.open(gmapPanel.gmap, this);
         }
       });
+      marker.info_popup = new google.maps.InfoWindow({content: marker.info});
+      marker.info_popup.open(gmapPanel.gmap, marker);
     });
     win.addListener("afterrender", function(obj){
       panel.ownerCt.ownerCt.getSchoolData(1, obj, panel, school_grid_panel, 'school');

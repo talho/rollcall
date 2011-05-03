@@ -148,7 +148,6 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     schools      = current_user.schools(:order => "display_name")
     zipcodes     = current_user.school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
     school_types = current_user.school_districts.map{|s| s.school_types.map{|i| {:id => i, :value => i}}}.flatten
-
     respond_to do |format|
       format.json do
         original_included_root = ActiveRecord::Base.include_root_in_json

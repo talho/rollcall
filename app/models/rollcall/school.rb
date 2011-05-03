@@ -43,9 +43,9 @@ class Rollcall::School < Rollcall::Base
 
   def average_absence_rate(date=nil)
     date      = Date.today if date.nil?
-    absentees = rollcall_absentee_reports.for_date(date).map do |report|
-      unless report.enrolled.blank?
-        report.absent.to_f/report.enrolled.to_f
+    absentees = school_daily_infos.for_date(date).map do |report|
+      unless report.total_enrolled.blank?
+        report.total_absent.to_f/report.total_enrolled.to_f
       else
         0
       end
@@ -58,8 +58,14 @@ class Rollcall::School < Rollcall::Base
   end
 
   def self.search(params, user_obj)
-    return simple_search(params, user_obj) if params[:type] == "simple"
-    return adv_search(params, user_obj) if params[:type] == "adv"
+    if params[:type] == "simple"
+      results =  simple_search(params, user_obj)
+    elsif params[:type] == "adv"
+      results = adv_search(params, user_obj)
+    else
+      results = adv_search(params, user_obj)
+    end
+    return results
   end
 
   private

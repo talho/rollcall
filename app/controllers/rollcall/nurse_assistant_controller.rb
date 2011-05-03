@@ -1,4 +1,7 @@
 class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
+  helper :rollcall
+  before_filter :rollcall_required
+  
   def index
     race = [
       {:id => 0, :value => 'Select Race...'},

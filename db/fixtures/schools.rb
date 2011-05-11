@@ -39,7 +39,3 @@ FasterCSV.open(File.dirname(__FILE__) + '/schools.csv', :headers => true) do |sc
     Rollcall::Rrd.build_rrd(school.tea_id, school.id, Time.gm(2010,"sep",01,0,0))
   end
 end
-
-Rollcall::SchoolDistrict.find_or_create_by_name(:name => "Houston ISD").school_types.each do |school_type|
-  build_rrd(school_type.gsub(/\s/,'').underscore)
-end

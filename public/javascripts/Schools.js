@@ -4,6 +4,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
   constructor: function(config)
   {
     this.gmap_panel     = null;
+    this.listener_flag  = false;
     this.current_marker = false;
     this.school_store   = new Ext.data.JsonStore({
       root:      'results',
@@ -113,23 +114,38 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
       fieldLabel: 'School Daily Info',
       id:         'school_radio_group',
       items: [
-          {boxLabel: '1 month',  name: 'school_time', value: 1},
-          {boxLabel: '2 months', name: 'school_time', value: 2, checked: true},
+          {boxLabel: '1 month',  name: 'school_time', value: 1, checked: true},
+          {boxLabel: '2 months', name: 'school_time', value: 2},
           {boxLabel: '3 months', name: 'school_time', value: 3}
       ],
       scope: this
     });
+
     var student_radio_group = new Ext.form.RadioGroup({
       fieldLabel: 'Student Daily Info',
       id:         'student_radio_group',
       items: [
-          {boxLabel: '1 month',  name: 'student_time', value: 1},
-          {boxLabel: '2 months', name: 'student_time', value: 2, checked: true},
+          {boxLabel: '1 month',  name: 'student_time', value: 1, checked: true},
+          {boxLabel: '2 months', name: 'student_time', value: 2},
           {boxLabel: '3 months', name: 'student_time', value: 3}
       ],
       scope: this
     });
-    var school_panel        = new Ext.Panel({
+    var school_list_grid = new Ext.grid.GridPanel({
+      store:      this.school_store,
+      loadMask:   true,
+      cm:         new Ext.grid.ColumnModel({columns:[{id:'school_name',header:'School',dataIndex:'display_name',width:180}]}),
+      viewConfig: {
+        emptyText:     '<div><b style="color:#000">There are no schools</b></div>',
+        enableRowBody: true
+      },
+      listeners: {
+        scope:     this,
+        rowclick:  this.showSchoolProfile
+      }
+    });
+
+    var school_panel = new Ext.Panel({
       title:    config.title,
       itemId:   config.id,
       layout:   'fit',
@@ -152,20 +168,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
           width:       200,
           maxSize:     200,
           hideBorders: true,
-          items:       [{
-            xtype:      'grid',
-            store:      this.school_store,
-            loadMask:   true,
-            cm:         new Ext.grid.ColumnModel({columns:[{id:'school_name',header:'School',dataIndex:'display_name',width:180}]}),
-            viewConfig: {
-              emptyText:     '<div><b style="color:#000">There are no schools</b></div>',
-              enableRowBody: true
-            },
-            listeners: {
-              scope:     this,
-              rowclick:  this.showSchoolProfile
-            }
-          }]
+          items:       [school_list_grid]
         },{
           hidden: true,
           region: 'east',
@@ -208,36 +211,37 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
       }]
     });
 
+    school_radio_group.addListener('change', function(group, chkd_radio )
+      {
+        var id = this.school_list_grid().getSelectionModel().getSelected().get('id');
+        this.getSchoolData(chkd_radio.value, this.school_grid_panel(), 'school', id);
+      },
+    this);
+
+    student_radio_group.addListener('change', function(group, chkd_radio )
+      {
+        var id = this.school_list_grid().getSelectionModel().getSelected().get('id');
+        this.getSchoolData(chkd_radio.value, this.school_grid_panel(), 'student', id);
+      },
+    this);
+
     this.returnSchoolPanel   = function(){return school_panel;};
     this.sch_info_tpl        = function(){return sch_info_tpl;};
     this.school_grid_panel   = function(){return school_grid_panel;};
     this.student_grid_panel  = function(){return student_grid_panel;};
     this.school_radio_group  = function(){return school_radio_group;};
     this.student_radio_group = function(){return student_radio_group;};
+    this.school_list_grid    = function(){return school_list_grid;};
+
   },
 
   showSchoolProfile: function(grid_panel, row_index, event_obj)
   {
     var school              = grid_panel.getStore().getAt(row_index);
-    var sch_info_tpl        = this.sch_info_tpl();
-    var school_grid_panel   = this.school_grid_panel();
-    var student_grid_panel  = this.student_grid_panel();
-    var school_radio_group  = this.school_radio_group();
-    var student_radio_group = this.student_radio_group();
     var profile_panel       = grid_panel.ownerCt.ownerCt.getComponent('school_profile_panel');
     var main_panel          = grid_panel.ownerCt.ownerCt.getComponent('school_main_panel');
-    profile_panel.setTitle('School Profile for ' + school.get('school_name'));
-
-    school_radio_group.addListener('change', function(group, chkd_radio )
-      {
-        this.getSchoolData(chkd_radio.value, school_grid_panel, 'school', school.get('id'));
-      },
-    this);
-    student_radio_group.addListener('change', function(group, chkd_radio )
-      {
-        this.getSchoolData(chkd_radio.value, student_grid_panel, 'student', school.get('id'));
-      },
-    this);
+    profile_panel.setTitle('School Profile for ' + school.get('display_name'));
+    
     if(this.current_marker){
       this.gmap_panel.removeMarker(this.current_marker);
     }
@@ -265,11 +269,11 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
     this.gmap_panel.ownerCt.doLayout();
     profile_panel.show();
     profile_panel.doLayout();
-    school_grid_panel.ownerCt.ownerCt.getComponent('sch_tpl_cnt').update(school.data);
+    this.school_grid_panel().ownerCt.ownerCt.getComponent('sch_tpl_cnt').update(school.data);
     grid_panel.ownerCt.ownerCt.doLayout();
     main_panel.doLayout();
-    this.getSchoolData(2, school_grid_panel, 'school', school.get('id'));
-    this.getSchoolData(2, student_grid_panel, 'student', school.get('id'));
+    this.getSchoolData(1, this.school_grid_panel(), 'school', school.get('id'));
+    this.getSchoolData(1, this.student_grid_panel(), 'student', school.get('id'));
   },
 
   getSchoolData: function(month, grid_panel, type, school_id)

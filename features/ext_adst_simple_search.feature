@@ -105,7 +105,7 @@ Scenario: User runs a simple query against absenteeism to view the raw data
 Scenario: User runs a simple query against a school to view the raw data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I fill in "School" with "Yates High School"
+  And I select "Yates High School" from ext combo "School"
   And I press "Submit"
   And delayed jobs are processed
   Then I should see graphs "DF-Raw_101912020_c_absenteeism.png" within the results
@@ -113,7 +113,7 @@ Scenario: User runs a simple query against a school to view the raw data
 Scenario: User runs a simple query against a school type to view the raw data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I fill in "School Type" with "Elementary School"
+  And I select "Elementary School" from ext combo "School Type"
   And I press "Submit"
   And delayed jobs are processed
   Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912273_c_absenteeism.png" within the results
@@ -121,37 +121,37 @@ Scenario: User runs a simple query against a school type to view the raw data
 Scenario: User runs a simple query against absenteeism and school type to view the raw data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I fill in "Absenteeism" with "Confirmed Illness"
-  And I fill in "School Type" with "Elementary School"
+  And I select "Confirmed Illness" from ext combo "Absenteeism"
+  And I select "Elementary School" from ext combo "School Type"
   And I press "Submit"
   And delayed jobs are processed
-  Then I should see graphs "DF-Raw_AB_101912105_c_absenteeism.png,DF-Raw_AB_101912273_c_absenteeism.png" within the results
+  Then I should see graphs "CNF_DF-Raw_101912105_c_absenteeism.png,CNF_DF-Raw_101912273_c_absenteeism.png" within the results
 
 Scenario: User runs a simple query against absenteeism and school type to view the average data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I fill in "Absenteeism" with "Confirmed Illness"
-  And I fill in "School Type" with "Elementary School"
-  And I fill in "Data Function" with "Average"
+  And I select "Confirmed Illness" from ext combo "Absenteeism"
+  And I select "Elementary School" from ext combo "School Type"
+  And I select "Average" from ext combo "Data Function"
   And I press "Submit"
   And delayed jobs are processed
-  Then I should see graphs "DF-Average_AB_101912105_c_absenteeism.png,DF-Average_AB_101912273_c_absenteeism.png" within the results
+  Then I should see graphs "CNF_DF-Average_101912105_c_absenteeism.png,CNF_DF-Average_101912273_c_absenteeism.png" within the results
 
 Scenario: User runs a simple search against absenteeism and school type to view the standard deviation
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I fill in "Absenteeism" with "Confirmed Illness"
-  And I fill in "School Type" with "Elementary School"
-  And I fill in "Data Function" with "Standard Deviation"
+  And I select "Confirmed Illness" from ext combo "Absenteeism"
+  And I select "Elementary School" from ext combo "School Type"
+  And I select "Standard Deviation" from ext combo "Data Function"
   And I press "Submit"
   And delayed jobs are processed
-  And I should see graphs "DF-StandardDeviation_AB_101912105_c_absenteeism.png,DF-StandardDeviation_AB_101912273_c_absenteeism.png" within the results
+  And I should see graphs "CNF_DF-StandardDeviation_101912105_c_absenteeism.png,CNF_DF-StandardDeviation_101912273_c_absenteeism.png" within the results
 
 Scenario: User runs a simple query using the start and end date to view the raw data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I set "Start Date" to "5" days from origin date
-  And I set "End Date" to "0" days from origin date
+  And I set "startdt_simple" to "5" days from origin date
+  And I set "enddt_simple" to "0" days from origin date
   And I press "Submit"
   And delayed jobs are processed
   Then I should see dated graphs for schools "101912105,101912273,101912020" starting "5" days and ending "0" days from origin date 

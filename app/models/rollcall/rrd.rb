@@ -342,25 +342,25 @@ class Rollcall::Rrd < Rollcall::Base
     options.each { |key,value|
       if value.index('...').blank?
         case key
+        when "data_func"
+          conditions[:data_func] = value
         when "absent"
           if value == "Confirmed Illness"
             conditions[:confirmed_illness] = true
           end
         when "gender"
-          conditions[:gender]    = 'M' if value == "Male"
-          conditions[:gender]    = 'F' if value == "Female"
+          conditions[:gender]   = 'M' if value == "Male"
+          conditions[:gender]   = 'F' if value == "Female"
         when "age"
-          conditions[:age]       = value.collect{|v| v.to_i}
+          conditions[:age]      = value.collect{|v| v.to_i}
         when "grade"
-          conditions[:grade]     = value.collect{|v| v.to_i}
+          conditions[:grade]    = value.collect{|v| v.to_i}
         when "symptoms"
-          conditions[:symptoms]  = value
+          conditions[:symptoms] = value
         when "startdt"
-          conditions[:startdt]   = value
+          conditions[:startdt]  = value
         when "enddt"
-          conditions[:enddt]     = value
-        when "data_func"
-          conditions[:data_func] = value
+          conditions[:enddt]    = value
         else
         end
       end
@@ -369,10 +369,10 @@ class Rollcall::Rrd < Rollcall::Base
   end
 
   def self.set_filename conditions, filename, type
-    conditions.each { |key,value|
+    conditions.sort_by.each{|key|key.to_s}.reverse.each{|key,value|
       case key
       when :confirmed_illness
-        filename = "AB_#{filename}"
+        filename = "CNF_#{filename}"
       when :gender
         filename = "GNDR-#{value}_#{filename}"
       when :age
@@ -380,10 +380,10 @@ class Rollcall::Rrd < Rollcall::Base
       when :grade
         filename = "GRD-#{value.collect{|v| v.to_i}.join("-")}_#{filename}"
       when :symptoms
-        filename = "ICD9-#{value.join("-")}_#{filename}" unless value.blank? 
+        filename = "SYM-#{value.join("-")}_#{filename}" unless value.blank?
       when :startdt
         filename = "SD-#{Time.parse(value).strftime("%s")}_#{filename}"
-      when :enddt
+      when :enddt                                                      
         filename = "ED-#{Time.parse(value).strftime("%s")}_#{filename}"
       when :data_func
         filename = "DF-#{value.gsub(" ", "")}_#{filename}" if type == 'image'

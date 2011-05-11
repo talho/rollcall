@@ -159,33 +159,27 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       this.get(0).get(1).getComponent('alarm_panel').close_alarm_tip();
     });
   },
-  renderGraphs: function(id, image, obj, class_name)
+  renderGraphs: function(id, image, obj, class_name, total)
   {
     provider = new Ext.direct.PollingProvider({
-      id:        'image' + id + '-provider',
-      type:      'polling',
-      url:       image,
+      id:         'image' + id + '-provider',
+      type:       'polling',
+      url:        image,
+      form_panel: this.find('id', 'ADSTFormPanel')[0],
+      index:      id,
+      total:      total - 1,
+      interval:   5000,
       listeners: {
         scope: obj,
         data: function(provider, e)
         {
           if(e.xhr.status == 200) {
             var element_id = Ext.id();
-            (function(provider)
-            {
-              this.update('<div id="'+element_id+'" class="'+class_name+'" >' +
-                          '<img style="display:none;" src="'+provider.url+'?' + element_id + '" />' +
-                          '</div>');
-              this.doLayout();
-            }).defer(50,this,[provider]);
-            (function(provider)
-            {
-              this.update('<div id="'+element_id+'" class="'+class_name+'">' +
-                          '<img src="'+provider.url+'?' + element_id + '" />' +
-                          '</div>');
-              this.doLayout();
-            }).defer(1000,this,[provider]);
+            this.update('<div id="'+element_id+'" class="'+class_name+'"><img src="'+provider.url+'"/></div>');
+            this.doLayout();
+            provider.purgeListeners();
             provider.disconnect();
+            if(provider.index == provider.total) provider.form_panel.buttons[0].enable();
             return true;
           } else {
             return false;
@@ -194,7 +188,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       }
     });
     this.providers.push(provider);
-    Ext.Direct.addProvider(provider);
+    Ext.Direct.addProvider(provider); 
   },
   buildParams: function(form_values)
   {
@@ -328,6 +322,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         result_store.setBaseParam(key, params[key]);      
       }
     }
+    form_panel.buttons[0].disable();
     form_panel.buttons[2].show();
     form_panel.buttons[3].show();
     form_panel.buttons[4].show();

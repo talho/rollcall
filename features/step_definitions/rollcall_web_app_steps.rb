@@ -1,4 +1,4 @@
-Then /^I set "([^\"]*)" to "([^\"]*)" days from origin date/ do |date_field_name,days|
+Then /^I set "([^\"]*)" to "([^\"]*)" days from origin date$/ do |date_field_name,days|
   current_time = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_week - 1.week
   date         = current_time - days.to_i.days
   And %{I fill in "#{date_field_name}" with "#{date.month}/#{date.day}/#{date.year}"}

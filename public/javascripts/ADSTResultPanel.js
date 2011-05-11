@@ -48,8 +48,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
   writeGraphs: function(store)
   {
-    var leftColumn       = this.getComponent('leftColumn');
-    var rightColumn      = this.getComponent('rightColumn');
+    var resultLength = store.getRange().length;
+    var leftColumn   = this.getComponent('leftColumn');
+    var rightColumn  = this.getComponent('rightColumn');
     rightColumn.items.each(function(item){
       if(!item.pinned) rightColumn.remove(item.id, true);
     });
@@ -69,6 +70,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         school:      school,
         school_name: school.display_name,
         school_id:   school_id,
+        provider_id: 'image'+i+'-provider',
         collapsible: false,
         pinned:      false,
         tools: [{
@@ -120,12 +122,15 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         result_obj = leftColumn.add(graphImageConfig);
       }
       this.doLayout();
-      this.ownerCt.ownerCt.ownerCt.renderGraphs(i, school.image_url, result_obj, 'ux-result-graph-container');
+      this.ownerCt.ownerCt.ownerCt.renderGraphs(i, school.image_url, result_obj, 'ux-result-graph-container', resultLength);
     }, this);
   },
 
   closeResult: function(e, target, panel)
   {
+    var provider = Ext.Direct.getProvider(panel.provider_id);
+    provider.purgeListeners();
+    provider.disconnect();
     panel.ownerCt.remove(panel, true);
   },
 
@@ -651,6 +656,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   clearProviders: function()
   {
     Ext.each(this.providers, function(item, index, allItems) {
+      item.purgeListeners();
       item.disconnect();
     });
     this.providers = new Array();

@@ -38,7 +38,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
               multiSelect:  true,
               simpleSelect: true,
               cls:          'ux-query-form',
-              columns:      [{dataIndex: 'value'}],
+              columns:      [{dataIndex: 'value', cls:'school-type-list-item'}],
               hideHeaders:  true,
               height:       100,
               store:        new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.school_type})
@@ -54,7 +54,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
               multiSelect:  true,
               simpleSelect: true,
               cls:          'ux-query-form',
-              columns:      [{dataIndex: 'value'}],
+              columns:      [{dataIndex: 'value', cls:'zipcode-list-item'}],
               hideHeaders:  true,
               height:       100,
               store:        new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.zipcode})
@@ -77,7 +77,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
               multiSelect:  true,
               simpleSelect: true,
               cls:          'ux-query-form',
-              columns:      [{dataIndex: 'value'}],
+              columns:      [{dataIndex: 'value', cls:'school-name-list-item'}],
               hideHeaders:  true,
               height:       229,
               store:        new Ext.data.JsonStore({fields: ['id', {name:'value', mapping:'display_name'}], data: config.options.schools})
@@ -106,7 +106,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
               multiSelect:  true,
               simpleSelect: true,
               cls:          'ux-query-form',
-              columns:      [{dataIndex: 'value'}],
+              columns:      [{dataIndex: 'value', cls: 'age-list-item'}],
               hideHeaders:  true,
               height:       100,
               store:        new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.age})
@@ -122,7 +122,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
               multiSelect:  true,
               simpleSelect: true,
               cls:          'ux-query-form',
-              columns:      [{dataIndex: 'value'}],
+              columns:      [{dataIndex: 'value', cls: 'grade-list-item'}],
               hideHeaders:  true,
               height:       100,
               store:        new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.grade})
@@ -145,7 +145,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
               multiSelect:  true,
               simpleSelect: true,
               cls:          'ux-query-form',
-              columns:      [{dataIndex: 'name', width: 0.70}, {dataIndex: 'value'}],
+              columns:      [{dataIndex: 'name', width: 0.70, cls:'symptom-list-item'}, {dataIndex: 'value'}],
               hideHeaders:  true,
               height:       179,
               store:        new Ext.data.JsonStore({fields: ['id', 'name', {name:'value', mapping:'icd9_code'}], data: config.options.symptoms})
@@ -194,7 +194,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
               html:  'Start Date:'
             },{
               xtype:        'datefield',
-              fieldLabel:   'Start Date',
+              fieldLabel:   'Start Date Adv',
               name:         'startdt_adv',
               id:           'startdt_adv',
               endDateField: 'enddt_adv',
@@ -227,7 +227,7 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
               html:  'End Date:'
             },{
               xtype:          'datefield',
-              fieldLabel:     'End Date',
+              fieldLabel:     'End Date Adv',
               name:           'enddt_adv',
               id:             'enddt_adv',
               startDateField: 'startdt_adv',

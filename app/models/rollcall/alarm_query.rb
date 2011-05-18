@@ -47,7 +47,7 @@ private
     test_data_date = Time.parse("09/01/2010")
     start_date     = query["startdt"].blank? ? test_data_date : Time.parse(query["startdt"])
     end_date       = query["enddt"].blank? ? Time.now : Time.parse(query["enddt"]) + 1.day
-    lock_date      = end_date - 1.month
+    lock_date      = end_date - 12.months
     days           = ((end_date - start_date) / 86400)
     alarm_count    = 0
     (0..days).each do |i|

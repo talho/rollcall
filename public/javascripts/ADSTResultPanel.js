@@ -48,6 +48,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
   writeGraphs: function(store)
   {
+    this.ownerCt.find('id', 'ADSTFormPanel')[0].buttons[0].disable();
     var resultLength = store.getRange().length;
     var leftColumn   = this.getComponent('leftColumn');
     var rightColumn  = this.getComponent('rightColumn');
@@ -124,6 +125,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       this.doLayout();
       this.ownerCt.ownerCt.ownerCt.renderGraphs(i, school.image_url, result_obj, 'ux-result-graph-container', resultLength);
     }, this);
+    if(resultLength == 0) this.ownerCt.find('id', 'ADSTFormPanel')[0].buttons[0].enable();
   },
 
   closeResult: function(e, target, panel)
@@ -247,7 +249,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       }
     );
     var win = new Ext.Window({
-      title:      "School Profile for '" + panel.school_name + "'",
+      title:      "School Profile for " + panel.school_name,
       layout:     'hbox',
       labelAlign: 'top',
       padding:    '5',
@@ -328,37 +330,32 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
 
   exportResult: function(e, targetEl, panel, tc)
   {
-    var form_values  = panel.ownerCt.ownerCt.ownerCt.findByType('form')[0].getForm().getValues();
+    var adst_container = panel.ownerCt.ownerCt.ownerCt.ownerCt.ownerCt;
+    var params = adst_container.buildParams(panel.ownerCt.ownerCt.ownerCt.findByType('form')[0].getForm().getValues());
+    adst_container._grabListViewFormValues(params, adst_container);
     var param_string = '';
-    for(key in form_values){
-      if(Ext.getCmp('advanced_query_select').isVisible()){
-        if(key.indexOf('adv') != -1){
-          if(key == 'school_adv') param_string += key.replace('_adv','') + '=' + panel.school_name + "&";
-          else param_string += key.replace('_adv','') + '=' + form_values[key] + "&";
-        }
-      }else{
-        if(key.indexOf('simple') != -1){
-          if(key == 'school_simple') param_string += key.replace('_simple','') + '=' + panel.school_name + "&";
-          else param_string += key.replace('_simple','') + '=' + form_values[key] + "&";
-        }
-      }
+    for(key in params){
+      if(key != 'school[]' && key != 'school_type[]' && key != 'zip[]') param_string += key + '=' + params[key] + '&';
+    }
+    if(Ext.getCmp('advanced_query_select').isVisible()){
+      param_string += 'school[]=' + panel.school_name + "&";
+    }else{
+      param_string += 'school=' + panel.school_name + "&";
     }
     Ext.Ajax.request({
-      url:    '/rollcall/export?'+param_string,
-      method: 'GET',
-      scope:  this,
+      url:      '/rollcall/export?'+param_string,
+      method:   'GET',
+      scope:    this,
       callback: function(options, success, response){
         Ext.MessageBox.show({
           title: 'Creating CSV Export File',
-          msg: 'Your CSV file will be placed in your documents folders when the system '+
+          msg:   'Your CSV file will be placed in your documents folders when the system '+
           'is done generating it. Please check your documents folder in a few minutes.',
           buttons: Ext.MessageBox.OK,
-          icon: Ext.MessageBox.INFO
+          icon:    Ext.MessageBox.INFO
         });
       },
-      failure: function(){
-
-      }
+      failure: function(){}
     });
   },
 
@@ -437,23 +434,28 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           },
           buttonAlign: 'left',
           defaults: {
-            xtype: 'container'
+            xtype:      'container',
+            labelStyle: 'width:auto;'
           },
           items: [{
             fieldLabel: 'Min',
             items:[{
-              xtype: 'textfield',
+              xtype: 'numberfield',
               width: 32,
               cls:   'ux-layout-auto-float-item',
               style:{
-                marginLeft: '-40px'
+                marginLeft: '-40px',
+                zIndex: '300'
               },
-              value: '100%'
+              listeners: {
+                keyup: this.changeSliderField
+              },
+              enableKeyEvents: true,
+              id: 'min_deviation'
             },{
               xtype: 'sliderfield',
               width: 135,
               listeners: {
-                scope:  this,
                 change: this.changeTextField
               },
               tipText: this.showTipText,
@@ -464,18 +466,21 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           },{
             fieldLabel: 'Max',
             items:[{
-              xtype: 'textfield',
+              xtype: 'numberfield',
               width: 32,
               cls:   'ux-layout-auto-float-item',
               style:{
                 marginLeft: '-40px'
               },
-              value: '100%'
+              listeners: {
+                keyup: this.changeSliderField
+              },
+              enableKeyEvents: true,
+              id: 'max_deviation'
             },{
               xtype: 'sliderfield',
               width: 135,
               listeners: {
-                scope:  this,
                 change: this.changeTextField
               },
               tipText: this.showTipText,
@@ -505,23 +510,27 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           buttonAlign: 'left',
           defaults: {
             xtype:  'container',
+            labelStyle: 'width:auto;',
             layout: 'anchor'
           },
           items: [{
             fieldLabel: 'Min',
             items:[{
-              xtype: 'textfield',
+              xtype: 'numberfield',
               width: 32,
               cls:   'ux-layout-auto-float-item',
               style:{
                 marginLeft: '-40px'
               },
-              value: '100%'
+              listeners: {
+                keyup: this.changeSliderField
+              },
+              enableKeyEvents: true,
+              id: 'min_severity'
             },{
               xtype: 'sliderfield',
               width: 135,
               listeners: {
-                scope:  this,
                 change: this.changeTextField
               },
               tipText: this.showTipText,
@@ -532,18 +541,21 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           },{
             fieldLabel: 'Max',
             items:[{
-              xtype: 'textfield',
+              xtype: 'numberfield',
               width: 32,
               cls:   'ux-layout-auto-float-item',
               style:{
                 marginLeft: '-40px'
               },
-              value: '100%'
+              listeners: {
+                keyup: this.changeSliderField
+              },
+              enableKeyEvents: true,
+              id: 'max_severity'
             },{
               xtype: 'sliderfield',
               width: 135,
               listeners: {
-                scope:  this,
                 change: this.changeTextField
               },
               tipText: this.showTipText,
@@ -633,6 +645,10 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     obj.ownerCt.findByType('textfield')[0].setValue(new_number)
   },
 
+  changeSliderField: function(this_field, event_obj){
+    this_field.nextSibling().setValue(this_field.getValue());
+  },
+  
   maxFields: function(buttonEl, eventObj)
   {
     sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");

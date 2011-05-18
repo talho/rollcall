@@ -27,6 +27,7 @@ Talho.Rollcall.SimpleADSTContainer = Ext.extend(Ext.Container, {
             fieldLabel: 'Absenteeism',
             emptyText:'Gross',
             id: 'absent_simple',
+            editable:   false,
             store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.absenteeism})
           })
         },{
@@ -38,6 +39,7 @@ Talho.Rollcall.SimpleADSTContainer = Ext.extend(Ext.Container, {
             id: 'school_simple',
             itemId: 'school_simple',
             displayField: 'display_name',
+            editable:   false,
             store: new Ext.data.JsonStore({fields: ['id', 'display_name'], data: config.options.schools}),
             listeners:{
               select: function(comboBox, record, index){
@@ -53,6 +55,7 @@ Talho.Rollcall.SimpleADSTContainer = Ext.extend(Ext.Container, {
             allowBlank: true,
             id: 'school_type_simple',
             itemId: 'school_type_simple',
+            editable:   false,
             store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.school_type}),
             listeners:{
               select: function(comboBox, record, index){
@@ -90,6 +93,7 @@ Talho.Rollcall.SimpleADSTContainer = Ext.extend(Ext.Container, {
               fieldLabel: 'Data Function',
               emptyText:'Raw',
               id: 'data_func_simple',
+              editable:   false,
               store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.data_functions})
             })
         },{

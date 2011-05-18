@@ -147,7 +147,7 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       app_init             = false
       total_enrolled_alpha = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id).blank?
     else     
-      school_id            = 0
+      school_id            = 1
       app_init             = true
       total_enrolled_alpha = true
     end

@@ -5,11 +5,12 @@ Feature: Execute Simple ADST Search
 
 Background:
   Given the following entities exist:
-    | Role         | SchoolNurse     |
-    | Role         | Epidemiologist  |
-    | Jurisdiction | Texas           |
-    | Jurisdiction | Houston         |
-    | Jurisdiction | Harris          |
+      | Role         | SchoolNurse     | rollcall |
+      | Role         | Epidemiologist  | rollcall |
+      | Role         | Rollcall        | rollcall |
+      | Jurisdiction | Texas           |          |
+      | Jurisdiction | Houston         |          |
+      | Jurisdiction | Harris          |          |
   And Texas is the parent jurisdiction of:
     | Houston | Harris |
   And Houston has the following school districts:
@@ -105,7 +106,7 @@ Scenario: User runs a simple query against absenteeism to view the raw data
 Scenario: User runs a simple query against a school to view the raw data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I select "Yates High School" from ext combo "School"
+  And I select "Yates High School" from ext combo "school_simple"
   And I press "Submit"
   And delayed jobs are processed
   Then I should see graphs "DF-Raw_101912020_c_absenteeism.png" within the results
@@ -113,7 +114,7 @@ Scenario: User runs a simple query against a school to view the raw data
 Scenario: User runs a simple query against a school type to view the raw data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I select "Elementary School" from ext combo "School Type"
+  And I select "Elementary School" from ext combo "school_type_simple"
   And I press "Submit"
   And delayed jobs are processed
   Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912273_c_absenteeism.png" within the results
@@ -121,8 +122,8 @@ Scenario: User runs a simple query against a school type to view the raw data
 Scenario: User runs a simple query against absenteeism and school type to view the raw data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I select "Confirmed Illness" from ext combo "Absenteeism"
-  And I select "Elementary School" from ext combo "School Type"
+  And I select "Confirmed Illness" from ext combo "absent_simple"
+  And I select "Elementary School" from ext combo "school_type_simple"
   And I press "Submit"
   And delayed jobs are processed
   Then I should see graphs "CNF_DF-Raw_101912105_c_absenteeism.png,CNF_DF-Raw_101912273_c_absenteeism.png" within the results
@@ -130,8 +131,8 @@ Scenario: User runs a simple query against absenteeism and school type to view t
 Scenario: User runs a simple query against absenteeism and school type to view the average data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I select "Confirmed Illness" from ext combo "Absenteeism"
-  And I select "Elementary School" from ext combo "School Type"
+  And I select "Confirmed Illness" from ext combo "absent_simple"
+  And I select "Elementary School" from ext combo "school_type_simple"
   And I select "Average" from ext combo "Data Function"
   And I press "Submit"
   And delayed jobs are processed
@@ -140,9 +141,9 @@ Scenario: User runs a simple query against absenteeism and school type to view t
 Scenario: User runs a simple search against absenteeism and school type to view the standard deviation
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I select "Confirmed Illness" from ext combo "Absenteeism"
-  And I select "Elementary School" from ext combo "School Type"
-  And I select "Standard Deviation" from ext combo "Data Function"
+  And I select "Confirmed Illness" from ext combo "absent_simple"
+  And I select "Elementary School" from ext combo "school_type_simple"
+  And I select "Standard Deviation" from ext combo "data_func_simple"
   And I press "Submit"
   And delayed jobs are processed
   And I should see graphs "CNF_DF-StandardDeviation_101912105_c_absenteeism.png,CNF_DF-StandardDeviation_101912273_c_absenteeism.png" within the results

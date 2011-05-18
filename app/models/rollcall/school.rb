@@ -25,7 +25,6 @@ class Rollcall::School < Rollcall::Base
   has_many :rrds, :class_name => "Rollcall::Rrd"
   has_many :students, :class_name => "Rollcall::Student"
   before_create :set_display_name
-  #default_scope :order => "display_name"
 
   named_scope :in_alert,
               :select     => "distinct schools.*",
@@ -60,8 +59,6 @@ class Rollcall::School < Rollcall::Base
   def self.search(params, user_obj)
     if params[:type] == "simple"
       results =  simple_search(params, user_obj)
-    elsif params[:type] == "adv"
-      results = adv_search(params, user_obj)
     else
       results = adv_search(params, user_obj)
     end

@@ -45,21 +45,15 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
           filename = "G-#{value}_#{filename}"
         end
       when "startdt"
-        if value.index('...').blank?
-          filename = "SD-#{Time.parse(value).strftime("%s")}_#{filename}"
-        end
+        filename = "SD-#{Time.parse(value).strftime("%s")}_#{filename}"
       when "enddt"
-        if value.index('...').blank?
-          filename = "ED-#{Time.parse(value).strftime("%s")}_#{filename}"
-        end
+        filename = "ED-#{Time.parse(value).strftime("%s")}_#{filename}"
       when "school"
-        if value.index('...').blank?
-          filename = "SC-#{value}_#{filename}"
-        end
+        filename = "SC-#{value}_#{filename}"
+      when "data_func"
+        filename = "DF-#{value}_#{filename}"
       when "school_type"
-        if value.index('...').blank?
-          filename = "ST-#{value}_#{filename}"
-        end
+        filename = "ST-#{value}_#{filename}"
       else
       end
     }

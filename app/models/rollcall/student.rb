@@ -22,7 +22,5 @@ class Rollcall::Student < Rollcall::Base
   belongs_to :school, :class_name => "Rollcall::School"
   has_many :student_daily_info, :class_name => "Rollcall::StudentDailyInfo"
 
-  #has_many :student_daily_info, :join_table => 'rollcall_student_daily_infos', :class_name => "Rollcall::StudentDailyInfo"
-
   set_table_name "rollcall_students"
 end

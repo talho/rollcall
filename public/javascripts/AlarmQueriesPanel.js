@@ -52,11 +52,11 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
       }
       for(var cnt=0;cnt<alarm_queries.length;cnt++){
         var param_config          = alarm_queries[cnt].json;
+        var myData                = new Array();
         param_config.query_params = Ext.decode(alarm_queries[cnt].json.query_params);
         alarm_id                  = (param_config.alarm_set) ? 'alarm-on' : 'alarm-off';
         column_obj                = this.add({});
-
-        var myData = new Array();
+                
         myData.push(['severity_min', param_config.severity_min]);
         myData.push(['severity_max', param_config.severity_max]);
         myData.push(['deviation_min', param_config.deviation_min]);
@@ -72,22 +72,21 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
         });
         store.loadData(myData);
         var grid_obj = {
-          xtype:   'grid',
-          store:   store,
+          xtype:       'grid',
+          store:       store,
           hideHeaders: true,
           columns: [
             {id:'settings', header: 'Settings', sortable: true, dataIndex: 'settings'},
             {id:'values', header: 'values', sortable: true, dataIndex: 'values'}
           ],
-          stripeRows: true,
+          stripeRows:       true,
           autoExpandColumn: 'settings',
-          autoHeight: true,
-          autoWidth: true,
-          stateful: true
+          autoHeight:       true,
+          autoWidth:        true,
+          stateful:         true
         };
 
-
-        result_obj       = column_obj.add({
+        result_obj = column_obj.add({
           title:        param_config.name,
           param_config: param_config,
           collapsible:  false,
@@ -121,7 +120,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           }],
           cls:        'ux-alarm-thumbnails',
           adst_panel: this.adst_panel,
-          items: [grid_obj]
+          items:      [grid_obj]
         });
       }
     }
@@ -310,7 +309,6 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           value: alarm_query_params.school,
           mode: 'local',
           name: 'school',
-          //hiddenName: 'school_id', valueField: 'id', hiddenValue: school_id,
           displayField: 'display_name',
           store: new Ext.data.JsonStore({fields: ['id', 'display_name'], data: Ext.getCmp('rollcall_adst').init_store.getAt(0).get('schools')})
         })),{
@@ -322,24 +320,27 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           },
           buttonAlign:'left',
           defaults: {
-            xtype: 'container'
+            xtype: 'container',
+            labelStyle: 'width:auto;'
           },
           items: [{
             fieldLabel: 'Min',
             items:[{
-              xtype: 'textfield',
+              xtype: 'numberfield',
               width: 32,
               cls: 'ux-layout-auto-float-item',
               style:{
                 marginLeft: '-40px'
               },
-              value: '0%'
+              listeners: {
+                keyup: this.changeSliderField
+              },
+              enableKeyEvents: true
             },{
               xtype: 'sliderfield',
               width: 135,
               listeners: {
-                scope: this,
-                change: this.changeSlider
+                change: this.changeTextField
               },
               tipText: this.showTipText,
               id: 'deviation_min',
@@ -349,19 +350,21 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           },{
             fieldLabel: 'Max',
             items:[{
-              xtype: 'textfield',
+              xtype: 'numberfield',
               width: 32,
               cls: 'ux-layout-auto-float-item',
               style:{
                 marginLeft: '-40px'
               },
-              value: '50%'
+              listeners: {
+                keyup: this.changeSliderField
+              },
+              enableKeyEvents: true
             },{
               xtype: 'sliderfield',
               width: 135,
               listeners: {
-                scope: this,
-                change: this.changeSlider
+                change: this.changeTextField
               },
               tipText: this.showTipText,
               id: 'deviation_max',
@@ -390,24 +393,27 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           buttonAlign: 'left',
           defaults: {
             xtype: 'container',
+            labelStyle: 'width:auto;',
             layout: 'anchor'
           },
           items: [{
             fieldLabel: 'Min',
             items:[{
-              xtype: 'textfield',
+              xtype: 'numberfield',
               width: 32,
               cls: 'ux-layout-auto-float-item',
               style:{
                 marginLeft: '-40px'
               },
-              value: '0%'
+              listeners: {
+                keyup: this.changeSliderField
+              },
+              enableKeyEvents: true
             },{
               xtype: 'sliderfield',
               width: 135,
               listeners: {
-                scope: this,
-                change: this.changeSlider
+                change: this.changeTextField
               },
               tipText: this.showTipText,
               id: 'severity_min',
@@ -417,19 +423,22 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           },{
             fieldLabel: 'Max',
             items:[{
-              xtype: 'textfield',
+              xtype: 'numberfield',
               width: 32,
               cls: 'ux-layout-auto-float-item',
               style:{
                 marginLeft: '-40px'
               },
-              value: '50%'
+              listeners: {
+                keyup: this.changeSliderField
+              },
+              enableKeyEvents: true
             },{
               xtype: 'sliderfield',
               width: 135,
               listeners: {
                 scope: this,
-                change: this.changeSlider
+                change: this.changeTextField
               },
               tipText: this.showTipText,
               id: 'severity_max',
@@ -511,11 +520,15 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
     alarm_console.show();
   },
 
-  changeSlider: function(obj, new_number, old_number)
+  changeTextField: function(obj, new_number, old_number)
   {
     obj.ownerCt.findByType('textfield')[0].setValue(new_number)
   },
 
+  changeSliderField: function(this_field, event_obj){
+    this_field.nextSibling().setValue(this_field.getValue());
+  },
+  
   resetSliders: function(buttonEl, eventObj)
   {
     sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");

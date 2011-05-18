@@ -5,11 +5,12 @@ Feature: Execute Advanced ADST Queries
 
   Background:
     Given the following entities exist:
-      | Role         | SchoolNurse     |
-      | Role         | Epidemiologist  |
-      | Jurisdiction | Texas           |
-      | Jurisdiction | Houston         |
-      | Jurisdiction | Harris          |
+      | Role         | SchoolNurse     | rollcall |
+      | Role         | Epidemiologist  | rollcall |
+      | Role         | Rollcall        | rollcall |
+      | Jurisdiction | Texas           |          |
+      | Jurisdiction | Houston         |          |
+      | Jurisdiction | Harris          |          |
     And Texas is the parent jurisdiction of:
       | Houston | Harris |
     And Houston has the following school districts:
@@ -213,7 +214,7 @@ Scenario: User runs an advanced query to view the cusum data
   And delayed jobs are processed
   Then I should see graphs "DF-Cusum_101912105_c_absenteeism.png,DF-Cusum_101912273_c_absenteeism.png,DF-Cusum_101912020_c_absenteeism.png" within the results
 
-Scenario: User runs an advanced query against school type, age, grade, gender and symptoms to view the moving average data for 30 days
+Scenario: User runs an advanced query to view the moving average data for 30 days
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
   And I press "Switch to Advanced View >>"
@@ -222,7 +223,7 @@ Scenario: User runs an advanced query against school type, age, grade, gender an
   And delayed jobs are processed
   Then I should see graphs "DF-MovingAverage30Day_101912105_c_absenteeism.png,DF-MovingAverage30Day_101912273_c_absenteeism.png,DF-MovingAverage30Day_101912020_c_absenteeism.png" within the results
 
-Scenario: User runs an advanced query against school type, age, grade, gender and symptoms to view the moving average data for 60 days
+Scenario: User runs an advanced query to view the moving average data for 60 days
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
   And I press "Switch to Advanced View >>"

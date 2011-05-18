@@ -196,11 +196,11 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     params['authenticity_token'] = FORM_AUTH_TOKEN;
     for (key in form_values){
       if (Ext.getCmp('advanced_query_select').isVisible()){
-        if(key.indexOf('_adv') != -1)
-          params[key.replace(/_adv/,'')] = form_values[key];
+        if(key.indexOf('_adv') != -1 && form_values[key].indexOf('...') == -1)
+          params[key.replace(/_adv/,'')] = form_values[key].replace(/\+/g, " ");
       }else{
-        if(key.indexOf('_simple') != -1)
-          params[key.replace(/_simple/,'')] = form_values[key];
+        if(key.indexOf('_simple') != -1 && form_values[key].indexOf('...') == -1)
+          params[key.replace(/_simple/,'')] = form_values[key].replace(/\+/g, " ");
       }
     }
     if (Ext.getCmp('advanced_query_select').isVisible()) params['type'] = 'adv'
@@ -267,10 +267,12 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   },
   exportResultSet: function(buttonEl, eventObj)
   {
+    var params = this.buildParams(buttonEl.findParentByType("form").getForm().getValues());
+    this._grabListViewFormValues(params, this);
     Ext.Ajax.request({
       url:    '/rollcall/export',
       method: 'GET',
-      params: this.buildParams(buttonEl.findParentByType("form").getForm().getValues()),
+      params: params,
       scope:  this,
       callback: function(options, success, response){
         Ext.MessageBox.show({
@@ -281,8 +283,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           icon: Ext.MessageBox.INFO
         });
       },
-      failure: function(){
-      }
+      failure: function(){}
     });  
   },
   resetForm: function()
@@ -313,7 +314,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     var result_store = this.getResultPanel().getResultStore();
     form_panel.findParentByType('panel').getBottomToolbar().bindStore(result_store);
     result_store.baseParams = {}; // clear previous search values
-    var params = this.buildParams(form_values);
+    var params              = this.buildParams(form_values);
     this._grabListViewFormValues(params, this);
     for(key in params){
       if(params[key].indexOf('...') == -1 && key.indexOf("[]") == -1 && key != 'authenticity_token'){
@@ -322,7 +323,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         result_store.setBaseParam(key, params[key]);      
       }
     }
-    form_panel.buttons[0].disable();
+    //form_panel.buttons[0].disable();
     form_panel.buttons[2].show();
     form_panel.buttons[3].show();
     form_panel.buttons[4].show();

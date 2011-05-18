@@ -35,9 +35,9 @@ class Rollcall::Rrd < Rollcall::Base
       graph_title = "Confirmed Absenteeism for #{school_name}"
     end
     unless params[:symptoms].blank?
-      if params[:symptoms].index("...").blank?
+      #if params[:symptoms].index("...").blank?
         graph_title = "Absenteeism for #{school_name} based on #{params[:symptoms]}"
-      end
+      #end
     end
     if results.blank?
       school_id      = Rollcall::School.find_by_tea_id(tea_id).id
@@ -55,9 +55,16 @@ class Rollcall::Rrd < Rollcall::Base
 
   def self.export_rrd_data params, filename, user_obj
     initial_result     = Rollcall::School.search params, user_obj
-    test_data_date     = Time.parse("11/22/2010")
-    start_date         = params[:startdt].index('...') ? test_data_date : Time.parse(params[:startdt])
-    end_date           = params[:enddt].index('...') ? Time.now : Time.parse(params[:enddt])
+    unless params[:startdt].blank?
+      start_date = Time.gm(Time.parse(params[:startdt]).year,Time.parse(params[:startdt]).month,Time.parse(params[:startdt]).day)
+    else
+      start_date = Time.gm(2010,"aug",01,0,0)
+    end
+    unless params[:enddt].blank?
+      end_date = Time.gm(Time.parse(params[:enddt]).year,Time.parse(params[:enddt]).month,Time.parse(params[:enddt]).day)
+    else
+      end_date = Time.gm(Time.now.year,Time.now.month,Time.now.day)
+    end
     conditions         = set_conditions params
     @csv_data          = build_csv_string initial_result, end_date, start_date, conditions
     newfile            = File.join(Rails.root,'tmp',"#{filename}.csv")
@@ -75,8 +82,8 @@ class Rollcall::Rrd < Rollcall::Base
   def self.generate_report params, user_obj
     initial_result     = Rollcall::School.search params, user_obj
     test_data_date     = Time.parse("11/22/2010")
-    start_date         = params[:startdt].index('...') ? test_data_date : Time.parse(params[:startdt])
-    end_date           = params[:enddt].index('...') ? Time.now : Time.parse(params[:enddt])
+    start_date         = params[:startdt].blank? ? test_data_date : Time.parse(params[:startdt])
+    end_date           = params[:enddt].blank? ? Time.now : Time.parse(params[:enddt])
     conditions         = set_conditions params
     report_data        = build_report initial_result, end_date, start_date, conditions
     report_file        = user_obj.reports.build({:report => report_data, :template => report_template})
@@ -131,12 +138,12 @@ class Rollcall::Rrd < Rollcall::Base
     rrd_image_path = Dir.pwd << "/public/rrd/"
     rrd_path       = Dir.pwd << "/rrd/"
     rrd_tool       = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
-    if params[:startdt].blank? || params[:startdt].index('...')
+    if params[:startdt].blank?
       start_date = test_data_date
     else
       start_date = Time.gm(Time.parse(params[:startdt]).year, Time.parse(params[:startdt]).month, Time.parse(params[:startdt]).day)
     end
-    if params[:enddt].blank? || params[:enddt].index('...')
+    if params[:enddt].blank?
       end_date = Time.gm(Time.now.year, Time.now.month, Time.now.day)
     else
       end_date = Time.gm(Time.parse(params[:enddt]).year, Time.parse(params[:enddt]).month, Time.parse(params[:enddt]).day) + 1.day
@@ -161,8 +168,8 @@ class Rollcall::Rrd < Rollcall::Base
 
   def self.build_csv_string data_obj, end_date, start_date, conditions
     csv_data = "School Name,TEA ID,Total Absent,Total Enrolled,Report Date\n"
-    data_obj.each do |rec|
-      days = ((end_date - start_date) / 86400)
+    days     = ((end_date - start_date) / 86400)
+    data_obj.each do |rec|      
       (0..days).each do |i|
         report_date = start_date + i.days
         school_info = Rollcall::SchoolDailyInfo.find_by_report_date_and_school_id(report_date, rec.id)
@@ -340,7 +347,7 @@ class Rollcall::Rrd < Rollcall::Base
   def self.set_conditions options
     conditions = {}
     options.each { |key,value|
-      if value.index('...').blank?
+      #if value.index('...').blank?
         case key
         when "data_func"
           conditions[:data_func] = value
@@ -363,7 +370,7 @@ class Rollcall::Rrd < Rollcall::Base
           conditions[:enddt]    = value
         else
         end
-      end
+      #end
     }
     return conditions
   end

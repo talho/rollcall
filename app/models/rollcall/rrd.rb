@@ -389,9 +389,9 @@ class Rollcall::Rrd < Rollcall::Base
       when :symptoms
         filename = "SYM-#{value.join("-")}_#{filename}" unless value.blank?
       when :startdt
-        filename = "SD-#{Time.parse(value).strftime("%s")}_#{filename}"
+        filename = "SD-#{Time.parse(value).strftime("%s")}_#{filename}" if type == 'image'
       when :enddt                                                      
-        filename = "ED-#{Time.parse(value).strftime("%s")}_#{filename}"
+        filename = "ED-#{Time.parse(value).strftime("%s")}_#{filename}" if type == 'image'
       when :data_func
         filename = "DF-#{value.gsub(" ", "")}_#{filename}" if type == 'image'
       else

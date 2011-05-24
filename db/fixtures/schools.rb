@@ -36,6 +36,6 @@ FasterCSV.open(File.dirname(__FILE__) + '/schools.csv', :headers => true) do |sc
         :gmap_addr => row["gmap_addr"].strip)
     end
     File.delete("#{rrd_path}#{school.tea_id}_absenteeism.rrd") if File.exist?("#{rrd_path}#{school.tea_id}_absenteeism.rrd")
-    Rollcall::Rrd.build_rrd(school.tea_id, school.id, Time.gm(2010,"sep",01,0,0))
+    Rollcall::Rrd.build_rrd(school.tea_id, school.id, Time.gm(2010,"aug",01,0,0))
   end
 end

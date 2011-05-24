@@ -19,6 +19,10 @@ ROLLCALL_RRDTOOL_CONFIG.freeze
 # Require the rails_rrdtool init.rb
 require File.join(File.dirname(__FILE__), '..', 'vendor', 'plugins', 'rails_rrdtool', 'init.rb')
 
+require 'transform_csv_file.rb'
+
+
+
 # Register the plugin expansion in the $expansion_list global variable
 $expansion_list = [] unless defined?($expansion_list)
 $expansion_list.push(:rollcall) unless $expansion_list.index(:rollcall)

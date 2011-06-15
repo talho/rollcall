@@ -37,7 +37,7 @@ class Rollcall::SchoolDailyInfo < Rollcall::Base
     :conditions => "(total_absent/total_enrolled) >= #{SEVERITY[:low][:min]}",
     :order      => "(total_absent/total_enrolled) DESC"
   }}
-  named_scope :absenses, lambda{{
+  named_scope :absences, lambda{{
     :conditions => ['total_absent / total_enrolled >= .11']
   }}
   named_scope :with_severity, lambda{|severity|

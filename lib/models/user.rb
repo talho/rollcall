@@ -12,7 +12,7 @@ module Rollcall
     end
 
     def recent_absentee_reports
-      schools.map{|school| school.absentee_reports.absenses.recent(20).sort_by{|report| report.report_date}}.flatten.uniq[0..19].sort_by{|report| report.school_id}
+      schools.map{|school| school.absentee_reports.absences.recent(20).sort_by{|report| report.report_date}}.flatten.uniq[0..19].sort_by{|report| report.school_id}
     end
 
     def alarm_queries(options={})

@@ -1,7 +1,18 @@
+# The Nurse Assistant controller class for the Rollcall application.  This controller class handles
+# the index(read) and destroy methods for the StudentDailyInfo object.
+#
+# Author::    Eddie Gomez  (mailto:eddie@talho.org)
+# Copyright:: Copyright (c) 2011 TALHO
+#
+# The actions held in this controller are primarily called by the Rollcall NurseAssistant ExtJS panel.
+
 class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
-  helper :rollcall
-  before_filter :rollcall_required
-  
+
+  # Method returns a set of student records and associated values. Method can be called with :search_term param
+  # which will search against the student db object attributes.  Method can also be called with
+  # a :filter_report_date param which will return a student set for a specific date.
+  #
+  # GET rollcall/nurse_assistant
   def index
     race = [
       {:id => 0, :value => 'Select Race...'},
@@ -72,6 +83,10 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
     end
   end
 
+  # Method is responsible for destroying a StudentDailyInfo record.  Method is called from the
+  # NurseAssistant ExtJS panel and is meant to delete a student visit to the nurse.
+  #
+  # DELETE rollcall/nurse_assistant/:id
   def destroy
     result = false
     result = Rollcall::StudentDailyInfo.find(params[:id]).destroy
@@ -83,7 +98,13 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       end
     end
   end
-  
+
+  # Method returns a set of option values that are used to built the drop down boxes for the
+  # NurseAssisant ExtJs panel.  Method also determines if the Nurse Assistant app is being run for the
+  # first time and sends back a flag to the client, app_init, that client uses to prompt the user to select
+  # their current school.
+  #
+  # GET rollcall/nurse_assistant_options
   def get_options
     gender = [
       {:id => 0, :value => 'Select Gender...'},

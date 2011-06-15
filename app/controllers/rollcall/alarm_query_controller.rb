@@ -1,7 +1,14 @@
-class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
-  helper :rollcall
-  before_filter :rollcall_required
+# The Alarm Query controller class for the Rollcall application.  This controller class handles
+# the index(read), create, update, and destroy methods for the AlarmQuery object.
+#
+# Author::    Eddie Gomez  (mailto:eddie@talho.org)
+# Copyright:: Copyright (c) 2011 TALHO
+#
+# The actions held in this controller are primarily called by the Rollcall AlarmQueriesPanel.
 
+class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
+
+  # GET rollcall/alarm_query
   def index
     alarm_queries = current_user.alarm_queries(params)
     respond_to do |format|
@@ -18,6 +25,7 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
     end
   end
 
+  # POST rollcall/alarm_query
   def create
     saved_result = Rollcall::AlarmQuery.create(
       :name                => params[:alarm_query_name],
@@ -38,6 +46,7 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
     end
   end
 
+  # PUT rollcall/alarm_query/:id
   def update
     query = Rollcall::AlarmQuery.find(params[:id])
     alarm_set = params[:alarm_set].blank? ? query.alarm_set : params[:alarm_set]
@@ -67,6 +76,7 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
     end
   end
 
+  # DELETE rollcall/alarm_query/:id
   def destroy
     alarm_query = Rollcall::AlarmQuery.find(params[:id])
     respond_to do |format|

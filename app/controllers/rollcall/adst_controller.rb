@@ -1,7 +1,19 @@
-class Rollcall::AdstController < Rollcall::RollcallAppController
-  helper :rollcall
-  before_filter :rollcall_required
+# The ADST controller class for the Rollcall application.  This controller class handles
+# the initial search request, the export request, the report request, and the
+# get_options method (which returns the drop down values for the Rollcall ADST application).
+#
+# Author::    Eddie Gomez  (mailto:eddie@talho.org)
+# Copyright:: Copyright (c) 2011 TALHO
+#
+# The actions held in this controller are called by the Rollcall ADST panel.
 
+class Rollcall::AdstController < Rollcall::RollcallAppController
+
+  # Action is called by the ADSTResultPanel result_store on load.  Method processes
+  # the search request, calling Rollcall::Rrd.render_graphs (a delayed job), returns
+  # the total result length and the paginated result set
+  #
+  # GET /rollcall/adst
   def index
     schools       = Rollcall::School.search(params, current_user)
     options       = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
@@ -29,7 +41,13 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     end
     ActiveRecord::Base.include_root_in_json = original_included_root
   end
-  
+
+  # Action is called by the ADST main panel method exportResultSet and the ADSTResultPanel method exportResult.
+  # Method sets the export file name based on export params.  Method then calls a delayed job on
+  # Rollcall::Rrd.export_rrd_data which is responsible for gathering the data, creating a csv file, and placing it
+  # in the users documents folder and sending out message to users email when process is done. 
+  #
+  # GET /rollcall/export
   def export
     filename = "rollcall_csv_export"
     params.each { |key,value|
@@ -67,6 +85,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     end
   end
 
+  # GET /rollcall/report
   def report
     Rollcall::Rrd.send_later(:generate_report, params, current_user)
     respond_to do |format|
@@ -78,6 +97,10 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     end
   end
 
+  # Action is called by the ADST main panel method initFormComponent.  Method returns
+  # a set of option values that are used to build the drop down boxes in the ADST main panel.
+  #
+  # POST /rollcall/query_options
   def get_options
     absenteeism = [
       {:id => 0, :value => 'Gross'},
@@ -159,35 +182,6 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
             :symptoms           => symptoms,
             :zipcode            => zipcodes
           }]
-        }
-        ActiveRecord::Base.include_root_in_json = original_included_root
-      end
-    end
-  end
-
-  def get_info
-    alarm             = Rollcall::Alarm.find(params[:alarm_id])
-    school_info       = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date params[:school_id],params[:report_date]
-    confirmed_absents = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(
-      params[:school_id],params[:report_date],true).size
-    student_info      = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(params[:school_id],params[:report_date],true)
-
-    respond_to do |format|
-      format.json do
-        original_included_root = ActiveRecord::Base.include_root_in_json
-        ActiveRecord::Base.include_root_in_json = false
-        render :json => {
-          :info => [
-            {
-              :total_absent           => school_info.total_absent,
-              :total_enrolled         => school_info.total_enrolled,
-              :total_confirmed_absent => confirmed_absents,
-              :alarm_severity         => alarm.alarm_severity,
-              :school_name            => school_info.school.display_name,
-              :school_type            => school_info.school.school_type,
-              :students               => {:student_info => student_info.as_json}
-            }  
-          ]
         }
         ActiveRecord::Base.include_root_in_json = original_included_root
       end

@@ -1,0 +1,21 @@
+#Use this YAML file to set the allowed headers for each specific district interface,
+#most will consist of ILI field only
+district:
+  permitted_[data_type]_field_names:
+    - FieldNameOne
+    - FieldNameTwo
+    - FieldNameThree
+    - FieldNameFour
+    - FieldNameFive
+
+#Example:
+
+McKinney:
+  permitted_ili_field_names:
+    - CID
+    - HealthYear
+    - CampusID
+    - CampusName
+    - OrigDate
+    - Symptoms
+    - Grade

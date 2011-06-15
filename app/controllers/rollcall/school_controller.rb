@@ -1,6 +1,4 @@
 class Rollcall::SchoolController < Rollcall::RollcallAppController
-  helper :rollcall
-  before_filter :rollcall_required
 
   def index
     original_included_root = ActiveRecord::Base.include_root_in_json

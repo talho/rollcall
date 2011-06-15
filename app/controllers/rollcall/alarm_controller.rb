@@ -1,7 +1,15 @@
-class Rollcall::AlarmController < Rollcall::RollcallAppController
-  helper :rollcall
-  before_filter :rollcall_required
+# The Alarm controller class for the Rollcall application.  This controller class handles
+# the index(read), create, update, and destroy methods for the Alarm object. Controller also
+# handles the get_info which return related data for an alarm.
+#
+# Author::    Eddie Gomez  (mailto:eddie@talho.org)
+# Copyright:: Copyright (c) 2011 TALHO
+#
+# The actions held in this controller are primarily called by the Rollcall AlarmsPanel.
 
+class Rollcall::AlarmController < Rollcall::RollcallAppController
+
+  # GET rollcall/alarms
   def index
     alarms        = []
     alarm_queries = []
@@ -36,6 +44,7 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
     end
   end
 
+  # POST rollcall/alarms
   def create
     result  = Rollcall::AlarmQuery.find(params[:alarm_query_id]).generate_alarm
     respond_to do |format|
@@ -47,6 +56,7 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
     end
   end
 
+  # PUT rollcall/alarms/:id
   def update
     alarm     = Rollcall::Alarm.find(params[:id])
     ignore    = params[:alarms][:ignore_alarm].blank? ? false : params[:alarms][:ignore_alarm]
@@ -61,6 +71,7 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
     end
   end
 
+  # DELETE rollcall/alarms/:alarm_query_id
   def destroy
     result = false
     unless params[:alarm_query_id].blank?
@@ -73,6 +84,36 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
         render :json => {
           :success => result
         }
+      end
+    end
+  end
+
+  # GET rollcall/get_info
+  def get_info
+    alarm             = Rollcall::Alarm.find(params[:alarm_id])
+    school_info       = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date params[:school_id],params[:report_date]
+    confirmed_absents = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(
+      params[:school_id],params[:report_date],true).size
+    student_info      = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date(params[:school_id],params[:report_date],true)
+
+    respond_to do |format|
+      format.json do
+        original_included_root = ActiveRecord::Base.include_root_in_json
+        ActiveRecord::Base.include_root_in_json = false
+        render :json => {
+          :info => [
+            {
+              :total_absent           => school_info.total_absent,
+              :total_enrolled         => school_info.total_enrolled,
+              :total_confirmed_absent => confirmed_absents,
+              :alarm_severity         => alarm.alarm_severity,
+              :school_name            => school_info.school.display_name,
+              :school_type            => school_info.school.school_type,
+              :students               => {:student_info => student_info.as_json}
+            }
+          ]
+        }
+        ActiveRecord::Base.include_root_in_json = original_included_root
       end
     end
   end

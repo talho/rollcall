@@ -77,7 +77,7 @@ class SchoolDataTransformer
   def transform_and_import
     transform
     import
-    SchoolDataImporter.new(nil).school_district_dailies()
+    SchoolDataImporter.new(nil).school_district_dailies(@district)
   end
 
   private
@@ -188,6 +188,7 @@ class SchoolDataTransformer
                   values.push(value)
                 end
               elsif value.blank? && @district.name == "Houston" && (file_path.downcase.index('h1n1') || file_path.downcase.index('ili'))
+                value.strip!
                 values.push('"'+value+'"')
               end
             end
@@ -301,7 +302,7 @@ class SchoolDataTransformer
       date,@tmp_tea_id,school_name,absent = rec.split(",") if rec.split(",").length > 1
       if date.downcase.index("date").blank?
         enr_array.each do |line|
-          @enrolled = "0"
+          @enrolled = 0
           tmp_line = line.split("\t")
           tmp_line = line.split(",") if tmp_line.length <= 1
           if tmp_line.length == 3
@@ -309,28 +310,26 @@ class SchoolDataTransformer
           elsif tmp_line.length == 4
             enroll_date,tea_id,name,enrolled = tmp_line  
           end
-          tea_id.gsub!('"',"")
           @tmp_tea_id.gsub!('"',"")
-          tea_id.gsub!("'","")
+          tea_id.gsub!('"',"")
           @tmp_tea_id.gsub!("'","")
+          tea_id.gsub!("'","")
           tea_id.strip!
           @tmp_tea_id.strip!
-          if tea_id != @tmp_tea_id
+          enrolled.strip!
+          enrolled.gsub!('"',"")
+          enrolled.gsub!("'","")
+          if tea_id.to_i != @tmp_tea_id.to_i
             next
           else
-            @enrolled = enrolled
+            @enrolled = enrolled.to_i
             break
           end
         end
-        begin
-          @enrolled.strip!
-        rescue
-        end
-        @enrolled = @enrolled.to_i
         tmp_array.push('"'+date.gsub('"',"")+'"')
         tmp_array.push('"'+@tmp_tea_id.gsub('"',"")+'"')
         tmp_array.push('"'+school_name.gsub('"',"").gsub('|',',')+'"')
-        tmp_array.push("#{@enrolled}")
+        tmp_array.push('"'+"#{@enrolled}"+'"')
         @file_to_write.puts tmp_array.join(",")
         tmp_array = []        
       end

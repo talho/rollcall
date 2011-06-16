@@ -8,17 +8,33 @@ icd9_code,name
 056.9,Rubella
 055.9,Measles
 072.9,Mumps
+132.0,Lice
+249.0,Diabetic
 322.9,Meningitis
 323.9,Encephalitis
+379.93,Red Eye
+388.70,Earache
 462,Sore Throat
-478.19,Congestion
-487.1,Influenza
+478.19,Congestion (Runny Nose)
+487.1,Influenza (Flu)
+493,Asthma
 573.3,Hepatitis
-780.60,Temperature
+525.9,Toothache
+626.3,Puberty Bleeding (Menses)
+780.4,Dizziness
+780.60,Fever (Temperature)
 780.64,Chills
 780.79,Lethargy
+782.1,Skin Rash
 784.0,Headache
+784.7,Nosebleed
+786.05,Dyspnea (Difficulty Breathing)
 786.2,Cough
+787.02,Nausea
 787.03,Vomiting
 787.91,Diarrhea
+789.0,Abdominal Pain (Cramping)
+796,Other
+919,Superficial Injury (Cut or Abrasion)
+992.3,Heat Exhaustion
 0,None

@@ -42,31 +42,29 @@ class SchoolDataImporter
     end
   end
 
-  def school_district_dailies
-    Rollcall::SchoolDistrict.all.each do |district|
-      schools       = Rollcall::School.find_all_by_district_id district.id
-      daily_results = Rollcall::SchoolDailyInfo.find_all_by_school_id schools
-      dates         = daily_results.map{|m| m.report_date}.uniq
-      dates.each do |i|
-        report_date    = i
-        total_absent   = 0
-        total_enrolled = 0
-        daily_results.map{|m|
-          if m.report_date == report_date
-            total_absent   += m.total_absent.to_i
-            total_enrolled += m.total_enrolled.to_i
-          end
-        }
-        if total_enrolled != 0
-          absentee_rate  = (total_absent.to_f / total_enrolled.to_f)
-          Rollcall::SchoolDistrictDailyInfo.create(
-            :report_date        => report_date,
-            :absentee_rate      => absentee_rate,
-            :total_enrollment   => total_enrolled,
-            :total_absent       => total_absent,
-            :school_district_id => district.id
-          )
+  def school_district_dailies district
+    schools       = Rollcall::School.find_all_by_district_id district.id
+    daily_results = Rollcall::SchoolDailyInfo.find_all_by_school_id schools
+    dates         = daily_results.map{|m| m.report_date}.uniq
+    dates.each do |i|
+      report_date    = i
+      total_absent   = 0
+      total_enrolled = 0
+      daily_results.map{|m|
+        if m.report_date == report_date
+          total_absent   += m.total_absent.to_i
+          total_enrolled += m.total_enrolled.to_i
         end
+      }
+      if total_enrolled != 0
+        absentee_rate  = (total_absent.to_f / total_enrolled.to_f)
+        Rollcall::SchoolDistrictDailyInfo.create(
+          :report_date        => report_date,
+          :absentee_rate      => absentee_rate,
+          :total_enrollment   => total_enrolled,
+          :total_absent       => total_absent,
+          :school_district_id => district.id
+        )
       end
     end
   end
@@ -211,19 +209,29 @@ class IliImporter < SchoolDataImporter
 private
 
   def add_symptoms(daily_info, str)
-    bad_symptoms = Array.new
-    str.split(",").each { |sym_name|
-      symptom_name = sym_name.strip
-      if symptom_name.downcase.index('rhino')
-        symptom_name = 'congestion'
-      end
-      symptom = @symptoms.find {|sym| symptom_name.downcase.index(sym.name.downcase)}
-      if symptom
-        Rollcall::StudentReportedSymptoms.create(:symptom => symptom, :student_daily_info => daily_info)
-      else
-        bad_symptoms.push(symptom_name)
-      end
-    }
+#    bad_symptoms = Array.new
+    unless str.blank?
+      str.split(",").each { |sym_name|
+        symptom_name = sym_name.strip
+        if symptom_name.downcase.index('rhino')
+          symptom_name = 'congestion'
+        end
+        @symptoms.each {|symptom|
+          symptom.name.downcase.split(' ').each do |sym|
+            if symptom_name.downcase.index(sym.gsub('(','').gsub(')',''))
+              Rollcall::StudentReportedSymptoms.create(:symptom => symptom, :student_daily_info => daily_info)
+              break
+            end
+          end
+        }
+#        symptom = @symptoms.find {|sym| sym.name.downcase.split(' ').each do |s| symptom_name.downcase.index(s.gsub('(','').gsub(')','')) end }
+#        if symptom
+#          Rollcall::StudentReportedSymptoms.create(:symptom => symptom, :student_daily_info => daily_info)
+#        else
+#          #bad_symptoms.push(symptom_name)
+#        end
+      } 
+    end
 #    if !bad_symptoms.empty?
 #      raise SyntaxError, "invalid value(s) in field symptom [#{bad_symptoms.join(",")}]",
 #        ["#{@filename}, line #{@linenum}", "SchoolDataImporter"]
@@ -272,7 +280,7 @@ private
     if str.blank?
       return 98
     else
-      str
+      str.to_f
     end
   end
 

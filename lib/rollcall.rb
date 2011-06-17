@@ -11,6 +11,10 @@ end
 # Require the open_flash_chart init.rb
 require File.join(File.dirname(__FILE__), '..', 'vendor', 'plugins', 'open_flash_chart', 'init.rb')
 
+# Require the creation of rrd folders
+Dir.ensure_exists(File.join(Dir.pwd, "rrd/"))
+Dir.ensure_exists(File.join(Dir.pwd, "public/rrd/"))
+
 # Load the rrdtool yaml config file
 rrd_yml = YAML.load_file(File.join(File.dirname(__FILE__), '..', 'config', 'rrdtool.yml'))
 ROLLCALL_RRDTOOL_CONFIG = rrd_yml[Rails.env]

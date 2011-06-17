@@ -31,7 +31,7 @@
   height:32px !important;
 }
 .ux-empty-alarm-query-container{
-  background: url(images/saved_query_icon_ext.png) no-repeat;
+  background: url(/stylesheets/rollcall/images/saved_query_icon_ext.png) no-repeat;
   height: 60px;
 }
 .ux-empty-alarm-query-container p{
@@ -63,45 +63,45 @@
   background-color: #cacaca;
 }
 .rollcall_alarm_icon {
-  background:url(../images/alert.gif) no-repeat;
+  background:url(/stylesheets/images/alert.gif) no-repeat;
   height: 16px;
   padding-left: 20px;
   padding-top: 2px;
 }
-.rollcall_pdf_icon {
-  background:url(/images/documents/x-office-document-small.png) 2px 0px no-repeat;
-  width:20px;
-  height:20px;
-  position:relative;
-  left:6px;
-}
+/*.rollcall_pdf_icon {*/
+  /*background:url(/images/documents/x-office-document-small.png) 2px 0px no-repeat;*/
+  /*width:20px;*/
+  /*height:20px;*/
+  /*position:relative;*/
+  /*left:6px;*/
+/*}*/
 .x-tool-alarm-on{
-  background:url(images/ext_alarm_sprite.gif) -15px 0px no-repeat !important;
+  background:url(/stylesheets/rollcall/images/ext_alarm_sprite.gif) -15px 0px no-repeat !important;
   width: 15px !important;
   height: 15px !important;
 }
 .x-tool-alarm-off{
-  background:url(images/ext_alarm_sprite.gif) 0px 0px no-repeat !important;
+  background:url(/stylesheets/rollcall/images/ext_alarm_sprite.gif) 0px 0px no-repeat !important;
   width: 15px !important;
   height: 15px !important;
 }
 .x-tool-gis{
-  background:url(images/tool-globe.png) 0px 1px no-repeat !important;
+  background:url(/stylesheets/rollcall/images/tool-globe.png) 0px 1px no-repeat !important;
   width: 12px !important;
   height: 12px !important;
 }
 .x-tool-gis-off{
-  background:url(images/globe1-off.png) 0px 0px no-repeat !important;
+  background:url(/stylesheets/rollcall/images/globe1-off.png) 0px 0px no-repeat !important;
   width: 12px !important;
   height: 12px !important;
 }
 .x-tool-run-query{
-  background: url(images/run-query-icon.png) 0px 0px no-repeat !important;
+  background: url(/stylesheets/rollcall/images/run-query-icon.png) 0px 0px no-repeat !important;
   width: 15px !important;
   height: 15px !important;
 }
 .x-tool-report{
-  background: url(images/run-report-icon.png) 0px 0px no-repeat !important;
+  background: url(/stylesheets/rollcall/images/run-report-icon.png) 0px 0px no-repeat !important;
   width: 14px !important;
   height: 14px !important;
 }
@@ -142,17 +142,17 @@
 }
 
 .x-tbar-gis{
- background: url(images/globe1.png) 0px 0px no-repeat;
+ background: url(/stylesheets/rollcall/images/globe1.png) 0px 0px no-repeat;
  padding-left: 22px;
 }
 
 .x-panel-pinned .x-panel-tr,
 .x-panel-pinned{
-  background-image: url(images/pinned-corners-sprite.gif) !important;
+  background-image: url(/stylesheets/rollcall/images/pinned-corners-sprite.gif) !important;
 }
 
 .x-panel-pinned .x-panel-tc{
-  background-image: url(images/pinned-top-bottom.gif) !important;
+  background-image: url(/stylesheets/rollcall/images/pinned-top-bottom.gif) !important;
 }
 .x-add {
   background: url(/images/add.png) no-repeat scroll 0 0 transparent !important;
@@ -183,7 +183,7 @@
 }
 
 .settings-btn{
-  background: url(images/tool-cog.png) no-repeat;
+  background: url(/stylesheets/rollcall/images/tool-cog.png) no-repeat;
   width: 16px;
   height: 16px;
 }

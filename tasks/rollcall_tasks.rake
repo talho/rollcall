@@ -138,11 +138,7 @@ namespace :rollcall do
       end
 
       rrd_path = Dir.pwd << "/rrd/"
-      rrd_tool = if File.exist?(doc_yml = RAILS_ROOT+"/vendor/plugins/rollcall/config/rrdtool.yml")
-        YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
-      else
-        "rrdtool"
-      end
+      rrd_tool = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
       #Change current_time to desired test range to best suite your environment
       begin_time = Time.gm(2010,"sep",01,0,0)
       if !ARGV[1].blank?

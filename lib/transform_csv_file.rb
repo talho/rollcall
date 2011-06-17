@@ -3,17 +3,18 @@ require 'import_csv_files.rb'
 # Class is responsible for transforming data import files into a standard specification
 #
 # Example:
-#   SchoolDataTransformer.new("../rollcall_data", "HISD", "Houston").transform_and_import
+#   SchoolDataTransformer.new("../rollcall_data", "Houston").transform_and_import
 #
 class SchoolDataTransformer
   # Method initializes class instances
   #
   # Sets header names for enrollment, attendance and ili
-  # Sets allowed headers if YAML file matching ISD is found
+  # Sets allowed headers if YAML file matching district name is found
   #
-  # @param string isd_dir the dir path 
-  def initialize(dir, isd, district_name)
-    @dir                = File.join(dir, isd)
+  # @param string dir           the dir path
+  # @param string district_name the name of the district, matches folder name
+  def initialize(dir, district_name)
+    @dir                = File.join(dir, district_name)
     @files              = Dir.glob(File.join(@dir,"*"))
     @enrollment_headers = [
       "EnrollDate",
@@ -57,17 +58,16 @@ class SchoolDataTransformer
     @allowed_enrollment_headers = nil
     @allowed_attendance_headers = nil
     @district                   = Rollcall::SchoolDistrict.find_by_name(district_name)
-    if File.exist?(doc_yml = RAILS_ROOT+"/vendor/plugins/rollcall/config/interface_fields.yml")
-      yaml_conf = YAML.load(IO.read(doc_yml))
-      if yaml_conf["#{district_name}"]
-        if yaml_conf["#{district_name}"]["permitted_ili_field_names"]
-          @allowed_ili_headers = YAML.load(IO.read(doc_yml))["#{district_name}"]["permitted_ili_field_names"]
+    unless INTERFACE_FIELDS_CONFIG.blank?
+      if INTERFACE_FIELDS_CONFIG["#{district_name}"]
+        if INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_ili_field_names"]
+          @allowed_ili_headers = INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_ili_field_names"]
         end
-        if yaml_conf["#{district_name}"]["permitted_enrollment_field_names"]
-          @allowed_enrollment_headers = YAML.load(IO.read(doc_yml))["#{district_name}"]["permitted_enrollment_field_names"]
+        if INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_enrollment_field_names"]
+          @allowed_enrollment_headers = INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_enrollment_field_names"]
         end
-        if yaml_conf["#{district_name}"]["permitted_attendance_field_names"]
-          @allowed_attendance_headers = YAML.load(IO.read(doc_yml))["#{district_name}"]["permitted_attendance_field_names"]
+        if INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_attendance_field_names"]
+          @allowed_attendance_headers = INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_attendance_field_names"]
         end
       end
     end

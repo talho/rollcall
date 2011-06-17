@@ -12,9 +12,16 @@ end
 require File.join(File.dirname(__FILE__), '..', 'vendor', 'plugins', 'open_flash_chart', 'init.rb')
 
 # Load the rrdtool yaml config file
-yml = YAML.load_file(File.join(File.dirname(__FILE__), '..', 'config', 'rrdtool.yml'))
-ROLLCALL_RRDTOOL_CONFIG = yml[Rails.env]
+rrd_yml = YAML.load_file(File.join(File.dirname(__FILE__), '..', 'config', 'rrdtool.yml'))
+ROLLCALL_RRDTOOL_CONFIG = rrd_yml[Rails.env]
 ROLLCALL_RRDTOOL_CONFIG.freeze
+
+# Load the interface fields yaml config file
+if File.exist?(doc_yml = RAILS_ROOT+"/vendor/plugins/rollcall/config/interface_fields.yml")
+  int_yml = YAML.load_file(File.join(File.dirname(__FILE__), '..', 'config', 'interface_fields.yml'))
+  INTERFACE_FIELDS_CONFIG = int_yml
+  INTERFACE_FIELDS_CONFIG.freeze
+end
 
 # Require the rails_rrdtool init.rb
 require File.join(File.dirname(__FILE__), '..', 'vendor', 'plugins', 'rails_rrdtool', 'init.rb')

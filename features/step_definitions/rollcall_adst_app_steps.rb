@@ -52,3 +52,7 @@ end
 Then /^the "([^\"]*)" graph result is pinned$/ do |title|
   page.find(:xpath, ".//div[contains(concat(' ', @class, ' '), 'x-panel-pinned')]")
 end
+
+Then /^I wait for the adst panel to load$/ do
+  sleep 4
+end

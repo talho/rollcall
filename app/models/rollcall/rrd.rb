@@ -309,22 +309,32 @@ class Rollcall::Rrd < Rollcall::Base
         }]
       } , "#{rrd_tool}"
 
+      school_daily_info = Rollcall::SchoolDailyInfo.find_by_school_id(school_id)
+
       if !conditions[:startdt].blank?
         parsed_sd  = Time.parse(conditions[:startdt])
         start_date = Time.gm(parsed_sd.year,parsed_sd.month,parsed_sd.day)
-      else
+      elsif !school_daily_info.blank?
         first_start_date = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id, :order => "report_date DESC").last.report_date
         start_date       = Time.gm(first_start_date.year, first_start_date.month, first_start_date.day)
+      else
+        start_date = Time.gm(Time.now.year,Time.now.month,Time.now.day)
       end
       if !conditions[:enddt].blank?
         parsed_ed  = Time.parse(conditions[:enddt])
         end_date   = Time.gm(parsed_ed.year,parsed_ed.month,parsed_ed.day)
-      else
+      elsif !school_daily_info.blank?
         last_end_date = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id, :order => "report_date ASC").last.report_date
         end_date      = Time.gm(last_end_date.year, last_end_date.month, last_end_date.day)
+      else
+        end_date      = Time.gm(Time.now.year,Time.now.month,Time.now.day)
       end
-      days           = ((end_date - start_date) / 86400)
-      total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
+      days = ((end_date - start_date) / 86400)
+      unless school_daily_info.blank?
+        total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
+      else
+        total_enrolled = 0
+      end     
       update_ary     = [ [start_date.to_i.to_s, 0, total_enrolled] ]
       (0..days).each do |i|
         report_date = start_date + i.days

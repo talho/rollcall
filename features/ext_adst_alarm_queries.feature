@@ -97,6 +97,7 @@ Feature: Create Alarm Queries
     And I am logged in as "nurse.betty@example.com"
     And I navigate to the ext dashboard page
     And I navigate to "Apps > Rollcall > ADST"
+    And I wait for the adst panel to load
     And I press "Submit"
     And delayed jobs are processed
 
@@ -121,3 +122,5 @@ Scenario: User creates an Alarm Query with specific threshold
   And I should see "3" within ".x-grid3-td-values"
   And I should see "deviation_min" within ".x-grid3-td-settings"
   Then I should see "2" within ".x-grid3-td-values"
+
+Scenario: 

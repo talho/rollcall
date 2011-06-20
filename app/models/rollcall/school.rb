@@ -89,7 +89,7 @@ class Rollcall::School < Rollcall::Base
     school_type_qstr     = "school_type IN ('#{params[:school_type].join("','")}')" unless params[:school_type].blank?
     postal_code_qstr     = "postal_code IN ('#{params[:zip].join("','")}')" unless params[:zip].blank?
     school_qstr          = "display_name IN ('#{params[:school].join("','")}')" unless params[:school].blank?
-    district_qstr        = "district_id IN ('#{user_obj.school_districts.map(&:id)}')"
+    district_qstr        = "district_id IN ('#{user_obj.school_districts.map(&:id).join("','")}')"
 
     cond_part1 = case
     when school_type_qstr && postal_code_qstr

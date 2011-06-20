@@ -494,10 +494,10 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
             items: ['->', {
               text:    'Max All',
               handler: this.maxFields
-            },{
+            }/*,{
               text:    'Reset',
               handler: this.resetFields
-            }]
+            }*/]
           }
         },{
           xtype:      'fieldset',
@@ -569,10 +569,10 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
             items: ['->', {
               text:    'Max All',
               handler: this.maxFields
-            },{
+            }/*,{
               text:    'Reset',
               handler: this.resetFields
-            }]
+            }*/]
           }
         },{
           xtype:      'fieldset',
@@ -658,7 +658,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       }catch(e){}
     }
   },
-
+  /*
   resetFields: function(buttonEl, eventObj)
   {
     sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
@@ -668,7 +668,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       }catch(e){}
     }
   },
-
+  */
   clearProviders: function()
   {
     Ext.each(this.providers, function(item, index, allItems) {

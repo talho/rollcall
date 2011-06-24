@@ -1,13 +1,15 @@
 Given /^"([^\"]*)" has the following current student absenteeism data:$/ do |isd, table|
   table.hashes.each do |row|
     report_date   = Date.today - row["day"].to_i.days
+    student       = Rollcall::Student.create(
+       :dob               => row['dob'],
+       :gender            => row['gender'],
+       :school_id         => Rollcall::School.find_by_display_name(row['school_name']).id
+    )
     result        = Rollcall::StudentDailyInfo.create(
-      :school_id         => Rollcall::School.find_by_display_name(row['school_name']).id,
+      :student_id        => student.id,
       :report_date       => report_date,
-      :age               => row['age'],
-      :dob               => row['dob'],
       :grade             => row['grade'],
-      :gender            => row['gender'],
       :confirmed_illness => row['confirmed_ill']
     )
     unless row['symptoms'].blank?

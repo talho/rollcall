@@ -12,7 +12,8 @@
 #  report_date        :date
 #  created_at         :datetime
 #  updated_at         :datetime
-#
+#  alarm_severity     :string
+#  ignore_alarm       :boolean
 
 class Rollcall::Alarm < Rollcall::Base
   belongs_to :school, :class_name => "Rollcall::School", :foreign_key => "school_id"

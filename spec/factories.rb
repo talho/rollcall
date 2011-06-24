@@ -1,19 +1,111 @@
 require 'factory_girl'
 
-Factory.define :school_district, :class => Rollcall::SchoolDistrict do |m|
+Factory.define :rollcall_absentee_report, :class => Rollcall::AbsenteeReport do |m|
+  m.association :school, :factory => :rollcall_school
+  m.report_date Time.now
+  m.enrolled    100
+  m.absent      10
+  m.data        nil
+end
+
+Factory.define :rollcall_alarm, :class => Rollcall::Alarm do |m|
+  m.association :school, :factory => :rollcall_school
+  m.association :alarm, :factory => :rollcall_alarm
+  m.deviation 1.0
+  m.severity 1.0
+  m.absentee_rate 1.0
+  m.report_date Time.now
+  m.alarm_severity "low"
+  m.ignore_alarm false
+end
+
+Factory.define :rollcall_alarm_query, :class => Rollcall::AlarmQuery do |m|
+  m.association :user, :factory => :user
+  m.query_params ''
   m.sequence(:name){|t| "Name ##{t}"}
+  m.severity_min 1
+  m.severity_max 2
+  m.deviation_min 1
+  m.deviation_max 2
+  m.alarm_set false
+end
+
+Factory.define :rollcall_rrd, :class => Rollcall::Rrd do |m|
+  m.association :school, :factory => :rollcall_school
+  m.file_name "11111111.rrd"
+end
+
+Factory.define :rollcall_school , :class => Rollcall::School do |m|  
+  m.sequence(:name){|t| "Name ##{t}"}
+  m.sequence(:display_name){|t| "Display Name ##{t}"}
+  m.school_number 1111
+  m.tea_id 11111111
+  m.school_type "Elementary School"
+  m.sequence(:gmap_addr){|t| "#{t} Street Lane, City Name ST, 10101"}
+  m.postal_code "10101"
+  m.sequence(:school_number){|num| num}
+  m.association :district, :factory => :rollcall_school_district
+end
+
+Factory.define :rollcall_school_daily_info, :class => Rollcall::SchoolDailyInfo do |m|
+  m.association :school, :factory => :rollcall_school
+  m.total_absent 10
+  m.total_enrolled 100
+  m.report_date Time.now
+end
+
+Factory.define :rollcall_school_district, :class => Rollcall::SchoolDistrict do |m|
+  m.sequence(:name){|t| "Name ##{t}"}
+  m.district_id 1000
   m.association :jurisdiction
 end
 
-Factory.define :school , :class => Rollcall::School do |m|
-  m.sequence(:name){|t| "Name ##{t}"}
-  m.sequence(:display_name) {|t| "Display Name ##{t}"}
-  m.level "ES"
-  m.sequence(:school_number) {|num| num}
-  m.association :district, :factory => :school_district
+Factory.define :rollcall_school_district_daily_info, :class => Rollcall::SchoolDistrictDailyInfo do |m|
+  m.report_date Time.now
+  m.absentee_rate 1.0
+  m.total_enrollment 100
+  m.total_absent 10
+  m.association :school_district, :factory => :rollcall_school_district
+  m.data ''
 end
 
-Factory.define :symptom , :class => Rollcall::Symptom do |m|
+Factory.define :rollcall_student, :class => Rollcall::Student do |m|
+  m.first_name "Student"
+  m.last_name "Name"
+  m.contact_first_name "Contact"
+  m.contact_last_name  "Name"
+  m.address "101 Street Lane, City State, 10101"
+  m.zip "10101"
+  m.gender "M"
+  m.phone "1112223333"
+  m.race  1
+  m.association :school, :factory => :rollcall_school
+  m.student_number "01"
+  m.dob (Time.now - 10.years)
+end
+
+Factory.define :rollcall_student_daily_info, :class => Rollcall::StudentDailyInfo do |m|
+  m.report_date Time.now
+  m.sequence(:grade){|num|num}
+  m.confirmed_illness true
+  m.cid '101010101'
+  m.health_year Time.now.year
+  m.date_of_onset (Time.now - 3.days)
+  m.temperature 98.0
+  m.in_school true
+  m.released false
+  m.follow_up nil
+  m.doctor nil
+  m.doctor_address nil
+  m.association :student, :factory => :rollcall_student
+  m.report_time Time.now
+end
+
+Factory.define :rollcall_student_reported_symptoms, :class => Rollcall::StudentReportedSymptoms do |m|
+
+end
+
+Factory.define :rollcall_symptom , :class => Rollcall::Symptom do |m|
   m.sequence(:name){|t| "Name ##{t}"}
   m.sequence(:display_name) {|t| "Display Name ##{t}"}
   m.level "ES"

@@ -1,20 +1,19 @@
 # == Schema Information
 #
-# Table name: schools
+# Table name: rollcall_schools
 #
 #  id            :integer(4)      not null, primary key
-#  name          :string(255)
 #  display_name  :string(255)
-#  level         :string(255)
-#  address       :string(255)
 #  postal_code   :string(255)
 #  school_number :integer(4)
 #  district_id   :integer(4)
 #  created_at    :datetime
 #  updated_at    :datetime
-#  region        :string(255)
+#  tea_id        :integer
 #  school_type   :string(255)
-#
+#  gmap_lat      :float
+#  gmap_lng      :float
+#  gmap_addr     :string
 
 class Rollcall::School < Rollcall::Base
   belongs_to :district, :class_name => "Rollcall::SchoolDistrict"

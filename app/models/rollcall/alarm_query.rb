@@ -12,8 +12,9 @@
 #  deviation_threshold :integer(4)
 #  deviation_min       :integer(4)
 #  deviation_max       :integer(4)
-#  alarm               :boolean
-#
+#  alarm_set           :boolean
+#  created_at          :datetime
+#  updated_at          :datetime
 
 class Rollcall::AlarmQuery < Rollcall::Base
   belongs_to :user,   :class_name => "User"
@@ -67,7 +68,8 @@ private
         total_absent = info.total_absent
       end
     else
-      info = Rollcall::StudentDailyInfo.find_all_by_school_id_and_report_date_and_confirmed_illness(school_id, report_date, true)
+      students = Rollcall::Student.find_all_by_school_id schoolid
+      info = Rollcall::StudentDailyInfo.find_all_by_student_id_and_report_date_and_confirmed_illness(students, report_date, true)
       if info.blank?
         total_asbent = 0
       else

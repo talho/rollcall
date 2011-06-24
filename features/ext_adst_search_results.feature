@@ -97,17 +97,18 @@ Feature: Interact with search result controls feature
     And I am logged in as "nurse.betty@example.com"
     And I navigate to the ext dashboard page
     And I navigate to "Apps > Rollcall > ADST"
+    And I wait for the panel to load
     And I press "Submit"
     And delayed jobs are processed
 
 Scenario: User closes a graph window
   When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
-  And I close the "Anderson Elementary" window
+  And I close the "Query Result for Anderson Elementary" window
   Then I should not see the "Anderson Elementary" window
 
 Scenario: User exports result data
   When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
-  And I click the "down" tool on the "Anderson Elementary" window
+  And I click the "down" tool on the "Query Result for Anderson Elementary" window
   And I should see "Your CSV file will be placed in your documents folders"
   And delayed jobs are processed
   And I press "OK"
@@ -119,7 +120,7 @@ Scenario: User exports result data
 
 Scenario: User saves result as alarm query
   When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
-  And I click the "save" tool on the "Anderson Elementary" window
+  And I click the "save" tool on the "Query Result for Anderson Elementary" window
   And I should see "Alarm Query for Anderson Elementary"
   And I fill in "Name" with "Example Query"
   And I press "Submit" within ".x-window"
@@ -127,13 +128,13 @@ Scenario: User saves result as alarm query
 
 Scenario: User views a results school profile
   When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
-  And I click the "gis" tool on the "Anderson Elementary" window
+  And I click the "gis" tool on the "Query Result for Anderson Elementary" window
   And I should see "School Profile for Anderson Elementary"
   Then I should see "5727 Ludington Dr"
 
 Scenario: User pins a graph result
   When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
-  And I click the "pin" tool on the "Anderson Elementary" window
+  And I click the "pin" tool on the "Query Result for Anderson Elementary" window
   And the "Anderson Elementary" graph result is pinned
   And I select "Yates High School" from ext combo "school_simple"
   And I press "Submit"

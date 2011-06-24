@@ -3,7 +3,6 @@
 # Table name: rollcall_rrd
 #
 #  id                 :integer(4)      not null, primary key
-#  alarm_query_id     :integer(4)      foreign key
 #  file_name          :string(255)
 #  school_id          :integer
 #  created_at         :datetime
@@ -420,7 +419,36 @@ class Rollcall::Rrd < Rollcall::Base
     string_flag     = false
     condition_array.push("")
     conditions.each{|key,value|
-      if key != :symptoms && key != :startdt && key != :enddt && key != :zipcode && key != :data_func
+      if key == :age || key == :zip || key == :gender || key == :race
+        if key == :age
+          key = "dob"
+          dobs = []
+          value.each do |v|
+            dobs.push("'#{(Time.now - v.to_i.years)}'")
+          end
+          value = dobs
+        else
+          condition_array[0] += " AND " if string_flag
+          if value.is_a?(Array)
+            condition_array[0] += "#{key} IN (#{value.join(",")})"
+          else
+            condition_array[0] += "#{key} = ?"
+            condition_array.push(value)
+          end
+          string_flag = true
+        end
+      end
+    }
+    condition_array[0] += " AND " if string_flag
+    condition_array[0] += "school_id = ?"
+    condition_array.push(school_id)
+    students        = Rollcall::Student.find(:all, :conditions => condition_array)
+    condition_array = []
+    string_flag     = false
+    condition_array.push("")
+    conditions.each{|key,value|
+      if key != :symptoms && key != :startdt && key != :enddt && key != :zipcode && key != :data_func &&
+        key != :age && key != :zip && key != :gender && key != :race
         condition_array[0] += " AND " if string_flag
         if value.is_a?(Array)
           condition_array[0] += "#{key} IN (#{value.join(",")})"
@@ -432,18 +460,17 @@ class Rollcall::Rrd < Rollcall::Base
       end
     }
     condition_array[0] += " AND " if string_flag
-    condition_array[0] += "report_date = ? AND school_id = ?"
+    condition_array[0] += "report_date = ?"
     condition_array.push(report_date)
-    condition_array.push(school_id)
     unless conditions[:symptoms].blank?
       symptom_ids  = conditions[:symptoms].collect {|s| Rollcall::Symptom.find_by_icd9_code(s).id}
       join_string  = "INNER JOIN rollcall_student_reported_symptoms ON
                      rollcall_student_daily_infos.id = rollcall_student_reported_symptoms.student_daily_info_id AND
                      rollcall_student_reported_symptoms.symptom_id IN (#{symptom_ids.join(",")})"
-      total_absent = Rollcall::StudentDailyInfo.find(:all, :include => :student_reported_symptoms, :joins => join_string, :conditions => condition_array).size
+      total_absent = Rollcall::StudentDailyInfo.find_all_by_student_id(students, :include => :student_reported_symptoms, :joins => join_string, :conditions => condition_array).size
 
     else
-      total_absent = Rollcall::StudentDailyInfo.find(:all, :conditions => condition_array).size
+      total_absent = Rollcall::StudentDailyInfo.find_all_by_student_id(students, :conditions => condition_array).size
     end
     return total_absent
   end

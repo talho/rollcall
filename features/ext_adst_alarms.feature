@@ -1,7 +1,7 @@
-Feature: Alarm Queries
-  In order to create and set alarms
+Feature: Alarms
+  In order to interact with alarms
   As a Rollcall user
-  I should be able to create alarm queries based off absenteeism severity/deviation from a set of search results
+  I should be able to create/edit alarms based off of alarm queries
 
   Background:
     Given the following entities exist:
@@ -100,80 +100,24 @@ Feature: Alarm Queries
     And I wait for the panel to load
     And I press "Submit"
     And delayed jobs are processed
+    And "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
+    And I click the "save" tool on the "Query Result for Anderson Elementary" window
+    And I should see "Alarm Query for Anderson Elementary"
+    And I fill in "Name" with "Example Query"
+    And I fill in "min_deviation" with "1"
+    And I fill in "max_deviation" with "2"
+    And I fill in "min_severity" with "1"
+    And I fill in "max_severity" with "2"
+    And I press "Submit" within ".x-window"
+    And I should see "Example Query" within "#alarm_queries"
+    And I click the "alarm-off" tool on the "Example Query" window
+    And I wait for the panel to load
+    And I should see "Example Query" within "#alarm_grid_panel"
 
-Scenario: User creates an Alarm Query
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
-  And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "Alarm Query for Anderson Elementary"
-  And I fill in "Name" with "Example Query"
-  And I press "Submit" within ".x-window"
-  Then I should see "Example Query" within "#alarm_queries"
-
-Scenario: User creates an Alarm Query with specific threshold
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
-  And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "Alarm Query for Anderson Elementary"
-  And I fill in "Name" with "Example Query"
-  And I fill in "min_deviation" with "2"
-  And I fill in "min_severity" with "3"
-  And I press "Submit" within ".x-window"
-  And I should see "Example Query" within "#alarm_queries"
-  And I should see "severity_min" within ".x-grid3-td-settings"
-  And I should see "3" within ".x-grid3-td-values"
-  And I should see "deviation_min" within ".x-grid3-td-settings"
-  Then I should see "2" within ".x-grid3-td-values"
-
-Scenario: User creates a new Alarm Query off of an existing Alarm Query
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
-  And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "Alarm Query for Anderson Elementary"
-  And I fill in "Name" with "Example Query"
-  And I press "Submit" within ".x-window"
-  Then I should see "Example Query" within "#alarm_queries"
-  And I click the "save" tool on the "Example Query" window
-  And I select "Ashford Elementary" from ext combo "alarm_query_school"
-  And I press "Save As New" within ".x-window"
-  And I should see "Example Query_1" within "#alarm_queries"
-  Then I should see "Ashford Elementary" within ".ux-alarm-thumbnails"
-
-Scenario: User deletes an existing Alarm Query
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
-  And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "Alarm Query for Anderson Elementary"
-  And I fill in "Name" with "Example Query"
-  And I press "Submit" within ".x-window"
-  Then I should see "Example Query" within "#alarm_queries"
-  And I click the "close" tool on the "Example Query" window
-  And I should see "Are you sure you want to delete this alarm query?"
-  And I press "Yes"
-  And I wait for the panel to load
-  Then I should not see "Example Query" within "#alarm_queries"
-
-Scenario: User toggles Alarm
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
-  And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "Alarm Query for Anderson Elementary"
-  And I fill in "Name" with "Example Query"
-  And I fill in "min_deviation" with "1"
-  And I fill in "max_deviation" with "2"
-  And I fill in "min_severity" with "1"
-  And I fill in "max_severity" with "2"
-  And I press "Submit" within ".x-window"
-  Then I should see "Example Query" within "#alarm_queries"
-  And I click the "alarm-off" tool on the "Example Query" window
-  And I wait for the panel to load
-  Then I should see "Example Query" within "#alarm_grid_panel"
-
-Scenario: User executes search query off of an existing Alarm Query
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
-  And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "Alarm Query for Anderson Elementary"
-  And I fill in "Name" with "Example Query"
-  And I press "Submit" within ".x-window"
-  Then I should see "Example Query" within "#alarm_queries"
-  And I click the "run-query" tool on the "Example Query" window
-  And I wait for the panel to load
-  And delayed jobs are processed  
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
-  And I should not see graphs "DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
-  Then I should see graphs "DF-Raw_101912105_c_absenteeism.png" within the results
+Scenario: User views alarm information
+  When I click the alarm group "Example Query"
+  And I click the latest alarm within the "Example Query" alarm group
+  And I should see "Alarm Information for Anderson Elementary" within ".alarm-tip"
+  And I should see "Severity" within ".alarm-tip"
+  And I should see "extreme" within ".alarm-tip"
+  Then I click the alarm group "Example Query"

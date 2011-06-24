@@ -304,13 +304,23 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           labelStyle: 'margin: 10px 0px 0px 5px',
           fieldLabel: 'School Name',
           emptyText:'Select School...',
+          id:'alarm_query_school',
+          itemId: 'alarm_query_school',
           allowBlank: true,
           width: 150,
           value: alarm_query_params.school,
           mode: 'local',
           name: 'school',
           displayField: 'display_name',
-          store: new Ext.data.JsonStore({fields: ['id', 'display_name'], data: Ext.getCmp('rollcall_adst').init_store.getAt(0).get('schools')})
+          editable: false,
+          store: new Ext.data.JsonStore({fields: ['id', 'display_name'], data: Ext.getCmp('rollcall_adst').init_store.getAt(0).get('schools')}),
+          listeners: {
+            select: function(this_combo_box, data_record, index)
+            {
+              alarm_query_params['school']                = data_record.get('display_name');
+              this_combo_box.ownerCt.getForm().baseParams = {alarm_query_params: Ext.encode(alarm_query_params)};
+            }
+          }
         })),{
           xtype: 'fieldset',
           title: 'Absentee Rate Deviation',

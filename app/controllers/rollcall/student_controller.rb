@@ -71,8 +71,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
         :race               => race.each do |rec, index| rec[:value] == params[:race] ? index : 0  end,
         :school_id          => params[:school_id].to_i,
         :dob                => Time.parse("#{params[:dob]}"),
-        :student_number     => params[:student_number],
-        :user_id            => current_user.id
+        :student_number     => params[:student_number]
       )  
     end
     daily_info = Rollcall::StudentDailyInfo.create(

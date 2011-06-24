@@ -16,9 +16,19 @@ Then /^I should see dated graphs for schools "([^\"]*)" starting "([^\"]*)" days
   end
 end
 
+
+Then /^I should not see graphs "([^\"]*)" within the results$/ do |image_files|
+  image_files.split(',').each do |value|
+    begin
+      graph = page.find(:xpath, ".//img[contains(concat(' ', @src, ' '), '#{value}')]")
+    rescue Selenium::WebDriver::Error::ObsoleteElementError, Capybara::ElementNotFound
+    end while !graph.blank?
+    graph.should be_nil
+  end
+end
+
 Then /^I should see graphs "([^\"]*)" within the results$/ do |image_files|
   image_files.split(',').each do |value|
-    end_time = Time.now + 10.seconds
     begin
       graph = page.find(:xpath, ".//img[contains(concat(' ', @src, ' '), '#{value}')]")
     rescue Selenium::WebDriver::Error::ObsoleteElementError, Capybara::ElementNotFound
@@ -32,13 +42,11 @@ Then /^"([^\"]*)" graphs has done loading$/ do |schools|
 end
 
 Then /^I close the "([^\"]*)" window$/ do |title|
-  window_title = "Query Result for #{title}"
-  page.find(:xpath, ".//div[contains(concat(' ', @class, ' '), 'x-tool x-tool-close') and ../span[text() = '#{window_title}']]").click 
+  page.find(:xpath, ".//div[contains(concat(' ', @class, ' '), 'x-tool x-tool-close') and ../span[text() = '#{title}']]").click
 end
 
 Then /^I click the "([^\"]*)" tool on the "([^\"]*)" window$/ do |tool, title|
-  window_title = "Query Result for #{title}"
-  page.find(:xpath, ".//div[contains(concat(' ', @class, ' '), 'x-tool x-tool-#{tool}') and ../span[text() = '#{window_title}']]").click
+  page.find(:xpath, ".//div[contains(concat(' ', @class, ' '), 'x-tool x-tool-#{tool}') and ../span[text() = '#{title}']]").click
 end
 
 Then /^I should not see the "([^\"]*)" window$/ do |window_title|
@@ -53,6 +61,6 @@ Then /^the "([^\"]*)" graph result is pinned$/ do |title|
   page.find(:xpath, ".//div[contains(concat(' ', @class, ' '), 'x-panel-pinned')]")
 end
 
-Then /^I wait for the adst panel to load$/ do
-  sleep 4
+Then /^I wait for the panel to load$/ do
+  sleep 2
 end

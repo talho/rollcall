@@ -108,14 +108,16 @@ namespace :rollcall do
             if illness != 'event' && illness != 'none'
               is_confirmed_illness = true
             end
-            sdi        = Rollcall::StudentDailyInfo.create(
+            student    = Rollcall::Student.create(
               :school_id         => daily_info.school.id,
-              :report_date       => daily_info.report_date,
-              :age               => age,
               :dob               => dob,
+              :gender            => gender_array[rand(gender_array.length)]
+            )
+            sdi        = Rollcall::StudentDailyInfo.create(
+              :report_date       => daily_info.report_date,
               :grade             => grade,
-              :gender            => gender_array[rand(gender_array.length)],
-              :confirmed_illness => is_confirmed_illness)
+              :confirmed_illness => is_confirmed_illness,
+              :student           => student)
           end
         end
 

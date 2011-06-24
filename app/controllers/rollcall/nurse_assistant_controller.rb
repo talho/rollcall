@@ -36,15 +36,17 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
         student_records = []
       end
     elsif !params[:filter_report_date].blank?
-      student_records = Rollcall::StudentDailyInfo.find_all_by_report_date_and_school_id(
+      students        = Rollcall::Students.find_all_by_school_id params[:school_id]
+      student_records = Rollcall::StudentDailyInfo.find_all_by_report_date_and_student_id(
         params[:filter_report_date],
-        params[:school_id],
+        students,
         :include    => :student,
         :conditions => ["student_id = rollcall_students.id"]
       )
     else
-      student_records = Rollcall::StudentDailyInfo.find_all_by_school_id(
-        params[:school_id],
+      students        = Rollcall::Students.find_all_by_school_id params[:school_id]
+      student_records = Rollcall::StudentDailyInfo.find_all_by_student_id(
+        students,
         :include    => :student,
         :conditions => ["student_id = rollcall_students.id"]
       )

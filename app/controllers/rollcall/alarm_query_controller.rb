@@ -27,8 +27,10 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
 
   # POST rollcall/alarm_query
   def create
-    saved_result = Rollcall::AlarmQuery.create(
-      :name                => params[:alarm_query_name],
+    alarm_exist_by_name = Rollcall::AlarmQuery.find_by_name(params[:alarm_query_name])
+    alarm_name          = alarm_exist_by_name.blank? ? params[:alarm_query_name] : "#{alarm_exist_by_name.name}_1"
+    saved_result        = Rollcall::AlarmQuery.create(
+      :name                => alarm_name,
       :user_id             => current_user.id,
       :query_params        => params[:alarm_query_params],
       :severity_min        => params[:severity_min],

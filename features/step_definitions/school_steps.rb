@@ -3,7 +3,6 @@ Given /^"([^\"]*)" has the following schools:$/ do |isd, table|
   table.hashes.each do |row|
     @district = Rollcall::SchoolDistrict.find_by_name(isd)
     result    = Rollcall::School.create(
-      :name          => row["name"],
       :display_name  => row["name"],
       :tea_id        => row["tea_id"],
       :district_id   => @district,

@@ -196,8 +196,31 @@ class IliImporter < SchoolDataImporter
     description         = attrs[:description]
     attrs.delete :description
     daily_info          = Rollcall::StudentDailyInfo.find_by_cid_and_report_date(attrs[:cid], attrs[:report_date])
-    daily_info          = Rollcall::StudentDailyInfo.new if !daily_info
-    daily_info.update_attributes(attrs)
+    if !daily_info
+      if attrs[:name].split(",").length > 1
+        first_name = attrs[:name].split(",").last
+        last_name  = attrs[:name].split(",").first
+      else
+        first_name = attrs[:name].split(" ").first
+        last_name  = attrs[:name].split(" ").last
+      end
+      if attrs[:contact].split(",").length > 1
+        contact_first_name = attrs[:name].split(",").last
+        contact_last_name  = attrs[:name].split(",").first
+      else
+        contact_first_name = attrs[:name].split(" ").first
+        contact_last_name  = attrs[:name].split(" ").last
+      end
+      attrs[:first_name] = first_name
+      attrs[:last_name]  = last_name
+      attrs[:contact_first_name] = contact_first_name
+      attrs[:contact_last_name]  = contact_last_name
+      student = Rollcall::Student.new
+      student.update_attributes(attrs)
+      attrs[:student] = student
+      daily_info = Rollcall::StudentDailyInfo.new
+      daily_info.update_attributes(attrs)
+    end
     daily_info.save
     add_symptoms(daily_info, description)
   end

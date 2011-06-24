@@ -99,6 +99,7 @@ Background:
 Scenario: User runs a simple query against absenteeism to view the raw data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
+  And I wait for the panel to load
   And I press "Submit"
   And delayed jobs are processed
   Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results

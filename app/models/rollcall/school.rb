@@ -28,9 +28,9 @@ class Rollcall::School < Rollcall::Base
   named_scope :in_alert,
               :select     => "distinct schools.*",
               :include    => :school_daily_infos,
-              :conditions => ["(rollcall_school_daily_infos.total_absent / rollcall_school_daily_infos.total_enrolled)
+              :conditions => ["(CAST(rollcall_school_daily_infos.total_absent as FLOAT)/CAST(rollcall_school_daily_infos.total_enrolled as FLOAT))
                               >= 0.10 AND rollcall_school_daily_infos.report_date >= ?", 30.days.ago],
-              :order      => "(rollcall_school_daily_infos.total_absent/rollcall_school_daily_infos.total_enrolled) desc"
+              :order      => "(CAST(rollcall_school_daily_infos.total_absent as FLOAT)/CAST(rollcall_school_daily_infos.total_enrolled as FLOAT)) desc"
 
   named_scope :with_alarms,
               :select     => "distinct schools.*",
@@ -45,13 +45,13 @@ class Rollcall::School < Rollcall::Base
       unless report.total_enrolled.blank?
         report.total_absent.to_f/report.total_enrolled.to_f
       else
-        0
+        0.to_f
       end
     end
     unless absentees.empty?
       absentees.inject(&:+)/absentees.size
     else
-      0
+      0.to_f
     end
   end
 

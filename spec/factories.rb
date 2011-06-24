@@ -10,7 +10,7 @@ end
 
 Factory.define :rollcall_alarm, :class => Rollcall::Alarm do |m|
   m.association :school, :factory => :rollcall_school
-  m.association :alarm, :factory => :rollcall_alarm
+  m.association :alarm_query, :factory => :rollcall_alarm_query
   m.deviation 1.0
   m.severity 1.0
   m.absentee_rate 1.0
@@ -36,9 +36,7 @@ Factory.define :rollcall_rrd, :class => Rollcall::Rrd do |m|
 end
 
 Factory.define :rollcall_school , :class => Rollcall::School do |m|  
-  m.sequence(:name){|t| "Name ##{t}"}
   m.sequence(:display_name){|t| "Display Name ##{t}"}
-  m.school_number 1111
   m.tea_id 11111111
   m.school_type "Elementary School"
   m.sequence(:gmap_addr){|t| "#{t} Street Lane, City Name ST, 10101"}
@@ -81,7 +79,7 @@ Factory.define :rollcall_student, :class => Rollcall::Student do |m|
   m.race  1
   m.association :school, :factory => :rollcall_school
   m.student_number "01"
-  m.dob (Time.now - 10.years)
+  m.dob(Time.now - 10.years)
 end
 
 Factory.define :rollcall_student_daily_info, :class => Rollcall::StudentDailyInfo do |m|
@@ -90,7 +88,7 @@ Factory.define :rollcall_student_daily_info, :class => Rollcall::StudentDailyInf
   m.confirmed_illness true
   m.cid '101010101'
   m.health_year Time.now.year
-  m.date_of_onset (Time.now - 3.days)
+  m.date_of_onset(Time.now - 3.days)
   m.temperature 98.0
   m.in_school true
   m.released false

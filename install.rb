@@ -6,8 +6,8 @@ parent_lib_dir = File.join(Rails.root, "lib")
   File.symlink(rel_path, target) unless File.symlink?(target)
 }
 
-rel_path = File.join("..","..","..","..","spec","spec_helper.rb")
-target = "#{Rails.root}/vendor/plugins/rollcall/spec/spec_helper.rb"
+rel_path = File.join("..", "vendor","plugins","rollcall","spec")
+target = "#{Rails.root}/spec/rollcall"
 File.symlink(rel_path, target) unless File.symlink?(target)
 
 # Create links in Rails.root/public so that the register_javascript_expansion()

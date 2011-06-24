@@ -15,8 +15,7 @@
 #  gmap_lng      :float
 #  gmap_addr     :string
 
-
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require 'spec/spec_helper'
 
 describe Rollcall::School do
 
@@ -40,58 +39,68 @@ describe Rollcall::School do
     end
   end
 
-  describe "has_many" do
-    before(:each) do
-      @school=Factory(:rollcall_school)
-    end
-    context "school_daily_infos" do
-
-    end
-    context "student_daily_infos" do
-
-    end
-    context "alarms" do
-
-    end
-    context "alarm_queries" do
-
-    end
-    context "rrds" do
-
-    end
-    context "students" do
-
-    end
-  end
-
-  describe "named scope" do
-    @school=Factory(:rollcall_school)
-    @school.school_daily_infos.create(
-      :school_id => @school,
-      :total_absent => 20,
-      :total_enrolled => 100,
-      :report_date => Date.today-1.days
-    )
-    @school.school_daily_infos.create(
-      :school_id => @school,
-      :total_absent => 10,
-      :total_enrolled => 100,
-      :report_date => Date.today-2.days
-    )
-    context "with_alarms" do
+  describe "named scope" do    
+    context "in_alert" do
       it "returns schools with an alert" do
+        @school=Factory(:rollcall_school)
+        @school.school_daily_infos.create(
+          :school_id => @school,
+          :total_absent => 50,
+          :total_enrolled => 100,
+          :report_date => Date.today-1.days
+        )
+        @school.school_daily_infos.create(
+          :school_id => @school,
+          :total_absent => 50,
+          :total_enrolled => 100,
+          :report_date => Date.today-2.days
+        )
         Rollcall::School.in_alert.should include(@school)
         Rollcall::School.in_alert.size.should == 1
       end
       it "does not return schools that only have alerts older than 30 days" do
-        oldschool=Factory(@school)
-        oldschool.absentee_reports.create(:enrolled => 100, :absent => 20, :report_date => Date.today-31.days)
+        @school=Factory(:rollcall_school)
+        @school.school_daily_infos.create(
+          :school_id => @school,
+          :total_absent => 50,
+          :total_enrolled => 100,
+          :report_date => Date.today-31.days
+        )
+        Rollcall::School.in_alert.should_not include(@school)  
       end
     end
-    context "in_alarms" do
+    context "with_alarms" do
       it "returns schools with alarms" do
-
+        @alarm = Factory(:rollcall_alarm)
+        Rollcall::School.with_alarms.should include(@alarm.school)
       end
+    end
+  end
+
+  describe "average_absence_rate" do
+    before(:each) do
+      @school_daily_info = Factory(:rollcall_school_daily_info)
+    end
+    it "returns a floating integer" do
+      @school_daily_info.school.average_absence_rate.should be_kind_of(Float)
+    end
+    it "calculates the average absence rate for a school on a specific date" do
+      avg_rate = @school_daily_info.total_absent.to_f/@school_daily_info.total_enrolled.to_f
+      @school_daily_info.school.average_absence_rate.should == avg_rate
+    end
+  end
+
+  describe "search" do
+    before(:each) do
+      @school          = Factory(:rollcall_school)
+      @user            = Factory(:user)
+      @role_membership = Factory(:role_membership, :user => @user, :jurisdiction => @school.district.jurisdiction)
+    end
+    it "returns a set of schools based on simple search" do
+      Rollcall::School.search({:type => 'simple'}, @user).should_not be_blank
+    end
+    it "returns a set of schools based on advanced search" do
+      Rollcall::School.search({:type => 'adv'}, @user).should_not be_blank
     end
   end
 end

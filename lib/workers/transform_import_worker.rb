@@ -19,16 +19,18 @@
 
 =end
 
-class AbsenteeReportWorker < BackgrounDRb::MetaWorker
-  set_worker_name :absentee_report_worker
+class TransformImportWorker < BackgrounDRb::MetaWorker
+  set_worker_name :transform_import_worker
 
   def create(args = nil)
-    logger.warn("Creating new AbsenteeReportWorker")
+    logger.warn("Creating new daily information for Schools, School Districts, Students, and Student Reported Symptoms")
   end
 
   def process_uploads
-    logger.warn("Running AbsenteeReportWorker")
-    RollcallDataImporter.process_uploads
+    logger.warn("Running TransformImportWorker")
+    Rollcall::SchoolDistrict.all.each do |district|
+      SchoolDataTransformer.new("../rollcall_data", "#{district.name}").transform_and_import
+    end
   end
 end
 

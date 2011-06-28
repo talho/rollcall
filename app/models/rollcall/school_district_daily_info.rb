@@ -42,12 +42,21 @@ class Rollcall::SchoolDistrictDailyInfo < Rollcall::Base
   }}
   set_table_name "rollcall_school_district_daily_infos"
 
-  def update_stats
-    total_enrolled = Rollcall::AbsenteeReport.for_date(Date.today).sum(:absent)
+  def update_stats date, district_id
+    schools        = Rollcall::School.find_all_by_district_id district_id
+    total_enrolled = 0
+    total_absent   = 0
+    Rollcall::SchoolDailyInfo.find_all_by_report_date_and_school_id(date,schools).each do |rec|
+      total_enrolled += rec.total_enrolled
+    end
     if total_enrolled > 0
       write_attribute :total_enrollment, total_enrolled
-      write_attribute :total_absent, Rollcall::AbsenteeReport.for_date(report_date).sum(:absent)
-      rate = Rollcall::AbsenteeReport.average("absent/enrolled", :conditions => ["report_date = ?", report_date])
+      Rollcall::SchoolDailyInfo.find_all_by_report_date_and_school_id(date,schools) do |rec|
+        total_absent += rec.total_absent
+      end
+      write_attribute :total_absent, total_absent
+      rate = Rollcall::SchoolDailyInfo.average("CAST(total_absent as FLOAT)/CAST(total_enrolled as FLOAT)",
+                                               :conditions => ["report_date = ? AND school_id = ?", date, schools])
       write_attribute :absentee_rate, rate.nil? || rate == 0  ? nil : rate.round(4)*100
     end
   end

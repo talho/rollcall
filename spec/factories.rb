@@ -1,13 +1,5 @@
 require 'factory_girl'
 
-Factory.define :rollcall_absentee_report, :class => Rollcall::AbsenteeReport do |m|
-  m.association :school, :factory => :rollcall_school
-  m.report_date Time.now
-  m.enrolled    100
-  m.absent      10
-  m.data        nil
-end
-
 Factory.define :rollcall_alarm, :class => Rollcall::Alarm do |m|
   m.association :school, :factory => :rollcall_school
   m.association :alarm_query, :factory => :rollcall_alarm_query
@@ -55,7 +47,7 @@ end
 Factory.define :rollcall_school_district, :class => Rollcall::SchoolDistrict do |m|
   m.sequence(:name){|t| "Name ##{t}"}
   m.district_id 1000
-  m.association :jurisdiction
+  m.association :jurisdiction, :factory => :jurisdiction
 end
 
 Factory.define :rollcall_school_district_daily_info, :class => Rollcall::SchoolDistrictDailyInfo do |m|

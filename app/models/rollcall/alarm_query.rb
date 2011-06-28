@@ -18,8 +18,8 @@
 
 class Rollcall::AlarmQuery < Rollcall::Base
   belongs_to :user,   :class_name => "User"
-  belongs_to :rrd,    :class_name => "Rollcall::Rrd"
-  belongs_to :school, :class_name => "Rollcall::School"
+  #belongs_to :rrd,    :class_name => "Rollcall::Rrd"
+  #belongs_to :school, :class_name => "Rollcall::School"
   set_table_name "rollcall_alarm_queries"
 
   def generate_alarm
@@ -35,13 +35,14 @@ class Rollcall::AlarmQuery < Rollcall::Base
   def create_alarm
     Rollcall::Alarm.find_all_by_alarm_query_id(id).each { |a| a.destroy }
     query_params.gsub!("[]", "")
-    query   = ActiveSupport::JSON.decode(query_params).symbolize_keys
+    query = {}
+    unless query_params.blank?
+      query = ActiveSupport::JSON.decode(query_params).symbolize_keys
+    end
     schools = Rollcall::School.search(query, user)
     schools.each { |school| create_alarms_for_school(school, query) }
     !Rollcall::Alarm.find_all_by_alarm_query_id(id).blank?
   end
-
-private
 
   def create_alarms_for_school(school, query)
     @data_set      = []
@@ -68,7 +69,7 @@ private
         total_absent = info.total_absent
       end
     else
-      students = Rollcall::Student.find_all_by_school_id schoolid
+      students = Rollcall::Student.find_all_by_school_id school_id
       info = Rollcall::StudentDailyInfo.find_all_by_student_id_and_report_date_and_confirmed_illness(students, report_date, true)
       if info.blank?
         total_asbent = 0

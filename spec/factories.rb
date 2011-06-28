@@ -13,7 +13,7 @@ end
 
 Factory.define :rollcall_alarm_query, :class => Rollcall::AlarmQuery do |m|
   m.association :user, :factory => :user
-  m.query_params ''
+  m.query_params "{absent:gross}"
   m.sequence(:name){|t| "Name ##{t}"}
   m.severity_min 1
   m.severity_max 2

@@ -49,7 +49,7 @@ class Rollcall::Rrd < Rollcall::Base
       File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
       self.send_later(:graph, rrd_file, image_file, graph_title, params)
     end
-    { "image_url" => "/rrd/#{image_file}", "rrd_id" => rrd_id }
+    { :image_url => "/rrd/#{image_file}", :rrd_id => rrd_id }
   end
 
   def self.export_rrd_data params, filename, user_obj

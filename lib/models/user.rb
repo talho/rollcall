@@ -7,12 +7,8 @@ module Rollcall
     end
 
     def schools(options={})
-      options={ :conditions => ["district_id in (?)", school_districts.map(&:id)], :order => "name"}.merge(options)
+      options={ :conditions => ["district_id in (?)", school_districts.map(&:id)], :order => "display_name"}.merge(options)
       Rollcall::School.find(:all, options)
-    end
-
-    def recent_absentee_reports
-      schools.map{|school| school.absentee_reports.absences.recent(20).sort_by{|report| report.report_date}}.flatten.uniq[0..19].sort_by{|report| report.school_id}
     end
 
     def alarm_queries(options={})

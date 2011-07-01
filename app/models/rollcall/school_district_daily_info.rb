@@ -8,7 +8,6 @@
 #  total_enrollment   :integer(4)
 #  total_absent       :integer(4)
 #  school_district_id :integer(4)
-#  data               :string
 # 
 =begin
     OpenPHIN is an opensource implementation of the CDC guidelines for 

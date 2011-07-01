@@ -18,6 +18,8 @@ class CleanUpModels < ActiveRecord::Migration
     remove_column :rollcall_student_daily_infos, :phone
     remove_column :rollcall_student_daily_infos, :race
 
+    remove_column :rollcall_school_district_daily_infos, :data
+
     remove_index :rollcall_students, :user_id
     remove_column :rollcall_students, :user_id
   end
@@ -29,19 +31,22 @@ class CleanUpModels < ActiveRecord::Migration
     add_column :rollcall_schools, :region, :string
     add_index  :rollcall_schools, :name, :name => :schools_name
 
-    add_column :rollcall_student_daily_infos, :tea_id
-    add_column :rollcall_student_daily_infos, :campus_name
-    add_column :rollcall_student_daily_infos, :age
-    add_column :rollcall_student_daily_infos, :school_id
-    add_column :rollcall_student_daily_infos, :dob
-    add_column :rollcall_student_daily_infos, :gender
-    add_column :rollcall_student_daily_infos, :zip
-    add_column :rollcall_student_daily_infos, :name
-    add_column :rollcall_student_daily_infos, :contact
-    add_column :rollcall_student_daily_infos, :phone
-    add_column :rollcall_student_daily_infos, :race
+    add_column :rollcall_student_daily_infos, :tea_id, :string, :limit => 9
+    add_column :rollcall_student_daily_infos, :campus_name, :string, :limit => 100
+    add_column :rollcall_student_daily_infos, :age, :integer
+    add_column :rollcall_student_daily_infos, :school_id, :integer
+    add_column :rollcall_student_daily_infos, :dob, :date
+    add_column :rollcall_student_daily_infos, :gender, :boolean
+    add_column :rollcall_student_daily_infos, :zip, :string, :limit => 10
+    add_column :rollcall_student_daily_infos, :name, :string, :limit => 200
+    add_column :rollcall_student_daily_infos, :contact, :string, :limit => 200
+    add_column :rollcall_student_daily_infos, :phone, :string, :limit => 10
+    add_column :rollcall_student_daily_infos, :race, :integer
 
-    add_column :rollcall_students, :user_id
+
+    remove_column :rollcall_school_district_daily_infos, :data, :string
+
+    add_column :rollcall_students, :user_id, :integer
     add_index :rollcall_students, :user_id
   end
 end

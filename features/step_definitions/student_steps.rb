@@ -14,7 +14,7 @@ Given /^"([^\"]*)" has the following current student absenteeism data:$/ do |isd
     )
     unless row['symptoms'].blank?
       row['symptoms'].split(',').each do |value|
-        Rollcall::StudentReportedSymptoms.create(
+        Rollcall::StudentReportedSymptom.create(
           :student_daily_info_id => result.id,
           :symptom_id            => Rollcall::Symptom.find_by_name(value).id
         )

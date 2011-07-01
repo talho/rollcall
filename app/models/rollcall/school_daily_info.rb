@@ -32,17 +32,12 @@ class Rollcall::SchoolDailyInfo < Rollcall::Base
     :limit => limit,
     :order => "report_date DESC"
   }}
-  named_scope :recent_alerts_by_severity, lambda{|limit|{
-    :limit      => limit.to_i,
-    :conditions => "(total_absent/total_enrolled) >= #{SEVERITY[:low][:min]}",
-    :order      => "(total_absent/total_enrolled) DESC"
-  }}
   named_scope :absences, lambda{{
-    :conditions => ['total_absent / total_enrolled >= .11']
+    :conditions => ['CAST(total_absent as FLOAT) / CAST(total_enrolled as FLOAT) >= .11']
   }}
   named_scope :with_severity, lambda{|severity|
     range = SEVERITY[severity]
-    {:conditions => ["(total_absent / total_enrolled) >= ? and (total_absent / total_enrolled) < ?", range[:min], range[:max]]}
+    {:conditions => ["(CAST(total_absent as FLOAT) / CAST(total_enrolled as FLOAT)) >= ? and (CAST(total_absent as FLOAT) / CAST(total_enrolled as FLOAT)) < ?", range[:min], range[:max]]}
   }
   
   set_table_name "rollcall_school_daily_infos"

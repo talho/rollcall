@@ -74,7 +74,14 @@ class SchoolDataTransformer
     Dir.ensure_exists(File.join(@dir, "archive/"))
   end
 
+  # Method calls the extract and import methods
+  #
+  # Extract files if files are in archival format (ie, 7z, zip)
+  # Perform data transformation on necessary fields
+  # Imports CSV data into the system
+  # Run school district dailies for the district after all data has been imported into the system
   def transform_and_import
+    extract
     transform
     import
     SchoolDataImporter.new(nil).school_district_dailies(@district)
@@ -82,6 +89,35 @@ class SchoolDataTransformer
 
   private
 
+  # Method extracts CSV files
+  def extract
+    for file_path in @files
+      if !File.directory?(file_path)
+        if file_path.downcase.index('.7zip') || file_path.downcase.index('.7z') || file_path.downcase.index('.zip')
+          extension = '7zip' if file_path.downcase.index('.7zip')
+          extension = '7z' if file_path.downcase.index('.7z')
+          extension = 'zip' if file_path.downcase.index('.zip')
+          cmd = "7za e -o#{@dir} #{file_path}"
+          puts "Extracting #{file_path}: #{cmd}"
+          system(cmd)
+          if cmd
+            if file_path.downcase.index('att')
+              file_name = File.join(@dir, "attendance_ads_#{Time.now.year}_#{Time.now.month}_#{Time.now.day}.#{extension}")
+            elsif file_path.downcase.index('enroll')
+              file_name = File.join(@dir, "enrollment_ads_#{Time.now.year}_#{Time.now.month}_#{Time.now.day}.#{extension}")
+            elsif file_path.downcase.index('ili') || file_path.downcase.index('h1n1')
+              file_name = File.join(@dir, "ili_ads_#{Time.now.year}_#{Time.now.month}_#{Time.now.day}.#{extension}")
+            else
+              file_name = File.join(@dir, "ads_#{Time.now.year}_#{Time.now.month}_#{Time.now.day}.#{extension}")
+            end
+            File.rename(file_path, file_name)
+            FileUtils.mv(file_name, File.join(@dir, "archive"))
+          end
+        end
+      end
+    end
+    @files = Dir.glob(File.join(@dir,"*"))
+  end
   # Method is responsible for ensuring the data import files are in CSV format, have the correct headers, and that
   # data is properly quoted
   #
@@ -179,6 +215,7 @@ class SchoolDataTransformer
                 # if the value is indeed a true valid date value, we need to make sure the date value is in the
                 # standard date interface format YYYY-MM-DD HH:MM:SS
                 if is_date? value
+                  value = is_date? value, true
                   value = "#{Time.parse(value).year}-#{Time.parse(value).month.to_s.rjust(2, '0')}-#{Time.parse(value).day.to_s.rjust(2, '0')} 00:00:00"
                 end
 
@@ -349,31 +386,40 @@ class SchoolDataTransformer
   #
   # Method takes in a value and attempts to mach it against a series of regular expressions that represent different
   # formats for writing out a date value.  Returns true if any pattern is a match.
-  def is_date? value
-    is_date     = false
-    reg_ex_list = [
-      /^[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{2,4}$/,
-      /^[0-9]{1,2}-[0-9]{1,2}-[0-9]{2,4}$/,
-      /^[0-9]{1,2}-[0-9]{1,2}-[0-9]{2,4}$/,
-      /^[0-9]{2,4}\/[0-9]{1,2}\/[0-9]{1,2}$/,
-      /^[0-9]{2,4}-[0-9]{1,2}-[0-9]{1,2}$/,
-      /^[0-9]{2,4}-[0-9]{1,2}-[0-9]{1,2}$/,
-      /^[0-9]{2,4}-[0-9]{1,2}-[0-9]{1,2} (\d{2}):(\d{2}):(\d{2})$/,
-      /^[0-9]{1,2}-[0-9]{1,2}-[0-9]{2,4} (\d{2}):(\d{2}):(\d{2})$/,
-      /^[0-9]{1,2}-[0-9]{1,2}-[0-9]{2,4}T(\d{2}):(\d{2}):(\d{2})$/,
-      /^[0-9]{2,4}-[0-9]{1,2}-[0-9]{1,2}T(\d{2}):(\d{2}):(\d{2})$/,
-      /^\d{6}$/,
-      /^\d{8}$/
+  def is_date?(value, return_value_flag = false)
+    new_value      = ''
+    original_value = value
+    value          = value.split(" ").first if value.split(" ").length > 1
+    value          = value.split("T").first if value.split("T").length > 1
+    reg_ex_list    = [
+      [/^[0-1][0-9]{1,2}\/[0-3][0-9]{1,2}\/[0-9]{4}$/,"%m-%d-%Y"],
+      [/^[0-1][0-9]{1,2}\/[0-3][0-9]{1,2}\/[0-9]{2}$/,"%m-%d-%y"],
+      [/^[0-3][0-9]{1,2}\/[0-1][0-9]{1,2}\/[0-9]{4}$/,"%d-%m-%Y"],
+      [/^[0-3][0-9]{1,2}\/[0-1][0-9]{1,2}\/[0-9]{2}$/,"%d-%m-%y"],
+      [/^[0-1][0-9]{1,2}-[0-3][0-9]{1,2}-[0-9]{4}$/,"%m-%d-%Y"],
+      [/^[0-1][0-9]{1,2}-[0-3][0-9]{1,2}-[0-9]{2}$/,"%m-%d-%y"],
+      [/^[0-3][0-9]{1,2}-[0-1][0-9]{1,2}-[0-9]{4}$/,"%d-%m-%Y"],
+      [/^[0-3][0-9]{1,2}-[0-1][0-9]{1,2}-[0-9]{2}$/,"%d-%m-%y"],
+      [/^[0-9]{4}\/[0-1][0-9]{1,2}\/[0-3][0-9]{1,2}$/,"%Y/%m/%d"],
+      [/^[0-9]{2}\/[0-1][0-9]{1,2}\/[0-3][0-9]{1,2}$/,"%y/%m/%d"],
+      [/^[0-9]{4}\/[0-3][0-9]{1,2}\/[0-1][0-9]{1,2}$/,"%Y/%d/%m"],
+      [/^[0-9]{2}\/[0-3][0-9]{1,2}\/[0-1][0-9]{1,2}$/,"%y/%d/%m"],
+      [/^[0-9]{4}-[0-1][0-9]{1,2}-[0-3][0-9]{1,2}$/,"%Y-%m-%d"],
+      [/^[0-9]{2}-[0-1][0-9]{1,2}-[0-3][0-9]{1,2}$/,"%y-%m-%d"],
+      [/^[0-9]{4}-[0-3][0-9]{1,2}-[0-1][0-9]{1,2}$/,"%Y-%d-%m"],
+      [/^[0-9]{2}-[0-3][0-9]{1,2}-[0-1][0-9]{1,2}$/,"%y-%d-%m"],
+      [/^\d{6}$/,"%y%m%d"],
+      [/^\d{8}$/,"%Y%m%d"]
     ]
     reg_ex_list.each do |regex|
-      if regex.match value
+      if regex[0].match value
         tmp_time = nil
         # A match, but might not be a valid date value
         # first round of elimination, if the value is out of range, it's not a valid date
         begin
-          tmp_time = Time.parse(value)
+          tmp_time = Time.parse("#{Date.strptime(value, regex[1])}")
         rescue
-          break
+          next
         end
         # Ok, value not out of range, so we need to exclude values that are greater than the
         # current date, as the system will never be processing report dates beyond today's date,
@@ -382,12 +428,24 @@ class SchoolDataTransformer
         # true valid date values.
         time_year_diff = Time.now.year - tmp_time.year
         if time_year_diff >= 0 && time_year_diff <= 5
-          is_date = true
+          new_value = "#{tmp_time}"
           break
         end
       end
     end
-    is_date
+    if return_value_flag
+      unless new_value.blank?
+        return new_value
+      else
+        return original_value
+      end
+    else
+      unless new_value.blank?
+        return true
+      else
+        return false
+      end
+    end
   end
 
   def get_sep_string file_path

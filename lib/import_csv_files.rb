@@ -4,13 +4,14 @@ require 'fastercsv'
 # IliImporter.new("/tmp/ili.csv").import_csv
 class SchoolDataImporter
   def initialize(filename)
-    @filename = filename
-    @linenum  = 0
-    @record   = nil
-    @mapping  = self.class::MAPPING unless @filename.blank?
-    @symptoms = Rollcall::Symptom.all
-    @rrd_path = Dir.pwd << "/rrd/"
-    @rrd_tool = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
+    @filename    = filename.downcase unless filename.blank?
+    @linenum     = 0
+    @record      = nil
+    @mapping     = self.class::MAPPING unless @filename.blank?
+    @symptoms    = Rollcall::Symptom.all
+    @rrd_path    = Dir.pwd << "/rrd/"
+    @rrd_tool    = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
+    @school_year = 0
   end
 
   def import_csv
@@ -19,10 +20,54 @@ class SchoolDataImporter
       records.each { |rec|
         @record = rec
         @linenum += 1
+        if @linenum == 1 && @filename.index('att')
+          @school_year = Time.parse(rec["AbsenceDate"]).year
+        end
         check_record(rec)
+        seed_record(rec)
         process_record(rec, rec2attrs(rec)) if rec2attrs(rec) != false
       }
     }
+  end
+
+  def seed_record(rec)
+    if @filename.index('att') && Rollcall::School.find_by_tea_id(rec["CampusID"]).blank?
+      district_id = rec["CampusID"].slice(0, rec["CampusID"].length - 3)
+      school_number = rec["CampusID"].slice(rec["CampusID"].length - 3, rec["CampusID"].length)
+      school_type = ""
+      if rec["SchoolName"].downcase.index('high')
+        school_type = "High School"
+      end
+      if rec["SchoolName"].downcase.index('elem')
+        school_type = "Elementary School"
+      end
+      if rec["SchoolName"].downcase.index('jr') || rec["SchoolName"].downcase.index('middle')
+        school_type = "Middle School"
+      end
+      if rec["SchoolName"].downcase.index('ecc') || rec["SchoolName"].downcase.index('kind') ||
+        rec["SchoolName"].downcase.index('child') || rec["SchoolName"].downcase.index('early')
+        school_type = "Kindergarten"
+      end
+      if rec["SchoolName"].downcase.index('jjaep') || rec["SchoolName"].downcase.index('alternative') ||
+        rec["SchoolName"].downcase.index('juvenile')
+        school_type = "Multilevel School"
+      end
+      string = "#{rec["SchoolName"]},#{district_id},#{school_number},#{rec["CampusID"]},#{school_type},,,''"
+      f      = File.new(File.dirname(__FILE__) + "/../db/fixtures/schools.csv", 'a+')
+      f.puts string
+      f.close()
+
+      #create school
+      school = Rollcall::School.create(
+        :display_name  => rec["SchoolName"],
+        :tea_id        => rec["CampusID"],
+        :district_id   => district_id,
+        :school_number => school_number,
+        :school_type   => school_type
+      )
+      #create rrd file for school
+      Rollcall::Rrd.build_rrd(school.tea_id, school.id, Time.gm(@school_year,"aug",01,0,0))
+    end
   end
 
   def process_record(rec, attrs)
@@ -158,68 +203,108 @@ end
 
 class IliImporter < SchoolDataImporter
   IliImporter::MAPPING = [
-    { :field_name => "CID",        :name => :cid },
-    { :field_name => "HealthYear", :name => :health_year },
+    { :field_name => "CID",        :name => :cid, :school_daily_info => true },
+    { :field_name => "HealthYear", :name => :health_year, :school_daily_info => true },
     { :field_name => "CampusID",   :name => :school_id,   :action => :tea_id2school_id, :format => /^\d+$/ },
     { :field_name => "CampusName", :name => :campus_name, :action => :ignoreCsvField },
-    { :field_name => "OrigDate",   :name => :report_date, :format => /^\d{4}-(?:0\d|1[012])-(?:0\d|1\d|2\d|3[01]) (\d{2}):(\d{2}):(\d{2})$/ },
+    { :field_name => "OrigDate",   :name => :report_date, :school_daily_info => true, :format => /^\d{4}-(?:0\d|1[012])-(?:0\d|1\d|2\d|3[01]) (\d{2}):(\d{2}):(\d{2})$/ },
 
-    { :field_name => "DateOfOnset", :name => :date_of_onset, :format => /^\d{4}-(?:0\d|1[012])-(?:0\d|1\d|2\d|3[01]) (\d{2}):(\d{2}):(\d{2})$/ },
-    { :field_name => "Temperature", :name => :temperature, :action => :str2temp},
+    { :field_name => "DateOfOnset", :name => :date_of_onset, :school_daily_info => true, :format => /^\d{4}-(?:0\d|1[012])-(?:0\d|1\d|2\d|3[01]) (\d{2}):(\d{2}):(\d{2})$/ },
+    { :field_name => "Temperature", :name => :temperature, :school_daily_info => true, :action => :str2temp},
     { :field_name => "Symptoms",    :name => :description },
-    { :field_name => "Zip",         :name => :zip,         :format => /^\d{5}(?:-\d{4})?$/ },
-    { :field_name => "Grade",       :name => :grade,       :action => :str2grade },
+    { :field_name => "Zip",         :name => :zip, :format => /^\d{5}(?:-\d{4})?$/ },
+    { :field_name => "Grade",       :name => :grade, :school_daily_info => true, :action => :str2grade },
 
-    { :field_name => "InSchool",  :name => :in_school,         :action => :str2bool },
-    { :field_name => "Confirmed", :name => :confirmed_illness, :action => :is_confirmed },
-    { :field_name => "Released",  :name => :released,          :action => :str2bool },
-    { :field_name => "Diagnosis", :name => :diagnosis },
-    { :field_name => "Treatment", :name => :treatment },
+    { :field_name => "InSchool",  :name => :in_school, :school_daily_info => true, :action => :str2bool },
+    { :field_name => "Confirmed", :name => :confirmed_illness, :school_daily_info => true, :action => :is_confirmed },
+    { :field_name => "Released",  :name => :released, :school_daily_info => true, :action => :str2bool },
+    { :field_name => "Diagnosis", :name => :diagnosis, :school_daily_info => true },
+    { :field_name => "Treatment", :name => :treatment, :school_daily_info => true },
 
-    { :field_name => "Name",    :name => :name },
-    { :field_name => "Contact", :name => :contact },
-    { :field_name => "Phone",   :name => :phone,  :action => :str2phone },
-    { :field_name => "DOB",     :name => :dob,    :format => /^\d{4}-(?:0\d|1[012])-(?:0\d|1\d|2\d|3[01]) (\d{2}):(\d{2}):(\d{2})$/ },
-    { :field_name => "Gender",  :name => :gender, :action => :str2gender },
+    { :field_name => "Name",      :name => :name },
+    { :filed_name => "StudentID", :name => :student_number},
+    { :field_name => "Contact",   :name => :contact },
+    { :field_name => "Phone",     :name => :phone,  :action => :str2phone },
+    { :field_name => "DOB",       :name => :dob,    :format => /^\d{4}-(?:0\d|1[012])-(?:0\d|1\d|2\d|3[01]) (\d{2}):(\d{2}):(\d{2})$/ },
+    { :field_name => "Gender",    :name => :gender, :action => :str2gender },
 
     { :field_name => "Race",          :name => :race },
-    { :field_name => "FollowUp",      :name => :follow_up },
-    { :field_name => "Doctor",        :name => :doctor },
-    { :field_name => "DoctorAddress", :name => :doctor_address }
+    { :field_name => "FollowUp",      :name => :follow_up, :school_daily_info => true },
+    { :field_name => "Doctor",        :name => :doctor, :school_daily_info => true },
+    { :field_name => "DoctorAddress", :name => :doctor_address, :school_daily_info => true }
   ]
 
+  
   def process_record(rec, attrs)
+    student_attrs = {}
+    student_daily_attrs = {}
+    @mapping.each { |mapping|
+      if mapping[:action] == :ignoreCsvField || rec[mapping[:field_name]].blank?
+        next
+      end
+      if mapping.has_key?(:school_daily_info)
+        student_daily_attrs[mapping[:name]] = attrs[mapping[:name]]
+      else
+        student_attrs[mapping[:name]] = attrs[mapping[:name]]
+      end
+    }
+    #id: integer, report_date: date, grade: integer, confirmed_illness: boolean, created_at: datetime,
+    #updated_at: datetime, cid: text, health_year: string, date_of_onset: date, temperature: float,
+    #in_school: boolean, released: boolean, diagnosis: string, treatment: string, follow_up: date,
+    #doctor: string, doctor_address: string, student_id: integer, report_time: datetime
+
+
+    #id: integer, first_name: string, last_name: string, contact_first_name: string,
+    #contact_last_name: string, address: string, zip: string, gender: string,
+    #phone: string, race: integer, school_id: integer, student_number: string,
+    #dob: date, created_at: datetime, updated_at: datetime
     if attrs[:description].blank? || attrs[:description].downcase.index('none')
-      attrs[:confirmed_illness] = false
+      student_daily_attrs[:confirmed_illness] = false
     end
-    attrs[:report_time] = attrs[:report_date]
+    student_daily_attrs[:report_time] = attrs[:report_date]
     description         = attrs[:description]
-    attrs.delete :description
-    daily_info          = Rollcall::StudentDailyInfo.find_by_cid_and_report_date(attrs[:cid], attrs[:report_date])
+
+    daily_info = Rollcall::StudentDailyInfo.find_by_cid_and_report_date(student_daily_attrs[:cid], student_daily_attrs[:report_date])
     if !daily_info
-      if attrs[:name].split(",").length > 1
-        first_name = attrs[:name].split(",").last
-        last_name  = attrs[:name].split(",").first
+      if student_attrs[:name].blank?
+        first_name = ""
+        last_name = ""
       else
-        first_name = attrs[:name].split(" ").first
-        last_name  = attrs[:name].split(" ").last
+        if student_attrs[:name].split(",").length > 1
+          first_name = student_attrs[:name].split(",").last
+          last_name  = student_attrs[:name].split(",").first
+        else
+          first_name = student_attrs[:name].split(" ").first
+          last_name  = student_attrs[:name].split(" ").last
+        end
       end
-      if attrs[:contact].split(",").length > 1
-        contact_first_name = attrs[:name].split(",").last
-        contact_last_name  = attrs[:name].split(",").first
+      if student_attrs[:contact].blank?
+        contact_first_name = ""
+        contact_last_name  = ""
       else
-        contact_first_name = attrs[:name].split(" ").first
-        contact_last_name  = attrs[:name].split(" ").last
+        if student_attrs[:contact].split(",").length > 1
+          contact_first_name = student_attrs[:contact].split(",").last
+          contact_last_name  = student_attrs[:contact].split(",").first
+        else
+          contact_first_name = student_attrs[:contact].split(" ").first
+          contact_last_name  = student_attrs[:contact].split(" ").last
+        end
       end
-      attrs[:first_name] = first_name
-      attrs[:last_name]  = last_name
-      attrs[:contact_first_name] = contact_first_name
-      attrs[:contact_last_name]  = contact_last_name
-      student = Rollcall::Student.new
-      student.update_attributes(attrs)
-      attrs[:student] = student
+
+      student_attrs[:first_name] = first_name
+      student_attrs[:last_name]  = last_name
+      student_attrs[:contact_first_name] = contact_first_name
+      student_attrs[:contact_last_name]  = contact_last_name
+      student_attrs.delete :name
+      student_attrs.delete :contact
+      student_attrs.delete :description
+      student = Rollcall::Student.find_by_student_number student_attrs[:student_number]
+      student = Rollcall::Student.create student_attrs if student.blank?     
+      student.update_attributes(student_attrs)
+      student.save
+      student_daily_attrs[:student] = student
       daily_info = Rollcall::StudentDailyInfo.new
-      daily_info.update_attributes(attrs)
+      daily_info.update_attributes(student_daily_attrs)
     end
     daily_info.save
     add_symptoms(daily_info, description)
@@ -238,7 +323,7 @@ private
         @symptoms.each {|symptom|
           symptom.name.downcase.split(' ').each do |sym|
             if symptom_name.downcase.index(sym.gsub('(','').gsub(')',''))
-              Rollcall::StudentReportedSymptoms.create(:symptom => symptom, :student_daily_info => daily_info)
+              Rollcall::StudentReportedSymptom.create(:symptom => symptom, :student_daily_info => daily_info)
               break
             end
           end

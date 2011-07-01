@@ -132,7 +132,7 @@ namespace :rollcall do
           end
           symptom_id = Rollcall::Symptom.find_by_name(symptom_name[rand(symptom_name.length)]).id
           puts "Generating Reported Symptoms for #{daily_info.school.display_name} on report date #{daily_info.report_date}"
-          Rollcall::StudentReportedSymptoms.create(
+          Rollcall::StudentReportedSymptom.create(
             :student_daily_info_id => daily_info.id,
             :symptom_id            => symptom_id
           )

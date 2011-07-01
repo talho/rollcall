@@ -89,11 +89,11 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
     unless ActiveSupport::JSON.decode(params[:symptom_list]).blank?
       ActiveSupport::JSON.decode(params[:symptom_list]).each do |rec|
         symptom_id      = Rollcall::Symptom.find_by_name(rec["name"]).id
-        student_symptom = Rollcall::StudentReportedSymptoms.create :student_daily_info_id => daily_info.id, :symptom_id => symptom_id
+        student_symptom = Rollcall::StudentReportedSymptom.create :student_daily_info_id => daily_info.id, :symptom_id => symptom_id
       end
     else
       symptom_id      = Rollcall::Symptom.find_by_name("None").id
-      student_symptom = Rollcall::StudentReportedSymptoms.create :student_daily_info_id => daily_info.id, :symptom_id => symptom_id
+      student_symptom = Rollcall::StudentReportedSymptom.create :student_daily_info_id => daily_info.id, :symptom_id => symptom_id
     end
 
 

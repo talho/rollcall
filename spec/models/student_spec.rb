@@ -18,10 +18,23 @@
 #  dob                :date
 #  created_at         :datetime
 #  updated_at         :datetime
+require 'spec/spec_helper'
 
-class Rollcall::Student < Rollcall::Base
-  belongs_to :school, :class_name => "Rollcall::School"
-  has_many :student_daily_info, :class_name => "Rollcall::StudentDailyInfo"
+describe Rollcall::Student do
+  before(:each) do
+    @student=Factory(:rollcall_student)
+  end
+  describe "validations" do
+    it "should be valid" do
+      @student.should be_valid
+    end
+  end
 
-  set_table_name "rollcall_students"
+  describe "belongs_to" do
+    context "school" do
+      it "returns the school associated with the student" do
+        Rollcall::School.all.should include(@student.school)
+      end
+    end
+  end
 end

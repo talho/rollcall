@@ -12,15 +12,15 @@ FasterCSV.open(File.dirname(__FILE__) + '/schools.csv', :headers => true) do |sc
     puts "seeding #{row["name"]}"
     #create school
     school = Rollcall::School.find_or_create_by_tea_id(
-      :display_name  => row["name"].strip,
+      :display_name  => row["name"],
       :tea_id        => row["tea_id"],
       :district      => Rollcall::SchoolDistrict.find_by_district_id(row["district_id"]),
-      :school_number => row["school_number"].strip,
-      :school_type   => row["school_type"].strip,
-      :postal_code   => row["postal_code"].strip,
+      :school_number => row["school_number"],
+      :school_type   => row["school_type"],
+      :postal_code   => row["postal_code"],
       :gmap_lat      => row["gmap_lat"],
       :gmap_lng      => row["gmap_lng"],
-      :gmap_addr     => row["gmap_addr"].strip
+      :gmap_addr     => row["gmap_addr"]
     )
     #create rrd file for school
     Rollcall::Rrd.build_rrd(school.tea_id, school.id, Time.gm(2010,"aug",01,0,0))

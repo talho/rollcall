@@ -56,7 +56,6 @@ Factory.define :rollcall_school_district_daily_info, :class => Rollcall::SchoolD
   m.total_enrollment 100
   m.total_absent 10
   m.association :school_district, :factory => :rollcall_school_district
-  m.data ''
 end
 
 Factory.define :rollcall_student, :class => Rollcall::Student do |m|
@@ -91,14 +90,12 @@ Factory.define :rollcall_student_daily_info, :class => Rollcall::StudentDailyInf
   m.report_time Time.now
 end
 
-Factory.define :rollcall_student_reported_symptoms, :class => Rollcall::StudentReportedSymptoms do |m|
-
+Factory.define :rollcall_student_reported_symptoms, :class => Rollcall::StudentReportedSymptom do |m|
+ m.association :symptom, :factory => :rollcall_symptom
+ m.association :student_daily_info, :factory => :rollcall_student_daily_info 
 end
 
 Factory.define :rollcall_symptom , :class => Rollcall::Symptom do |m|
   m.sequence(:name){|t| "Name ##{t}"}
-  m.sequence(:display_name) {|t| "Display Name ##{t}"}
-  m.level "ES"
-  m.sequence(:school_number) {|num| num}
-  m.association :district, :factory => :school_district
+  m.sequence(:icd9_code){|num| num}
 end

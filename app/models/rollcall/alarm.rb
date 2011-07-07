@@ -18,6 +18,6 @@
 class Rollcall::Alarm < Rollcall::Base
   belongs_to :school, :class_name => "Rollcall::School", :foreign_key => "school_id"
   belongs_to :alarm_query, :class_name => "Rollcall::AlarmQuery", :foreign_key => "alarm_query_id"
-    
+
   set_table_name "rollcall_alarms"
 end

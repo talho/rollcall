@@ -71,7 +71,13 @@ class Rollcall::Rrd < Rollcall::Base
     newfile            = File.join(Rails.root,'tmp',"#{filename}.csv")
     file_result        = File.open(newfile, 'wb') {|f| f.write(@csv_data) }
     file               = File.new(newfile, "r")
-    @document          = user_obj.documents.build({:folder_id => nil, :file => file})
+    @document          = user_obj.documents.build({
+      :folder_id => Folder.find_or_create_by_name(
+        :name                        => "Rollcall Documents",
+        :notify_of_audience_addition => true
+      ),
+      :file => file
+    })
     @document.owner_id = user_obj.id
     @document.save!
     if !@document.folder.nil? && @document.folder.notify_of_document_addition

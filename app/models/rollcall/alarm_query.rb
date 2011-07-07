@@ -61,15 +61,16 @@ class Rollcall::AlarmQuery < Rollcall::Base
   end
 
   def create_alarm_for_date(school_id, report_date, lock_date, absent_func)
+    school = Rollcall::School.find_by_id(school_id)
     if absent_func == "Gross"
-      info = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(school_id, report_date)
+      info = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(school.id, report_date)
       if info.blank?
         total_absent = 0
       else
         total_absent = info.total_absent
       end
     else
-      students = Rollcall::Student.find_all_by_school_id school_id
+      students = Rollcall::Student.find_all_by_school_id school.id
       info = Rollcall::StudentDailyInfo.find_all_by_student_id_and_report_date_and_confirmed_illness(students, report_date, true)
       if info.blank?
         total_asbent = 0
@@ -79,14 +80,22 @@ class Rollcall::AlarmQuery < Rollcall::Base
     end
     @data_set.push(total_absent)
     unless info.blank?
-      total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(school_id, report_date).total_enrolled
+      sdi = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(school.id, report_date)
+      unless sdi.blank?
+        total_enrolled = sdi.total_enrolled
+      else
+        total_enrolled = Rollcall::SchoolDailyInfo.find(
+          :all,
+          :conditions => ["school_id = ? AND report_date < ?", school.id, report_date],
+          :order => "report_date").last.total_enrolled  
+      end
       deviation      = calculate_deviation(@data_set)
       severity       = (total_absent.to_f / total_enrolled.to_f)
       absentee_rate  = severity * 100
       if (absentee_rate >= severity_min) || (deviation_min <= deviation && deviation <= deviation_max)
         if(Time.parse(report_date) >= lock_date)
-          Rollcall::Alarm.create(
-            :school_id      => school_id,
+          alarm = Rollcall::Alarm.create(
+            :school_id      => school.id,
             :alarm_query_id => id,
             :deviation      => deviation,
             :severity       => severity,
@@ -94,7 +103,14 @@ class Rollcall::AlarmQuery < Rollcall::Base
             :absentee_rate  => absentee_rate,
             :report_date    => report_date
           )
-          true
+          ra = RollcallAlert.new(
+            :title   => "New Alarm[#{alarm.alarm_severity}]",
+            :message => "A new alarm of #{} severity has been created for #{school.display_name} on #{report_date}.",
+            :author  => user,
+            :alarm   => alarm
+          )
+          ra.audiences << (Audience.new :users => [user])
+          ra.save
         end
       end
     end

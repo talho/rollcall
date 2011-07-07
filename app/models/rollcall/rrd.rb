@@ -42,12 +42,14 @@ class Rollcall::Rrd < Rollcall::Base
       school_id      = Rollcall::School.find_by_tea_id(tea_id).id
       create_results = create :file_name => "#{rrd_file}", :school_id => school_id
       rrd_id         = create_results.id
-      self.send_later(:reduce_rrd, params, school_id, conditions, rrd_file, rrd_image_path, image_file, graph_title)
+      #self.send_later(:reduce_rrd, params, school_id, conditions, rrd_file, rrd_image_path, image_file, graph_title)
+      reduce_rrd params, school_id, conditions, rrd_file, rrd_image_path, image_file, graph_title
     else
       rrd_id         = results.id
       rrd_file       = results.file_name
       File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
-      self.send_later(:graph, rrd_file, image_file, graph_title, params)
+      #self.send_later(:graph, rrd_file, image_file, graph_title, params)
+      graph rrd_file, image_file, graph_title, params
     end
     { :image_url => "/rrd/#{image_file}", :rrd_id => rrd_id }
   end
@@ -350,7 +352,8 @@ class Rollcall::Rrd < Rollcall::Base
       RRD.update_batch("#{rrd_path}/#{rrd_file}", update_ary, rrd_tool)
     end
     File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
-    self.send_later(:graph, rrd_file, image_file, graph_title, params)
+    #self.send_later(:graph, rrd_file, image_file, graph_title, params)
+    graph rrd_file, image_file, graph_title, params
   end
 
   def self.set_conditions options

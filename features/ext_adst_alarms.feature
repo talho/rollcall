@@ -120,4 +120,37 @@ Scenario: User views alarm information
   And I should see "Alarm Information for Anderson Elementary" within ".alarm-tip"
   And I should see "Severity" within ".alarm-tip"
   And I should see "extreme" within ".alarm-tip"
+  And I should see "2003-02-13" within ".alarm-tip"
   Then I click the alarm group "Example Query"
+
+Scenario: User ignores an alarm
+  When I click the alarm group "Example Query"
+  And I click the latest alarm within the "Example Query" alarm group
+  And I should see "Ignore Alarm"
+  And I press "Ignore Alarm"
+  And I should see "Are you sure you want to ignore this alarm?"
+  And I press "Yes"
+  And I should see "Deviation Rate" within ".ignore"
+
+Scenario: User un-ignores an alarm
+  When I click the alarm group "Example Query"
+  And I click the latest alarm within the "Example Query" alarm group
+  And I should see "Ignore Alarm"
+  And I press "Ignore Alarm"
+  And I should see "Are you sure you want to ignore this alarm?"
+  And I press "Yes"
+  And I should see "Deviation Rate" within ".ignore"
+  And I click the latest alarm within the "Example Query" alarm group
+  And I should see "Unignore Alarm"
+  And I press "Unignore Alarm"
+  Then I should see "Deviation Rate" within ".alarm"
+
+Scenario: User deletes an alarm
+  When I click the alarm group "Example Query"
+  And I click the latest alarm within the "Example Query" alarm group
+  And I should see "5.00"
+  And I should see "Delete Alarm"
+  And I press "Delete Alarm"
+  And I should see "Are you sure you want to delete this alarm?"
+  And I press "Yes"
+  Then I should not see "5.00"

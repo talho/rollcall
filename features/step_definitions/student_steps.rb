@@ -1,6 +1,7 @@
 Given /^"([^\"]*)" has the following current student absenteeism data:$/ do |isd, table|
   table.hashes.each do |row|
-    report_date   = Date.today - row["day"].to_i.days
+    current_time  = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_week - 1.week 
+    report_date   = current_time + row["day"].strip.to_i.days
     student       = Rollcall::Student.create(
        :dob               => row['dob'],
        :gender            => row['gender'],

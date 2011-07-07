@@ -1,4 +1,4 @@
-class CreateStudentReportedSymptom < ActiveRecord::Migration
+class CreateStudentReportedSymptoms < ActiveRecord::Migration
   def self.up
     create_table :rollcall_student_reported_symptoms do |t|
       t.integer :symptom_id

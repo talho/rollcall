@@ -92,11 +92,14 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
   def get_info
     alarm             = Rollcall::Alarm.find(params[:alarm_id])
     school_info       = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date params[:school_id],params[:report_date]
-    students          = Rollcall::Students.find_all_by_school_id params[:school_id]
+    students          = Rollcall::Student.find_all_by_school_id params[:school_id]
     confirmed_absents = Rollcall::StudentDailyInfo.find_all_by_student_id_and_report_date_and_confirmed_illness(
       students,params[:report_date],true).size
     student_info      = Rollcall::StudentDailyInfo.find_all_by_student_id_and_report_date(students,params[:report_date])
-
+    student_info.each{|info|
+      info[:dob]    = info.student.dob
+      info[:gender] = info.student.gender
+    }
     respond_to do |format|
       format.json do
         original_included_root = ActiveRecord::Base.include_root_in_json

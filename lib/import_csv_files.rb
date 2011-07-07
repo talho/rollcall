@@ -4,20 +4,22 @@ require 'fastercsv'
 # IliImporter.new("/tmp/ili.csv").import_csv
 class SchoolDataImporter
   def initialize(filename)
-    @filename    = filename.downcase unless filename.blank?
-    @linenum     = 0
-    @record      = nil
-    @mapping     = self.class::MAPPING unless @filename.blank?
-    @symptoms    = Rollcall::Symptom.all
-    @rrd_path    = Dir.pwd << "/rrd/"
-    @rrd_tool    = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
-    @school_year = 0
+    @filename     = filename.downcase unless filename.blank?
+    @linenum      = 0
+    @record       = nil
+    @mapping      = self.class::MAPPING unless @filename.blank?
+    @symptoms     = Rollcall::Symptom.all
+    @rrd_path     = Dir.pwd << "/rrd/"
+    @rrd_tool     = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
+    @school_year  = 0
+    @school_array = {}
   end
 
   def import_csv
     @linenum = 0
-    FasterCSV.open(@filename, :headers => true, :row_sep => :auto) { |records|
-      records.each { |rec|
+    @records = FasterCSV.read(@filename, :headers => true, :row_sep => :auto)
+    #FasterCSV.open(@filename, :headers => true, :row_sep => :auto) { |records|
+      @records.each { |rec|
         @record = rec
         @linenum += 1
         if @linenum == 1 && @filename.index('att')
@@ -27,7 +29,10 @@ class SchoolDataImporter
         seed_record(rec)
         process_record(rec, rec2attrs(rec)) if rec2attrs(rec) != false
       }
-    }
+    #}
+    if @filename.index('att')
+      cap_rrd_file
+    end
   end
 
   def seed_record(rec)
@@ -165,6 +170,8 @@ class AttendanceImporter < SchoolDataImporter
     { :field_name => "Absent", :name => :total_absent, :format => /^\d+$/ }
   ]
 
+  school_array = {}
+  
   def process_record(rec, attrs)
     if @enrollment_file.blank?
       for file in Dir.glob(File.join(File.dirname(@filename),"*"))
@@ -185,10 +192,13 @@ class AttendanceImporter < SchoolDataImporter
     rescue
       attrs[:total_enrolled] = nil
     end
-    y           = Time.parse(attrs[:report_date]).year
-    m           = Time.parse(attrs[:report_date]).month
-    d           = Time.parse(attrs[:report_date]).day
-    report_date = Time.gm(y, m, d)
+    @school_array["tea_id_#{tea_id}".to_sym] = nil
+    y                                       = Time.parse(attrs[:report_date]).year
+    m                                       = Time.parse(attrs[:report_date]).month
+    d                                       = Time.parse(attrs[:report_date]).day
+    report_date                             = Time.gm(y, m, d)
+    #school_array["tea_id_#{tea_id}".to_sym] = report_date
+    
     if ((report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun") && attrs[:total_absent].to_i.blank?)
       RRD.update("#{@rrd_path}#{tea_id}_absenteeism.rrd", [(report_date + 1.day).to_i.to_s,0,attrs[:total_enrolled].to_i], "#{@rrd_tool}")
     else
@@ -197,6 +207,18 @@ class AttendanceImporter < SchoolDataImporter
       daily_info = Rollcall::SchoolDailyInfo.new if !daily_info
       daily_info.update_attributes(attrs)
       daily_info.save
+    end
+    if(@school_array["tea_id_#{tea_id}".to_sym].blank?)
+      @school_array["tea_id_#{tea_id}".to_sym] = [tea_id, report_date, attrs[:total_enrolled].to_i]
+      RRD.update("#{@rrd_path}#{tea_id}_absenteeism.rrd",[(report_date + 2.days).to_i.to_s,0,attrs[:total_enrolled].to_i],"#{@rrd_tool}")
+    else
+      @school_array["tea_id_#{tea_id}".to_sym] = [tea_id, report_date, attrs[:total_enrolled].to_i]
+    end
+  end
+
+  def cap_rrd_file
+    @school_array.each do |key,value|
+      RRD.update("#{@rrd_path}#{value[0]}_absenteeism.rrd",[value[1].to_i.to_s,0,value[2]],"#{@rrd_tool}")
     end
   end
 end
@@ -260,6 +282,8 @@ class IliImporter < SchoolDataImporter
     #dob: date, created_at: datetime, updated_at: datetime
     if attrs[:description].blank? || attrs[:description].downcase.index('none')
       student_daily_attrs[:confirmed_illness] = false
+    else
+      student_daily_attrs[:confirmed_illness] = true
     end
     student_daily_attrs[:report_time] = attrs[:report_date]
     description         = attrs[:description]
@@ -298,7 +322,8 @@ class IliImporter < SchoolDataImporter
       student_attrs.delete :name
       student_attrs.delete :contact
       student_attrs.delete :description
-      student = Rollcall::Student.find_by_student_number student_attrs[:student_number]
+      student = {}
+      student = Rollcall::Student.find_by_student_number(student_attrs[:student_number]) unless student_attrs[:student_number].blank?
       student = Rollcall::Student.create student_attrs if student.blank?     
       student.update_attributes(student_attrs)
       student.save

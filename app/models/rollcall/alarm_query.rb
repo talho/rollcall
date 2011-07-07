@@ -109,7 +109,7 @@ class Rollcall::AlarmQuery < Rollcall::Base
     end
     mean_avg = mean_avg / data_set.length
     data_set.each do |data_point|
-      data_mean_diff_total += (data_point - mean_avg) ** 2
+      data_mean_diff_total += (data_point.to_i - mean_avg) ** 2
     end
     deviation = Math.sqrt((data_mean_diff_total / data_set.length))
     return deviation

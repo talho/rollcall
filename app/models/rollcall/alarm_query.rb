@@ -104,8 +104,8 @@ class Rollcall::AlarmQuery < Rollcall::Base
             :report_date    => report_date
           )
           ra = RollcallAlert.new(
-            :title   => "New Alarm[#{alarm.alarm_severity}]",
-            :message => "A new alarm of #{} severity has been created for #{school.display_name} on #{report_date}.",
+            :title   => "New Alarm for #{school.display_name}[#{alarm.alarm_severity}]",
+            :message => "A new alarm of #{alarm.alarm_severity} severity has been created for #{school.display_name} on #{report_date}.",
             :author  => user,
             :alarm   => alarm
           )

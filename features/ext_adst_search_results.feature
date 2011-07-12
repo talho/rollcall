@@ -115,7 +115,7 @@ Scenario: User exports result data
   And I wait for documents to be processed
   And I navigate to "Documents"
   And I expand the folders ""
-  And I select the "My Documents" grid row
+  And I select the "Rollcall Documents" grid row
   Then I should see "DF-Raw_SC-Anderson_Elementary_rollcall_csv_export.csv" within ".document-file-icon-view"
 
 Scenario: User saves result as alarm query

@@ -22,6 +22,13 @@ Factory.define :rollcall_alarm_query, :class => Rollcall::AlarmQuery do |m|
   m.alarm_set false
 end
 
+Factory.define :rollcall_alert, :class => RollcallAlert do |m|
+  m.title "New Alarm for Test School[test]"
+  m.message "A new alarm of test severity has been created for Test School on this day."
+  m.association :author, :factory => :user
+  m.association :alarm, :factory => :rollcall_alarm
+end
+
 Factory.define :rollcall_rrd, :class => Rollcall::Rrd do |m|
   m.association :school, :factory => :rollcall_school
   m.file_name "11111111.rrd"

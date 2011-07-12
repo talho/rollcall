@@ -226,6 +226,8 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         var gmapPanel = new Ext.ux.GMapPanel({zoomLevel: 9});
         var win       = new Ext.Window({
           title:      "Google Map of Schools",
+          id:         'gmap_result_window',
+          itemId:     'gmap_result_window',
           layout:     'fit',
           labelAlign: 'top',
           padding:    '5',

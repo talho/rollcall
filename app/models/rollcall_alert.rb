@@ -1,3 +1,12 @@
+# == Schema Information
+#
+# Table name: rollcall_alerts
+#
+# id,       :integer not null, primary
+# alarm_id, :integer not null, foreign key
+# alert_id, :integer not null, foreign key 
+#
+
 class RollcallAlert < Alert
   acts_as_MTI
   before_create :create_email_alert_device_type
@@ -7,11 +16,11 @@ class RollcallAlert < Alert
   def to_s
     title || ''
   end
-  
+
   def self.default_alert
     title = "Rollcall Alarm Alert"
     message = "This message is intended to update the user on a newly created Alarm."
-    Alert.new(:title => title, :message => message, :created_at => Time.zone.now)
+    RollcallAlert.new(:title => title, :message => message, :created_at => Time.zone.now)
   end
 
   def to_xml(options={})

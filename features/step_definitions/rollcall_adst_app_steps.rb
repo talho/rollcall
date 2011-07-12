@@ -64,3 +64,15 @@ end
 Then /^I wait for the panel to load$/ do
   sleep 2
 end
+
+When /^I click the "([^\"]*)" marker for school "([^\"]*)"$/ do |marker_type, school_name|
+  page.execute_script("
+    var gmap_window = Ext.getCmp('gmap_#{marker_type}_window').get(0);
+    var marker = null
+    Ext.each(gmap_window.markers, function(m){ if(m.title == '#{school_name}'){
+      marker = m;
+      return false;
+    }});    
+    google.maps.event.trigger(marker, 'click');
+  ")
+end

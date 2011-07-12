@@ -1,7 +1,7 @@
-Feature: Execute Advanced ADST Queries
-  In order to execute advanced search queries
+Feature: GIS
+  In order view GIS information for a school
   As a Rollcall user
-  I should be able to select from a list of advanced ADST options, construct and execute my query
+  I should be able to interact with the GMap Panel
 
   Background:
     Given the following entities exist:
@@ -95,122 +95,50 @@ Feature: Execute Advanced ADST Queries
       | 2   | Yates High School   | 18       | 07/23/1993 | 12    | M      | true          | Chills,Temperature,Headache |
 
     And I am logged in as "nurse.betty@example.com"
-    And I navigate to the ext dashboard page
-    And I navigate to "Apps > Rollcall > ADST"
-    And I wait for the panel to load
 
-Scenario: User runs an advanced query against multiple schools
-  When I press "Switch to Advanced View >>"
-  And I click school-name-list-item "Anderson Elementary"
-  And I click school-name-list-item "Yates High School"
+Scenario: User views a school in an alarm state within the GMap Panel
+  When I navigate to the ext dashboard page
+  And I navigate to "Apps > Rollcall > ADST"
+  And I wait for the panel to load
   And I press "Submit"
   And delayed jobs are processed
-  Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
+  And "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
+  And I click the "save" tool on the "Query Result for Anderson Elementary" window
+  And I should see "Alarm Query for Anderson Elementary"
+  And I fill in "Name" with "Example Query"
+  And I fill in "min_deviation" with "1"
+  And I fill in "max_deviation" with "2"
+  And I fill in "min_severity" with "1"
+  And I fill in "max_severity" with "2"
+  And I press "Submit" within ".x-window"
+  And I should see "Example Query" within "#alarm_queries"
+  And I click the "alarm-off" tool on the "Example Query" window
+  And I wait for the panel to load
+  And I should see "Example Query" within "#alarm_grid_panel"
+  And I should see "Schools in Alarm State!"
+  And I click the "alarm" marker for school "Anderson Elementary"
+  And I should see "School Name: Anderson Elementary"
+  And I should see "Click for more info"
+  And I should see "Anderson Elementary School"
+  And I should see "5727 Ludington Dr"
+  And I should see "Houston, TX 77035-4399"
+  And I press "Dismiss"
+  Then I should not see "Schools in Alarm State!"
 
-Scenario: User runs an advanced query against multiple school types
-  When I press "Switch to Advanced View >>"
-  And I click school-type-list-item "Elementary School"
-  And I click school-type-list-item "High School"
+Scenario: User views schools of search results within the GMap Panel
+  When I navigate to the ext dashboard page
+  And I navigate to "Apps > Rollcall > ADST"
+  And I wait for the panel to load
   And I press "Submit"
   And delayed jobs are processed
-  Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
-
-Scenario: User runs an advanced query against multiple zipcodes
-  When I press "Switch to Advanced View >>"
-  And I click zipcode-list-item "77077"
-  And I click zipcode-list-item "77004"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
-
-Scenario: User runs an advanced query against multiple ages
-  When I press "Switch to Advanced View >>"
-  And I click age-list-item "8"
-  And I click age-list-item "18"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "AGE-8-18_DF-Raw_101912105_c_absenteeism.png,AGE-8-18_DF-Raw_101912273_c_absenteeism.png,AGE-8-18_DF-Raw_101912020_c_absenteeism.png" within the results
-
-Scenario: User runs an advanced query against multiple grades
-  When I press "Switch to Advanced View >>"
-  And I click grade-list-item "2"
-  And I click grade-list-item "10"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "DF-Raw_GRD-2-10_101912105_c_absenteeism.png,DF-Raw_GRD-2-10_101912273_c_absenteeism.png,DF-Raw_GRD-2-10_101912020_c_absenteeism.png" within the results
-
-Scenario: User runs an advanced query against multiple symptoms
-  When I press "Switch to Advanced View >>"
-  And I click symptom-list-item "Chills"
-  And I click symptom-list-item "Influenza"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "DF-Raw_SYM-780.64-487.1_101912105_c_absenteeism.png,DF-Raw_SYM-780.64-487.1_101912273_c_absenteeism.png,DF-Raw_SYM-780.64-487.1_101912020_c_absenteeism.png" within the results
-
-Scenario: User runs an advanced query against male gender
-  When I press "Switch to Advanced View >>"
-  And I select "Male" from ext combo "gender_adv"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "DF-Raw_GNDR-M_101912105_c_absenteeism.png,DF-Raw_GNDR-M_101912273_c_absenteeism.png,DF-Raw_GNDR-M_101912020_c_absenteeism.png" within the results
-
-Scenario: User runs an advanced query against female gender
-  When I press "Switch to Advanced View >>"
-  And I select "Female" from ext combo "gender_adv"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "DF-Raw_GNDR-F_101912105_c_absenteeism.png,DF-Raw_GNDR-F_101912273_c_absenteeism.png,DF-Raw_GNDR-F_101912020_c_absenteeism.png" within the results
-
-Scenario: User runs an advanced query against school type, age, grade, gender and symptoms
-  When I press "Switch to Advanced View >>"
-  And I click school-type-list-item "Elementary School"
-  And I click grade-list-item "10"
-  And I select "Male" from ext combo "gender_adv"
-  And I click symptom-list-item "Influenza"
-  And I click age-list-item "8"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "AGE-8_DF-Raw_GNDR-M_GRD-10_SYM-487.1_101912105_c_absenteeism.png,AGE-8_DF-Raw_GNDR-M_GRD-10_SYM-487.1_101912273_c_absenteeism.png" within the results
-
-Scenario: User runs an advanced query to view the average data
-  When I press "Switch to Advanced View >>"
-  And I select "Average" from ext combo "data_func_adv"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "DF-Average_101912105_c_absenteeism.png,DF-Average_101912273_c_absenteeism.png,DF-Average_101912020_c_absenteeism.png" within the results
-
-Scenario: User runs an advanced query to view the standard deviation
-  When I press "Switch to Advanced View >>"
-  And I select "Standard Deviation" from ext combo "data_func_adv"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "DF-StandardDeviation_101912105_c_absenteeism.png,DF-StandardDeviation_101912273_c_absenteeism.png,DF-StandardDeviation_101912020_c_absenteeism.png" within the results
-
-Scenario: User runs an advanced query to view the cusum data
-  When I press "Switch to Advanced View >>"
-  And I select "Cusum" from ext combo "data_func_adv"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "DF-Cusum_101912105_c_absenteeism.png,DF-Cusum_101912273_c_absenteeism.png,DF-Cusum_101912020_c_absenteeism.png" within the results
-
-Scenario: User runs an advanced query to view the moving average data for 30 days
-  When I press "Switch to Advanced View >>"
-  And I select "Moving Average 30 Day" from ext combo "data_func_adv"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "DF-MovingAverage30Day_101912105_c_absenteeism.png,DF-MovingAverage30Day_101912273_c_absenteeism.png,DF-MovingAverage30Day_101912020_c_absenteeism.png" within the results
-
-Scenario: User runs an advanced query to view the moving average data for 60 days
-  When I press "Switch to Advanced View >>"
-  And I select "Moving Average 60 Day" from ext combo "data_func_adv"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "DF-MovingAverage60Day_101912105_c_absenteeism.png,DF-MovingAverage60Day_101912273_c_absenteeism.png,DF-MovingAverage60Day_101912020_c_absenteeism.png" within the results
-
-Scenario: User runs an advanced query against time period
-  When I press "Switch to Advanced View >>"
-  And I set "startdt_adv" to "5" days from origin date
-  And I set "enddt_adv" to "0" days from origin date
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see dated graphs for schools "101912105,101912273,101912020" starting "5" days and ending "0" days from origin date
+  And "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
+  And I press "Map Result Set"
+  And I should see "Google Map of Schools"
+  And I click the "result" marker for school "Anderson Elementary"
+  And I should see "5727 Ludington Dr"
+  And I click the "result" marker for school "Ashford Elementary"
+  And I should see "1815 Shannon Valley Dr"
+  And I click the "result" marker for school "Yates High School"
+  And I should see "3703 Sampson St"
+  And I press "Dismiss"
+  Then I should not see "Google Map of Schools"

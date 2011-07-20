@@ -8,9 +8,6 @@ Dir[File.join(File.dirname(__FILE__), '../vendor/plugins/*/lib')].each do |path|
   $LOAD_PATH << path
 end
 
-# Require the open_flash_chart init.rb
-require File.join(File.dirname(__FILE__), '..', 'vendor', 'plugins', 'open_flash_chart', 'init.rb')
-
 # Require the creation of rrd folders
 Dir.ensure_exists(File.join(Dir.pwd, "rrd/"))
 Dir.ensure_exists(File.join(Dir.pwd, "public/rrd/"))

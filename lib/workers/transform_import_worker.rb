@@ -29,7 +29,7 @@ class TransformImportWorker < BackgrounDRb::MetaWorker
   def process_uploads
     logger.warn("Running TransformImportWorker")
     Rollcall::SchoolDistrict.all.each do |district|
-      SchoolDataTransformer.new("../rollcall_data", "#{district.name}").transform_and_import
+      SchoolDataTransformer.new("../rollcall_school_data", "#{district.name}").transform_and_import
     end
   end
 end

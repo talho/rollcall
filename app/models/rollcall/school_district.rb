@@ -13,8 +13,6 @@
 class Rollcall::SchoolDistrict < Rollcall::Base
   belongs_to  :jurisdiction
   has_many    :schools, :class_name => "Rollcall::School", :foreign_key => "district_id"
-  #has_many    :daily_infos, :class_name => "Rollcall::SchoolDistrictDailyInfo", :foreign_key => "school_district_id", :order => "report_date asc"
-  
   has_many    :daily_infos, :class_name => "Rollcall::SchoolDistrictDailyInfo", :foreign_key => "school_district_id", :order => "report_date asc"
 
   set_table_name "rollcall_school_districts"

@@ -9,7 +9,7 @@ class DataTransformer
 
   private
   def self.varyData value
-    variance = 5.0
+    variance = 10.0
     (value * (1.0 + (rand(variance) * 0.02 - (variance * 0.01)))).to_i
   end
 end

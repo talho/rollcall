@@ -50,7 +50,7 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
 
   # PUT rollcall/alarm_query/:id
   def update
-    query = Rollcall::AlarmQuery.find(params[:id])
+    query     = Rollcall::AlarmQuery.find(params[:id])
     alarm_set = params[:alarm_set].blank? ? query.alarm_set : params[:alarm_set]
     unless params[:alarm_set].blank?
       success = query.update_attributes :alarm_set => alarm_set

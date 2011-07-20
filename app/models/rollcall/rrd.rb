@@ -42,14 +42,12 @@ class Rollcall::Rrd < Rollcall::Base
       school_id      = Rollcall::School.find_by_tea_id(tea_id).id
       create_results = create :file_name => "#{rrd_file}", :school_id => school_id
       rrd_id         = create_results.id
-      #self.send_later(:reduce_rrd, params, school_id, conditions, rrd_file, rrd_image_path, image_file, graph_title)
-      reduce_rrd params, school_id, conditions, rrd_file, rrd_image_path, image_file, graph_title
+      self.send_later(:reduce_rrd, params, school_id, conditions, rrd_file, rrd_image_path, image_file, graph_title)
     else
       rrd_id         = results.id
       rrd_file       = results.file_name
       File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
-      #self.send_later(:graph, rrd_file, image_file, graph_title, params)
-      graph rrd_file, image_file, graph_title, params
+      self.send_later(:graph, rrd_file, image_file, graph_title, params)
     end
     { :image_url => "/rrd/#{image_file}", :rrd_id => rrd_id }
   end
@@ -167,7 +165,7 @@ class Rollcall::Rrd < Rollcall::Base
         :image_type => "PNG",
         :title      => graph_title,
         :vlabel     => "total absent",
-        :lowerlimit => 0,
+        #:lowerlimit => 0,
         :defs       => build_defs(params),
         :cdefs      => build_cdefs(params),
         :elements   => build_elements(params)
@@ -317,13 +315,16 @@ class Rollcall::Rrd < Rollcall::Base
         }]
       } , "#{rrd_tool}"
 
-      school_daily_info = Rollcall::SchoolDailyInfo.find_by_school_id(school_id)
+      #school_daily_info = Rollcall::SchoolDailyInfo.find_by_school_id(school_id)
+      students           = Rollcall::Student.find_all_by_school_id(school_id)
+      student_daily_info = Rollcall::StudentDailyInfo.find_all_by_student_id(students, :order => "report_date ASC")
 
       if !conditions[:startdt].blank?
         parsed_sd  = Time.parse(conditions[:startdt])
         start_date = Time.gm(parsed_sd.year,parsed_sd.month,parsed_sd.day)
-      elsif !school_daily_info.blank?
-        first_start_date = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id, :order => "report_date DESC").last.report_date
+      elsif !student_daily_info.blank?
+        #first_start_date = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id, :order => "report_date DESC").last.report_date
+        first_start_date = student_daily_info.first.report_date
         start_date       = Time.gm(first_start_date.year, first_start_date.month, first_start_date.day)
       else
         start_date = Time.gm(Time.now.year,Time.now.month,Time.now.day)
@@ -331,14 +332,19 @@ class Rollcall::Rrd < Rollcall::Base
       if !conditions[:enddt].blank?
         parsed_ed  = Time.parse(conditions[:enddt])
         end_date   = Time.gm(parsed_ed.year,parsed_ed.month,parsed_ed.day)
-      elsif !school_daily_info.blank?
-        last_end_date = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id, :order => "report_date ASC").last.report_date
+      elsif !student_daily_info.blank?
+        #last_end_date = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id, :order => "report_date ASC").last.report_date
+        last_end_date = student_daily_info.last.report_date
         end_date      = Time.gm(last_end_date.year, last_end_date.month, last_end_date.day)
       else
         end_date      = Time.gm(Time.now.year,Time.now.month,Time.now.day)
       end
       days = ((end_date - start_date) / 86400)
-      unless school_daily_info.blank?
+      if days == 0
+        end_date = Time.gm(Time.now.year,Time.now.month,Time.now.day)  
+        days     = ((end_date - start_date) / 86400)
+      end
+      unless student_daily_info.blank?
         total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
       else
         total_enrolled = 0
@@ -359,8 +365,7 @@ class Rollcall::Rrd < Rollcall::Base
       RRD.update_batch("#{rrd_path}/#{rrd_file}", update_ary, rrd_tool)
     end
     File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
-    #self.send_later(:graph, rrd_file, image_file, graph_title, params)
-    graph rrd_file, image_file, graph_title, params
+    self.send_later(:graph, rrd_file, image_file, graph_title, params)
   end
 
   def self.set_conditions options

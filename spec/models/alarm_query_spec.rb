@@ -37,16 +37,6 @@ describe Rollcall::AlarmQuery do
         @alarm_query.user.should_not be_blank
       end
     end
-#    context "rrd" do
-#      it "returns a rrd object" do
-#        @alarm_query.rrd.should_not be_blank
-#      end
-#    end
-#    context "school" do
-#      it "returns a school object" do
-#        @alarm_query.school.should_not be_blank
-#      end
-#    end
   end
 
   describe "generate_alarm" do

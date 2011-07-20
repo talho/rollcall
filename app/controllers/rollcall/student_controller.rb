@@ -1,9 +1,31 @@
 class Rollcall::StudentController < Rollcall::RollcallAppController
   
   def index
+    race = [
+      {:id => 0, :value => 'Select Race...'},
+      {:id => 1, :value => 'White'},
+      {:id => 2, :value => 'Black'},
+      {:id => 3, :value => 'Asian'},
+      {:id => 4, :value => 'Hispanic'},
+      {:id => 5, :value => 'Native American'},
+      {:id => 6, :value => 'Other'}
+    ]
     students = Rollcall::Student.find_all_by_school_id(params[:school_id])
     students.each do |record|
-      record[:grade] = Rollcall::StudentDailyInfo.find_by_student_id(record.id, :order => "created_at DESC").grade
+      student_obj                 = record
+      record[:grade]              = Rollcall::StudentDailyInfo.find_by_student_id(student_obj.id, :order => "created_at DESC").grade
+      record[:first_name]         = student_obj.first_name.blank? ? "Unknown" : student_obj.first_name
+      record[:last_name]          = student_obj.last_name.blank? ? "Unknown" : student_obj.last_name
+      record[:contact_first_name] = student_obj.contact_first_name.blank? ? "Unknown" : student_obj.contact_first_name
+      record[:contact_last_name]  = student_obj.contact_last_name.blank? ? "Unknown" : student_obj.contact_last_name
+      record[:address]            = student_obj.address.blank? ? "Unknown" : student_obj.address
+      record[:zip]                = student_obj.zip.blank? ? "Unknown" : student_obj.zip
+      record[:dob]                = student_obj.dob.blank? ? "Unknown" : student_obj.dob
+      record[:student_number]     = student_obj.student_number.blank? ? "Unknown" : student_obj.student_number
+      record[:phone]              = student_obj.phone.blank? ? "Unknown" : student_obj.phone
+      record[:gender]             = student_obj.gender.blank? ? "Unknown" : student_obj.gender
+      record[:student_id]         = student_obj.id
+      record[:race]               = race.each do |rec, index| rec[:value] == student_obj.race ? index : 0  end
     end
     respond_to do |format|
       format.json do
@@ -95,8 +117,6 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       symptom_id      = Rollcall::Symptom.find_by_name("None").id
       student_symptom = Rollcall::StudentReportedSymptom.create :student_daily_info_id => daily_info.id, :symptom_id => symptom_id
     end
-
-
     respond_to do |format|
       format.json do
         render :json => {

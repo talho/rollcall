@@ -24,7 +24,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         autoScroll: true,
         scope:      this,
         defaults: {
-          collapsible: true,
+          collapsible: false,
           split:       true
         },
         items: [{

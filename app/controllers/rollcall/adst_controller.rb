@@ -75,8 +75,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       else
       end
     }
-    #Rollcall::Rrd.send_later(:export_rrd_data, params, filename, current_user)
-    Rollcall::Rrd.export_rrd_data(params, filename, current_user)
+    Rollcall::Rrd.send_later(:export_rrd_data, params, filename, current_user)
     respond_to do |format|
       format.json do
         render :json => {

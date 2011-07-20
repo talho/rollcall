@@ -17,7 +17,6 @@ class Rollcall::SchoolDailyInfo < Rollcall::Base
     :high   => {:min => 0.21000, :max => 1.0},
   }
   belongs_to :school, :class_name => "Rollcall::School", :foreign_key => "school_id"
-  belongs_to :student, :class_name => "Rollcall::Student"
   
   has_one :district, :through => :school
 

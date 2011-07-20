@@ -2,44 +2,49 @@ require 'fastercsv'
 # EnrollmentImporter.new("/tmp/enrollment.csv").import_csv
 # AttendanceImporter.new("/tmp/attendance.csv").import_csv
 # IliImporter.new("/tmp/ili.csv").import_csv
+# Class is responsible for importing the data into the system appropriately
 class SchoolDataImporter
+  # Method sets global variables
+  #
+  # @param filename string the name of the csv file to import
   def initialize(filename)
     @filename     = filename.downcase unless filename.blank?
-    @linenum      = 0
     @record       = nil
     @mapping      = self.class::MAPPING unless @filename.blank?
     @symptoms     = Rollcall::Symptom.all
     @rrd_path     = Dir.pwd << "/rrd/"
     @rrd_tool     = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
     @school_year  = 0
-    @school_array = {}
+    @linenum      = 0
   end
 
+  # Method reads in the CSV file and checks the record, seeds it into rrd, and then processes it into the system
   def import_csv
-    @linenum = 0
     @records = FasterCSV.read(@filename, :headers => true, :row_sep => :auto)
-    #FasterCSV.open(@filename, :headers => true, :row_sep => :auto) { |records|
-      @records.each { |rec|
-        @record = rec
-        @linenum += 1
-        if @linenum == 1 && @filename.index('att')
-          @school_year = Time.parse(rec["AbsenceDate"]).year
-        end
-        check_record(rec)
-        seed_record(rec)
-        process_record(rec, rec2attrs(rec)) if rec2attrs(rec) != false
-      }
-    #}
+    @linenum      = 0
     if @filename.index('att')
-      cap_rrd_file
+     @school_year = Time.parse(@records[0]["AbsenceDate"]).year
+    end
+    @records.each { |rec |
+      @linenum += 1
+      @record   = rec
+      check_record(@record)
+      seed_record(@record)
+      process_record(@record, rec2attrs(@record)) if rec2attrs(@record) != false
+    }
+    if @filename.index('att')
+      write_rrd_file
     end
   end
 
+  # Method seeds the record if processing new school
+  #
+  # @param rec array an array of records to seed
   def seed_record(rec)
     if @filename.index('att') && Rollcall::School.find_by_tea_id(rec["CampusID"]).blank?
-      district_id = rec["CampusID"].slice(0, rec["CampusID"].length - 3)
+      district_id   = rec["CampusID"].slice(0, rec["CampusID"].length - 3)
       school_number = rec["CampusID"].slice(rec["CampusID"].length - 3, rec["CampusID"].length)
-      school_type = ""
+      school_type   = ""
       if rec["SchoolName"].downcase.index('high')
         school_type = "High School"
       end
@@ -75,11 +80,18 @@ class SchoolDataImporter
     end
   end
 
+  # Base method, is meant to be defined in derived classes
+  #
+  # @params rec   array  an array of records to process
+  # @params attrs hash   an attribute hash{:key => value}
   def process_record(rec, attrs)
     # must be defined in derived class
     puts "Write method to import #{rec}, #{attrs}"
   end
 
+  # Method returns the PK for school with tea_id
+  #
+  # @param tea_id string the tea id to search for
   def tea_id2school_id(tea_id)
     begin
       Rollcall::School.find_by_tea_id(tea_id).id
@@ -88,6 +100,9 @@ class SchoolDataImporter
     end
   end
 
+  # Method is called to tally and record total_absent and total_enrolled for the school district
+  #
+  # @param district object district object 
   def school_district_dailies district
     schools       = Rollcall::School.find_all_by_district_id district.id
     daily_results = Rollcall::SchoolDailyInfo.find_all_by_school_id schools
@@ -114,8 +129,12 @@ class SchoolDataImporter
       end
     end
   end
+
 private
 
+  # Method returns a new hash with correctly mapped values
+  #
+  # @param rec array the record to map
   def rec2attrs(rec)
     attrs = Hash.new
     @mapping.each { |mapping|
@@ -132,18 +151,22 @@ private
     attrs
   end
 
+  # Method checks if record is valid against mapping format
+  #
+  # @param rec array the record to check
   def check_record(rec)
     @mapping.each { |mapping|
       unless rec[mapping[:field_name]].blank?
         if mapping.has_key?(:format) && !mapping[:format].match(rec[mapping[:field_name]])
           raise SyntaxError, "invalid value for field #{mapping[:name]} [#{rec[mapping[:field_name]]}]",
-          ["#{@filename}, line #{@linenum}", "SchoolDataImporter"]
+          ["#{@filename}, line #{@linenumber}", "SchoolDataImporter"]
         end
       end
     }
   end
 end
 
+# Class is derived from SchoolDataImporter, imports enrollment data, defines MAPPING and process_record
 class EnrollmentImporter < SchoolDataImporter
   EnrollmentImporter::MAPPING = [
     { :field_name => "EnrollDate",        :name => :report_date, :format => /^\d{4}-(?:0\d|1[012])-(?:0\d|1\d|2\d|3[01]) (\d{2}):(\d{2}):(\d{2})$/ },
@@ -152,16 +175,21 @@ class EnrollmentImporter < SchoolDataImporter
     { :field_name => "CurrentEnrollment", :name => :total_enrolled, :format => /^\d+$/ }
   ]
 
+  # Method processes record into SchoolDailyInfo
+  #
+  # @params rec   array  an array of records to process
+  # @params attrs hash   an attribute hash{:key => value}
   def process_record(rec, attrs)
     if attrs[:school_id]
-      daily_info = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(attrs[:school_id], attrs[:report_date])
-      daily_info = Rollcall::SchoolDailyInfo.new if !daily_info
-      daily_info.update_attributes(attrs)
+      daily_info            = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(attrs[:school_id], attrs[:report_date])
+      daily_info            = Rollcall::SchoolDailyInfo.new if !daily_info
+      daily_info.attributes = attrs
       daily_info.save
     end
   end
 end
 
+# Class is derived from SchoolDataImporter, imports attendance data, defines MAPPING and process_record
 class AttendanceImporter < SchoolDataImporter
   AttendanceImporter::MAPPING = [
     { :field_name => "AbsenceDate", :name => :report_date, :format => /^\d{4}-(?:0\d|1[012])-(?:0\d|1\d|2\d|3[01]) (\d{2}):(\d{2}):(\d{2})$/ },
@@ -170,59 +198,53 @@ class AttendanceImporter < SchoolDataImporter
     { :field_name => "Absent", :name => :total_absent, :format => /^\d+$/ }
   ]
 
-  school_array = {}
-  
+  # Method processes record into SchoolDailyInfo and runs updates on their corresponding RRDs
+  #
+  # @params rec   array  an array of records to process
+  # @params attrs hash   an attribute hash{:key => value}
   def process_record(rec, attrs)
-    if @enrollment_file.blank?
-      for file in Dir.glob(File.join(File.dirname(@filename),"*"))
-        if file.downcase.index('enroll')
-          @enrollment_file = file
-        end
-      end
-      @enrollment_hash = {}
-      FasterCSV.open(@enrollment_file, :headers => true){|records|
-        records.each{|record|
-          @enrollment_hash[record["CampusID"].to_i] = record["CurrentEnrollment"].to_i
-        }
-      }
-    end
-    begin
-      tea_id                 = Rollcall::School.find_by_id(attrs[:school_id]).tea_id
-      attrs[:total_enrolled] = @enrollment_hash[tea_id]
-    rescue
-      attrs[:total_enrolled] = nil
-    end
-    @school_array["tea_id_#{tea_id}".to_sym] = nil
-    y                                       = Time.parse(attrs[:report_date]).year
-    m                                       = Time.parse(attrs[:report_date]).month
-    d                                       = Time.parse(attrs[:report_date]).day
-    report_date                             = Time.gm(y, m, d)
-    #school_array["tea_id_#{tea_id}".to_sym] = report_date
-    
-    if ((report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun") && attrs[:total_absent].to_i.blank?)
-      RRD.update("#{@rrd_path}#{tea_id}_absenteeism.rrd", [(report_date + 1.day).to_i.to_s,0,attrs[:total_enrolled].to_i], "#{@rrd_tool}")
-    else
-      RRD.update("#{@rrd_path}#{tea_id}_absenteeism.rrd", [(report_date + 1.day).to_i.to_s,attrs[:total_absent].to_i,attrs[:total_enrolled].to_i], "#{@rrd_tool}")
-      daily_info = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(attrs[:school_id].to_i, attrs[:report_date])
-      daily_info = Rollcall::SchoolDailyInfo.new if !daily_info
-      daily_info.update_attributes(attrs)
-      daily_info.save
-    end
-    if(@school_array["tea_id_#{tea_id}".to_sym].blank?)
-      @school_array["tea_id_#{tea_id}".to_sym] = [tea_id, report_date, attrs[:total_enrolled].to_i]
-      RRD.update("#{@rrd_path}#{tea_id}_absenteeism.rrd",[(report_date + 2.days).to_i.to_s,0,attrs[:total_enrolled].to_i],"#{@rrd_tool}")
-    else
-      @school_array["tea_id_#{tea_id}".to_sym] = [tea_id, report_date, attrs[:total_enrolled].to_i]
-    end
+    daily_info            = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(attrs[:school_id].to_i, attrs[:report_date])
+    daily_info            = Rollcall::SchoolDailyInfo.new if !daily_info
+    daily_info.attributes = attrs
+    daily_info.save
   end
 
-  def cap_rrd_file
-    @school_array.each do |key,value|
-      RRD.update("#{@rrd_path}#{value[0]}_absenteeism.rrd",[value[1].to_i.to_s,0,value[2]],"#{@rrd_tool}")
+  # Method processes the SchoolDailyInfo and writes out the RRDs
+  #
+  def write_rrd_file
+    @end_date     = nil
+    @end_enrolled = 0
+    Rollcall::School.find_in_batches(:batch_size => 100) do |schools|
+      schools.each{|s|
+        unless Rollcall::SchoolDailyInfo.find_by_school_id(s.id).blank?
+          Rollcall::SchoolDailyInfo.find_in_batches(
+            :conditions => ["school_id = ? AND created_at > ?", s.id, 1.day.ago],
+            :batch_size => 100
+          ) do |recs|
+            recs.each{|r|
+              report_time = r.report_date.to_time
+              if @s_i.blank?
+                @s_i = [ [report_time.to_i.to_s, 0, recs[0].total_enrolled] ]
+              end
+              if r.report_date.strftime("%a").downcase == "sat" || r.report_date.strftime("%a").downcase == "sun"
+                @s_i.push([(report_time + 1.day).to_i.to_s, 0, r.total_enrolled])
+              else
+                @s_i.push([(report_time + 1.day).to_i.to_s, r.total_absent, r.total_enrolled])
+              end
+              @end_time     = report_time
+              @end_enrolled = r.total_enrolled
+            }
+          end
+          @s_i.push([(@end_time + 2.days).to_i.to_s, 0, @end_enrolled])
+          RRD.update_batch("#{@rrd_path}/#{s.tea_id}_absenteeism.rrd", @s_i, "#{@rrd_tool}")
+          @s_i = nil
+        end
+      }
     end
   end
 end
 
+# Class is derived from SchoolDataImporter, imports ili data, defines MAPPING and process_record
 class IliImporter < SchoolDataImporter
   IliImporter::MAPPING = [
     { :field_name => "CID",        :name => :cid, :school_daily_info => true },
@@ -256,9 +278,12 @@ class IliImporter < SchoolDataImporter
     { :field_name => "DoctorAddress", :name => :doctor_address, :school_daily_info => true }
   ]
 
-  
+  # Method processes record into Student, StudentDailyInfo and StudentReportedSymptom
+  #
+  # @params rec   array  an array of records to process
+  # @params attrs hash   an attribute hash{:key => value}
   def process_record(rec, attrs)
-    student_attrs = {}
+    student_attrs       = {}
     student_daily_attrs = {}
     @mapping.each { |mapping|
       if mapping[:action] == :ignoreCsvField || rec[mapping[:field_name]].blank?
@@ -270,29 +295,18 @@ class IliImporter < SchoolDataImporter
         student_attrs[mapping[:name]] = attrs[mapping[:name]]
       end
     }
-    #id: integer, report_date: date, grade: integer, confirmed_illness: boolean, created_at: datetime,
-    #updated_at: datetime, cid: text, health_year: string, date_of_onset: date, temperature: float,
-    #in_school: boolean, released: boolean, diagnosis: string, treatment: string, follow_up: date,
-    #doctor: string, doctor_address: string, student_id: integer, report_time: datetime
-
-
-    #id: integer, first_name: string, last_name: string, contact_first_name: string,
-    #contact_last_name: string, address: string, zip: string, gender: string,
-    #phone: string, race: integer, school_id: integer, student_number: string,
-    #dob: date, created_at: datetime, updated_at: datetime
     if attrs[:description].blank? || attrs[:description].downcase.index('none')
       student_daily_attrs[:confirmed_illness] = false
     else
       student_daily_attrs[:confirmed_illness] = true
     end
     student_daily_attrs[:report_time] = attrs[:report_date]
-    description         = attrs[:description]
-
-    daily_info = Rollcall::StudentDailyInfo.find_by_cid_and_report_date(student_daily_attrs[:cid], student_daily_attrs[:report_date])
+    description                       = attrs[:description]
+    daily_info                        = Rollcall::StudentDailyInfo.find_by_cid_and_report_date(student_daily_attrs[:cid], student_daily_attrs[:report_date])
     if !daily_info
       if student_attrs[:name].blank?
         first_name = ""
-        last_name = ""
+        last_name  = ""
       else
         if student_attrs[:name].split(",").length > 1
           first_name = student_attrs[:name].split(",").last
@@ -315,10 +329,10 @@ class IliImporter < SchoolDataImporter
         end
       end
 
-      student_attrs[:first_name] = first_name
-      student_attrs[:last_name]  = last_name
-      student_attrs[:contact_first_name] = contact_first_name
-      student_attrs[:contact_last_name]  = contact_last_name
+      student_attrs[:first_name]         = first_name.strip
+      student_attrs[:last_name]          = last_name.strip
+      student_attrs[:contact_first_name] = contact_first_name.strip
+      student_attrs[:contact_last_name]  = contact_last_name.strip
       student_attrs.delete :name
       student_attrs.delete :contact
       student_attrs.delete :description
@@ -328,7 +342,7 @@ class IliImporter < SchoolDataImporter
       student.update_attributes(student_attrs)
       student.save
       student_daily_attrs[:student] = student
-      daily_info = Rollcall::StudentDailyInfo.new
+      daily_info                    = Rollcall::StudentDailyInfo.new
       daily_info.update_attributes(student_daily_attrs)
     end
     daily_info.save
@@ -337,8 +351,11 @@ class IliImporter < SchoolDataImporter
 
 private
 
+  # Method processes the recorded symtpom
+  #
+  # @param daily_info object a student_daily_info object
+  # @param str        string a list of symptoms, seperated by commas
   def add_symptoms(daily_info, str)
-#    bad_symptoms = Array.new
     unless str.blank?
       str.split(",").each { |sym_name|
         symptom_name = sym_name.strip
@@ -353,20 +370,13 @@ private
             end
           end
         }
-#        symptom = @symptoms.find {|sym| sym.name.downcase.split(' ').each do |s| symptom_name.downcase.index(s.gsub('(','').gsub(')','')) end }
-#        if symptom
-#          Rollcall::StudentReportedSymptoms.create(:symptom => symptom, :student_daily_info => daily_info)
-#        else
-#          #bad_symptoms.push(symptom_name)
-#        end
       } 
     end
-#    if !bad_symptoms.empty?
-#      raise SyntaxError, "invalid value(s) in field symptom [#{bad_symptoms.join(",")}]",
-#        ["#{@filename}, line #{@linenum}", "SchoolDataImporter"]
-#    end
   end
 
+  # Method returns the grade level as integer
+  #
+  # @param str string the grade level in string format
   def str2grade(str)
     grade_str = str.strip
     case grade_str
@@ -381,11 +391,14 @@ private
     end
   end
 
+  # Method returns the gender character representation
+  #
+  # @param str string the gender in string format
   def str2gender(str)
     unless str.blank?
-      if str.downcase.index(/['female'|'f']/)
+      if str.downcase.index('female') || str.downcase.index('f')
         return "F"
-      elsif str.downcase.index(/['male'|'m']/)
+      elsif str.downcase.index('male') || str.downcase.index('m')
         return "M"
       end
     else
@@ -393,10 +406,16 @@ private
     end
   end
 
+  # Method returns phone number as integers
+  #
+  # @param str string the original phone number
   def str2phone(str)
     str.gsub(/[\D]/,'')    
   end
 
+  # Method takes in true/false values as strings and returns boolean values
+  #
+  # @param str string the bool as string
   def str2bool(str)
     if !str.blank? && str.downcase.index(/['true'|'t']/)
       return true
@@ -405,6 +424,9 @@ private
     end
   end
 
+  # Method returns temperature as float value
+  #
+  # @param str string the temperature in string format
   def str2temp(str)
     if str.blank?
       return 98
@@ -413,6 +435,9 @@ private
     end
   end
 
+  # Method checks if is confirmed illness based off temp and symptoms
+  #
+  # @param str string the confirmed illness field
   def is_confirmed(str)
     if !str.blank? && str.downcase.index(/['true'|'t']/)
       return true

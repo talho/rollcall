@@ -152,7 +152,7 @@ Scenario: User deletes an alarm
   When I click the alarm group "Example Query"
   And I click the last alarm within the "Example Query" alarm group
   And I wait for the panel to load
-  And I should see "2" within ".alarm-tip-absent"
+  And I should see "2" within ".alarm-tip-conf-absent"
   And I should see "Delete Alarm"
   And I press "Delete Alarm"
   And I should see "Are you sure you want to delete this alarm?"
@@ -160,5 +160,5 @@ Scenario: User deletes an alarm
   And I wait for the panel to load
   And I click the last alarm within the "Example Query" alarm group
   And I wait for the panel to load
-  And I should not see "2" within ".alarm-tip-absent"
-  Then I should see "5" within ".alarm-tip-absent"
+  And I should not see "2" within ".alarm-tip-conf-absent"
+  Then I should see "1" within ".alarm-tip-conf-absent"

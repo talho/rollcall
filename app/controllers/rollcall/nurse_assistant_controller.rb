@@ -24,11 +24,11 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       {:id => 6, :value => 'Other'}
     ]
     if !params[:search_term].blank?
-      st              = "%" + CGI::unescape(params[:search_term]) + "%"
-      students        = Rollcall::Student.find(
+      st          = "%" + CGI::unescape(params[:search_term]) + "%"
+      student_ids = []
+      students    = Rollcall::Student.find(
         :all,
         :conditions => ["student_number LIKE ? OR first_name LIKE ? OR last_name LIKE ? AND school_id", st, st, st, params[:school_id]])
-      student_ids     = []
       students.collect{|rec| student_ids.push(rec.id) }
       unless student_ids.blank?
         student_records = Rollcall::StudentDailyInfo.find_by_sql("SELECT * FROM rollcall_student_daily_infos WHERE student_id IN (#{student_ids.join(",")})")
@@ -36,15 +36,16 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
         student_records = []
       end
     elsif !params[:filter_report_date].blank?
-      students        = Rollcall::Students.find_all_by_school_id params[:school_id]
-      student_records = Rollcall::StudentDailyInfo.find_all_by_report_date_and_student_id(
-        params[:filter_report_date],
+      students        = Rollcall::Student.find_all_by_school_id params[:school_id]
+      student_records = Rollcall::StudentDailyInfo.find_all_by_student_id(
         students,
         :include    => :student,
-        :conditions => ["student_id = rollcall_students.id"]
+        :conditions => ["student_id = rollcall_students.id AND report_date >= ? AND report_date <= ?",
+                        Time.parse(params[:filter_report_date]).beginning_of_month,
+                        Time.parse(params[:filter_report_date]).beginning_of_month]
       )
     else
-      students        = Rollcall::Students.find_all_by_school_id params[:school_id]
+      students        = Rollcall::Student.find_all_by_school_id params[:school_id]
       student_records = Rollcall::StudentDailyInfo.find_all_by_student_id(
         students,
         :include    => :student,
@@ -58,18 +59,18 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
         symptom_array.push(symptom.name)
       end
       record[:symptom]            = symptom_array.join(",")
-      record[:first_name]         = record.student.first_name
-      record[:last_name]          = record.student.last_name
-      record[:contact_first_name] = record.student.contact_first_name
-      record[:contact_last_name]  = record.student.contact_last_name
-      record[:address]            = record.student.address
-      record[:zip]                = record.student.zip
-      record[:dob]                = record.student.dob
-      record[:student_number]     = record.student.student_number
-      record[:phone]              = record.student.phone
-      record[:gender]             = record.student.gender
-      record[:student_id]         = record.student.id
-      record[:race]               = race.each do |rec, index| rec[:value] == record.student.race ? index : 0  end
+      record[:first_name]         = student_obj.first_name.blank? ? "Unknown" : student_obj.first_name
+      record[:last_name]          = student_obj.last_name.blank? ? "Unknown" : student_obj.last_name
+      record[:contact_first_name] = student_obj.contact_first_name.blank? ? "Unknown" : student_obj.contact_first_name
+      record[:contact_last_name]  = student_obj.contact_last_name.blank? ? "Unknown" : student_obj.contact_last_name
+      record[:address]            = student_obj.address.blank? ? "Unknown" : student_obj.address
+      record[:zip]                = student_obj.zip.blank? ? "Unknown" : student_obj.zip
+      record[:dob]                = student_obj.dob.blank? ? "Unknown" : student_obj.dob
+      record[:student_number]     = student_obj.student_number.blank? ? "Unknown" : student_obj.student_number
+      record[:phone]              = student_obj.phone.blank? ? "Unknown" : student_obj.phone
+      record[:gender]             = student_obj.gender.blank? ? "Unknown" : student_obj.gender
+      record[:student_id]         = student_obj.id
+      record[:race]               = race.each do |rec, index| rec[:value] == student_obj.race ? index : 0  end
     end
     respond_to do |format|
       format.json do

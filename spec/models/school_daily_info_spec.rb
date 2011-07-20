@@ -29,11 +29,6 @@ describe Rollcall::SchoolDailyInfo do
         Rollcall::School.all.should include(@school_daily_info.school)
       end
     end
-    context "student" do
-      it "returns the associated student object" do
-        Rollcall::Student.all.should include(@student)
-      end
-    end
   end
 
   describe "named_scope" do

@@ -83,6 +83,7 @@ class SchoolDataTransformer
   def transform_and_import
     extract
     transform
+    reorder_files
     import
     SchoolDataImporter.new(nil).school_district_dailies(@district)
   end
@@ -116,7 +117,7 @@ class SchoolDataTransformer
         end
       end
     end
-    @files = Dir.glob(File.join(@dir,"*"))
+
   end
   # Method is responsible for ensuring the data import files are in CSV format, have the correct headers, and that
   # data is properly quoted
@@ -249,28 +250,18 @@ class SchoolDataTransformer
   # Sets file_name and renames file after import to indicate file has been processed.  Then moves file to
   # archive folder
   def import
-    for file_path in @files
-      if !File.directory?(file_path)
-        if file_path.downcase.index('att')
-          file_name = File.join(@dir, "attendance_ads_#{Time.now.year}_#{Time.now.month}_#{Time.now.day}.csv")
-        elsif file_path.downcase.index('enroll')
-          file_name = File.join(@dir, "enrollment_ads_#{Time.now.year}_#{Time.now.month}_#{Time.now.day}.csv")
-        elsif file_path.downcase.index('ili') || file_path.downcase.index('h1n1')
-          file_name = File.join(@dir, "ili_ads_#{Time.now.year}_#{Time.now.month}_#{Time.now.day}.csv")
-        end
-        # Third round - import data and rename the file to the new file name to indicate file has
-        # been processed by the system.  If the Importer class raises an exception, the process is rescued and because
-        # the file was not renamed, it will be processed again.
-        #begin
-          EnrollmentImporter.new(file_path).import_csv if file_path.downcase.index('enroll')
-          AttendanceImporter.new(file_path).import_csv if file_path.downcase.index('att')
-          IliImporter.new(file_path).import_csv if file_path.downcase.index('ili') || file_path.downcase.index('h1n1') 
-          File.rename(file_path, file_name)
-          FileUtils.mv(file_name, File.join(@dir, "archive"))
-        #rescue
-        #end
-      end                   
-    end
+    att_file_name = File.join(@dir, "attendance_ads_#{Time.now.year}_#{Time.now.month}_#{Time.now.day}.csv")
+    enr_file_name = File.join(@dir, "enrollment_ads_#{Time.now.year}_#{Time.now.month}_#{Time.now.day}.csv")
+    ili_file_name = File.join(@dir, "ili_ads_#{Time.now.year}_#{Time.now.month}_#{Time.now.day}.csv")
+    EnrollmentImporter.new(@enroll_file).import_csv
+    AttendanceImporter.new(@attendance_file).import_csv
+    IliImporter.new(@ili_file).import_csv
+    File.rename(@enroll_file, enr_file_name)
+    File.rename(@attendance_file, att_file_name)
+    File.rename(@ili_file, ili_file_name)
+    FileUtils.mv(enr_file_name, File.join(@dir, "archive"))
+    FileUtils.mv(att_file_name, File.join(@dir, "archive"))
+    FileUtils.mv(ili_file_name, File.join(@dir, "archive"))
   end
 
   # Method is responsible for determining weather the enrollment file needs to be completely transformed
@@ -448,6 +439,9 @@ class SchoolDataTransformer
     end
   end
 
+  # Method returns the new line string
+  #
+  # Method takes in the file and determines what its new line character is
   def get_sep_string file_path
     sep_string = "\r"
     IO.foreach(file_path, sep_string) do |line|
@@ -459,11 +453,23 @@ class SchoolDataTransformer
     return sep_string
   end
 
+  # Method checks for the presence of headers
+  #
+  # Method checks if a common header is present, if not then false, else true
   def has_headers? line
     if line.downcase.index('campusid')
       return true
     else
       return false
     end
+  end
+
+  def reorder_files
+    files = Dir.glob(File.join(@dir,"*"))
+    files.each{|f|
+      @enroll_file     = f if f.downcase.index('enroll')
+      @attendance_file = f if f.downcase.index('att')
+      @ili_file        = f if f.downcase.index('ili') || f.downcase.index('h1n1')
+    }
   end
 end

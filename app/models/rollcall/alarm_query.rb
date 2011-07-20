@@ -4,7 +4,6 @@
 #
 #  id                  :integer(4)      not null, primary key
 #  user_id             :integer(4)
-#  school_id           :integer(4)
 #  query_params        :string(255)
 #  name                :string(255)
 #  severity_min        :integer(4)
@@ -18,10 +17,10 @@
 
 class Rollcall::AlarmQuery < Rollcall::Base
   belongs_to :user,   :class_name => "User"
-  #belongs_to :rrd,    :class_name => "Rollcall::Rrd"
-  #belongs_to :school, :class_name => "Rollcall::School"
   set_table_name "rollcall_alarm_queries"
 
+  # Method calls create_alarm if alarm_set
+  #
   def generate_alarm
     if alarm_set
       create_alarm
@@ -32,6 +31,8 @@ class Rollcall::AlarmQuery < Rollcall::Base
 
   private
 
+  # Method creates alarms based off saved alarm_query for each school
+  #
   def create_alarm
     Rollcall::Alarm.find_all_by_alarm_query_id(id).each { |a| a.destroy }
     query_params.gsub!("[]", "")
@@ -44,6 +45,7 @@ class Rollcall::AlarmQuery < Rollcall::Base
     !Rollcall::Alarm.find_all_by_alarm_query_id(id).blank?
   end
 
+  
   def create_alarms_for_school(school, query)
     @data_set      = []
     test_data_date = Time.parse("09/01/2010")
@@ -84,10 +86,14 @@ class Rollcall::AlarmQuery < Rollcall::Base
       unless sdi.blank?
         total_enrolled = sdi.total_enrolled
       else
-        total_enrolled = Rollcall::SchoolDailyInfo.find(
+        begin
+          total_enrolled = Rollcall::SchoolDailyInfo.find(
           :all,
           :conditions => ["school_id = ? AND report_date < ?", school.id, report_date],
-          :order => "report_date").last.total_enrolled  
+          :order => "report_date").last.total_enrolled
+        rescue
+          total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school.id, :order => "report_date").total_enrolled  
+        end
       end
       deviation      = calculate_deviation(@data_set)
       severity       = (total_absent.to_f / total_enrolled.to_f)

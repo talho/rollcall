@@ -97,9 +97,19 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
       students,params[:report_date],true).size
     student_info      = Rollcall::StudentDailyInfo.find_all_by_student_id_and_report_date(students,params[:report_date])
     student_info.each{|info|
-      info[:dob]    = info.student.dob
-      info[:gender] = info.student.gender
+      if info.student.dob.blank?
+        info[:dob] = "Unknown"
+        info[:age] = "Unknown"
+      else
+        info[:dob] = info.student.dob
+        info[:age] = Time.now.year - info[:dob].year
+      end
+      info[:gender] = info.student.gender.blank? ? "Unknown" : info.student.gender
     }
+    if school_info.blank?
+      school_info              = Rollcall::SchoolDailyInfo.find_by_school_id params[:school_id]
+      school_info.total_absent = Rollcall::StudentDailyInfo.find_all_by_student_id_and_report_date(students,params[:report_date]).size
+    end
     respond_to do |format|
       format.json do
         original_included_root = ActiveRecord::Base.include_root_in_json

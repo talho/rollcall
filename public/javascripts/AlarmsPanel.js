@@ -210,9 +210,6 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
         scope:       this,
         height:      150,
         width:       285,
-        viewConfig:  {
-          forceFit: true
-        },
         store: new Ext.data.JsonStore({
           autoDestroy: true,
           autoSave:    true,
@@ -236,6 +233,11 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
           {header: 'Grade',     width: 50, sortable: true,  dataIndex: 'grade'},
           {header: 'Confirmed', width: 75, sortable: true,  dataIndex: 'confirmed_illness'}
         ],
+        viewConfig: {
+          emptyText:     '<div style="padding:5px"><b style="color:#000">No confirmed absent students for this date</b></div>',
+          forceFit:      true,
+          enableRowBody: true
+        },
         stripeRows:  true,
         stateful:    true,
         buttonAlign: 'left',
@@ -247,7 +249,14 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
           text:    'Delete Alarm',
           scope:   this,
           handler: this.delete_alarm
-        }]
+        }],
+        listeners:   {
+          afterrender: function(this_panel)
+          {
+            if(this_panel.getStore().getCount() == 0)
+              this_panel.getGridEl().update(this_panel.getView().emptyText);
+          }
+        }
       })]
     });
   },

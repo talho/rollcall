@@ -23,3 +23,22 @@ Given /^"([^\"]*)" has the following current student absenteeism data:$/ do |isd
     end
   end
 end
+
+Given /^"([^\"]*)" has the following student data:$/ do |isd, table|
+  table.hashes.each do |row|
+    student       = Rollcall::Student.create(
+       :first_name         => row['first_name'],
+       :last_name          => row['last_name'],
+       :contact_first_name => row['contact_first_name'],
+       :contact_last_name  => row['contact_last_name'],
+       :address            => row['address'],
+       :zip                => row['zip'],
+       :dob                => row['dob'],
+       :gender             => row['gender'],
+       :phone              => row['phone'],
+       :race               => row['race'],
+       :student_number     => row['student_number'],
+       :school_id          => Rollcall::School.find_by_display_name(row['school_name']).id
+    )
+  end
+end

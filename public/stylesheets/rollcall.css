@@ -160,7 +160,7 @@
 }
 
 .details-info{
-  font-size: .9em;
+  font-size: .8em;
   -moz-border-radius: 5px 5px 5px 5px;
   background: none repeat scroll 0 0 white;
   border: 1px solid #8899AA;
@@ -171,11 +171,7 @@
 
 .details-info .left{
   float: left;
-  width: 125px;
-}
-
-.details-info b{
-  display: block;
+  width: 50%;
 }
 
 .details-info span{

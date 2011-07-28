@@ -342,19 +342,17 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     }else{
       param_string += 'school=' + panel.school_name + "&";
     }
+    Ext.MessageBox.show({
+      title: 'Creating CSV Export File',
+      msg:   'Your CSV file will be placed in your documents folders when the system '+
+      'is done generating it. Please check your documents folder in a few minutes.',
+      buttons: Ext.MessageBox.OK,
+      icon:    Ext.MessageBox.INFO
+    });
     Ext.Ajax.request({
       url:      '/rollcall/export?'+param_string,
       method:   'GET',
       scope:    this,
-      callback: function(options, success, response){
-        Ext.MessageBox.show({
-          title: 'Creating CSV Export File',
-          msg:   'Your CSV file will be placed in your documents folders when the system '+
-          'is done generating it. Please check your documents folder in a few minutes.',
-          buttons: Ext.MessageBox.OK,
-          icon:    Ext.MessageBox.INFO
-        });
-      },
       failure: function(){}
     });
   },

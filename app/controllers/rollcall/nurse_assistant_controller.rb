@@ -42,7 +42,7 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
         :include    => :student,
         :conditions => ["student_id = rollcall_students.id AND report_date >= ? AND report_date <= ?",
                         Time.parse(params[:filter_report_date]).beginning_of_month,
-                        Time.parse(params[:filter_report_date]).beginning_of_month]
+                        Time.parse(params[:filter_report_date]).end_of_month]
       )
     else
       students        = Rollcall::Student.find_all_by_school_id params[:school_id]
@@ -70,7 +70,7 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       record[:phone]              = student_obj.phone.blank? ? "Unknown" : student_obj.phone
       record[:gender]             = student_obj.gender.blank? ? "Unknown" : student_obj.gender
       record[:student_id]         = student_obj.id
-      record[:race]               = race.each do |rec, index| rec[:value] == student_obj.race ? index : 0  end
+      record[:race]               = student_obj.race
     end
     respond_to do |format|
       format.json do

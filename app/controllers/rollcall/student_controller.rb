@@ -1,5 +1,6 @@
 class Rollcall::StudentController < Rollcall::RollcallAppController
-  
+
+  # GET rollcall/students
   def index
     race = [
       {:id => 0, :value => 'Select Race...'},
@@ -10,10 +11,24 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       {:id => 5, :value => 'Native American'},
       {:id => 6, :value => 'Other'}
     ]
-    students = Rollcall::Student.find_all_by_school_id(params[:school_id])
-    students.each do |record|
+
+    students       = Rollcall::Student.find_all_by_school_id(params[:school_id])
+    unless params[:start].blank?
+      per_page = params[:limit].to_i
+      if params[:start].to_i == 0
+        page = 1
+      else
+        page = (params[:start].to_i / per_page) + 1
+      end    
+      options = {:page => page, :per_page => per_page}
+    else
+      options = {}
+    end   
+    students_paged = students.paginate(options)
+    students_paged.each do |record|
       student_obj                 = record
-      record[:grade]              = Rollcall::StudentDailyInfo.find_by_student_id(student_obj.id, :order => "created_at DESC").grade
+      student_daily_info          = Rollcall::StudentDailyInfo.find_by_student_id(student_obj.id, :order => "created_at DESC")
+      record[:grade]              = student_daily_info.blank? ? nil : student_daily_info.grade
       record[:first_name]         = student_obj.first_name.blank? ? "Unknown" : student_obj.first_name
       record[:last_name]          = student_obj.last_name.blank? ? "Unknown" : student_obj.last_name
       record[:contact_first_name] = student_obj.contact_first_name.blank? ? "Unknown" : student_obj.contact_first_name
@@ -24,7 +39,6 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       record[:student_number]     = student_obj.student_number.blank? ? "Unknown" : student_obj.student_number
       record[:phone]              = student_obj.phone.blank? ? "Unknown" : student_obj.phone
       record[:gender]             = student_obj.gender.blank? ? "Unknown" : student_obj.gender
-      record[:student_id]         = student_obj.id
       record[:race]               = race.each do |rec, index| rec[:value] == student_obj.race ? index : 0  end
     end
     respond_to do |format|
@@ -34,42 +48,43 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
         render :json => {
           :success       => true,
           :total_results => students.length,
-          :results       => students
+          :results       => students_paged
         }
         ActiveRecord::Base.include_root_in_json = original_included_root
       end
     end
   end
 
+  # POST rollcall/students
   def create
     report_date    = Time.gm(Time.now.year, Time.now.month, Time.now.day)
-    school_info    = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date params[:school_id], report_date
-    total_absent   = nil
-    total_enrolled = nil
+#    school_info    = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date params[:school_id], report_date
+#    total_absent   = nil
+#    total_enrolled = nil
 
-    if school_info.blank?
-      if params[:total_enrolled_alpha_value]
-        total_enrolled = params[:total_enrolled_alpha_value]
-      else
-        sdi            = Rollcall::SchoolDailyInfo.find_all_by_school_id(params[:school_id], :order => "report_date ASC")
-        total_enrolled = sdi.last.total_enrolled
-      end
-      total_absent = 1
-      school_info  = Rollcall::SchoolDailyInfo.create(
-        :school_id          => params[:school_id],
-        :total_absent       => total_absent,
-        :total_enrolled     => total_enrolled,
-        :report_date        => report_date
-      )
-    else
-      total_enrolled = school_info.total_enrolled
-      total_absent   = school_info.total_absent + 1
-      school_info.update_attributes(
-        :total_absent => total_absent,
-        :report_date  => report_date
-      )
-      school_info.save!
-    end
+#    if school_info.blank?
+#      if params[:total_enrolled_alpha_value]
+#        total_enrolled = params[:total_enrolled_alpha_value]
+#      else
+#        sdi            = Rollcall::SchoolDailyInfo.find_all_by_school_id(params[:school_id], :order => "report_date ASC")
+#        total_enrolled = sdi.last.total_enrolled
+#      end
+#      total_absent = 1
+#      school_info  = Rollcall::SchoolDailyInfo.create(
+#        :school_id          => params[:school_id],
+#        :total_absent       => total_absent,
+#        :total_enrolled     => total_enrolled,
+#        :report_date        => report_date
+#      )
+#    else
+#      total_enrolled = school_info.total_enrolled
+#      total_absent   = school_info.total_absent + 1
+#      school_info.update_attributes(
+#        :total_absent => total_absent,
+#        :report_date  => report_date
+#      )
+#      school_info.save!
+#    end
     race = [
       {:id => 0, :value => 'Select Race...'},
       {:id => 1, :value => 'White'},
@@ -79,7 +94,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       {:id => 5, :value => 'Native American'},
       {:id => 6, :value => 'Other'}
     ]
-    student_obj = Rollcall::Student.find_by_student_number(params[:student_number])
+    student_obj = Rollcall::Student.find_by_id(params[:student_id]) unless params[:student_id].blank?
     if student_obj.blank?
       student_obj = Rollcall::Student.create(
         :first_name         => params[:first_name],
@@ -96,26 +111,27 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
         :student_number     => params[:student_number]
       )  
     end
-    daily_info = Rollcall::StudentDailyInfo.create(
-      :school_id          => params[:school_id],
-      :grade              => params[:grade].to_i,
-      :confirmed_illness  => !params[:symptoms].blank?,
-      :temperature        => params[:temperature],
-      :treatment          => params[:treatment],
-      :report_date        => report_date,
-      :student_id         => student_obj.id,
-      :date_of_onset      => report_date,
-      :in_school          => true,
-      :released           => true
-    )
-    unless ActiveSupport::JSON.decode(params[:symptom_list]).blank?
-      ActiveSupport::JSON.decode(params[:symptom_list]).each do |rec|
-        symptom_id      = Rollcall::Symptom.find_by_name(rec["name"]).id
+    unless params[:symptom_list].blank?
+      daily_info = Rollcall::StudentDailyInfo.create(
+        :grade              => params[:grade].to_i,
+        :confirmed_illness  => !params[:symptoms].blank?,
+        :temperature        => params[:temperature],
+        :treatment          => params[:treatment],
+        :report_date        => report_date,
+        :student_id         => student_obj.id,
+        :date_of_onset      => report_date,
+        :in_school          => true,
+        :released           => true
+      )
+      unless ActiveSupport::JSON.decode(params[:symptom_list]).blank?
+        ActiveSupport::JSON.decode(params[:symptom_list]).each do |rec|
+          symptom_id      = Rollcall::Symptom.find_by_name(rec["name"]).id
+          student_symptom = Rollcall::StudentReportedSymptom.create :student_daily_info_id => daily_info.id, :symptom_id => symptom_id
+        end
+      else
+        symptom_id      = Rollcall::Symptom.find_by_name("None").id
         student_symptom = Rollcall::StudentReportedSymptom.create :student_daily_info_id => daily_info.id, :symptom_id => symptom_id
       end
-    else
-      symptom_id      = Rollcall::Symptom.find_by_name("None").id
-      student_symptom = Rollcall::StudentReportedSymptom.create :student_daily_info_id => daily_info.id, :symptom_id => symptom_id
     end
     respond_to do |format|
       format.json do
@@ -126,6 +142,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
     end
   end
 
+  # PUT rollcall/students/:id
   def update
     race = [
       {:id => 0, :value => 'Select Race...'},
@@ -136,9 +153,9 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       {:id => 5, :value => 'Native American'},
       {:id => 6, :value => 'Other'}
     ]
-    student_daily_record = Rollcall::StudentDailyInfo.find(params[:id])
-    student_record       = Rollcall::Student.find_by_id(student_daily_record.student_id)
-    student_success      = student_record.update_attributes(
+
+    student_record  = Rollcall::Student.find_by_id params[:id]
+    student_success = student_record.update_attributes(
       :first_name         => params[:first_name],
       :last_name          => params[:last_name],
       :contact_first_name => params[:contact_first_name],
@@ -151,31 +168,72 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       :gender             => params[:gender].first,
       :race               => race.each do |rec, index| rec[:value] == params[:race] ? index : 0  end
     )
-    student_daily_success = student_daily_record.update_attributes(
-      :grade              => params[:grade].to_i,
-      :confirmed_illness  => !params[:symptoms].blank?,
-      :temperature        => params[:temperature],
-      :treatment          => params[:treatment]
-    )
     student_record.save if student_success
+    unless params[:student_info_id].blank?
+      student_daily_record  = Rollcall::StudentDailyInfo.find(params[:student_info_id])
+      student_daily_success = student_daily_record.update_attributes(
+        :grade              => params[:grade].to_i,
+        :confirmed_illness  => !params[:symptoms].blank?,
+        :temperature        => params[:temperature],
+        :treatment          => params[:treatment]
+      )
+      student_daily_record.save if student_daily_success
+      daily_infos = Rollcall::StudentReportedSymptom.find_all_by_student_daily_info_id(student_daily_record.id)
+      unless params[:symptom_list].blank?
+        symptom_list_or = []
+        symptom_list_up = []
+        daily_infos.each do |rec|
+          symptom_list_or.push(rec.symptom)
+        end
+        ActiveSupport::JSON.decode(params[:symptom_list]).each do |rec|
+          symptom_list_up.push(Rollcall::Symptom.find_by_name(rec["name"]))
+        end
+        diff_result = symptom_list_or - symptom_list_up
+        unless diff_result.blank?
+          diff_result.each do |d|
+            daily_infos.each do |rec|
+              rec.destroy if rec.symptom.id == d.id
+            end
+          end
+        else
+          symptom_list_up.each do |s|
+            r = Rollcall::StudentReportedSymptom.find_by_student_daily_info_id_and_symptom_id(student_daily_record.id,s.id)
+            r = Rollcall::StudentReportedSymptom.create(:student_daily_info_id=>student_daily_record.id,:symptom_id=>s.id) if r.blank?
+          end
+        end
+      else
+        daily_infos.each do |r|
+          r.destroy
+        end
+        Rollcall::StudentReportedSymptom.create(
+          :student_daily_info_id => student_daily_record.id,
+          :symptom_id            => Rollcall::Symptom.find_by_name("None").id
+        )
+      end
+    end
     respond_to do |format|
       format.json do
         render :json => {
-          :success => student_daily_success
+          :success => student_success
         }
       end
     end
   end
   
   def get_history
-    daily_records = Rollcall::StudentDailyInfo.find_all_by_student_id(params[:id])
-    daily_records.each do |rec|
-      symptom_array  = []
-      rec.symptoms.each do |symptom|
-        symptom_array.push(symptom.name)
+    unless params[:id].blank?
+      daily_records = Rollcall::StudentDailyInfo.find_all_by_student_id(params[:id])
+      daily_records.each do |rec|
+        symptom_array  = []
+        rec.symptoms.each do |symptom|
+          symptom_array.push(symptom.name)
+        end
+        rec[:symptom] = symptom_array.join(",")
       end
-      rec[:symptom] = symptom_array.join(",")
+    else
+      daily_records = {}
     end
+
     respond_to do |format|
       format.json do
         original_included_root                  = ActiveRecord::Base.include_root_in_json

@@ -214,7 +214,7 @@ class SchoolDataTransformer
                   value.slice!((value.length - 1))
                 end
                 # if the value is indeed a true valid date value, we need to make sure the date value is in the
-                # standard date interface format YYYY-MM-DD HH:MM:SS
+                # standard datetime interface format YYYY-MM-DD HH:MM:SS
                 if is_date? value
                   value = is_date? value, true
                   value = "#{Time.parse(value).year}-#{Time.parse(value).month.to_s.rjust(2, '0')}-#{Time.parse(value).day.to_s.rjust(2, '0')} 00:00:00"

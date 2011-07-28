@@ -84,7 +84,7 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
   def get_student_data
     school             = Rollcall::School.find(params[:school_id])
     time_span          = params[:time_span].to_i * 30
-    last_report_date   = Time.parse("#{Rollcall::StudentDailyInfo.find_by_school_id(school, :order => 'report_date DESC').report_date}")
+    last_report_date   = Time.parse("#{Rollcall::StudentDailyInfo.find_all_by_student_id(school.students, :order => 'report_date DESC', :limit => 1).first.report_date}")
     #last_report_date   = Time.parse("#{school.school_daily_infos.find(:all, :limit => 1, :order => 'report_date DESC').first.report_date}")
     #student_daily_info = school.student_daily_infos.find(:all,:conditions => ["report_date >= ?", last_report_date - time_span.days])
     student_daily_info = Rollcall::StudentDailyInfo.find_all_by_student_id(school.students,:conditions => ["report_date >= ?",last_report_date-time_span.days])
@@ -92,7 +92,7 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
       if r.student.dob.blank?
         r[:age] = "Unknown"
       else
-        r[:age] = Time.parse(r.report_date).year - Time.parse(r.student.dob).year
+        r[:age] = r.report_date.year - r.student.dob.year
       end
       r[:gender] = r.student.gender.blank? ? "Unknown" : r.student.gender
     end

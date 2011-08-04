@@ -19,17 +19,21 @@
 
 =end
 
-class TransformImportWorker < BackgrounDRb::MetaWorker
-  set_worker_name :transform_import_worker
+class RollcallDataImporter < BackgrounDRb::MetaWorker
+  set_worker_name :rollcall_data_importer
 
   def create(args = nil)
-    logger.warn("Creating new daily information for Schools, School Districts, Students, and Student Reported Symptoms")
+    #logger.warn("Creating new daily information for Schools, School Districts, Students, and Student Reported Symptoms")
   end
 
-  def process_uploads
-    logger.warn("Running TransformImportWorker")
-    Rollcall::SchoolDistrict.all.each do |district|
-      SchoolDataTransformer.new("../rollcall_school_data", "#{district.name}").transform_and_import
+  def process_uploads(isd = nil)
+    #logger.warn("Running TransformImportWorker")
+    unless isd.blank?
+      SchoolDataTransformer.new(File.join(Rails.root, "vendor/plugins", "rollcall", "tmp"), "#{isd}").transform_and_import
+    else
+      Rollcall::SchoolDistrict.all.each do |district|
+        SchoolDataTransformer.new(File.join(Rails.root, "vendor/plugins", "rollcall", "tmp"), "#{district.name}").transform_and_import
+      end
     end
   end
 end

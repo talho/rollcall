@@ -28,7 +28,7 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       student_ids = []
       students    = Rollcall::Student.find(
         :all,
-        :conditions => ["student_number LIKE ? OR first_name LIKE ? OR last_name LIKE ? AND school_id", st, st, st, params[:school_id]])
+        :conditions => ["student_number LIKE ? OR first_name LIKE ? OR last_name LIKE ? AND school_id = ?", st, st, st, params[:school_id]])
       students.collect{|rec| student_ids.push(rec.id) }
       unless student_ids.blank?
         student_records = Rollcall::StudentDailyInfo.find_by_sql("SELECT * FROM rollcall_student_daily_infos WHERE student_id IN (#{student_ids.join(",")})")

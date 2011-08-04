@@ -76,3 +76,21 @@ When /^I click the "([^\"]*)" marker for school "([^\"]*)"$/ do |marker_type, sc
     google.maps.event.trigger(marker, 'click');
   ")
 end
+
+Then /^I should see "([^\"]*)" within grid "([^\"]*)"$/ do |columns, selector|
+  columns = columns.split('|')
+  e_o_r   = false
+  begin
+    And %{I should see "#{columns[0].strip}" within "#{selector}"}
+    e_o_r = true
+  rescue
+    begin
+      page.find(:xpath, "#{selector}/table[contains(concat(' ', @class, ' '), 'x-btn-icon x-item-disabled')]")
+      e_o_r = true
+    rescue
+      And %{I click x-tbar-page-next "" within "#{selector}"}
+      And %{I wait for the panel to load}
+    end
+  end while(e_o_r == false)
+  And %{I should see "#{columns[0].strip}" in column "student_first_name_column" within "#{selector}"}
+end

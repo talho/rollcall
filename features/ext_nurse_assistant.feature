@@ -14,8 +14,8 @@ Background:
   And Texas is the parent jurisdiction of:
     | Houston | Harris |
   And Houston has the following school districts:
-    | Houston ISD |
-  And "Houston ISD" has the following schools:
+    | Houston |
+  And "Houston" has the following schools:
     | name                | school_number | tea_id    | school_type       | postal_code | gmap_lat   | gmap_lng    | gmap_addr                                                                      |
     | Anderson Elementary | 105           | 101912105 | Elementary School | 77035       | 29.6496766 | -95.4879978 | "Anderson Elementary School, 5727 Ludington Dr, Houston, TX 77035-4399, USA"   |
     | Ashford Elementary  | 273           | 101912273 | Elementary School | 77077       | 29.7477296 | -95.5988336 | "Ashford Elementary School, 1815 Shannon Valley Dr, Houston, TX 77077, USA"    |
@@ -52,11 +52,11 @@ Background:
     | Epi Smith    | epi.smith@example.com   | Rollcall       | Houston |
     | Normal Epi   | normal.epi@example.com  | Epidemiologist | Houston |
     | No Schools   | noschools@example.com   | Rollcall       | Harris  |
-  And "Houston ISD" has the following current district absenteeism data:
+  And "Houston" has the following current district absenteeism data:
     | day | total_enrolled | total_absent |
     | 1   | 400            | 13           |
     | 2   | 400            | 14           |
-  And "Houston ISD" has the following current school absenteeism data:
+  And "Houston" has the following current school absenteeism data:
     | day | school_name         | total_enrolled | total_absent |
     | 1   | Anderson Elementary | 100            | 2            |
     | 2   | Anderson Elementary | 100            | 5            |
@@ -64,36 +64,36 @@ Background:
     | 2   | Ashford Elementary  | 100            | 4            |
     | 1   | Yates High School   | 200            | 10           |
     | 2   | Yates High School   | 200            | 5            |
-  And "Houston ISD" has the following current student absenteeism data:
-    | day | school_name         | age      | dob        | grade | gender | confirmed_ill | symptoms                    |
-    | 1   | Anderson Elementary | 8        | 02/13/2003 | 2     | M      | true          | Cough,Temperature           |
-    | 1   | Anderson Elementary | 7        | 03/01/2004 | 1     | F      | false         |                             |
-    | 2   | Anderson Elementary | 8        | 02/13/2003 | 2     | M      | true          | Cough,Temperature,Chills    |
-    | 2   | Anderson Elementary | 6        | 12/01/2005 | 1     | F      | false         |                             |
-    | 2   | Anderson Elementary | 6        | 09/11/2005 | 1     | F      | false         |                             |
-    | 2   | Anderson Elementary | 8        | 05/01/2003 | 2     | M      | true          | Congestion,Cough,Headache   |
-    | 2   | Anderson Elementary | 7        | 03/01/2004 | 1     | F      | false         |                             |
-    | 1   | Ashford Elementary  | 9        | 05/12/2002 | 3     | F      | true          | Influenza                   |
-    | 2   | Ashford Elementary  | 8        | 01/02/2003 | 2     | F      | true          | Temperature                 |
-    | 2   | Ashford Elementary  | 7        | 01/22/2004 | 2     | M      | true          | None                        |
-    | 2   | Ashford Elementary  | 7        | 08/27/2004 | 2     | F      | true          | Temperature                 |
-    | 2   | Ashford Elementary  | 8        | 02/12/2003 | 2     | M      | true          | Temperature,Cough           |
-    | 1   | Yates High School   | 16       | 06/16/1995 | 10    | M      | false         |                             |
-    | 1   | Yates High School   | 18       | 04/26/1993 | 12    | F      | false         |                             |
-    | 1   | Yates High School   | 18       | 02/19/1993 | 12    | M      | false         |                             |
-    | 1   | Yates High School   | 15       | 08/26/1996 | 09    | M      | true          | Lethargy,Headache           |
-    | 1   | Yates High School   | 15       | 06/30/1996 | 09    | F      | false         |                             |
-    | 1   | Yates High School   | 14       | 01/02/1997 | 09    | M      | false         |                             |
-    | 1   | Yates High School   | 16       | 03/13/1995 | 10    | M      | true          | Sore Throat,Cough           |
-    | 1   | Yates High School   | 16       | 11/17/1995 | 10    | M      | true          | Diarrhea,Vomiting           |
-    | 1   | Yates High School   | 17       | 09/24/1994 | 10    | M      | false         |                             |
-    | 1   | Yates High School   | 16       | 02/08/1995 | 10    | F      | true          | None                        |
-    | 2   | Yates High School   | 15       | 08/04/1996 | 09    | F      | false         |                             |
-    | 2   | Yates High School   | 17       | 12/13/1994 | 11    | M      | false         |                             |
-    | 2   | Yates High School   | 17       | 04/23/1994 | 10    | F      | false         |                             |
-    | 2   | Yates High School   | 18       | 10/17/1993 | 12    | M      | true          | Chills,Cough,Headache       |
-    | 2   | Yates High School   | 18       | 07/23/1993 | 12    | M      | true          | Chills,Temperature,Headache |
-  And "Houston ISD" has the following student data:
+  And "Houston" has the following current student absenteeism data:
+    | day | school_name         | age      | first_name | last_name | dob        | grade | gender | confirmed_ill | symptoms                    | student_number |
+    | 1   | Anderson Elementary | 8        |            |           | 02/13/2003 | 2     | M      | true          | Cough,Temperature           |                |
+    | 1   | Anderson Elementary | 7        |            |           | 03/01/2004 | 1     | F      | false         |                             |                |
+    | 2   | Anderson Elementary | 8        | John       | Dorian    | 02/13/2003 | 2     | M      | true          | Cough,Temperature,Chills    | 10055500       |
+    | 2   | Anderson Elementary | 6        |            |           | 12/01/2005 | 1     | F      | false         |                             |                |
+    | 2   | Anderson Elementary | 6        |            |           | 09/11/2005 | 1     | F      | false         |                             |                |
+    | 2   | Anderson Elementary | 8        |            |           | 05/01/2003 | 2     | M      | true          | Congestion,Cough,Headache   |                |
+    | 2   | Anderson Elementary | 7        |            |           | 03/01/2004 | 1     | F      | false         |                             |                |
+    | 1   | Ashford Elementary  | 9        |            |           | 05/12/2002 | 3     | F      | true          | Influenza                   |                |
+    | 2   | Ashford Elementary  | 8        |            |           | 01/02/2003 | 2     | F      | true          | Temperature                 |                |
+    | 2   | Ashford Elementary  | 7        |            |           | 01/22/2004 | 2     | M      | true          | None                        |                |
+    | 2   | Ashford Elementary  | 7        | Chris      | Turk      | 08/27/2004 | 2     | F      | true          | Temperature                 | 900800700      |
+    | 2   | Ashford Elementary  | 8        |            |           | 02/12/2003 | 2     | M      | true          | Temperature,Cough           |                |
+    | 1   | Yates High School   | 16       |            |           | 06/16/1995 | 10    | M      | false         |                             |                |
+    | 1   | Yates High School   | 18       |            |           | 04/26/1993 | 12    | F      | false         |                             |                |
+    | 1   | Yates High School   | 18       |            |           | 02/19/1993 | 12    | M      | false         |                             |                |
+    | 1   | Yates High School   | 15       |            |           | 08/26/1996 | 09    | M      | true          | Lethargy,Headache           |                |
+    | 1   | Yates High School   | 15       |            |           | 06/30/1996 | 09    | F      | false         |                             |                |
+    | 1   | Yates High School   | 14       |            |           | 01/02/1997 | 09    | M      | false         |                             |                |
+    | 1   | Yates High School   | 16       |            |           | 03/13/1995 | 10    | M      | true          | Sore Throat,Cough           |                |
+    | 1   | Yates High School   | 16       | Elliot     | Reid      | 11/17/1995 | 10    | M      | true          | Diarrhea,Vomiting           | 101202303      |
+    | 1   | Yates High School   | 17       |            |           | 09/24/1994 | 10    | M      | false         |                             |                |
+    | 1   | Yates High School   | 16       |            |           | 02/08/1995 | 10    | F      | true          | None                        |                |
+    | 2   | Yates High School   | 15       |            |           | 08/04/1996 | 09    | F      | false         |                             |                |
+    | 2   | Yates High School   | 17       |            |           | 12/13/1994 | 11    | M      | false         |                             |                |
+    | 2   | Yates High School   | 17       |            |           | 04/23/1994 | 10    | F      | false         |                             |                |
+    | 2   | Yates High School   | 18       |            |           | 10/17/1993 | 12    | M      | true          | Chills,Cough,Headache       |                |
+    | 2   | Yates High School   | 18       |            |           | 07/23/1993 | 12    | M      | true          | Chills,Temperature,Headache |                |
+  And "Houston" has the following student data:
      | first_name | last_name | contact_first_name | contact_last_name | address        | zip   | dob        | gender | phone      | race | student_number | school_name         |
      | Hugh       | Mann      | Woe                | Mann              | 1122 Street Ln | 77077 | 05/15/1995 | M      | 5125556666 | 1    | 5318008        | Yates High School   |
 
@@ -105,8 +105,9 @@ Background:
   #And I press "OK"
 
 Scenario: User enters a new student visit
-  And I press "New"
+  When I press "New"
   And I should see "New Visit"
+  And I press "New Student"
   And I fill in "Student ID" with "000111000"
   And I fill in "Student First Name" with "John"
   And I fill in "Student Last Name" with "Doe"
@@ -115,48 +116,155 @@ Scenario: User enters a new student visit
   And I fill in "Address" with "1111 Forward Ln"
   And I select "77035" from ext combo "zip"
   And I fill in "Phone Number" with "1112223344"
+  And I select "10th Grade" from ext combo "grade"
   And I fill in "dob" with "05/15/1995"
   And I select "Male" from ext combo "gender"
   And I select "White" from ext combo "race"
-  And I select "5th Grade" from ext combo "grade"
   And I fill in "Temperature" with "98"
   And I fill in "Action Taken" with "sent back to class"
   And I select "Sore Throat" from ext combo "symptoms"
   And I press "Submit"
+  And I wait for the panel to load
+  And I click ".x-form-date-trigger"
+  And I press "Today"
   And I wait for the panel to load
   And I should see "John" within "#nurse_assistant"
   And I should see "Sore Throat" within "#nurse_assistant"
   Then I should see "sent back to class" within "#nurse_assistant"
 
 Scenario: User enters a new student visit off of a existing student
-  And I press "New"
+  When I press "New"
   And I should see "New Visit"
+  And I should see "Hugh | Mann | 5318008" within grid "#student_list"
   And I select the "Hugh" grid row
+  And I wait for the panel to load
   And I fill in "Temperature" with "98"
   And I fill in "Action Taken" with "sent back to class"
   And I select "Sore Throat" from ext combo "symptoms"
   And I press "Submit"
+  And I wait for the panel to load
+  And I click ".x-form-date-trigger"
+  And I press "Today"
   And I wait for the panel to load
   And I should see "Hugh" within "#nurse_assistant"
   And I should see "Sore Throat" within "#nurse_assistant"
   Then I should see "sent back to class" within "#nurse_assistant"
 
 Scenario: User enters a new student visit off of a existing student using a student ID
-  And I press "New"
+  When I press "New"
   And I should see "New Visit"
-  And I fill in "Student ID" with "5318008"
+  And I should see "Hugh | Mann | 5318008" within grid "#student_list"
+  And I fill in "filter_student_number" with "5318008"
   And I should see "Hugh" within "#student_list"
   And I select the "Hugh" grid row
+  And I wait for the panel to load
   And I fill in "Temperature" with "98"
   And I fill in "Action Taken" with "sent back to class"
   And I select "Sore Throat" from ext combo "symptoms"
   And I press "Submit"
+  And I wait for the panel to load
+  And I click ".x-form-date-trigger"
+  And I press "Today"
   And I wait for the panel to load
   And I should see "Hugh" within "#nurse_assistant"
   And I should see "Sore Throat" within "#nurse_assistant"
   Then I should see "sent back to class" within "#nurse_assistant"
 
 Scenario: User edits a student visit
-  And I click on ".x-grid3-col-edit_student_entry" within ".x-grid3-row-selected"
+  When I select the "None" grid row within "#nurse_assistant"
+  And I click x-grid3-col-edit_student_entry on the "None" grid row
   And I should see "Edit Visit"
-  And I suspend cucumber
+  And I fill in "Student ID" with "00110011"
+  And I fill in "Action Taken" with "sent back to class"
+  And I select "White" from ext combo "race"
+  And I press "Submit"
+  And I wait for the panel to load
+  Then I should see "00110011" within "#nurse_assistant"
+
+Scenario: User deletes a student visit
+  When I select the "None" grid row within "#nurse_assistant"
+  And I click x-grid3-col-delete_student_entry on the "None" grid row
+  And I should see "Are you sure you want to delete this recorded visitation?"
+  And I press "Yes"
+  And I wait for the panel to load
+  Then I should not see "None" within "#nurse_assistant"
+
+Scenario: User creates a new student
+  When I press "New Student"
+  And I should see "New Student"
+  And I fill in "Student ID" with "222333"
+  And I fill in "Student First Name" with "Tester"
+  And I fill in "Student Last Name" with "Test"
+  And I fill in "Contact First Name" with "Contact"
+  And I fill in "Contact Last Name" with "Test"
+  And I fill in "Address" with "PO Box 111"
+  And I select "77035" from ext combo "zip"
+  And I fill in "Phone Number" with "8901113434"
+  And I fill in "dob" with "06/23/1999"
+  And I select "Male" from ext combo "gender"
+  And I select "White" from ext combo "race"
+  And I press "Submit"
+  And I wait for the panel to load
+  And I should see "Tester | Test | 222333" within grid "#student_grid"
+  And I should see "Tester" within "#student_grid"
+  And I select the "Tester" grid row
+  And I wait for the panel to load
+  Then I should see "Tester Test" within "#student-stats"
+
+Scenario: User edits an existing student
+  When I click x-action-col-icon on the "Unknown" grid row within "#student_grid"
+  And I fill in "Student ID" with "222333"
+  And I fill in "Student First Name" with "Tester"
+  And I fill in "Student Last Name" with "Test"
+  And I fill in "Contact First Name" with "Contact"
+  And I fill in "Contact Last Name" with "Test"
+  And I fill in "Address" with "PO Box 111"
+  And I select "77035" from ext combo "zip"
+  And I fill in "Phone Number" with "8901113434"
+  And I fill in "dob" with "06/23/1999"
+  And I select "Male" from ext combo "gender"
+  And I select "White" from ext combo "race"
+  And I press "Submit"
+  And I wait for the panel to load
+  And I should see "Tester | Test | 222333" within grid "#student_grid"
+  And I fill in "list_filter_student_number" with "222333"
+  And I should see "Tester" within "#student_grid"
+  And I select the "Tester" grid row
+  And I wait for the panel to load
+  Then I should see "Tester Test" within "#student-stats"
+
+Scenario: User searches for a student visit
+  When I fill in "search_field" with "Elliot" within "#nurse_assistant"
+  And I press "Search"
+  And I wait for the panel to load
+  And I should not see "Unknown" within "#nurse_assistant"
+  Then I should see "Elliot" within "#nurse_assistant"
+
+Scenario: User refreshes student list
+  When I fill in "list_filter_student_number" with ""
+  And I should see "Elliot | Reid | 101202303" within grid "#student_grid"
+  And I fill in "list_filter_student_number" with "101202303"
+  And I should see "Elliot" within "#student_grid"
+  And I should not see "Unknown" within "#student_grid"
+  And I click x-tbar-loading "" within "#student_grid"
+  And I wait for the panel to load
+  Then I should see "Unknown" within "#student_grid"
+
+Scenario: User refreshes main panel
+  When I fill in "search_field" with "Elliot" within "#nurse_assistant"
+  And I press "Search"
+  And I wait for the panel to load
+  And I should not see "Unknown" within "#nurse_assistant"
+  And I should see "Elliot" within "#nurse_assistant"
+  And I click x-tbar-loading "" within "#nurse_assistant"
+  And I wait for the panel to load
+  And I should not see "Unknown" within "#nurse_assistant"
+  Then I should see "Elliot" within "#nurse_assistant"
+
+Scenario: User changes schools
+  When I press "Change School"
+  And I wait for the panel to load
+  And I select "Anderson Elementary" from ext combo "select_school"
+  And I press "OK"
+  And I wait for the panel to load
+  And I should see "John | Dorian | 10055500" within grid "#student_grid"

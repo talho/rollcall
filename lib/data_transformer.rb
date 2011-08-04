@@ -1,7 +1,7 @@
 class DataTransformer
   def self.transform
     Rollcall::SchoolDailyInfo.find_each do |sdi|
-      sdi.total_absent = varyData(sdi.total_absent)
+      sdi.total_absent   = varyData(sdi.total_absent)
       sdi.total_enrolled = varyData(sdi.total_enrolled)
       sdi.save
     end

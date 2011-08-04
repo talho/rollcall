@@ -3,14 +3,17 @@ Given /^"([^\"]*)" has the following current student absenteeism data:$/ do |isd
     current_time  = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_week - 1.week 
     report_date   = current_time + row["day"].strip.to_i.days
     student       = Rollcall::Student.create(
-       :dob               => row['dob'],
-       :gender            => row['gender'],
+       :first_name        => row['first_name'].strip,
+       :last_name         => row['last_name'].strip,
+       :student_number    => row['student_number'].strip,
+       :dob               => row['dob'].strip,
+       :gender            => row['gender'].strip,
        :school_id         => Rollcall::School.find_by_display_name(row['school_name']).id
     )
     result        = Rollcall::StudentDailyInfo.create(
       :student_id        => student.id,
       :report_date       => report_date,
-      :grade             => row['grade'],
+      :grade             => row['grade'].strip,
       :confirmed_illness => row['confirmed_ill']
     )
     unless row['symptoms'].blank?

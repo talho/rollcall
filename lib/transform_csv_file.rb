@@ -57,7 +57,7 @@ class SchoolDataTransformer
     @allowed_ili_headers        = nil
     @allowed_enrollment_headers = nil
     @allowed_attendance_headers = nil
-    @district                   = Rollcall::SchoolDistrict.find_by_name(district_name)
+    @district                   = Rollcall::SchoolDistrict.find_by_name(district_name.capitalize)
     unless INTERFACE_FIELDS_CONFIG.blank?
       if INTERFACE_FIELDS_CONFIG["#{district_name}"]
         if INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_ili_field_names"]
@@ -322,12 +322,16 @@ class SchoolDataTransformer
       end
     end
     #Process enrollment file for rewrite
-    @file_to_write = File.open(File.join(@dir, "tmp_enroll.tmp"),"w")
+    @file_to_write = File.open(File.join(@dir, "tmp_e.tmp"),"w")
     #Run through each attendance record, when tea_id matches, use enrollment value to re-build enrollment file
     #with report dates
+    
     att_array.each do |rec|
-      date,@tmp_tea_id,school_name,absent = rec.split("\t") if rec.split("\t").length > 1
-      date,@tmp_tea_id,school_name,absent = rec.split(",") if rec.split(",").length > 1
+      if rec.split("\t").length > 1
+        date,@tmp_tea_id,school_name,absent = rec.split("\t")
+      elsif rec.split(",").length > 1
+        date,@tmp_tea_id,school_name,absent = rec.split(",")
+      end
       if date.downcase.index("date").blank?
         enr_array.each do |line|
           @enrolled = 0
@@ -368,7 +372,7 @@ class SchoolDataTransformer
         #Delete file just read
         File.delete(file_path)
         #Rename temp file to previously read file
-        File.rename(File.join(@dir, "tmp_enroll.tmp"), file_path)
+        File.rename(File.join(@dir, "tmp_e.tmp"), file_path)
       end
     end
   end
@@ -395,6 +399,9 @@ class SchoolDataTransformer
       [/^[0-9]{2}\/[0-1][0-9]{1,2}\/[0-3][0-9]{1,2}$/,"%y/%m/%d"],
       [/^[0-9]{4}\/[0-3][0-9]{1,2}\/[0-1][0-9]{1,2}$/,"%Y/%d/%m"],
       [/^[0-9]{2}\/[0-3][0-9]{1,2}\/[0-1][0-9]{1,2}$/,"%y/%d/%m"],
+
+      [/^[0-1][0-9]{1,2}\/[0-3][0-9]{1,2}\/[0-9]{4}$/,"%m/%d/%Y"],
+
       [/^[0-9]{4}-[0-1][0-9]{1,2}-[0-3][0-9]{1,2}$/,"%Y-%m-%d"],
       [/^[0-9]{2}-[0-1][0-9]{1,2}-[0-3][0-9]{1,2}$/,"%y-%m-%d"],
       [/^[0-9]{4}-[0-3][0-9]{1,2}-[0-1][0-9]{1,2}$/,"%Y-%d-%m"],
@@ -418,7 +425,7 @@ class SchoolDataTransformer
         # invalid date values.  Only values within a 5 year difference from today's date are accepted as
         # true valid date values.
         time_year_diff = Time.now.year - tmp_time.year
-        if time_year_diff >= 0 && time_year_diff <= 5
+        if time_year_diff >= 0 #&& time_year_diff <= 5
           new_value = "#{tmp_time}"
           break
         end

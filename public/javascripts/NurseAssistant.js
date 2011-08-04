@@ -3,6 +3,10 @@ Ext.ns('Talho.Rollcall');
 Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
   constructor: function(config)
   {
+    if(window.Application.rails_environment == "cucumber"){
+      this.init_date = new Date();
+      this.init_date.setDate(this.init_date.getDate()- 7);
+    }else this.init_date = new Date();
     this.build_detail_template();
     this.window_open    = false;
     this.user_school_id = null;
@@ -82,7 +86,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
       sortInfo:       {field: 'report_date'},
       groupField:     'report_date',
       restful:        true,
-      baseParams:     {filter_report_date: new Date(),school_id: this.user_school_id},
+      baseParams:     {filter_report_date: this.init_date,school_id: this.user_school_id},
       listeners: {
         scope: this,
         load:  function(this_store, records){
@@ -170,7 +174,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           {xtype: 'textfield', id: 'search_field'},        
           {text: 'New', iconCls:'add_forum', itemId:'new_student_btn', disabled: true, handler: function(){this.student_entry_window();}, scope: this},
           {text: 'Change School', iconCls:'settings-btn', itemId: 'settings-btn', disabled: true, handler: this.setup_app, scope: this},'->',
-          new Ext.PagingToolbar({store: this.main_panel_store})
+          new Ext.PagingToolbar({store: this.main_panel_store, listeners:{refresh: function(){}}})
         ],
         tbar: {
           items: ['->',{
@@ -197,7 +201,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
               },
               afterrender: function (this_datefield)
               {
-                this_datefield.setValue(new Date());
+                this_datefield.setValue(this.init_date);
               }
             }
           }]
@@ -218,6 +222,8 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         padding:  5,
         items:    [{
           xtype:     'grid',
+          itemdId:   'student_grid',
+          id:        'student_grid',
           flex:      1,
           viewConfig: {
             emptyText: '<div style="color:#000;">There are no students for this school.</div>',
@@ -265,8 +271,8 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           }),
           tbar: ['Student ID:', {
             xtype:           'textfield',
-            id:              'filter_student_number',
-            name:            'filter_student_number',
+            id:              'list_filter_student_number',
+            name:            'list_filter_student_number',
             width:           100,
             enableKeyEvents: true,
             listeners: {
@@ -296,7 +302,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           id:         'history_grid',
           loadMask:   true,
           viewConfig: {
-            emptyText: '<div style="color:#000;">No student selected.</div>',
+            emptyText: '<div style="color:#000;">History Not Available.</div>',
             autoFill:  true
           },
           flex:       1,
@@ -408,9 +414,13 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
     var html_string = '<div class="details"><div class="details-info"><span>Loading Data..</span></div></div>';
     this.main_panel.getComponent('student_detail_panel').getComponent('student-stats').update(html_string);
     try{
-      this.main_panel.getComponent('student_detail_panel').getComponent('history_grid').getStore().load({params: {id: this.details_template.record.get("id")}});
+      this.main_panel.getComponent('student_detail_panel').getComponent('history_grid').getStore().load({params: {id: this.details_template.record.get("student_id")}});
     }catch(e){
-      this.main_panel.getComponent('student_detail_panel').getComponent('history_grid').getStore().load({params:{id: null}});
+      try{
+        this.main_panel.getComponent('student_detail_panel').getComponent('history_grid').getStore().load({params: {id: this.details_template.record.get("id")}});
+      }catch(e){
+        this.main_panel.getComponent('student_detail_panel').getComponent('history_grid').getStore().load({params:{id: null}});  
+      }
     }
   },
 
@@ -442,9 +452,9 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
       this.details_template.record    = grid_panel.getStore().getAt(index);
       this.details_template.overwrite(this.details_template.detail_el, this.details_template.record.data);
       this.details_template.detail_el.hide();
-      this.details_template.detail_el.slideIn('l', {stopFx:true,duration:.3});
+      this.details_template.detail_el.slideIn('l', {stopFx:true,duration:.3});    
       this.main_panel.getComponent('student_detail_panel').getComponent('history_grid').getStore().load({
-        params: {id: this.details_template.record.get("id")}
+        params: {id: this.details_template.record.get("student_id") == null ? this.details_template.record.get("id") : this.details_template.record.get("student_id")}
       });
     }   
   },
@@ -596,7 +606,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
                 }
               }
             },{
-              text:    'New',
+              text:    'New Student',
               handler: function(button, event){
                 button.ownerCt.ownerCt.ownerCt.getComponent('entry_form_container').setVisible(true);
                 button.ownerCt.ownerCt.ownerCt.getComponent('entry_grid_container').setVisible(true);
@@ -872,6 +882,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
                 school_id: this.user_school_id
               }
             });
+            this.student_list_store.load({params:{school_id: this.user_school_id}});
           }
         }
       },
@@ -953,7 +964,8 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
 
   clear_filter: function(button, event)
   {
-    button.ownerCt.getComponent('filter_student_number').setValue('');
+    if(button.ownerCt.getComponent('filter_student_number') == null) button.ownerCt.getComponent('list_filter_student_number').setValue('');
+    else button.ownerCt.getComponent('filter_student_number').setValue('');
     button.ownerCt.ownerCt.store.filter();
   },
 

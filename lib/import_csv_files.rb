@@ -181,6 +181,7 @@ class EnrollmentImporter < SchoolDataImporter
   # @params attrs hash   an attribute hash{:key => value}
   def process_record(rec, attrs)
     if attrs[:school_id]
+      puts "Importing Enrollment Data for #{attrs[:campus_name]}"
       daily_info            = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(attrs[:school_id], attrs[:report_date])
       daily_info            = Rollcall::SchoolDailyInfo.new if !daily_info
       daily_info.attributes = attrs
@@ -203,6 +204,7 @@ class AttendanceImporter < SchoolDataImporter
   # @params rec   array  an array of records to process
   # @params attrs hash   an attribute hash{:key => value}
   def process_record(rec, attrs)
+    puts "Importing Enrollment Data for #{attrs[:school_id]}"
     daily_info            = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(attrs[:school_id].to_i, attrs[:report_date])
     daily_info            = Rollcall::SchoolDailyInfo.new if !daily_info
     daily_info.attributes = attrs
@@ -218,7 +220,7 @@ class AttendanceImporter < SchoolDataImporter
       schools.each{|s|
         unless Rollcall::SchoolDailyInfo.find_by_school_id(s.id).blank?
           Rollcall::SchoolDailyInfo.find_in_batches(
-            :conditions => ["school_id = ? AND created_at > ?", s.id, 1.day.ago],
+            :conditions => ["school_id = ? AND created_at > ?", s.id, 1.day.ago.utc],
             :batch_size => 100
           ) do |recs|
             recs.each{|r|
@@ -236,7 +238,12 @@ class AttendanceImporter < SchoolDataImporter
             }
           end
           @s_i.push([(@end_time + 2.days).to_i.to_s, 0, @end_enrolled])
-          RRD.update_batch("#{@rrd_path}/#{s.tea_id}_absenteeism.rrd", @s_i, "#{@rrd_tool}")
+          puts "Importing RRD Data for #{s.display_name}"
+          if ENV["RAILS_ENV"] == "cucumber" || ENV["RAILS_ENV"] == "test"
+            RRD.update_batch("#{@rrd_path}/#{s.tea_id}_c_absenteeism.rrd", @s_i, "#{@rrd_tool}")
+          else
+            RRD.update_batch("#{@rrd_path}/#{s.tea_id}_absenteeism.rrd", @s_i, "#{@rrd_tool}")
+          end
           @s_i = nil
         end
       }
@@ -283,6 +290,7 @@ class IliImporter < SchoolDataImporter
   # @params rec   array  an array of records to process
   # @params attrs hash   an attribute hash{:key => value}
   def process_record(rec, attrs)
+    puts "Importing ILI Data for #{attrs[:school_id]}"
     student_attrs       = {}
     student_daily_attrs = {}
     @mapping.each { |mapping|

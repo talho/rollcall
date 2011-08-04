@@ -29,7 +29,10 @@ module Rollcall
       end
       alarm_queries
     end
-    
+
+    def is_rollcall_power_user?
+      roles.should include(Role.power_user)
+    end
   end
 
   Dispatcher.to_prepare do

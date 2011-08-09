@@ -5,9 +5,7 @@ Feature: Alarms
 
   Background:
     Given the following entities exist:
-      | Role         | SchoolNurse     | rollcall |
       | Role         | Epidemiologist  | rollcall |
-      | Role         | Rollcall        | rollcall |
       | Jurisdiction | Texas           |          |
       | Jurisdiction | Houston         |          |
       | Jurisdiction | Harris          |          |
@@ -46,12 +44,7 @@ Feature: Alarms
       | 787.91    | Diarrhea                |
       | 0         | None                    |
     And the following users exist:
-      | Nurse Betty  | nurse.betty@example.com | SchoolNurse    | Houston |
-      | Nurse Betty  | nurse.betty@example.com | Rollcall       | Houston |
-      | Epi Smith    | epi.smith@example.com   | Epidemiologist | Houston |
-      | Epi Smith    | epi.smith@example.com   | Rollcall       | Houston |
-      | Normal Epi   | normal.epi@example.com  | Epidemiologist | Houston |
-      | No Schools   | noschools@example.com   | Rollcall       | Harris  |
+      | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Houston |
     And "Houston" has the following current district absenteeism data:
       | day | total_enrolled | total_absent |
       | 1   | 400            | 13           |
@@ -158,7 +151,4 @@ Scenario: User deletes an alarm
   And I should see "Are you sure you want to delete this alarm?"
   And I press "Yes"
   And I wait for the panel to load
-  And I click the last alarm within the "Example Query" alarm group
-  And I wait for the panel to load
-  And I should not see "2" within ".alarm-tip-conf-absent"
-  Then I should see "1" within ".alarm-tip-conf-absent"
+  Then I should not see "Example Query" within "#alarm_grid_panel"

@@ -7,7 +7,7 @@
 # The actions held in this controller are primarily called by the Rollcall AlarmQueriesPanel.
 
 class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
-
+  before_filter :rollcall_isd_required
   # GET rollcall/alarm_query
   def index
     alarm_queries = current_user.alarm_queries(params)

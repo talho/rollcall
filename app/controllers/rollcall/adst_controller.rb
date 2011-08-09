@@ -8,7 +8,7 @@
 # The actions held in this controller are called by the Rollcall ADST panel.
 
 class Rollcall::AdstController < Rollcall::RollcallAppController
-
+  before_filter :rollcall_isd_required
   # Action is called by the ADSTResultPanel result_store on load.  Method processes
   # the search request, calling Rollcall::Rrd.render_graphs (a delayed job), returns
   # the total result length and the paginated result set

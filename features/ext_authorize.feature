@@ -1,50 +1,56 @@
-Feature: Execute Simple ADST Search
-  In order to execute a simple ADST search
-  As a Rollcall user
-  I should be able to select from a list of simple ADST options, construct and execute my query
+Feature: Prevent unauthorized access of rollcall data
+  In order to prevent unauthorized access of rollcall data
+  As a user
+  I should only be able to access certain parts of the application based on my role membership
 
 Background:
+
   Given the following entities exist:
-      | Role         | Epidemiologist           | rollcall |
+      | Role         | Epidemiologist  | rollcall |
+      | Role         | Health Officer  | rollcall |
+      | Role         | Nurse           | rollcall |
       | Jurisdiction | Texas           |          |
       | Jurisdiction | Houston         |          |
       | Jurisdiction | Harris          |          |
-    And Texas is the parent jurisdiction of:
-      | Houston | Harris |
-    And Houston has the following school districts:
-      | Houston |
-    And "Houston" has the following schools:
-      | name                | school_number | tea_id    | school_type       | postal_code | gmap_lat   | gmap_lng    | gmap_addr                                                                      |
-      | Anderson Elementary | 105           | 101912105 | Elementary School | 77035       | 29.6496766 | -95.4879978 | "Anderson Elementary School, 5727 Ludington Dr, Houston, TX 77035-4399, USA"   |
-      | Ashford Elementary  | 273           | 101912273 | Elementary School | 77077       | 29.7477296 | -95.5988336 | "Ashford Elementary School, 1815 Shannon Valley Dr, Houston, TX 77077, USA"    |
-      | Yates High School   | 20            | 101912020 | High School       | 77004       | 29.7232848 | -95.3546602 | "Yates High School: School Buildings, 3703 Sampson St, Houston, TX 77004, USA" |
-    And the following symptoms exist:
-      | icd9_code | name                    |
-      | 032.9     | Diphtheria              |
-      | 034.0     | Strep Throat            |
-      | 034.1     | Scarlet Fever           |
-      | 038.11    | Staph Aureus            |
-      | 041.00    | Streptococcal Infection |
-      | 052.9     | Chicken Pox             |
-      | 056.9     | Rubella                 |
-      | 055.9     | Measles                 |
-      | 072.9     | Mumps                   |
-      | 322.9     | Meningitis              |
-      | 323.9     | Encephalitis            |
-      | 462       | Sore Throat             |
-      | 478.19    | Congestion              |
-      | 487.1     | Influenza               |
-      | 573.3     | Hepatitis               |
-      | 780.60    | Temperature             |
-      | 780.64    | Chills                  |
-      | 780.79    | Lethargy                |
-      | 784.0     | Headache                |
-      | 786.2     | Cough                   |
-      | 787.03    | Vomiting                |
-      | 787.91    | Diarrhea                |
-      | 0         | None                    |
-    And the following users exist:
-      | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Houston |
+  And Texas is the parent jurisdiction of:
+    | Houston | Harris |
+  And Houston has the following school districts:
+    | Houston |
+  And "Houston" has the following schools:
+    | name                | school_number | tea_id    | school_type       | postal_code | gmap_lat   | gmap_lng    | gmap_addr                                                                      |
+    | Anderson Elementary | 105           | 101912105 | Elementary School | 77035       | 29.6496766 | -95.4879978 | "Anderson Elementary School, 5727 Ludington Dr, Houston, TX 77035-4399, USA"   |
+    | Ashford Elementary  | 273           | 101912273 | Elementary School | 77077       | 29.7477296 | -95.5988336 | "Ashford Elementary School, 1815 Shannon Valley Dr, Houston, TX 77077, USA"    |
+    | Yates High School   | 20            | 101912020 | High School       | 77004       | 29.7232848 | -95.3546602 | "Yates High School: School Buildings, 3703 Sampson St, Houston, TX 77004, USA" |
+  And the following symptoms exist:
+    | icd9_code | name                    |
+    | 032.9     | Diphtheria              |
+    | 034.0     | Strep Throat            |
+    | 034.1     | Scarlet Fever           |
+    | 038.11    | Staph Aureus            |
+    | 041.00    | Streptococcal Infection |
+    | 052.9     | Chicken Pox             |
+    | 056.9     | Rubella                 |
+    | 055.9     | Measles                 |
+    | 072.9     | Mumps                   |
+    | 322.9     | Meningitis              |
+    | 323.9     | Encephalitis            |
+    | 462       | Sore Throat             |
+    | 478.19    | Congestion              |
+    | 487.1     | Influenza               |
+    | 573.3     | Hepatitis               |
+    | 780.60    | Temperature             |
+    | 780.64    | Chills                  |
+    | 780.79    | Lethargy                |
+    | 784.0     | Headache                |
+    | 786.2     | Cough                   |
+    | 787.03    | Vomiting                |
+    | 787.91    | Diarrhea                |
+    | 0         | None                    |
+  And the following users exist:
+    | Nurse Betty  | nurse.betty@example.com  | Nurse          | Houston |
+    | Epi Smith    | epi.smith@example.com    | Epidemiologist | Houston |
+    | Health Offcr | heatlh.offcr@example.com | Health Officer | Houston |
+
   And "Houston" has the following current district absenteeism data:
     | day | total_enrolled | total_absent |
     | 1   | 400            | 13           |
@@ -86,67 +92,77 @@ Background:
       | 2   | Yates High School   | 17       |            |           | 04/23/1994 | 10    | F      | false         |                             |                |
       | 2   | Yates High School   | 18       |            |           | 10/17/1993 | 12    | M      | true          | Chills,Cough,Headache       |                |
       | 2   | Yates High School   | 18       |            |           | 07/23/1993 | 12    | M      | true          | Chills,Temperature,Headache |                |
-    
-  And I am logged in as "nurse.betty@example.com"
-  
-Scenario: User runs a simple query against absenteeism to view the raw data
-  When I navigate to the ext dashboard page
+
+
+Scenario: Nurse attempts to access ADST
+  When I am logged in as "nurse.betty@example.com"
+  And I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
   And I wait for the panel to load
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
+  And I should see "You are not authorized to access this feature"
+  And I press "OK"
+  Then I should not see "Rollcall ADST"
 
-Scenario: User runs a simple query against a school to view the raw data
-  When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
-  And I select "Yates High School" from ext combo "school_simple"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "DF-Raw_101912020_c_absenteeism.png" within the results
+Scenario: Nurse attempts to access School Panel
+  When I am logged in as "nurse.betty@example.com"
+  And I navigate to the ext dashboard page
+  And I navigate to "Apps > Rollcall > Schools"
+  And I wait for the panel to load
+  And I should see "You are not authorized to access this feature"
+  And I press "OK"
+  Then I should not see "Rollcall Schools"
 
-Scenario: User runs a simple query against a school type to view the raw data
-  When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
-  And I select "Elementary School" from ext combo "school_type_simple"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912273_c_absenteeism.png" within the results
+Scenario: Nurse attempts to access Nurse Assistant
+  When I am logged in as "nurse.betty@example.com"
+  And I navigate to the ext dashboard page
+  And I navigate to "Apps > Rollcall > Nurse Assistant"
+  And I wait for the panel to load
+  And I should see "Current Student Visits"
+  And I press "New"
+  Then I should see "New Visit"
 
-Scenario: User runs a simple query against absenteeism and school type to view the raw data
-  When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
-  And I select "Confirmed Illness" from ext combo "absent_simple"
-  And I select "Elementary School" from ext combo "school_type_simple"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "CNF_DF-Raw_101912105_c_absenteeism.png,CNF_DF-Raw_101912273_c_absenteeism.png" within the results
+Scenario: Epidemiologist attempts to access Nurse Assistant
+  When I am logged in as "epi.smith@example.com"
+  And I navigate to the ext dashboard page
+  And I navigate to "Apps > Rollcall > Nurse Assistant"
+  And I wait for the panel to load
+  And I should see "Current Student Visits"
+  And I press "New"
+  Then I should see "New Visit"
 
-Scenario: User runs a simple query against absenteeism and school type to view the average data
-  When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
-  And I select "Confirmed Illness" from ext combo "absent_simple"
-  And I select "Elementary School" from ext combo "school_type_simple"
-  And I select "Average" from ext combo "Data Function"
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see graphs "CNF_DF-Average_101912105_c_absenteeism.png,CNF_DF-Average_101912273_c_absenteeism.png" within the results
+Scenario: Epidemiologist attempts to access School Panel
+  When I am logged in as "epi.smith@example.com"
+  And I navigate to the ext dashboard page
+  And I navigate to "Apps > Rollcall > Schools"
+  And I wait for the panel to load
+  Then I should see "Rollcall Schools"
 
-Scenario: User runs a simple search against absenteeism and school type to view the standard deviation
-  When I navigate to the ext dashboard page
+Scenario: Epidemiologist attempts to access ADST
+  When I am logged in as "epi.smith@example.com"
+  And I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I select "Confirmed Illness" from ext combo "absent_simple"
-  And I select "Elementary School" from ext combo "school_type_simple"
-  And I select "Standard Deviation" from ext combo "data_func_simple"
-  And I press "Submit"
-  And delayed jobs are processed
-  And I should see graphs "CNF_DF-StandardDeviation_101912105_c_absenteeism.png,CNF_DF-StandardDeviation_101912273_c_absenteeism.png" within the results
+  And I wait for the panel to load
+  Then I should see "Rollcall ADST"
+    
+Scenario: Health Officer attempts to access Nurse Assistant
+  When I am logged in as "heatlh.offcr@example.com"
+  And I navigate to the ext dashboard page
+  And I navigate to "Apps > Rollcall > Nurse Assistant"
+  And I wait for the panel to load
+  And I should see "Current Student Visits"
+  And I press "New"
+  Then I should see "New Visit"
 
-Scenario: User runs a simple query using the start and end date to view the raw data
-  When I navigate to the ext dashboard page
+Scenario: Health Officer attempts to access School Panel
+  When I am logged in as "heatlh.offcr@example.com"
+  And I navigate to the ext dashboard page
+  And I navigate to "Apps > Rollcall > Schools"
+  And I wait for the panel to load
+  Then I should see "Rollcall Schools"
+
+Scenario: Health Officer attempts to access ADST
+  When I am logged in as "heatlh.offcr@example.com"
+  And I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I set "startdt_simple" to "5" days from origin date
-  And I set "enddt_simple" to "0" days from origin date
-  And I press "Submit"
-  And delayed jobs are processed
-  Then I should see dated graphs for schools "101912105,101912273,101912020" starting "5" days and ending "0" days from origin date 
+  And I wait for the panel to load
+  Then I should see "Rollcall ADST"

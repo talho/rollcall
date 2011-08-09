@@ -28,6 +28,11 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             this.main_panel_store.load({params:{school_id: this.user_school_id}});
             this.main_panel.get(0).setTitle('Current Student Visits for '+this_store.getAt(0).get('school_name'));
           }
+        },
+        exception: function(misc){
+          Ext.Msg.alert('Access', 'You are not authorized to access this feature.  Please contact TX PHIN.', function(){
+            Ext.getCmp(config.id).destroy();
+          }, this);
         }
       }
     });
@@ -104,6 +109,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
     this.main_panel = new Ext.Panel({
       title:    config.title,
       itemId:   config.id,
+      id:       config.id,
       layout:   'border',
       closable: true,
       items:    [{
@@ -116,12 +122,12 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         store:    this.main_panel_store,
         cm:       new Ext.grid.ColumnModel({
           columns: [
-            {id:'student_number',    header:'Student Number',     dataIndex:'student_number', flex: 1},
-            {id:'first_name_column', header:'Student First Name', dataIndex:'first_name', flex: 1},
-            {id:'last_name_column',  header:'Student Last Name',  dataIndex:'last_name',  flex: 1},
-            {id:'symptom_column',    header:'Symptoms',           dataIndex:'symptom', flex: 1},
-            {id:'header',            header:'Action',             dataIndex:'treatment',  flex: 1},
-            {id:'visit_date',        header:'Visit Date',         dataIndex:'report_date', flex: 1},
+            {id:'student_number_main',    header:'Student Number',     dataIndex:'student_number', flex: 1},
+            {id:'first_name_column_main', header:'Student First Name', dataIndex:'first_name', flex: 1},
+            {id:'last_name_column_main',  header:'Student Last Name',  dataIndex:'last_name',  flex: 1},
+            {id:'symptom_column_main',    header:'Symptoms',           dataIndex:'symptom', flex: 1},
+            {id:'header_main',            header:'Action',             dataIndex:'treatment',  flex: 1},
+            {id:'visit_date_main',        header:'Visit Date',         dataIndex:'report_date', flex: 1},
             {
               xtype:     'xactioncolumn',
               id:        'edit_student_entry',
@@ -168,7 +174,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           emptyText:     '<div><b style="color:#000">There are no student visits for this date</b></div>',
           enableRowBody: true
         },
-        autoExpandColumn: 'symptom_column',
+        autoExpandColumn: 'symptom_column_main',
         bbar: [
           {xtype: 'button',    text: 'Search', scope:this, handler: this.search_student},
           {xtype: 'textfield', id: 'search_field'},        
@@ -224,6 +230,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           xtype:     'grid',
           itemdId:   'student_grid',
           id:        'student_grid',
+          cls:       'student_grid',
           flex:      1,
           viewConfig: {
             emptyText: '<div style="color:#000;">There are no students for this school.</div>',
@@ -233,15 +240,15 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           loadMask:  true,
           cm:        new Ext.grid.ColumnModel({
             columns:[{
-              id:        'student_first_name_column',
+              id:        'student_first_name_column_list',
               header:    'First Name',
               dataField: 'first_name'
             },{
-              id:        'student_last_name_column',
+              id:        'student_last_name_column_list',
               header:    'Last Name',
               dataField: 'last_name'
             },{
-              id:        'student_number_column',
+              id:        'student_number_column_list',
               header:    'Number',
               dataField: 'student_number'
             },{
@@ -536,6 +543,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
       this.student_entry_window.student_list = {
           xtype:      'grid',
           id:         'student_list',
+          cls:        'student_list',
           itemId:     'student_list',
           style:      {padding: '5 5 5 0'},
           viewConfig: {
@@ -546,15 +554,15 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           loadMask:  true,
           cm:        new Ext.grid.ColumnModel({
             columns:[{
-              id:        'student_first_name_column',
+              id:        'student_list_first_name_column',
               header:    'First Name',
               dataField: 'first_name'
             },{
-              id:        'student_last_name_column',
+              id:        'student_list_last_name_column',
               header:    'Last Name',
               dataField: 'last_name'
             },{
-              id:        'student_number_column',
+              id:        'student_list_number_column',
               header:    'Number',
               dataField: 'student_number'
             }]
@@ -790,12 +798,12 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           id:               'symptoms_list',
           allowBlank:       false,
           loadMask:         true,
-          autoExpandColumn: 'symptom_column',
+          autoExpandColumn: 'symptom_list_column',
           emptyText:        '<div style="color:#000;">No symptom selected.</div>',
           store:            new Ext.data.JsonStore({fields:['name'], data:this.student_entry_window.symptom_data}),
           cm:               new Ext.grid.ColumnModel({
             columns:[{
-              id:        'symptom_column',
+              id:        'symptom_list_column',
               header:    'Symptoms',
               dataField: 'symptom'
             },{
@@ -920,32 +928,6 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
 
     if(this.student_entry_window.student_list != null){
       this.student_entry_window.window_config.items.items.push(this.student_entry_window.student_list);
-      this.student_entry_window.entry_form_container.items.items.push({
-          items: new Ext.form.ComboBox({
-            fieldLabel:    'Grade',
-            emptyText:     'Select Grade...',
-            allowBlank:    false,
-            editable:      false,
-            id:            'grade',
-            store:         new Ext.data.JsonStore({fields: ['id', 'value'], data: this.init_store.getAt(0).get('grade')}),
-            typeAhead:     true,
-            triggerAction: 'all',
-            mode:          'local',
-            lazyRender:    true,
-            autoSelect:    true,
-            selectOnFocus: true,
-            valueField:    'id',
-            displayField:  'value',
-            value:         (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.get('grade')
-          })
-        },{
-          items:{
-            xtype:      'textfield',
-            fieldLabel: 'Temperature',
-            id:         'temperature',
-            value:      (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.get('temperature')
-          }
-        });
     }else{
       this.student_entry_window.entry_form_container.hidden = false;
       if(this.student_entry_window.symptom_data.length != 0){
@@ -958,6 +940,34 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         this.student_entry_window.window_config.items.items.splice(1);
         this.student_entry_window.window_config.width = 280;
       }
+    }
+    if(this.student_entry_window.student_list != null || this.student_entry_window.symptom_data.length != 0){
+      this.student_entry_window.entry_form_container.items.items.push({
+        items: new Ext.form.ComboBox({
+          fieldLabel:    'Grade',
+          emptyText:     'Select Grade...',
+          allowBlank:    false,
+          editable:      false,
+          id:            'grade',
+          store:         new Ext.data.JsonStore({fields: ['id', 'value'], data: this.init_store.getAt(0).get('grade')}),
+          typeAhead:     true,
+          triggerAction: 'all',
+          mode:          'local',
+          lazyRender:    true,
+          autoSelect:    true,
+          selectOnFocus: true,
+          valueField:    'id',
+          displayField:  'value',
+          value:         (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.get('grade')
+        })
+      },{
+        items:{
+          xtype:      'textfield',
+          fieldLabel: 'Temperature',
+          id:         'temperature',
+          value:      (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.get('temperature')
+        }
+      });
     }
     new Ext.Window(this.student_entry_window.window_config).show();
   },

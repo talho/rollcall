@@ -387,10 +387,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
             items: ['->', {
               text: 'Max All',
               handler: this.maxAllSliders
-            }/*,{
-              text: 'Reset',
-              handler: this.resetSliders
-            }*/]
+            }]
           }
         },{
           xtype: 'fieldset',
@@ -461,10 +458,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
             items: ['->', {
               text: 'Max All',
               handler: this.maxAllSliders
-            }/*,{
-              text: 'Reset',
-              handler: this.resetSliders
-            }*/]
+            }]
           }
         },{
           xtype: 'fieldset',
@@ -538,19 +532,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
   changeSliderField: function(this_field, event_obj){
     this_field.nextSibling().setValue(this_field.getValue());
   },
-  /*
-  resetSliders: function(buttonEl, eventObj)
-  {
-    sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
-    for(key in sliders){
-      try{
-        sliders[key].reset();
-      }catch(e){
 
-      }
-    }
-  },
-  */
   maxAllSliders: function(buttonEl, eventObj)
   {
     sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");

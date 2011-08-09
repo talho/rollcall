@@ -47,8 +47,7 @@ describe RollcallAlert do
 
   describe "to_xml" do
     it "returns valid XML" do
-      xp        = XML::Parser.new
-      xp.string = @rollcall_alert.to_xml
+      xp = XML::Parser.string(@rollcall_alert.to_xml)
       xp.parse.should be_kind_of(LibXML::XML::Document)
     end
     it "converts the alert into an xml object to be used by the Messaging API" do

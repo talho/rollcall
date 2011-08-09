@@ -5,9 +5,7 @@ Feature: Execute Advanced ADST Queries
 
   Background:
     Given the following entities exist:
-      | Role         | SchoolNurse     | rollcall |
       | Role         | Epidemiologist  | rollcall |
-      | Role         | Rollcall        | rollcall |
       | Jurisdiction | Texas           |          |
       | Jurisdiction | Houston         |          |
       | Jurisdiction | Harris          |          |
@@ -46,12 +44,8 @@ Feature: Execute Advanced ADST Queries
       | 787.91    | Diarrhea                |
       | 0         | None                    |
     And the following users exist:
-      | Nurse Betty  | nurse.betty@example.com | SchoolNurse    | Houston |
-      | Nurse Betty  | nurse.betty@example.com | Rollcall       | Houston |
-      | Epi Smith    | epi.smith@example.com   | Epidemiologist | Houston |
-      | Epi Smith    | epi.smith@example.com   | Rollcall       | Houston |
-      | Normal Epi   | normal.epi@example.com  | Epidemiologist | Houston |
-      | No Schools   | noschools@example.com   | Rollcall       | Harris  |
+      | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Houston |
+
     And "Houston" has the following current district absenteeism data:
       | day | total_enrolled | total_absent |
       | 1   | 400            | 13           |

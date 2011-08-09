@@ -163,7 +163,8 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       scope:       this,
       height:      125,
       viewConfig:  {
-        forceFit: true
+        emptyText: '<div><b style="color:#000">No School Data Available</b></div>',
+        forceFit:  true
       },
       store: new Ext.data.JsonStore({
         autoDestroy: true,
@@ -191,6 +192,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       scope:       this,
       height:      125,
       viewConfig:  {
+        emptyText: '<div><b style="color:#000">No Student Data Available</b></div>',
         forceFit: true
       },
       store: new Ext.data.JsonStore({
@@ -492,10 +494,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
             items: ['->', {
               text:    'Max All',
               handler: this.maxFields
-            }/*,{
-              text:    'Reset',
-              handler: this.resetFields
-            }*/]
+            }]
           }
         },{
           xtype:      'fieldset',
@@ -567,10 +566,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
             items: ['->', {
               text:    'Max All',
               handler: this.maxFields
-            }/*,{
-              text:    'Reset',
-              handler: this.resetFields
-            }*/]
+            }]
           }
         },{
           xtype:      'fieldset',
@@ -630,7 +626,6 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       }
     }
     this.ownerCt.ownerCt.getComponent('alarmQueryForm').getForm().on('actioncomplete', function(){
-     // var adst_panel = obj_options.result_panel.ownerCt.ownerCt.ownerCt.ownerCt;
       Ext.getCmp('alarm_queries').getComponent('portalId_south').updateAlarmQueries(update_params);
       this.hide();
       this.destroy();
@@ -656,17 +651,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       }catch(e){}
     }
   },
-  /*
-  resetFields: function(buttonEl, eventObj)
-  {
-    sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
-    for(key in sliders){
-      try{
-        sliders[key].reset();
-      }catch(e){}
-    }
-  },
-  */
+  
   clearProviders: function()
   {
     Ext.each(this.providers, function(item, index, allItems) {

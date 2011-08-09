@@ -17,4 +17,5 @@ ActionController::Routing::Routes.draw do |map|
   map.get_schools "/rollcall/get_schools", :controller => "rollcall/school", :action => "get_schools"
   map.get_school_data "/rollcall/get_school_data", :controller => "rollcall/school", :action => "get_school_data"
   map.get_student_data "/rollcall/get_student_data", :controller => "rollcall/school", :action => "get_student_data"
+  map.unauthorized "/rollcall/unauthorized", :controller => "rollcall/rollcall_app",:action => "unauthorized"
 end

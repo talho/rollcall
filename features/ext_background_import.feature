@@ -5,9 +5,7 @@ Feature: Importing automated data
 
   Background:
     Given the following entities exist:
-      | Role         | SchoolNurse     | rollcall |
       | Role         | Epidemiologist  | rollcall |
-      | Role         | Rollcall        | rollcall |
       | Jurisdiction | Texas           |          |
       | Jurisdiction | Houston         |          |
       | Jurisdiction | Harris          |          |
@@ -21,37 +19,32 @@ Feature: Importing automated data
       | Ashford Elementary  | 273           | 101912273 | Elementary School | 77077       | 29.7477296 | -95.5988336 | "Ashford Elementary School, 1815 Shannon Valley Dr, Houston, TX 77077, USA"    |
       | Yates High School   | 20            | 101912020 | High School       | 77004       | 29.7232848 | -95.3546602 | "Yates High School: School Buildings, 3703 Sampson St, Houston, TX 77004, USA" |
     And the following symptoms exist:
-    | icd9_code | name                    |
-    | 032.9     | Diphtheria              |
-    | 034.0     | Strep Throat            |
-    | 034.1     | Scarlet Fever           |
-    | 038.11    | Staph Aureus            |
-    | 041.00    | Streptococcal Infection |
-    | 052.9     | Chicken Pox             |
-    | 056.9     | Rubella                 |
-    | 055.9     | Measles                 |
-    | 072.9     | Mumps                   |
-    | 322.9     | Meningitis              |
-    | 323.9     | Encephalitis            |
-    | 462       | Sore Throat             |
-    | 478.19    | Congestion              |
-    | 487.1     | Influenza               |
-    | 573.3     | Hepatitis               |
-    | 780.60    | Temperature             |
-    | 780.64    | Chills                  |
-    | 780.79    | Lethargy                |
-    | 784.0     | Headache                |
-    | 786.2     | Cough                   |
-    | 787.03    | Vomiting                |
-    | 787.91    | Diarrhea                |
-    | 0         | None                    |
-  And the following users exist:
-    | Nurse Betty  | nurse.betty@example.com | SchoolNurse    | Houston |
-    | Nurse Betty  | nurse.betty@example.com | Rollcall       | Houston |
-    | Epi Smith    | epi.smith@example.com   | Epidemiologist | Houston |
-    | Epi Smith    | epi.smith@example.com   | Rollcall       | Houston |
-    | Normal Epi   | normal.epi@example.com  | Epidemiologist | Houston |
-    | No Schools   | noschools@example.com   | Rollcall       | Harris  |
+      | icd9_code | name                    |
+      | 032.9     | Diphtheria              |
+      | 034.0     | Strep Throat            |
+      | 034.1     | Scarlet Fever           |
+      | 038.11    | Staph Aureus            |
+      | 041.00    | Streptococcal Infection |
+      | 052.9     | Chicken Pox             |
+      | 056.9     | Rubella                 |
+      | 055.9     | Measles                 |
+      | 072.9     | Mumps                   |
+      | 322.9     | Meningitis              |
+      | 323.9     | Encephalitis            |
+      | 462       | Sore Throat             |
+      | 478.19    | Congestion              |
+      | 487.1     | Influenza               |
+      | 573.3     | Hepatitis               |
+      | 780.60    | Temperature             |
+      | 780.64    | Chills                  |
+      | 780.79    | Lethargy                |
+      | 784.0     | Headache                |
+      | 786.2     | Cough                   |
+      | 787.03    | Vomiting                |
+      | 787.91    | Diarrhea                |
+      | 0         | None                    |
+    And the following users exist:
+      | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Houston |
 
 
   Scenario: Uploading a file
@@ -112,16 +105,16 @@ Feature: Importing automated data
     And I select "Anderson Elementary" from ext combo "select_school"
     And I press "OK"
     And I wait for the panel to load
-    And I should see "John | Dorian | " within grid "#student_grid"    
+    And I should see "John" within grid "student_grid" in column "First Name"
     When I press "Change School"
     And I wait for the panel to load
     And I select "Ashford Elementary" from ext combo "select_school"
     And I press "OK"
     And I wait for the panel to load
-    And I should see "Chris | Turk | " within grid "#student_grid"
+    And I should see "Chris" within grid "student_grid" in column "First Name"
     When I press "Change School"
     And I wait for the panel to load
     And I select "Yates High School" from ext combo "select_school"
     And I press "OK"
     And I wait for the panel to load
-    And I should see "Elliot | Reid | " within grid "#student_grid"
+    And I should see "Elliot" within grid "student_grid" in column "First Name"

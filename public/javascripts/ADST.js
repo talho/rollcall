@@ -20,6 +20,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       scope:    this,
       items:[{
         id:         'adst_container',
+        itemId:     'adst_container',
         layout:     'border',
         autoScroll: true,
         scope:      this,
@@ -366,6 +367,11 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           this.buttons[1].show();
           //this.ownerCt.ownerCt.ownerCt.getComponent('reports_panel').getBottomToolbar().findById('create_report_button').enable();
           this.doLayout();
+        },
+        exception: function(misc){
+          Ext.Msg.alert('Access', 'You are not authorized to access this feature.  Please contact TX PHIN.', function(){
+            Ext.getCmp('adst_container').ownerCt.destroy();
+          });
         }
       }
     });

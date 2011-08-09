@@ -7,7 +7,8 @@
 # The actions held in this controller are primarily called by the Rollcall NurseAssistant ExtJS panel.
 
 class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
-
+  before_filter :rollcall_nurse_required
+  
   # Method returns a set of student records and associated values. Method can be called with :search_term param
   # which will search against the student db object attributes.  Method can also be called with
   # a :filter_report_date param which will return a student set for a specific date.

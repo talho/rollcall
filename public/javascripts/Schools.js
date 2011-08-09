@@ -25,6 +25,11 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
           center_panel.add({items: this.gmap_panel});
           center_panel.doLayout();
 
+        },
+        exception: function(misc){
+          Ext.Msg.alert('Access', 'You are not authorized to access this feature.  Please contact TX PHIN.', function(){
+            Ext.getCmp(config.id).destroy();
+          }, this);
         }
       }
     });
@@ -51,6 +56,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
       scope:       this,
       height:      200,
       viewConfig:  {
+        emptyText: '<div><b style="color:#000">No School Data Available</b></div>',
         forceFit: true
       },
       store: new Ext.data.JsonStore({
@@ -80,6 +86,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
       scope:       this,
       height:      200,
       viewConfig:  {
+        emptyText: '<div><b style="color:#000">No Student Data Available</b></div>',
         forceFit: true
       },
       bodyStyle: {
@@ -110,6 +117,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
       stripeRows:  true,
       stateful:    true
     });
+
     var school_radio_group  = new Ext.form.RadioGroup({
       fieldLabel: 'School Daily Info',
       id:         'school_radio_group',
@@ -131,6 +139,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
       ],
       scope: this
     });
+
     var school_list_grid = new Ext.grid.GridPanel({
       store:      this.school_store,
       loadMask:   true,
@@ -148,6 +157,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
     var school_panel = new Ext.Panel({
       title:    config.title,
       itemId:   config.id,
+      id:       config.id,
       layout:   'fit',
       closable: true,
       items:    [{
@@ -221,7 +231,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
     student_radio_group.addListener('change', function(group, chkd_radio )
       {
         var id = this.school_list_grid().getSelectionModel().getSelected().get('id');
-        this.getSchoolData(chkd_radio.value, this.school_grid_panel(), 'student', id);
+        this.getSchoolData(chkd_radio.value, this.student_grid_panel(), 'student', id);
       },
     this);
 
@@ -237,6 +247,8 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
 
   showSchoolProfile: function(grid_panel, row_index, event_obj)
   {
+    this.grid_mask = new Ext.LoadMask(grid_panel.getEl(), {msg:"Please wait...", removeMask: true});
+    this.grid_mask.show();
     var school              = grid_panel.getStore().getAt(row_index);
     var profile_panel       = grid_panel.ownerCt.ownerCt.getComponent('school_profile_panel');
     var main_panel          = grid_panel.ownerCt.ownerCt.getComponent('school_main_panel');
@@ -278,13 +290,15 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
 
   getSchoolData: function(month, grid_panel, type, school_id)
   {
-    var grid_mask = new Ext.LoadMask(grid_panel.getEl(), {msg:"Please wait...", removeMask: true});
+    var grid_mask  = new Ext.LoadMask(grid_panel.getEl(), {msg:"Please wait...", removeMask: true});
+    var grid_owner = grid_panel.ownerCt.ownerCt;
+    var data_type  = type
     grid_mask.show();
     Ext.Ajax.request({
       url:     '/rollcall/get_'+type+'_data',
       method:  'POST',
       headers: {'Accept': 'application/json'},
-      scope:   grid_panel.ownerCt.ownerCt,
+      scope:   this,
       params:  {
         school_id: school_id,
         time_span: month
@@ -293,8 +307,9 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
       {
         jsonObj = Ext.decode(response.responseText).results;
         grid_panel.store.loadData(jsonObj);
-        this.doLayout();
+        grid_owner.doLayout();
         grid_mask.hide();
+        if(data_type == "student") this.grid_mask.hide();
       }
     });
   }

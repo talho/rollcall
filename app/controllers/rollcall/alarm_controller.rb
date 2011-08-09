@@ -8,7 +8,7 @@
 # The actions held in this controller are primarily called by the Rollcall AlarmsPanel.
 
 class Rollcall::AlarmController < Rollcall::RollcallAppController
-
+  before_filter :rollcall_isd_required
   # GET rollcall/alarms
   def index
     alarms        = []

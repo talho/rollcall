@@ -5,53 +5,48 @@ Feature: Use Nurse Assistant Panel
 
 Background:
   Given the following entities exist:
-      | Role         | SchoolNurse     | rollcall |
-      | Role         | Epidemiologist  | rollcall |
-      | Role         | Rollcall        | rollcall |
+      | Role         | Nurse           | rollcall |
+      #| Role         | Epidemiologist  | rollcall |
+      #| Role         | Rollcall        | rollcall |
       | Jurisdiction | Texas           |          |
       | Jurisdiction | Houston         |          |
       | Jurisdiction | Harris          |          |
-  And Texas is the parent jurisdiction of:
-    | Houston | Harris |
-  And Houston has the following school districts:
-    | Houston |
-  And "Houston" has the following schools:
-    | name                | school_number | tea_id    | school_type       | postal_code | gmap_lat   | gmap_lng    | gmap_addr                                                                      |
-    | Anderson Elementary | 105           | 101912105 | Elementary School | 77035       | 29.6496766 | -95.4879978 | "Anderson Elementary School, 5727 Ludington Dr, Houston, TX 77035-4399, USA"   |
-    | Ashford Elementary  | 273           | 101912273 | Elementary School | 77077       | 29.7477296 | -95.5988336 | "Ashford Elementary School, 1815 Shannon Valley Dr, Houston, TX 77077, USA"    |
-    | Yates High School   | 20            | 101912020 | High School       | 77004       | 29.7232848 | -95.3546602 | "Yates High School: School Buildings, 3703 Sampson St, Houston, TX 77004, USA" |
-  And the following symptoms exist:
-    | icd9_code | name                    |
-    | 032.9     | Diphtheria              |
-    | 034.0     | Strep Throat            |
-    | 034.1     | Scarlet Fever           |
-    | 038.11    | Staph Aureus            |
-    | 041.00    | Streptococcal Infection |
-    | 052.9     | Chicken Pox             |
-    | 056.9     | Rubella                 |
-    | 055.9     | Measles                 |
-    | 072.9     | Mumps                   |
-    | 322.9     | Meningitis              |
-    | 323.9     | Encephalitis            |
-    | 462       | Sore Throat             |
-    | 478.19    | Congestion              |
-    | 487.1     | Influenza               |
-    | 573.3     | Hepatitis               |
-    | 780.60    | Temperature             |
-    | 780.64    | Chills                  |
-    | 780.79    | Lethargy                |
-    | 784.0     | Headache                |
-    | 786.2     | Cough                   |
-    | 787.03    | Vomiting                |
-    | 787.91    | Diarrhea                |
-    | 0         | None                    |
-  And the following users exist:
-    | Nurse Betty  | nurse.betty@example.com | SchoolNurse    | Houston |
-    | Nurse Betty  | nurse.betty@example.com | Rollcall       | Houston |
-    | Epi Smith    | epi.smith@example.com   | Epidemiologist | Houston |
-    | Epi Smith    | epi.smith@example.com   | Rollcall       | Houston |
-    | Normal Epi   | normal.epi@example.com  | Epidemiologist | Houston |
-    | No Schools   | noschools@example.com   | Rollcall       | Harris  |
+    And Texas is the parent jurisdiction of:
+      | Houston | Harris |
+    And Houston has the following school districts:
+      | Houston |
+    And "Houston" has the following schools:
+      | name                | school_number | tea_id    | school_type       | postal_code | gmap_lat   | gmap_lng    | gmap_addr                                                                      |
+      | Anderson Elementary | 105           | 101912105 | Elementary School | 77035       | 29.6496766 | -95.4879978 | "Anderson Elementary School, 5727 Ludington Dr, Houston, TX 77035-4399, USA"   |
+      | Ashford Elementary  | 273           | 101912273 | Elementary School | 77077       | 29.7477296 | -95.5988336 | "Ashford Elementary School, 1815 Shannon Valley Dr, Houston, TX 77077, USA"    |
+      | Yates High School   | 20            | 101912020 | High School       | 77004       | 29.7232848 | -95.3546602 | "Yates High School: School Buildings, 3703 Sampson St, Houston, TX 77004, USA" |
+    And the following symptoms exist:
+      | icd9_code | name                    |
+      | 032.9     | Diphtheria              |
+      | 034.0     | Strep Throat            |
+      | 034.1     | Scarlet Fever           |
+      | 038.11    | Staph Aureus            |
+      | 041.00    | Streptococcal Infection |
+      | 052.9     | Chicken Pox             |
+      | 056.9     | Rubella                 |
+      | 055.9     | Measles                 |
+      | 072.9     | Mumps                   |
+      | 322.9     | Meningitis              |
+      | 323.9     | Encephalitis            |
+      | 462       | Sore Throat             |
+      | 478.19    | Congestion              |
+      | 487.1     | Influenza               |
+      | 573.3     | Hepatitis               |
+      | 780.60    | Temperature             |
+      | 780.64    | Chills                  |
+      | 780.79    | Lethargy                |
+      | 784.0     | Headache                |
+      | 786.2     | Cough                   |
+      | 787.03    | Vomiting                |
+      | 787.91    | Diarrhea                |
+      | 0         | None                    |
+    And the following users exist:
+      | Nurse Betty  | nurse.betty@example.com | Nurse    | Houston |
   And "Houston" has the following current district absenteeism data:
     | day | total_enrolled | total_absent |
     | 1   | 400            | 13           |
@@ -135,7 +130,7 @@ Scenario: User enters a new student visit
 Scenario: User enters a new student visit off of a existing student
   When I press "New"
   And I should see "New Visit"
-  And I should see "Hugh | Mann | 5318008" within grid "#student_list"
+  And I should see "Hugh" within grid "student_list" in column "First Name"
   And I select the "Hugh" grid row
   And I wait for the panel to load
   And I fill in "Temperature" with "98"
@@ -153,7 +148,7 @@ Scenario: User enters a new student visit off of a existing student
 Scenario: User enters a new student visit off of a existing student using a student ID
   When I press "New"
   And I should see "New Visit"
-  And I should see "Hugh | Mann | 5318008" within grid "#student_list"
+  And I should see "Hugh" within grid "student_list" in column "First Name"
   And I fill in "filter_student_number" with "5318008"
   And I should see "Hugh" within "#student_list"
   And I select the "Hugh" grid row
@@ -205,7 +200,7 @@ Scenario: User creates a new student
   And I select "White" from ext combo "race"
   And I press "Submit"
   And I wait for the panel to load
-  And I should see "Tester | Test | 222333" within grid "#student_grid"
+  And I should see "Tester" within grid "student_grid" in column "First Name"
   And I should see "Tester" within "#student_grid"
   And I select the "Tester" grid row
   And I wait for the panel to load
@@ -226,7 +221,7 @@ Scenario: User edits an existing student
   And I select "White" from ext combo "race"
   And I press "Submit"
   And I wait for the panel to load
-  And I should see "Tester | Test | 222333" within grid "#student_grid"
+  And I should see "Tester" within grid "student_grid" in column "First Name"
   And I fill in "list_filter_student_number" with "222333"
   And I should see "Tester" within "#student_grid"
   And I select the "Tester" grid row
@@ -242,7 +237,7 @@ Scenario: User searches for a student visit
 
 Scenario: User refreshes student list
   When I fill in "list_filter_student_number" with ""
-  And I should see "Elliot | Reid | 101202303" within grid "#student_grid"
+  And I should see "Elliot" within grid "student_grid" in column "First Name"
   And I fill in "list_filter_student_number" with "101202303"
   And I should see "Elliot" within "#student_grid"
   And I should not see "Unknown" within "#student_grid"
@@ -267,4 +262,4 @@ Scenario: User changes schools
   And I select "Anderson Elementary" from ext combo "select_school"
   And I press "OK"
   And I wait for the panel to load
-  And I should see "John | Dorian | 10055500" within grid "#student_grid"
+  And I should see "John" within grid "student_grid" in column "First Name"

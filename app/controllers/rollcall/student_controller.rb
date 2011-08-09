@@ -1,5 +1,5 @@
 class Rollcall::StudentController < Rollcall::RollcallAppController
-
+  before_filter :rollcall_student_required
   # GET rollcall/students
   def index
     race = [

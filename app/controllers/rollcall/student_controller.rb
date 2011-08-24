@@ -57,35 +57,8 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
 
   # POST rollcall/students
   def create
-    report_date    = Time.gm(Time.now.year, Time.now.month, Time.now.day)
-#    school_info    = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date params[:school_id], report_date
-#    total_absent   = nil
-#    total_enrolled = nil
-
-#    if school_info.blank?
-#      if params[:total_enrolled_alpha_value]
-#        total_enrolled = params[:total_enrolled_alpha_value]
-#      else
-#        sdi            = Rollcall::SchoolDailyInfo.find_all_by_school_id(params[:school_id], :order => "report_date ASC")
-#        total_enrolled = sdi.last.total_enrolled
-#      end
-#      total_absent = 1
-#      school_info  = Rollcall::SchoolDailyInfo.create(
-#        :school_id          => params[:school_id],
-#        :total_absent       => total_absent,
-#        :total_enrolled     => total_enrolled,
-#        :report_date        => report_date
-#      )
-#    else
-#      total_enrolled = school_info.total_enrolled
-#      total_absent   = school_info.total_absent + 1
-#      school_info.update_attributes(
-#        :total_absent => total_absent,
-#        :report_date  => report_date
-#      )
-#      school_info.save!
-#    end
-    race = [
+    report_date = Time.gm(Time.now.year, Time.now.month, Time.now.day)
+    race        = [
       {:id => 0, :value => 'Select Race...'},
       {:id => 1, :value => 'White'},
       {:id => 2, :value => 'Black'},
@@ -220,6 +193,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
     end
   end
   
+   # POST rollcall/students/history
   def get_history
     unless params[:id].blank?
       daily_records = Rollcall::StudentDailyInfo.find_all_by_student_id(params[:id])

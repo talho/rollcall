@@ -149,7 +149,7 @@ Jackson Middle School,101912,054,101912054,Middle School,77023,29.7357842,-95.32
 Janowski Elementary,101912,181,101912181,Elementary School,77022,29.8299481,-95.3707711,"Janowski Elementary School, 7500 Bauman Rd, Houston, TX 77022-6199"
 Jefferson Elementary,101912,182,101912182,Elementary School,77009,29.8055045,-95.3699379,"Jefferson Elementary School, 5000 Sharman St, Houston, TX 77009-2698"
 Jenard M Gross Elementary,101912,369,101912369,Elementary School,77071,29.6388879,-95.5291892,"Gross Elementary, 12583 S Gessner Rd, Houston, TX 77071"
-JJAEP,101912,320,101912320,High School,77054,29.68442,-95.416301,"Juvenile Justice Alternative Education Program, 2525 Murworth Dr, Houston, TX 77054"
+Harris County JJAEP,101912,320,101912320,High School,77054,29.68442,-95.416301,"Juvenile Justice Alternative Education Program, 2525 Murworth Dr, Houston, TX 77054"
 Johnston Middle School,101912,055,101912055,Middle School,77096,29.6696759,-95.473275,"Johnston Middle: School Buildings, 10410 Manhattan Dr, Houston, TX 77096"
 Jones High School,101912,006,101912006,High School,77033,29.675102,-95.342285,"Jones High School, 7414 St Lo Rd, Houston, TX 77033"
 K Smith Elementary,101912,242,101912242,Elementary School,77092,29.8385594,-95.4621624,"Katherine Smith Elementary, 4802 Chrystell Ln, Houston, TX 77092-3513"
@@ -370,7 +370,7 @@ Jesse McGowen Elementary School,043907,123,043907123,Elementary School,75070,33.
 Naomi Press Elementary School,043907,124,043907124,Elementary School,75071,33.241276,-96.621800,"Naomi Press Elementary School, 4101 Shawnee Drive, McKinney, TX 75071"
 Herman Lawson Early Childhood Center,043907,125,043907125,Kindergarten,75071,33.202158,-96.647152,"Herman Lawson Early Childhood Center, 500 Dowell Street, McKinney, TX 75071"
 Lizzie Nell Cundiff McClure Elementary,043907,126,043907126,Elementary School,75071,33.215638,-96.698439,"Lizzie Nell Cundiff McClure Elementary, 1753 N. Ridge Rd., McKinney, TX 75071"
-JJAEP,043907,197,043907197,Multilevel School,75069,33.210686,-96.635144,"JJAEP, 2100 West White Avenue, McKinney, TX 75069"
+Collin County JJAEP,043907,197,043907197,Multilevel School,75069,33.210686,-96.635144,"JJAEP, 2100 West White Avenue, McKinney, TX 75069"
 Wylie High School,043914,001,043914001,High School,75098,33.011007,-96.571466,"Wylie High School, 2550 W Hwy 544, Wylie, TX 75098"
 Wylie East High School,043914,003,043914003,High School,75098,33.016601,-96.494272,"Wylie East High School, 3000 Wylie East Drive, Wylie, TX 75098"
 Achieve Academy,043914,004,043914004,Multilevel School,75098,33.004765,-96.537042,"Achieve Academy, 400 Pirate Drive, Wylie, TX 75098"
@@ -390,53 +390,75 @@ Tibbals Elementary,043914,107,043914107,Elementary School,75087,33.024662,-96.59
 Smith Elementary,043914,108,043914108,Elementary School,75098,33.046609,-96.568384,"Smith Elementary, 2221 Country Club, Wylie, TX 75098"
 Whitt Elementary,043914,109,043914109,Elementary School,75048,32.990760,-96.587411,"Whitt Elementary, 7520 Woodcreek Way, Sachse, TX 75048"
 Watkins Elementary,043914,110,043914110,Elementary School,75098,32.989043,-96.522400,"Watkins Elementary, 1301 Elm Road, Wylie, TX 75098"
-Frisco High School,043905,001,043905001,High School,,,''
-Centennial High School,043905,002,043905002,High School,,,''
-JJAEP,043905,003,043905003,Multilevel School,,,''
-Wakeland High School,043905,005,043905005,High School,,,''
-Liberty High School,043905,006,043905006,High School,,,''
-Heritage High School,043905,007,043905007,High School,,,''
-Lone Star High School,043905,008,043905008,High School,,,''
-Staley Middle School,043905,041,043905041,Middle School,,,''
-Clark Middle School,043905,043,043905043,Middle School,,,''
-Pioneer Heritage Middle School,043905,044,043905044,Middle School,,,''
-Wester Middle School,043905,045,043905045,Middle School,,,''
-Griffin Middle School,043905,046,043905046,Middle School,,,''
-Roach Middle School,043905,047,043905047,Middle School,,,''
-Fowler Middle School,043905,048,043905048,Middle School,,,''
-Stafford Middle School,043905,049,043905049,Middle School,,,''
-Scoggins Middle School,043905,050,043905050,Middle School,,,''
-Hunt Middle School,043905,051,043905051,Middle School,,,''
-Maus Middle School,043905,052,043905052,Middle School,,,''
-Cobb Middle School,043905,053,043905053,Middle School,,,''
-Rogers Elementary School,043905,102,043905102,Elementary School,,,''
-Curtsinger Elementary School,043905,103,043905103,Elementary School,,,''
-Smith Elementary School,043905,104,043905104,Elementary School,,,''
-Anderson Elementary School,043905,105,043905105,Elementary School,,,''
-Christie Elementary School,043905,106,043905106,Elementary School,,,''
-Fisher Elementary School,043905,107,043905107,Elementary School,,,''
-Bright Elementary School,043905,108,043905108,Elementary School,,,''
-Borchardt Elementary School,043905,109,043905109,Elementary School,,,''
-Shawnee Trail Elementary School,043905,110,043905110,Elementary School,,,''
-Spears Elementary School,043905,111,043905111,Elementary School,,,''
-Sparks Elementary School,043905,112,043905112,Elementary School,,,''
-Gunstream Elementary School,043905,113,043905113,Elementary School,,,''
-Riddle Elementary School,043905,114,043905114,Elementary School,,,''
-Boals Elementary School,043905,115,043905115,Elementary School,,,''
-Isbell Elementary School,043905,116,043905116,Elementary School,,,''
-Pink Elementary School,043905,117,043905117,Elementary School,,,''
-Bledsoe Elementary School,043905,118,043905118,Elementary School,,,''
-Ashley Elementary School,043905,119,043905119,Elementary School,,,''
-Ogle Elementary School,043905,120,043905120,Elementary School,,,''
-Corbell Elementary School,043905,121,043905121,Elementary School,,,''
-Sem Elementary School,043905,122,043905122,Elementary School,,,''
-Taylor Elementary School,043905,123,043905123,Elementary School,,,''
-Mooneyham Elementary School,043905,124,043905124,Elementary School,,,''
-Robertson Elementary School,043905,125,043905125,Elementary School,,,''
-Elliott Elementary School,043905,126,043905126,Elementary School,,,''
-Carroll Elementary School,043905,127,043905127,Elementary School,,,''
-Tadlock Elementary School,043905,128,043905128,Elementary School,,,''
-Allen Elementary School,043905,129,043905129,Elementary School,,,''
-Sonntag Elementary School,043905,130,043905130,Elementary School,,,''
-Purefoy Elementary School,043905,131,043905131,Elementary School,,,''
-Early Childhood School,043905,135,043905135,Kindergarten,,,''
+Frisco High School,043905,001,043905001,High School,75034,33.137666,-96.821104,"Frisco High School, 6401 Parkwood, Frisco, TX 75034"
+Centennial High School,043905,002,043905002,High School,75034,33.136675,-96.768104,"Centennial High School, 6901 Coit Rd, Frisco, TX 75035"
+Collin County JJAEP,043905,003,043905003,Multilevel School,75034,33.153640,-96.823915,"Collin County JJAEP, 6942 Maple St, Frisco, TX 75034"
+Wakeland High School,043905,005,043905005,High School,75034,33.161355,-96.848913,"Wakeland High School, 10700 Legacy Dr, Frisco, TX 75034"
+Liberty High School,043905,006,043905006,High School,75035,33.138892,-96.742111,"Liberty High School, 15250 Rolater Rd, Frisco TX 75035"
+Heritage High School,043905,007,043905007,High School,75035,33.175190,-96.754881,"Heritage High School, 14040 Eldorado Parkway, Frisco, TX 75035"
+Lone Star High School,043905,008,043905008,High School,75034,33.191205,-96.866294,"Lone Star High School, 2606 Panther Creek Pkwy Frisco, TX 75034"
+Staley Middle School,043905,041,043905041,Middle School,75034,33.157698,-96.821010,"Staley Middle School, 6927 Stadium Ln, Frisco TX 75034"
+Clark Middle School,043905,043,043905043,Middle School,750035,33.115547,-96.797227,"Clark Middle School, 4600 Colby Dr, Frisco TX 75035"
+Pioneer Heritage Middle School,043905,044,043905044,Middle School,75034,33.143597,-96.877576,"Pioneer Heritage Middle School, 1649 High Shoals Drive, Frisco, TX 75034"
+Wester Middle School,043905,045,043905045,Middle School,75035,33.142187,-96.772224,"Wester Middle School, 12293 Shepherds Hill Lane, Frisco, TX 75035"
+Griffin Middle School,043905,046,043905046,Middle School,75034,33.175168,-96.841071,"Griffin Middle School, 3703 Eldorado Parkway, Frisco, TX 75034"
+Roach Middle School,043905,047,043905047,Middle School,75035,33.173408,-96.750380,"Roach Middle School, 12499 Independence Parkway, Frisco, TX 75035"
+Fowler Middle School,043905,048,043905048,Middle School,75035,33.142185,-96.772240,"Fowler Middle School, 12293 Shepherds Hill Lane, Frisco, TX 75035"
+Stafford Middle School,043905,049,043905049,Middle School,75034,33.197938,-96.868944,"Stafford Middle School, 2288 Little River Dr, Frisco, TX 75034"
+Scoggins Middle School,043905,050,043905050,Middle School,75070,33.152319,-96.710629,"Scoggins Middle School, 7070 Stacy Rd, McKinney, TX 75070"
+Hunt Middle School,043905,051,043905051,Middle School,75034,33.117376,-96.809716,"Hunt Middle School, 4900 Legendary Drive, Frisco, TX 75034"
+Maus Middle School,043905,052,043905052,Middle School,75035,33.178055,-96.769407,"Maus Middle School, 12175 Coit Road, Frisco, TX 75035"
+Cobb Middle School,043905,053,043905053,Middle School,75034,33.156029,-96.863231,"Cobb Middle School, 9400 Teel Parkway, Frisco, TX 75034"
+Rogers Elementary School,043905,102,043905102,Elementary School,75034,33.166120,-96.811084,"Rogers Elementary School, 10500 Rogers Road, Frisco, TX 75034"
+Curtsinger Elementary School,043905,103,043905103,Elementary School,75035,33.123755,-96.768726,"Curtsinger Elementary Schoo, 12450 Jereme Trail, Frisco, TX 75035"
+Smith Elementary School,043905,104,043905104,Elementary School,75035,33.113907,-96.797254,"Smith Elementary School, 9800 Sean Drive, Frisco, TX 75035"
+Anderson Elementary School,043905,105,043905105,Elementary School,75025,33.105846,-96.745943,"Anderson Elementary School, 2800 Oakland Hills Drive, Plano, TX 75025"
+Christie Elementary School,043905,106,043905106,Elementary School,75035,33.147761,-96.791080,"Christie Elementary School, 10300 Huntington Road, Frisco, TX 75035"
+Fisher Elementary School,043905,107,043905107,Elementary School,75034,33.157756,-96.870036,"Fisher Elementary School, 2500 Old Orchard Rd, Frisco, TX 75034"
+Bright Elementary School,043905,108,043905108,Elementary School,75034,33.141455,-96.814345,"Bright Elementary School, 7600 Woodstream Drive, Frisco, TX 75034"
+Borchardt Elementary School,043905,109,043905109,Elementary School,75024,33.103846,-96.775638,"Borchardt Elementary School, 4300 Waskom Drive, Plano, TX 75024"
+Shawnee Trail Elementary School,043905,110,043905110,Elementary School,75035,33.134813,-96.787663,"Shawnee Trail Elementary School, 10701 Preston Vineyard Drive, Frisco, TX 75035"
+Spears Elementary School,043905,111,043905111,Elementary School,75034,33.127116,-96.817473,"Spears Elementary School, 8500 Wade Boulevard, Frisco, TX 75034"
+Sparks Elementary School,043905,112,043905112,Elementary School,75034,33.147024,-96.882752,"Sparks Elementary School, 8200 Otis Dr, Frisco, TX 75034"
+Gunstream Elementary School,043905,113,043905113,Elementary School,75035,33.141913,-96.777223,"Gunstream Elementary School, 7600 Rockyridge Drive, Frisco, TX 75035"
+Riddle Elementary School,043905,114,043905114,Elementary School,75024,33.090238,-96.788483,"Riddle Elementary School, 8201 Robinson Road, Plano, TX 75024"
+Boals Elementary School,043905,115,043905115,Elementary School,75034,33.188035,-96.873279,"Boals Elementary School, 2035 Jaguar Drive, Frisco, TX 75034"
+Isbell Elementary School,043905,116,043905116,Elementary School,75035,33.128450,-96.741180,"Isbell Elementary School, 6000 Maltby Drive, Frisco, TX 75035"
+Pink Elementary School,043905,117,043905117,Elementary School,75034,33.173637,-96.858038,"Pink Elementary School, 3650 Overhill Drive, Frisco, TX 75034"
+Bledsoe Elementary School,043905,118,043905118,Elementary School,75034,33.129411,-96.874199,"Bledsoe Elementary School, 1900 Timber Ridge Drive, Frisco, TX 75034"
+Ashley Elementary School,043905,119,043905119,Elementary School,75035,33.170696,-96.737760,"Ashley Elementary School, 15601 Christopher Ln, Frisco, TX 75035"
+Ogle Elementary School,043905,120,043905120,Elementary School,75035,33.159802,-96.724051,"Ogle Elementary School, 4200 Big Folk Trl, Frisco, TX 75035"
+Corbell Elementary School,043905,121,043905121,Elementary School,75034,33.162981,-96.880958,"Corbell Elementary School, 11095 Monarch Drive, Frisco, TX 75034"
+Sem Elementary School,043905,122,043905122,Elementary School,75035,33.182800,-96.777223,"Sem Elementary School, 12721 Honey Grove Drive, Frisco, TX 75035"
+Taylor Elementary School,043905,123,043905123,Elementary School,75025,33.112029,-96.760175,"Taylor Elementary School, 9865 Gillespie Drive, Plano, TX 75025"
+Mooneyham Elementary School,043905,124,043905124,Elementary School,75070,33.185012,-96.760009,"Mooneyham Elementary School, 2301 Eden Drive, McKinney, TX 75070"
+Robertson Elementary School,043905,125,043905125,Elementary School,75068,33.192105,-96.894726,"Robertson Elementary, 2501 Woodlake Parkway, Little Elm, TX 75068"
+Elliott Elementary School,043905,126,043905126,Elementary School,75070,33.164889,-96.703854,"Elliott Elementary, 3721 Hudson Crossing, McKinney, TX 75070"
+Carroll Elementary School,043905,127,043905127,Elementary School,75034,33.159139,-96.849949,"Carroll Elementary School, 4380 Throne Hall Drive, Frisco, TX 75034"
+Tadlock Elementary School,043905,128,043905128,Elementary School,75035,33.181447,-96.787408,"Tadlock Elementary School, 12515 Godfrey Drive, Frisco, TX 75035"
+Allen Elementary School,043905,129,043905129,Elementary School,75034,33.126615,-96.847304,"Allen Elementary School, 800 Legacy Drive, Frisco, TX 75034"
+Sonntag Elementary School,043905,130,043905130,Elementary School,75070,33.187380,-96.745858,"Sonntag Elementary School, 2001 Reagan Drive, McKinney, TX 75070"
+Purefoy Elementary School,043905,131,043905131,Elementary School,75034,33.174894,-96.864685,"Purefoy Elementary School, 11880 Teel Parkway, Frisco, TX 75034"
+Early Childhood School,043905,135,043905135,Kindergarten,75035,33.149468,-96.792381,"Early Childhood School, 10330 Red Cedar Drive, Frisco, TX 75035"
+Allen High School,043901,001,043901001,High School,75002,33.113085,-96.657447,"Allen High School, 300 Rivercrest Boulevard, Allen, TX 75002"
+Lowery Freshman Center,043901,002,043901002,High School,75002,33.102880,-96.656669,"Lowery Freshman Center, 601 East Main Street, Allen, TX 75002"
+Collin County JJAEP,043901,003,043901003,High School,75002,33.102974,-96.656706,"Collin Co JJAEP, 601 East Main St, Allen, TX 75002"
+W E Pete Ford Middle School,043901,042,043901042,Middle School,75002,33.092535,-96.656374,"W E Pete Ford Middle School, 630 Park Pl Dr, Allen, TX 75002"
+Walter and Lois Curtis Middle School,043901,043,043901043,Middle School,75002,33.106607,-96.630418,"Walter and Lois Curtis Middle School, 1530 Rivercrest Boulevard, Allen, TX 75002"
+Ereckson Middle School,043901,044,043901044,Middle School,75013,33.095768,-96.706040,"Ereckson Middle School, 450 Tatum Drive, Allen, TX 75013"
+D L Roundtree Elementary,043901,101,043901101,Elementary School,75002,33.100310,-96.652042,"D L Roundtree Elementary, 800 East Main Street, Allen, TX 75002"
+Alton Boyd Elementary,043901,102,043901102,Elementary School,75002,33.085263,-96.667314,"Alton Boyd Elementary, 800 South Jupiter Road, Allen, TX 75002"
+Gene M Reed Elementary,043901,104,043901104,Elementary School,75002,33.108456,-96.641415,"Gene M Reed Elementary, 1200 Rivercrest Boulevard, Allen, TX 75002"
+Alvis C Story Elementary,043901,105,043901105,Elementary School,75002,33.094926,-96.629670,"Alvis C Story Elementary, 1550 Edelweiss Drive, Allen, TX 75002"
+Vaughan Elementary, 043901,106,043901106,Elementary School,75002,33.083881,-96.658037,"Vaughan Elementary, 820 Cottonwood Drive, Allen, TX 75002"
+Flossie Floyd Green Elementary,043901,107,043901107,Elementary School,75013,33.107998,-96.700383,"Flossie Floyd Green Elementary, 1315 Comanche Drive, Allen, TX 75002"
+Frances E Norton Elementary,043901,108,043901108,Elementary School,75013,33.093966,-96.692576,"Frances E Norton Elementary School, 1120 Newport Drive, Allen, TX 75002"
+George J Anderson Elementary,043901,109,043901109,Elementary School,75002,33.102777,-96.635882,"Anderson Elementary School, 305 North Alder Drive, Allen, TX 75002"
+Bolin Elementary,043901,110,043901110,Elementary School,75002,33.081815,-96.636890,"Bolin Elementary School, Cheyenne Drive, Allen, TX 75002"
+Kerr Elementary,043901,111,043901111,Elementary School,75013,33.119465,-96.701553,"Kerr Elementary School, 1325 Glendover Drive, Allen, TX 75002"
+James and Margie Marion Elementary,043901,112,043901112,Elementary School,75002,33.124191,-96.640785,"James and Margie Marion Elementary School, 1595 Stablerun Drive, Allen, TX 75002"
+Dr E T Boon Elementary,043901,113,043901113,Elementary School,75013,33.113795,-96.693463,"Boon Elementary, 1050 Comanche Dr, Allen, TX 75002"
+Carlena Chandler Elementary,043901,114,043901114,Elementary School,75002,33.084926,-96.622181,"Carlena Chandler Elementary School, 1000 Water Oak Drive, Allen, TX 75002"
+Mary Evans Elementary,043901,115,043901115,Elementary School,75013,33.117497,-96.723547,"Mary Evans Elementary School, 1225 Walnut Springs Drive, Allen, TX 75002"
+David and Lynda Olson Elementary,043901,116,043901116,Elementary School,75002,33.114756,-96.624209,"David and Lynda Olson Elementary School, 1751 East Exchange Parkway, Allen, TX 75002"
+Beverly Cheatham Elementary,043901,117,043901117,Elementary School,75013,33.123266,-96.686811,"Beverly Cheatham Elementary, 1501 Hopewell Drive, Allen, TX 75002"

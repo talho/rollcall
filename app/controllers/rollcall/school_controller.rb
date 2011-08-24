@@ -1,9 +1,11 @@
 class Rollcall::SchoolController < Rollcall::RollcallAppController
   before_filter :rollcall_isd_required
+
+  # GET rollcall/schools
   def index
-    original_included_root = ActiveRecord::Base.include_root_in_json
+    original_included_root                  = ActiveRecord::Base.include_root_in_json
     ActiveRecord::Base.include_root_in_json = false
-    results = Rollcall::School.search(params, current_user)
+    results                                 = Rollcall::School.search(params, current_user)
     respond_to do |format|
       format.json do
         render :json => {
@@ -16,10 +18,11 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
     ActiveRecord::Base.include_root_in_json = original_included_root
   end
 
+  # GET rollcall/get_schools_for_combobox
   def get_schools_for_combobox
-    original_included_root = ActiveRecord::Base.include_root_in_json
+    original_included_root                  = ActiveRecord::Base.include_root_in_json
     ActiveRecord::Base.include_root_in_json = false
-    results = Rollcall::School.find(:all, :select => "id,display_name")
+    results                                 = Rollcall::School.find(:all, :select => "id,display_name")
     respond_to do |format|
       format.json do
         render :json => {
@@ -32,6 +35,7 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
     ActiveRecord::Base.include_root_in_json = original_included_root
   end
 
+  # POST rollcall/schools
   def show
     results = Rollcall::School.find_by_id(params[:school_id])
     respond_to do |format|
@@ -44,6 +48,7 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
     end
   end
 
+  # POST rollcall/get_schools
   def get_schools
     schools = []
     params[:school_ids].split(",").each do |id|
@@ -59,6 +64,7 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
     end
   end
 
+  # POST rollcall/get_school_data
   def get_school_data
     school    = Rollcall::School.find(params[:school_id])
     time_span = params[:time_span].to_i * 30
@@ -82,6 +88,7 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
     end
   end
 
+  # POST rollcall/get_student_data
   def get_student_data
     school    = Rollcall::School.find(params[:school_id])
     time_span = params[:time_span].to_i * 30

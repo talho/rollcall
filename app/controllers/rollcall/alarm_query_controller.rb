@@ -30,14 +30,14 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
     alarm_exist_by_name = Rollcall::AlarmQuery.find_by_name(params[:alarm_query_name])
     alarm_name          = alarm_exist_by_name.blank? ? params[:alarm_query_name] : "#{alarm_exist_by_name.name}_1"
     saved_result        = Rollcall::AlarmQuery.create(
-      :name                => alarm_name,
-      :user_id             => current_user.id,
-      :query_params        => params[:alarm_query_params],
-      :severity_min        => params[:severity_min],
-      :severity_max        => params[:severity_max],
-      :deviation_min       => params[:deviation_min],
-      :deviation_max       => params[:deviation_max],
-      :alarm_set           => false
+      :name          => alarm_name,
+      :user_id       => current_user.id,
+      :query_params  => params[:alarm_query_params],
+      :severity_min  => params[:severity_min],
+      :severity_max  => params[:severity_max],
+      :deviation_min => params[:deviation_min],
+      :deviation_max => params[:deviation_max],
+      :alarm_set     => false
     )
     respond_to do |format|
       format.json do
@@ -56,17 +56,16 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
       success = query.update_attributes :alarm_set => alarm_set
     else
       # Update the query params
-      updated_alarm_query_params = ActiveSupport::JSON.decode(params[:alarm_query_params])
+      updated_alarm_query_params           = ActiveSupport::JSON.decode(params[:alarm_query_params])
       updated_alarm_query_params["school"] = params[:school]
-
-      success = query.update_attributes(
-        :name                => params[:alarm_query_name],
-        :query_params        => ActiveSupport::JSON.encode(updated_alarm_query_params),
-        :severity_min        => params[:severity_min],
-        :severity_max        => params[:severity_max],
-        :deviation_min       => params[:deviation_min],
-        :deviation_max       => params[:deviation_max],
-        :alarm_set           => alarm_set)
+      success                              = query.update_attributes(
+        :name          => params[:alarm_query_name],
+        :query_params  => ActiveSupport::JSON.encode(updated_alarm_query_params),
+        :severity_min  => params[:severity_min],
+        :severity_max  => params[:severity_max],
+        :deviation_min => params[:deviation_min],
+        :deviation_max => params[:deviation_max],
+        :alarm_set     => alarm_set)
     end   
     query.save if success
     respond_to do |format|

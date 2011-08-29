@@ -30,10 +30,10 @@ class RollcallDataImporter < BackgrounDRb::MetaWorker
   def process_uploads(isd = nil)
     #logger.warn("Running TransformImportWorker")
     unless isd.blank?
-      SchoolDataTransformer.new(File.join(Rails.root, "vendor/plugins", "rollcall", "tmp"), "#{isd}").transform_and_import
+      SchoolDataTransformer.new(File.join("/var/www/openphin/shared", "rollcall"), "#{isd}").transform_and_import
     else
       Rollcall::SchoolDistrict.all.each do |district|
-        SchoolDataTransformer.new(File.join(Rails.root, "vendor/plugins", "rollcall", "tmp"), "#{district.name}").transform_and_import
+        SchoolDataTransformer.new(File.join("/var/www/openphin/shared", "rollcall"), "#{district.name}").transform_and_import
       end
     end
   end

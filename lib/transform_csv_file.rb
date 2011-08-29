@@ -328,9 +328,25 @@ class SchoolDataTransformer
     
     att_array.each do |rec|
       if rec.split("\t").length > 1
-        date,@tmp_tea_id,school_name,absent = rec.split("\t")
+        unless @allowed_attendance_headers.blank?
+          if @allowed_attendance_headers.length == 3
+            date,@tmp_tea_id,absent = rec.split("\t")
+          else
+            date,@tmp_tea_id,school_name,absent = rec.split("\t")
+          end
+        else
+          date,@tmp_tea_id,school_name,absent = rec.split("\t")
+        end
       elsif rec.split(",").length > 1
-        date,@tmp_tea_id,school_name,absent = rec.split(",")
+        unless @allowed_attendance_headers.blank?
+          if @allowed_attendance_headers.length == 3
+            date,@tmp_tea_id,absent = rec.split(",")
+          else
+            date,@tmp_tea_id,school_name,absent = rec.split(",")
+          end
+        else
+          date,@tmp_tea_id,school_name,absent = rec.split(",")
+        end
       end
       if date.downcase.index("date").blank?
         enr_array.each do |line|
@@ -338,7 +354,11 @@ class SchoolDataTransformer
           tmp_line = line.split("\t")
           tmp_line = line.split(",") if tmp_line.length <= 1
           if tmp_line.length == 3
-            tea_id,name,enrolled = tmp_line
+            if is_date?(tmp_line[0])
+              enroll_date,tea_id,enrolled = tmp_line
+            else
+              tea_id,name,enrolled = tmp_line
+            end           
           elsif tmp_line.length == 4
             enroll_date,tea_id,name,enrolled = tmp_line  
           end
@@ -360,7 +380,7 @@ class SchoolDataTransformer
         end
         tmp_array.push('"'+date.gsub('"',"")+'"')
         tmp_array.push('"'+@tmp_tea_id.gsub('"',"")+'"')
-        tmp_array.push('"'+school_name.gsub('"',"").gsub('|',',')+'"')
+        tmp_array.push('"'+school_name.gsub('"',"").gsub('|',',')+'"') unless school_name.blank?
         tmp_array.push('"'+"#{@enrolled}"+'"')
         @file_to_write.puts tmp_array.join(",")
         tmp_array = []        
@@ -386,6 +406,9 @@ class SchoolDataTransformer
     original_value = value
     value          = value.split(" ").first if value.split(" ").length > 1
     value          = value.split("T").first if value.split("T").length > 1
+    if value.length == 7 && value.to_i.to_s.length == 7
+      value = "0#{original_value}"
+    end
     reg_ex_list    = [
       [/^[0-1][0-9]{1,2}\/[0-3][0-9]{1,2}\/[0-9]{4}$/,"%m-%d-%Y"],
       [/^[0-1][0-9]{1,2}\/[0-3][0-9]{1,2}\/[0-9]{2}$/,"%m-%d-%y"],
@@ -407,7 +430,8 @@ class SchoolDataTransformer
       [/^[0-9]{4}-[0-3][0-9]{1,2}-[0-1][0-9]{1,2}$/,"%Y-%d-%m"],
       [/^[0-9]{2}-[0-3][0-9]{1,2}-[0-1][0-9]{1,2}$/,"%y-%d-%m"],
       [/^\d{6}$/,"%y%m%d"],
-      [/^\d{8}$/,"%Y%m%d"]
+      [/^\d{8}$/,"%Y%m%d"],
+      [/^\d{8}$/,"%m%d%Y"]
     ]
     reg_ex_list.each do |regex|
       if regex[0].match value

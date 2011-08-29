@@ -8,7 +8,8 @@ class SchoolDataImporter
   #
   # @param filename string the name of the csv file to import
   def initialize(filename)
-    @filename     = filename.downcase unless filename.blank?
+    #@filename     = filename.downcase unless filename.blank?
+    @filename     = filename unless filename.blank?
     @record       = nil
     @mapping      = self.class::MAPPING unless @filename.blank?
     @symptoms     = Rollcall::Symptom.all
@@ -22,7 +23,7 @@ class SchoolDataImporter
   def import_csv
     @records = FasterCSV.read(@filename, :headers => true, :row_sep => :auto)
     @linenum      = 0
-    if @filename.index('att')
+    if @filename.index('att') || @filename.index('Att')
      @school_year = Time.parse(@records[0]["AbsenceDate"]).year
     end
     @records.each { |rec |
@@ -32,7 +33,7 @@ class SchoolDataImporter
       seed_record(@record)
       process_record(@record, rec2attrs(@record)) if rec2attrs(@record) != false
     }
-    if @filename.index('att')
+    if @filename.index('att') || @filename.index('Att')
       write_rrd_file
     end
   end
@@ -41,7 +42,7 @@ class SchoolDataImporter
   #
   # @param rec array an array of records to seed
   def seed_record(rec)
-    if @filename.index('att') && Rollcall::School.find_by_tea_id(rec["CampusID"]).blank?
+    if (@filename.index('att') || @filename.index('Att')) && Rollcall::School.find_by_tea_id(rec["CampusID"]).blank?
       district_id   = rec["CampusID"].slice(0, rec["CampusID"].length - 3)
       school_number = rec["CampusID"].slice(rec["CampusID"].length - 3, rec["CampusID"].length)
       school_type   = ""
@@ -194,9 +195,9 @@ end
 class AttendanceImporter < SchoolDataImporter
   AttendanceImporter::MAPPING = [
     { :field_name => "AbsenceDate", :name => :report_date, :format => /^\d{4}-(?:0\d|1[012])-(?:0\d|1\d|2\d|3[01]) (\d{2}):(\d{2}):(\d{2})$/ },
-    { :field_name => "CampusID", :name => :school_id, :action => :tea_id2school_id, :format => /^\d+$/ },
-    { :field_name => "SchoolName", :name => :campus_name, :action => :ignoreCsvField },
-    { :field_name => "Absent", :name => :total_absent, :format => /^\d+$/ }
+    { :field_name => "CampusID",    :name => :school_id, :action => :tea_id2school_id, :format => /^\d+$/ },
+    { :field_name => "SchoolName",  :name => :campus_name, :action => :ignoreCsvField },
+    { :field_name => "Absent",      :name => :total_absent, :format => /^\d+$/ }
   ]
 
   # Method processes record into SchoolDailyInfo and runs updates on their corresponding RRDs

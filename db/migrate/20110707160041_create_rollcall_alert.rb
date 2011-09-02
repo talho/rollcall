@@ -7,6 +7,8 @@ class CreateRollcallAlert < ActiveRecord::Migration
     add_index :rollcall_alerts, :alarm_id
     add_index :rollcall_alerts, :alert_id
 
+    DropMTIFor(HanAlert)
+    drop_table :han_alerts
     CreateMTIFor(RollcallAlert)
   end
 

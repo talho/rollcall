@@ -57,7 +57,7 @@ class SchoolDataTransformer
     @allowed_ili_headers        = nil
     @allowed_enrollment_headers = nil
     @allowed_attendance_headers = nil
-    @district                   = Rollcall::SchoolDistrict.find_by_name(district_name.capitalize)
+    @district                   = Rollcall::SchoolDistrict.find_by_name(district_name)
     unless INTERFACE_FIELDS_CONFIG.blank?
       if INTERFACE_FIELDS_CONFIG["#{district_name}"]
         if INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_ili_field_names"]
@@ -85,7 +85,9 @@ class SchoolDataTransformer
     transform
     reorder_files
     import
-    SchoolDataImporter.new(nil).school_district_dailies(@district)
+    if !@attendance_file.blank? && !@enroll_file.blank?
+      SchoolDataImporter.new(nil).school_district_dailies(@district)
+    end
   end
 
   private
@@ -150,7 +152,7 @@ class SchoolDataTransformer
             #enrollment population per school.  Logically, Attendance and Enrollment should both have equal amount
             #of records, as they both should have equal amount of report dates.
             tmp_line = line.split("\t")
-            tmp_line = line.split(",") if tmp_line.length <= 1
+            tmp_line = line.split(",") if tmp_line.length <= 1      
             if tmp_line.length < 4
               #Let's rebuild the enrollment file, and create a report date entry that matches up to the Attendance file.
               transform_enrollment_file
@@ -175,6 +177,7 @@ class SchoolDataTransformer
         # First round of transformations begin - add headers
         file_name     = File.join(@dir, "the_temp_file.csv")
         file_to_write = File.open(file_name+".tmp", "w")
+        all_purpose_f = []
         file_to_write.puts headers
         IO.foreach(file_path, sep_string = get_sep_string(file_path)) do |line|
           if !has_headers? line
@@ -194,15 +197,28 @@ class SchoolDataTransformer
             # values into an array and then writes out the final transformed line. Note: A regex guru could minimize the
             # amount of code needed with some rock-solid expression.
             values   = []
-            new_line = line.gsub(/["][^"]*["]/) { |m| m.gsub(',','|') }
+            new_line = line.gsub(/["][^"]*["]/) { |m| m.gsub(',','|') if @district.name != "Waco" }
             if new_line.split("\t").length > 1
               new_line.gsub!(",","|")
             end
             new_line = new_line.gsub("\t", ",")
+            #NOTE: Following unique to Anthony files, specifically ILI
+            if @district.name != "Houston" && @district.name != "Waco"
+              new_line = new_line.gsub("','", '","')
+              new_line = new_line.gsub(",'",',"')
+              new_line = new_line.gsub(', ','|')
+            end
+            if @district.name == "Waco"
+              new_line = new_line.gsub(",",";") if file_path.downcase.index('ili')
+              new_line = new_line.gsub("|",",")
+            end
+            #NOTE: END
+            value_pass = 1
             new_line.split(",").each do |value|
               if !value.blank?
                 value.gsub!("|",",")
                 value.gsub!('"',"'") unless is_transformed
+                #initial strip to remove leading and trailing whitespaces, including new lines and carriage returns
                 value.strip!
                 # We may have values in the data files that are double quoted already.  The above code replaces all
                 # double quotes with single quotes, but this will break valid CSV detection as the code below encases
@@ -213,22 +229,86 @@ class SchoolDataTransformer
                   value.slice!(0)
                   value.slice!((value.length - 1))
                 end
+                #second strip in case original value was encased in single quotes
+                value.strip!
                 # if the value is indeed a true valid date value, we need to make sure the date value is in the
                 # standard datetime interface format YYYY-MM-DD HH:MM:SS
                 if is_date? value
                   value = is_date? value, true
                   value = "#{Time.parse(value).year}-#{Time.parse(value).month.to_s.rjust(2, '0')}-#{Time.parse(value).day.to_s.rjust(2, '0')} 00:00:00"
                 end
-
-                unless is_transformed
-                  values.push('"'+value+'"')
-                else
-                  values.push(value)
+                if value_pass == 1
+                  value.gsub!("|","")
                 end
-              elsif value.blank? && @district.name == "Houston" && (file_path.downcase.index('h1n1') || file_path.downcase.index('ili'))
+                if file_path.downcase.index('h1n1') || file_path.downcase.index('ili')
+#                  if value_pass == 3 && @district.name == "Socorro"
+#                    if value.length == 2
+#                      value = "0#{value}"
+#                    elsif value.length == 1
+#                      value = "00#{value}"
+#                    end
+#                    value = "#{@district.district_id}#{value}"
+#                  end
+                end
+                if file_path.downcase.index('att')
+                  if value_pass == 2 && @district.name == "Tyler"
+                    if value.length == 2
+                      value = "0#{value}"
+                    elsif value.length == 1
+                      value = "00#{value}"
+                    end
+                    value = "#{@district.district_id}#{value}"
+                  end
+                  if value_pass == 4 && @district.name == "Socorro"
+                    value.gsub!(",","")
+                  end
+                end
+                if value_pass == 3 && @district.name == "Midland" && file_path.downcase.index('ili')
+                  if all_purpose_f.blank?
+                    for f_p in @files
+                      if f_p.downcase.index('enroll')
+                        IO.foreach(f_p, sep_string = get_sep_string(f_p)) do |l|
+                          all_purpose_f.push([l.split(",")[2].gsub('"', '').strip.downcase,l.split(",")[1].gsub('"','').strip])
+                        end
+                        all_purpose_f.uniq!
+                        break
+                      end
+                    end
+                  end
+                  all_purpose_f.each{|el|
+                    if el[0] == new_line.split(',')[3].gsub('"','').strip.downcase
+                      value = el[1]
+                      break
+                    end
+                  }
+                end
+                if value_pass == 6 && @district.name == "Waco" && file_path.downcase.index('ili')
+                  sym = []
+                  Rollcall::Symptom.all.each {|s|
+                    if value.downcase.index(s.name.downcase)
+                      sym.push(s.name)
+                    end
+                  }
+                  if sym.blank?
+                    value = "None"
+                  else
+                    value = sym.join(",")
+                  end
+                end
+                if value_pass == 8 && @district.name == "Waco" && file_path.downcase.index('ili')
+                else
+                  unless is_transformed
+                    values.push('"'+value+'"')
+                  else
+                    values.push(value)
+                  end
+                end
+
+              elsif value.blank? && (file_path.downcase.index('h1n1') || file_path.downcase.index('ili'))               
                 value.strip!
                 values.push('"'+value+'"')
               end
+              value_pass += 1
             end
             file_to_write.puts values.join(",")
           else
@@ -253,15 +333,15 @@ class SchoolDataTransformer
     att_file_name = File.join(@dir, "attendance_ads_#{Time.now.year}_#{Time.now.month}_#{Time.now.day}.csv")
     enr_file_name = File.join(@dir, "enrollment_ads_#{Time.now.year}_#{Time.now.month}_#{Time.now.day}.csv")
     ili_file_name = File.join(@dir, "ili_ads_#{Time.now.year}_#{Time.now.month}_#{Time.now.day}.csv")
-    EnrollmentImporter.new(@enroll_file).import_csv
-    AttendanceImporter.new(@attendance_file).import_csv
-    IliImporter.new(@ili_file).import_csv
-    File.rename(@enroll_file, enr_file_name)
-    File.rename(@attendance_file, att_file_name)
-    File.rename(@ili_file, ili_file_name)
-    FileUtils.mv(enr_file_name, File.join(@dir, "archive"))
-    FileUtils.mv(att_file_name, File.join(@dir, "archive"))
-    FileUtils.mv(ili_file_name, File.join(@dir, "archive"))
+    EnrollmentImporter.new(@enroll_file).import_csv unless @enroll_file.blank?
+    AttendanceImporter.new(@attendance_file).import_csv unless @attendance_file.blank?
+    IliImporter.new(@ili_file).import_csv unless @ili_file.blank?
+    File.rename(@enroll_file, enr_file_name) unless @enroll_file.blank?
+    File.rename(@attendance_file, att_file_name) unless @attendance_file.blank?
+    File.rename(@ili_file, ili_file_name) unless @ili_file.blank?
+    FileUtils.mv(enr_file_name, File.join(@dir, "archive")) unless @enroll_file.blank?
+    FileUtils.mv(att_file_name, File.join(@dir, "archive")) unless @attendance_file.blank?
+    FileUtils.mv(ili_file_name, File.join(@dir, "archive")) unless @ili_file.blank?
   end
 
   # Method is responsible for determining weather the enrollment file needs to be completely transformed
@@ -286,7 +366,7 @@ class SchoolDataTransformer
       end
     end
     # As per specifications, the first value for both the attendance file and the enrollment file should be the
-    # report date.  If the dates do not match on the enrollment file, return true.
+    # report date.  If the dates do not match on the enrollment file, return true.    
     att_line_array = att_array[0].split(",")
     att_line_array = att_array[0].split("\t") if att_line_array.blank?
     enr_line_array = enr_array[0].split(",")
@@ -351,8 +431,13 @@ class SchoolDataTransformer
       if date.downcase.index("date").blank?
         enr_array.each do |line|
           @enrolled = 0
-          tmp_line = line.split("\t")
-          tmp_line = line.split(",") if tmp_line.length <= 1
+          if @district.name == "Waco"
+            tmp_line = line.split("|")
+          else
+            tmp_line = line.split("\t")
+            tmp_line = line.split(",") if tmp_line.length <= 1
+          end
+
           if tmp_line.length == 3
             if is_date?(tmp_line[0])
               enroll_date,tea_id,enrolled = tmp_line
@@ -361,6 +446,14 @@ class SchoolDataTransformer
             end           
           elsif tmp_line.length == 4
             enroll_date,tea_id,name,enrolled = tmp_line  
+          end
+          if @district.name == "Tyler"
+            if tea_id.length == 2
+              tea_id = "0#{value}"
+            elsif tea_id.length == 1
+              tea_id = "00#{value}"
+            end
+            tea_id = "#{@district.district_id}#{tea_id}"
           end
           @tmp_tea_id.gsub!('"',"")
           tea_id.gsub!('"',"")
@@ -371,6 +464,7 @@ class SchoolDataTransformer
           enrolled.strip!
           enrolled.gsub!('"',"")
           enrolled.gsub!("'","")
+          enrolled.gsub!("|","")
           if tea_id.to_i != @tmp_tea_id.to_i
             next
           else
@@ -412,6 +506,9 @@ class SchoolDataTransformer
     reg_ex_list    = [
       [/^[0-1][0-9]{1,2}\/[0-3][0-9]{1,2}\/[0-9]{4}$/,"%m-%d-%Y"],
       [/^[0-1][0-9]{1,2}\/[0-3][0-9]{1,2}\/[0-9]{2}$/,"%m-%d-%y"],
+      [/^[1-9]{1}\/[0-3][0-9]{1,2}\/[0-9]{4}$/,"%m-%d-%Y"],
+      [/^[1-9]{1}\/[0-3][0-9]{1,2}\/[0-9]{2}$/,"%m-%d-%y"],
+
       [/^[0-3][0-9]{1,2}\/[0-1][0-9]{1,2}\/[0-9]{4}$/,"%d-%m-%Y"],
       [/^[0-3][0-9]{1,2}\/[0-1][0-9]{1,2}\/[0-9]{2}$/,"%d-%m-%y"],
       [/^[0-1][0-9]{1,2}-[0-3][0-9]{1,2}-[0-9]{4}$/,"%m-%d-%Y"],
@@ -424,6 +521,8 @@ class SchoolDataTransformer
       [/^[0-9]{2}\/[0-3][0-9]{1,2}\/[0-1][0-9]{1,2}$/,"%y/%d/%m"],
 
       [/^[0-1][0-9]{1,2}\/[0-3][0-9]{1,2}\/[0-9]{4}$/,"%m/%d/%Y"],
+      [/^[1-9]{1}\/[0-3][0-9]{1,2}\/[0-9]{4}$/, "%m/%d/%Y"],
+      [/^[1-9]{1}\/[1-9]{1}\/[0-9]{4}$/, "%m/%d/%Y"],
 
       [/^[0-9]{4}-[0-1][0-9]{1,2}-[0-3][0-9]{1,2}$/,"%Y-%m-%d"],
       [/^[0-9]{2}-[0-1][0-9]{1,2}-[0-3][0-9]{1,2}$/,"%y-%m-%d"],
@@ -488,7 +587,7 @@ class SchoolDataTransformer
   #
   # Method checks if a common header is present, if not then false, else true
   def has_headers? line
-    if line.downcase.index('campusid')
+    if line.downcase.index('campusid') || line.downcase.index('campus_id') || line.downcase.index('building')
       return true
     else
       return false

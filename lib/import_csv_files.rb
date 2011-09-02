@@ -205,7 +205,7 @@ class AttendanceImporter < SchoolDataImporter
   # @params rec   array  an array of records to process
   # @params attrs hash   an attribute hash{:key => value}
   def process_record(rec, attrs)
-    puts "Importing Enrollment Data for #{attrs[:school_id]}"
+    puts "Importing Attendance Data for #{attrs[:school_id]}"
     daily_info            = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(attrs[:school_id].to_i, attrs[:report_date])
     daily_info            = Rollcall::SchoolDailyInfo.new if !daily_info
     daily_info.attributes = attrs
@@ -238,14 +238,17 @@ class AttendanceImporter < SchoolDataImporter
               @end_enrolled = r.total_enrolled
             }
           end
-          @s_i.push([(@end_time + 2.days).to_i.to_s, 0, @end_enrolled])
-          puts "Importing RRD Data for #{s.display_name}"
-          if ENV["RAILS_ENV"] == "cucumber" || ENV["RAILS_ENV"] == "test"
-            RRD.update_batch("#{@rrd_path}/#{s.tea_id}_c_absenteeism.rrd", @s_i, "#{@rrd_tool}")
-          else
-            RRD.update_batch("#{@rrd_path}/#{s.tea_id}_absenteeism.rrd", @s_i, "#{@rrd_tool}")
-          end
-          @s_i = nil
+          begin
+            @s_i.push([(@end_time + 2.days).to_i.to_s, 0, @end_enrolled])
+            puts "Importing RRD Data for #{s.display_name}"
+            if ENV["RAILS_ENV"] == "cucumber" || ENV["RAILS_ENV"] == "test"
+              RRD.update_batch("#{@rrd_path}/#{s.tea_id}_c_absenteeism.rrd", @s_i, "#{@rrd_tool}")
+            else
+              RRD.update_batch("#{@rrd_path}/#{s.tea_id}_absenteeism.rrd", @s_i, "#{@rrd_tool}")
+            end
+            @s_i = nil
+          rescue
+          end         
         end
       }
     end
@@ -264,7 +267,7 @@ class IliImporter < SchoolDataImporter
     { :field_name => "DateOfOnset", :name => :date_of_onset, :school_daily_info => true, :format => /^\d{4}-(?:0\d|1[012])-(?:0\d|1\d|2\d|3[01]) (\d{2}):(\d{2}):(\d{2})$/ },
     { :field_name => "Temperature", :name => :temperature, :school_daily_info => true, :action => :str2temp},
     { :field_name => "Symptoms",    :name => :description },
-    { :field_name => "Zip",         :name => :zip, :format => /^\d{5}(?:-\d{4})?$/ },
+    { :field_name => "Zip",         :name => :zip, :action => :str2zip },
     { :field_name => "Grade",       :name => :grade, :school_daily_info => true, :action => :str2grade },
 
     { :field_name => "InSchool",  :name => :in_school, :school_daily_info => true, :action => :str2bool },
@@ -311,42 +314,65 @@ class IliImporter < SchoolDataImporter
     end
     student_daily_attrs[:report_time] = attrs[:report_date]
     description                       = attrs[:description]
-    daily_info                        = Rollcall::StudentDailyInfo.find_by_cid_and_report_date(student_daily_attrs[:cid], student_daily_attrs[:report_date])
+    if student_attrs[:name].blank?
+      first_name = ""
+      last_name  = ""
+    else
+      if student_attrs[:name].split(",").length > 1
+        first_name = student_attrs[:name].split(",").last
+        last_name  = student_attrs[:name].split(",").first
+      else
+        first_name = student_attrs[:name].split(" ").first
+        last_name  = student_attrs[:name].split(" ").last
+      end
+    end
+    if student_attrs[:contact].blank?
+      contact_first_name = ""
+      contact_last_name  = ""
+    else
+      if student_attrs[:contact].split(",").length > 1
+        contact_first_name = student_attrs[:contact].split(",").last
+        contact_last_name  = student_attrs[:contact].split(",").first
+      else
+        contact_first_name = student_attrs[:contact].split(" ").first
+        contact_last_name  = student_attrs[:contact].split(" ").last
+      end
+    end
+    student_attrs[:first_name]         = first_name.strip
+    student_attrs[:last_name]          = last_name.strip
+    student_attrs[:contact_first_name] = contact_first_name.strip
+    student_attrs[:contact_last_name]  = contact_last_name.strip
+    student_attrs.delete :name
+    student_attrs.delete :contact
+    student_attrs.delete :description
+    student = {}
+    student = Rollcall::Student.find_by_student_number_and_school_id(student_attrs[:student_number],attrs[:school_id]) unless student_attrs[:student_number].blank?
+    if student.blank?
+      unless student_attrs[:student_number].blank?
+        student = Rollcall::Student.find_by_first_name_and_last_name_and_contact_first_name_and_contact_last_name_and_school_id_and_student_number(
+          student_attrs[:first_name],
+          student_attrs[:last_name],
+          student_attrs[:contact_first_name],
+          student_attrs[:contact_last_name],
+          attrs[:school_id],
+          student_attrs[:student_number]
+        )
+      else
+        student = Rollcall::Student.find_by_first_name_and_last_name_and_contact_first_name_and_contact_last_name_and_school_id(
+          student_attrs[:first_name],
+          student_attrs[:last_name],
+          student_attrs[:contact_first_name],
+          student_attrs[:contact_last_name],
+          attrs[:school_id]
+        )
+      end
+    end
+    if student.blank?
+      daily_info = Rollcall::StudentDailyInfo.find_by_cid_and_report_date(student_daily_attrs[:cid],student_daily_attrs[:report_date])
+    else
+      daily_info = Rollcall::StudentDailyInfo.find_by_cid_and_report_date_and_student_id(student_daily_attrs[:cid],student_daily_attrs[:report_date],student.id)
+    end
     if !daily_info
-      if student_attrs[:name].blank?
-        first_name = ""
-        last_name  = ""
-      else
-        if student_attrs[:name].split(",").length > 1
-          first_name = student_attrs[:name].split(",").last
-          last_name  = student_attrs[:name].split(",").first
-        else
-          first_name = student_attrs[:name].split(" ").first
-          last_name  = student_attrs[:name].split(" ").last
-        end
-      end
-      if student_attrs[:contact].blank?
-        contact_first_name = ""
-        contact_last_name  = ""
-      else
-        if student_attrs[:contact].split(",").length > 1
-          contact_first_name = student_attrs[:contact].split(",").last
-          contact_last_name  = student_attrs[:contact].split(",").first
-        else
-          contact_first_name = student_attrs[:contact].split(" ").first
-          contact_last_name  = student_attrs[:contact].split(" ").last
-        end
-      end
-
-      student_attrs[:first_name]         = first_name.strip
-      student_attrs[:last_name]          = last_name.strip
-      student_attrs[:contact_first_name] = contact_first_name.strip
-      student_attrs[:contact_last_name]  = contact_last_name.strip
-      student_attrs.delete :name
-      student_attrs.delete :contact
-      student_attrs.delete :description
-      student = {}
-      student = Rollcall::Student.find_by_student_number(student_attrs[:student_number]) unless student_attrs[:student_number].blank?
       student = Rollcall::Student.create student_attrs if student.blank?     
       student.update_attributes(student_attrs)
       student.save
@@ -444,6 +470,13 @@ private
     end
   end
 
+  # Method returns zip as 5 digit value
+  #
+  # @param str zip the zipcode in string format
+  def str2zip(str)
+    zip = str[0..4]
+    return zip
+  end
   # Method checks if is confirmed illness based off temp and symptoms
   #
   # @param str string the confirmed illness field

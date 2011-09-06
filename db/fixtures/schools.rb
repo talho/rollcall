@@ -41,6 +41,6 @@ FasterCSV.open(File.dirname(__FILE__) + '/schools.csv', :headers => true) do |sc
       :gmap_addr     => row["gmap_addr"]
     )
     #create rrd file for school
-    Rollcall::Rrd.build_rrd(school.tea_id, school.id, Time.gm(2010,"aug",01,0,0))
+    Rollcall::Rrd.build_rrd(school.tea_id, school.id, Time.gm(Time.now.year,"aug",01,0,0))
   end
 end

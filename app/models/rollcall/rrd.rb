@@ -282,7 +282,7 @@ class Rollcall::Rrd < Rollcall::Base
         parsed_date    = Time.parse(conditions[:startdt])
         rrd_start_date = Time.gm(parsed_date.year,parsed_date.month,parsed_date.day) - 1.day
       else
-        rrd_start_date = Time.gm(2010, "sep", 01,0,0) - 1.day
+        rrd_start_date = Time.gm(Time.now.year, "aug", 01,0,0) - 1.day
       end
       RRD.create "#{rrd_path}#{rrd_file}",
       {

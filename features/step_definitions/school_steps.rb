@@ -26,7 +26,7 @@ Given /^"([^\"]*)" has the following current school absenteeism data:$/ do |isd,
   first_run      = false
   report_date    = ''
   total_enrolled = ''
-  current_time   = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_week - 1.week
+  current_time   = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_month
   rrd_path       = Dir.pwd << "/rrd/"
   rrd_tool       = if File.exist?(doc_yml = RAILS_ROOT+"/vendor/plugins/rollcall/config/rrdtool.yml")
     YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"

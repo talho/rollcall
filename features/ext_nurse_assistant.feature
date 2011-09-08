@@ -253,7 +253,7 @@ Scenario: User refreshes main panel
   And I should see "Elliot" within "#nurse_assistant"
   And I click x-tbar-loading "" within "#nurse_assistant"
   And I wait for the panel to load
-  And I should not see "Unknown" within "#nurse_assistant"
+  And I should see "Unknown" within "#nurse_assistant"
   Then I should see "Elliot" within "#nurse_assistant"
 
 Scenario: User changes schools

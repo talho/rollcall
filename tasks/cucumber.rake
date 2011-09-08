@@ -3,7 +3,6 @@ begin
 
   namespace :cucumber do
     desc = "Rollcall plugin, add any cmd args after --"
-    #Cucumber::Rake::Task.new({:rollcall => 'db:test:prepare'}, desc) do |t|
     Cucumber::Rake::Task.new(:rollcall, desc) do |t|
       t.cucumber_opts = "RAILS_ENV=cucumber -r features " +
                        # "-r vendor/plugins/rollcall/spec/factories.rb " +

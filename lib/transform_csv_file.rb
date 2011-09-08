@@ -263,6 +263,9 @@ class SchoolDataTransformer
                     value.gsub!(",","")
                   end
                 end
+                if value_pass == 1 && (@district.name == "McKinney" || @district.name == "Ector")
+                  value.gsub!("T00:", " 00:")
+                end
                 if value_pass == 3 && @district.name == "Midland" && file_path.downcase.index('ili')
                   if all_purpose_f.blank?
                     for f_p in @files

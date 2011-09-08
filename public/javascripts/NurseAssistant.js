@@ -102,6 +102,11 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             this.build_detail_template();
           }
           this.init_mask.hide();
+        },
+        beforeload: function(this_store, options_obj)
+        {
+          if(this.user_school_id != null)this_store.setBaseParam('school_id', this.user_school_id);
+          else this_store.setBaseParam('school_id', this.init_store.getAt(0).get('school_id'));
         }
       }
     });

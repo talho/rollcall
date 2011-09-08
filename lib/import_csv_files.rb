@@ -358,11 +358,17 @@ class IliImporter < SchoolDataImporter
           student_attrs[:student_number]
         )
       else
-        student = Rollcall::Student.find_by_first_name_and_last_name_and_contact_first_name_and_contact_last_name_and_school_id(
+        student = Rollcall::Student.find_by_first_name_and_last_name_and_contact_first_name_and_contact_last_name_and_address_and_zip_and_gender_and_phone_and_race_and_dob_and_school_id(
           student_attrs[:first_name],
           student_attrs[:last_name],
           student_attrs[:contact_first_name],
           student_attrs[:contact_last_name],
+          student_attrs[:address],
+          student_attrs[:zip],
+          student_attrs[:gender],
+          student_attrs[:phone],
+          student_attrs[:race],
+          student_attrs[:dob],
           attrs[:school_id]
         )
       end

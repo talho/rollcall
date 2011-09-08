@@ -397,8 +397,8 @@ Wakeland High School,043905,005,043905005,High School,75034,33.161355,-96.848913
 Liberty High School,043905,006,043905006,High School,75035,33.138892,-96.742111,"Liberty High School, 15250 Rolater Rd, Frisco TX 75035"
 Heritage High School,043905,007,043905007,High School,75035,33.175190,-96.754881,"Heritage High School, 14040 Eldorado Parkway, Frisco, TX 75035"
 Lone Star High School,043905,008,043905008,High School,75034,33.191205,-96.866294,"Lone Star High School, 2606 Panther Creek Pkwy Frisco, TX 75034"
-Staley Middle School,043905,041,043905041,Middle School,75034,33.157698,-96.821010,"Staley Middle School, 6927 Stadium Ln, Frisco TX 75034"
-Clark Middle School,043905,043,043905043,Middle School,750035,33.115547,-96.797227,"Clark Middle School, 4600 Colby Dr, Frisco TX 75035"
+Staley Middle School,043905,041,043905041,Middle School,75034,33.157698,-96.821010,"Staley Middle School, 6927 Stadium Ln, Frisco, TX 75034"
+Clark Middle School,043905,043,043905043,Middle School,750035,33.115547,-96.797227,"Clark Middle School, 4600 Colby Dr, Frisco, TX 75035"
 Pioneer Heritage Middle School,043905,044,043905044,Middle School,75034,33.143597,-96.877576,"Pioneer Heritage Middle School, 1649 High Shoals Drive, Frisco, TX 75034"
 Wester Middle School,043905,045,043905045,Middle School,75035,33.142187,-96.772224,"Wester Middle School, 12293 Shepherds Hill Lane, Frisco, TX 75035"
 Griffin Middle School,043905,046,043905046,Middle School,75034,33.175168,-96.841071,"Griffin Middle School, 3703 Eldorado Parkway, Frisco, TX 75034"
@@ -659,4 +659,5 @@ A J Moore Academy,161914,006,161914006,High School,76701,31.562920,-97.133708,"A
 Tennyson Middle,161914,044,161914044,Middle School,76710,31.524060,-97.194446,"Tennyson Middle School, 6100 Tennyson Drive, Waco, TX 76710"
 Dean Highland Elementary,161914,107,161914107,Elementary School,76707,31.551047,-97.173893,"Dean Highland Elementary, 1800 North 33rd St, Waco, TX 76707"
 Viking Hills Elementary,161914,126,161914126,Elementary School,76710,31.528551,-97.212516,"Viking Hills Elementary, 7200 Viking Drive, Waco, TX 76710"
-WISD Alternative 2nd Campus,161914,055,161914055,Multilevel School,,,''
+WISD Alternative 2nd Campus,161914,055,161914055,Multilevel School,76706,31.548318,-97.128032,"WISD Alternative Campus, 805 South 8th Street, Waco, TX 76706"
+New Tech Odessa,068901,011,068901011,High School,79761,31.870341,-102.379007,"New Tech Odessa, 300 East 29th Street, Odessa, TX 79761"

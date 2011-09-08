@@ -50,5 +50,8 @@ class Rollcall::StudentDailyInfo < Rollcall::Base
 
   has_many :student_reported_symptoms, :class_name => "Rollcall::StudentReportedSymptom"
   belongs_to :student, :class_name => "Rollcall::Student", :foreign_key => "student_id"
-  
+
+  named_scope :for_date, lambda{|date|{
+    :conditions => {:report_date => date}
+  }}
 end

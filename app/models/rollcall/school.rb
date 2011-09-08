@@ -74,8 +74,9 @@ class Rollcall::School < Rollcall::Base
     search_param = params[:zip]         unless params[:zip].blank?
     search_param = params[:school]      unless params[:school].blank?
     search_condition = "%" + search_param + "%"
-    find(:all, :conditions => [
-      '(display_name LIKE ? OR postal_code LIKE ? OR school_type LIKE ?) AND district_id IN (?)',
+    find(:all,
+      :include    => :students,
+      :conditions => ['(display_name LIKE ? OR postal_code LIKE ? OR school_type LIKE ?) AND district_id IN (?) AND rollcall_students.school_id = rollcall_schools.id',
       search_condition,
       search_condition,
       search_condition,
@@ -112,7 +113,9 @@ class Rollcall::School < Rollcall::Base
     else
       condition = "(#{condition}) AND #{district_qstr}"
     end
-
-    find(:all, :conditions => [condition])
+    condition += " AND rollcall_students.school_id = rollcall_schools.id"
+    find(:all,
+         :include    => :students, 
+         :conditions => [condition])
   end
 end

@@ -57,7 +57,7 @@ class Rollcall::Rrd < Rollcall::Base
     unless params[:startdt].blank?
       start_date = Time.gm(Time.parse(params[:startdt]).year,Time.parse(params[:startdt]).month,Time.parse(params[:startdt]).day)
     else
-      start_date = Time.gm(2010,"aug",01,0,0)
+      start_date = Time.gm(Time.now.year,"aug",01,0,0)
     end
     unless params[:enddt].blank?
       end_date = Time.gm(Time.parse(params[:enddt]).year,Time.parse(params[:enddt]).month,Time.parse(params[:enddt]).day)
@@ -140,7 +140,7 @@ class Rollcall::Rrd < Rollcall::Base
 
   # Dev Note: All Date times must be in UTC format for rrd
   def self.graph rrd_file, image_file, graph_title, params
-    test_data_date = Time.gm(2010, "sep", 01,0,0)
+    test_data_date = Time.gm(Time.now.year, "aug", 01,0,0)
     rrd_image_path = Dir.pwd << "/public/rrd/"
     rrd_path       = Dir.pwd << "/rrd/"
     rrd_tool       = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"

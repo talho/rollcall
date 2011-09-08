@@ -29,11 +29,14 @@ FasterCSV.open(File.dirname(__FILE__) + '/schools.csv', :headers => true) do |sc
     end
     puts "seeding #{row["name"]}"
     #create school
-    school = Rollcall::School.find_or_create_by_tea_id(
+    school = Rollcall::School.find_by_tea_id(row["tea_id"])
+    school = Rollcall::School.create(
       :display_name  => row["name"],
       :tea_id        => row["tea_id"],
       :district      => Rollcall::SchoolDistrict.find_by_district_id(row["district_id"]),
-      :school_number => row["school_number"],
+      :school_number => row["school_number"]
+    ) if school.blank?
+    school.update_attributes(
       :school_type   => row["school_type"],
       :postal_code   => row["postal_code"],
       :gmap_lat      => row["gmap_lat"],

@@ -24,6 +24,17 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       {:id => 5, :value => 'Native American'},
       {:id => 6, :value => 'Other'}
     ]
+    unless params[:start].blank?
+      per_page = params[:limit].to_i
+      if params[:start].to_i == 0
+        page = 1
+      else
+        page = (params[:start].to_i / per_page) + 1
+      end
+      options = {:page => page, :per_page => per_page}
+    else
+      options = {}
+    end 
     if !params[:search_term].blank?
       st          = "%" + CGI::unescape(params[:search_term]) + "%"
       student_ids = []
@@ -53,7 +64,8 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
         :conditions => ["student_id = rollcall_students.id"]
       )
     end
-    student_records.each do |record|
+    students_paged = student_records.paginate(options)
+    students_paged.each do |record|
       symptom_array  = []
       student_obj    = record.student
       record.symptoms.each do |symptom|
@@ -75,14 +87,11 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
     end
     respond_to do |format|
       format.json do
-        original_included_root                  = ActiveRecord::Base.include_root_in_json
-        ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :success       => true,
           :total_results => student_records.length,
-          :results       => student_records
+          :results       => students_paged
         }
-        ActiveRecord::Base.include_root_in_json = original_included_root
       end
     end
   end
@@ -165,13 +174,15 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
     symptoms             = Rollcall::Symptom.find(:all)
     zipcodes             = current_user.school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
     schools              = current_user.schools
-    student_daily_info   = Rollcall::StudentDailyInfo.find(:all, :conditions => ["student_id >= ?", 1], :order => "created_at DESC", :limit => 1)
+    student_daily_info   = Rollcall::StudentDailyInfo.find(:all, :include => :student,
+      :conditions => ["student_id >= ? AND rollcall_students.school_id IN (?)", 1, current_user.school_districts.first.schools], 
+      :order      => "rollcall_student_daily_infos.created_at DESC", :limit => 1)
     unless student_daily_info.blank?
       school_id            = student_daily_info.first.student.school_id
       app_init             = false
       total_enrolled_alpha = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id).blank?
     else     
-      school_id            = 1
+      school_id            = current_user.school_districts.first.schools.first.id
       app_init             = true
       total_enrolled_alpha = true
     end

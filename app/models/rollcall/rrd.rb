@@ -345,7 +345,8 @@ class Rollcall::Rrd < Rollcall::Base
         days     = ((end_date - start_date) / 86400)
       end
       unless student_daily_info.blank?
-        total_enrolled = Rollcall::SchoolDailyInfo.find_by_school_id(school_id).total_enrolled
+        school_total   = Rollcall::SchoolDailyInfo.find_by_school_id(school_id)
+        total_enrolled = school_total.blank? ? 0 : school_total.total_enrolled
       else
         total_enrolled = 0
       end     

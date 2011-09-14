@@ -16,7 +16,7 @@ Given /^"([^\"]*)" has the following schools:$/ do |isd, table|
     File.delete("#{rrd_path}#{result.tea_id}_c_absenteeism.rrd") if File.exist?("#{rrd_path}#{result.tea_id}_c_absenteeism.rrd")
     rrd_file = Rollcall::Rrd.find_by_file_name_and_school_id("#{result.tea_id}_c_absenteeism.rrd", result.id)
     rrd_file.destroy unless rrd_file.blank?
-    current_time = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_week - 1.week
+    current_time = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_month
     Rollcall::Rrd.build_rrd("#{result.tea_id}_c", result.id, current_time)
   end
 end

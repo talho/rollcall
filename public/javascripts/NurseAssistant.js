@@ -127,12 +127,12 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         store:    this.main_panel_store,
         cm:       new Ext.grid.ColumnModel({
           columns: [
-            {id:'student_number_main',    header:'Student Number',     dataIndex:'student_number', flex: 1},
-            {id:'first_name_column_main', header:'Student First Name', dataIndex:'first_name', flex: 1},
-            {id:'last_name_column_main',  header:'Student Last Name',  dataIndex:'last_name',  flex: 1},
+            {id:'student_number_main',    header:'Student Number',     dataIndex:'student_number', flex: 1, sortable:true},
+            {id:'first_name_column_main', header:'Student First Name', dataIndex:'first_name', flex: 1, sortable:true},
+            {id:'last_name_column_main',  header:'Student Last Name',  dataIndex:'last_name',  flex: 1, sortable:true},
             {id:'symptom_column_main',    header:'Symptoms',           dataIndex:'symptom', flex: 1},
             {id:'header_main',            header:'Action',             dataIndex:'treatment',  flex: 1},
-            {id:'visit_date_main',        header:'Visit Date',         dataIndex:'report_date', flex: 1},
+            {id:'visit_date_main',        header:'Visit Date',         dataIndex:'report_date', flex: 1, sortable:true},
             {
               xtype:     'xactioncolumn',
               id:        'edit_student_entry',
@@ -247,15 +247,18 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             columns:[{
               id:        'student_first_name_column_list',
               header:    'First Name',
-              dataField: 'first_name'
+              dataField: 'first_name',
+              sortable: true
             },{
               id:        'student_last_name_column_list',
               header:    'Last Name',
-              dataField: 'last_name'
+              dataField: 'last_name',
+              sortable:  true
             },{
               id:        'student_number_column_list',
               header:    'Number',
-              dataField: 'student_number'
+              dataField: 'student_number',
+              sortable:  true
             },{
               xtype:     'xactioncolumn',
               id:        'edit_student_entry',
@@ -327,9 +330,9 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           style: {marginTop: '5px'},
           cm:    new Ext.grid.ColumnModel({
             columns: [
-              {id:'history_report_date', header:'Report Date', dataIndex:'report_date', width: 75},
+              {id:'history_report_date', header:'Report Date', dataIndex:'report_date', width: 75, sortable: true},
               {id:'history_symptoms',    header:'Symptoms',    dataIndex:'symptom'},
-              {id:'history_temperature', header:'Temperature', dataIndex:'temperature', width: 75},
+              {id:'history_temperature', header:'Temperature', dataIndex:'temperature', width: 75, sortable: true},
               {id:'history_action',      header:'Action',      dataIndex:'treatment', width: 75}
             ]
           })

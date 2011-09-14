@@ -5,6 +5,7 @@ Then /^I set "([^\"]*)" to "([^\"]*)" days from origin date$/ do |date_field_nam
 end
 
 Then /^I should see dated graphs for schools "([^\"]*)" starting "([^\"]*)" days and ending "([^\"]*)" days from origin date$/ do |schools,start_days,end_days|
+  sleep 5
   current_time      = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_week - 1.week
   start_date        = current_time - start_days.to_i.days
   end_date          = current_time - end_days.to_i.days

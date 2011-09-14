@@ -81,9 +81,12 @@ class SchoolDataTransformer
   # Imports CSV data into the system
   # Run school district dailies for the district after all data has been imported into the system
   def transform_and_import
+    rename
     extract
-    transform
     reorder_files
+    transform @attendance_file unless @attendance_file.blank?
+    transform @enroll_file unless @enroll_file.blank?
+    transform @ili_file unless @ili_file.blank?
     import
     if !@attendance_file.blank? && !@enroll_file.blank?
       SchoolDataImporter.new(nil).school_district_dailies(@district)
@@ -92,6 +95,15 @@ class SchoolDataTransformer
 
   private
 
+  def rename
+    for file_path in @files
+      if file_path.downcase.index("cs_")
+        File.rename(file_path, File.join(@dir, "ili_cs_extract.csv"))
+        @files = Dir.glob(File.join(@dir,"*"))
+      end
+    end
+  end
+  
   # Method extracts CSV files
   def extract
     for file_path in @files
@@ -126,8 +138,7 @@ class SchoolDataTransformer
   #
   # Transforms School Attendance, Enrollment and ILI data into standard interface
   # Manipulates original data files, transforming them into valid csv files with headers and quoted data
-  def transform
-    for file_path in @files
+  def transform file_path
       # The script only cares about files that do not have a unique naming convention attached to them or files
       # that have not already been transformed by a previous attempt.  Such files are treated as "new files"
       # for processing.  The process first checks to see if the file_path string has an index
@@ -198,12 +209,13 @@ class SchoolDataTransformer
             # amount of code needed with some rock-solid expression.
             values   = []
             new_line = line.gsub(/["][^"]*["]/) { |m| m.gsub(',','|') if @district.name != "Waco" }
+            new_line.gsub!(/['][^']*[']/) { |m| m.gsub(',','|') if @district.name != "Waco" }
             if new_line.split("\t").length > 1
               new_line.gsub!(",","|")
             end
             new_line = new_line.gsub("\t", ",")
             #NOTE: Following unique to Anthony files, specifically ILI
-            if @district.name != "Houston" && @district.name != "Waco"
+            if @district.name != "Houston" && @district.name != "Waco" && @district.name != "Midland"
               new_line = new_line.gsub("','", '","')
               new_line = new_line.gsub(",'",',"')
               new_line = new_line.gsub(', ','|')
@@ -325,7 +337,7 @@ class SchoolDataTransformer
         # Rename the temp file back to it's original, after all transformations are complete
         File.rename(file_name+".tmp", file_path)
       end
-    end
+
   end
 
   # Method is responsible for calling the import methods for each data set (Attendance, Enrollment, ILI)
@@ -442,7 +454,7 @@ class SchoolDataTransformer
           end
 
           if tmp_line.length == 3
-            if is_date?(tmp_line[0])
+            if is_date?(tmp_line[0].gsub('"',''))
               enroll_date,tea_id,enrolled = tmp_line
             else
               tea_id,name,enrolled = tmp_line

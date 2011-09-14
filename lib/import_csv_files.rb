@@ -42,7 +42,7 @@ class SchoolDataImporter
   #
   # @param rec array an array of records to seed
   def seed_record(rec)
-    if (@filename.index('att') || @filename.index('Att')) && Rollcall::School.find_by_tea_id(rec["CampusID"]).blank?
+    if @filename.downcase.index('att') && Rollcall::School.find_by_tea_id(rec["CampusID"]).blank?
       district_id   = rec["CampusID"].slice(0, rec["CampusID"].length - 3)
       school_number = rec["CampusID"].slice(rec["CampusID"].length - 3, rec["CampusID"].length)
       school_type   = ""

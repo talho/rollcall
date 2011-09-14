@@ -143,7 +143,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
     var school_list_grid = new Ext.grid.GridPanel({
       store:      this.school_store,
       loadMask:   true,
-      cm:         new Ext.grid.ColumnModel({columns:[{id:'school_name',header:'School',dataIndex:'display_name',width:180}]}),
+      cm:         new Ext.grid.ColumnModel({columns:[{id:'school_name',header:'School',dataIndex:'display_name',width:180,sortable:true}]}),
       viewConfig: {
         emptyText:     '<div><b style="color:#000">There are no schools</b></div>',
         enableRowBody: true

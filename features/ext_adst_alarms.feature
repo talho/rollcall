@@ -143,12 +143,5 @@ Scenario: User un-ignores an alarm
 
 Scenario: User deletes an alarm
   When I click the alarm group "Example Query"
-  And I click the last alarm within the "Example Query" alarm group
-  And I wait for the panel to load
-  And I should see "2" within ".alarm-tip-conf-absent"
-  And I should see "Delete Alarm"
-  And I press "Delete Alarm"
-  And I should see "Are you sure you want to delete this alarm?"
-  And I press "Yes"
-  And I wait for the panel to load
+  And I delete the alarms for "Example Query"
   Then I should not see "Example Query" within "#alarm_grid_panel"

@@ -29,11 +29,16 @@ class RollcallDataImporter < BackgrounDRb::MetaWorker
 
   def process_uploads(isd = nil)
     #logger.warn("Running TransformImportWorker")
+    if RAILS_ENV == "production"
+      rollcall_data_path = File.join("/var/www/openphin/shared", "rollcall")
+    elsif RAILS_ENV == "test" || RAILS_ENV == "cucumber"
+      rollcall_data_path = File.join(File.dirname(__FILE__), "..", "..", "..", "vendor", "plugins", "rollcall", "tmp")
+    end
     unless isd.blank?
-      SchoolDataTransformer.new(File.join("/var/www/openphin/shared", "rollcall"), "#{isd}").transform_and_import
+      SchoolDataTransformer.new(rollcall_data_path, "#{isd}").transform_and_import
     else
       Rollcall::SchoolDistrict.all.each do |district|
-        SchoolDataTransformer.new(File.join("/var/www/openphin/shared", "rollcall"), "#{district.name}").transform_and_import
+        SchoolDataTransformer.new(rollcall_data_path, "#{district.name}").transform_and_import
       end
     end
   end

@@ -2,6 +2,8 @@ require 'fastercsv'
 # Class is responsible for transforming data import files into a standard specification
 #
 # Example:
+#   SchoolDataTransformer.new("../rollcall_data", "Houston").transform_files
+#   or
 #   SchoolDataTransformer.new("../rollcall_data", "Houston").transform_and_import
 #
 class SchoolDataTransformer
@@ -73,35 +75,35 @@ class SchoolDataTransformer
     Dir.ensure_exists(File.join(@dir, "archive/"))
   end
 
-  # Method calls the extract and import methods
+  # Method calls the transform_file and import methods, effectively preparing the data files for immediate import into
+  # the system
   #
-  # Extract files if files are in archival format (ie, 7z, zip)
   # Perform data transformation on necessary fields
   # Imports CSV data into the system
   # Run school district dailies for the district after all data has been imported into the system
   def transform_and_import
-    rename
-    extract
-    reorder_files
-    transform @attendance_file unless @attendance_file.blank?
-    transform @enroll_file unless @enroll_file.blank?
-    transform @ili_file unless @ili_file.blank?
+    transform_files
     import
     if !@attendance_file.blank? && !@enroll_file.blank?
       SchoolDataImporter.new(nil).school_district_dailies(@district)
     end
   end
 
-  private
-
-  def rename
-    for file_path in @files
-      if file_path.downcase.index("cs_")
-        File.rename(file_path, File.join(@dir, "ili_cs_extract.csv"))
-        @files = Dir.glob(File.join(@dir,"*"))
-      end
-    end
+  # Method calls the rename, extract, reorder_files, and transform methods in order to bring delivered data files
+  # into a standard interface for import into the system
+  #
+  # Extract files if files are in archival format (ie, 7z, zip)
+  # Reorder the files into instance variables
+  # Perform data transformation on necessary fields
+  def transform_files
+    extract
+    reorder_files
+    transform @attendance_file unless @attendance_file.blank?
+    transform @enroll_file unless @enroll_file.blank?
+    transform @ili_file unless @ili_file.blank?
   end
+  
+  private
   
   # Method extracts CSV files
   def extract
@@ -162,7 +164,7 @@ class SchoolDataTransformer
             #enrollment population per school.  Logically, Attendance and Enrollment should both have equal amount
             #of records, as they both should have equal amount of report dates.
             tmp_line = line.split("\t")
-            tmp_line = line.split(",") if tmp_line.length <= 1      
+            tmp_line = line.split(",") if tmp_line.length <= 1
             if tmp_line.length < 4
               #Let's rebuild the enrollment file, and create a report date entry that matches up to the Attendance file.
               transform_enrollment_file
@@ -356,6 +358,9 @@ class SchoolDataTransformer
     FileUtils.mv(enr_file_name, File.join(@dir, "archive")) unless @enroll_file.blank?
     FileUtils.mv(att_file_name, File.join(@dir, "archive")) unless @attendance_file.blank?
     FileUtils.mv(ili_file_name, File.join(@dir, "archive")) unless @ili_file.blank?
+    if !@attendance_file.blank? && !@enroll_file.blank?
+      SchoolDataImporter.new(nil).school_district_dailies(@district)
+    end
   end
 
   # Method is responsible for determining weather the enrollment file needs to be completely transformed
@@ -421,27 +426,16 @@ class SchoolDataTransformer
     #with report dates
     
     att_array.each do |rec|
-      if rec.split("\t").length > 1
-        unless @allowed_attendance_headers.blank?
-          if @allowed_attendance_headers.length == 3
-            date,@tmp_tea_id,absent = rec.split("\t")
-          else
-            date,@tmp_tea_id,school_name,absent = rec.split("\t")
-          end
-        else
-          date,@tmp_tea_id,school_name,absent = rec.split("\t")
-        end
-      elsif rec.split(",").length > 1
-        unless @allowed_attendance_headers.blank?
-          if @allowed_attendance_headers.length == 3
-            date,@tmp_tea_id,absent = rec.split(",")
-          else
-            date,@tmp_tea_id,school_name,absent = rec.split(",")
-          end
+      unless @allowed_attendance_headers.blank?
+        if @allowed_attendance_headers.length == 3
+          date,@tmp_tea_id,absent = rec.split(",")
         else
           date,@tmp_tea_id,school_name,absent = rec.split(",")
         end
+      else
+        date,@tmp_tea_id,school_name,absent = rec.split(",")
       end
+      
       if date.downcase.index("date").blank?
         enr_array.each do |line|
           @enrolled = 0
@@ -608,6 +602,9 @@ class SchoolDataTransformer
     end
   end
 
+  # Method saves files paths to instance variables
+  #
+  # Method runs through the files and saves their file paths into instance variables for reference by other methods 
   def reorder_files
     files = Dir.glob(File.join(@dir,"*"))
     files.each{|f|

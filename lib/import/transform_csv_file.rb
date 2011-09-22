@@ -1,5 +1,4 @@
 require 'fastercsv'
-require 'import_csv_files.rb'
 # Class is responsible for transforming data import files into a standard specification
 #
 # Example:

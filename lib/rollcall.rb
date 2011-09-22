@@ -3,6 +3,11 @@ Dir[File.join(File.dirname(__FILE__), 'models', '*.rb')].each do |f|
   require f
 end
 
+# Require rollcall import scripts
+Dir[File.join(File.dirname(__FILE__), 'import', '*.rb')].each do |f|
+  require f
+end
+
 # Add rollcall vendor/plugins/*/lib to LOAD_PATH
 Dir[File.join(File.dirname(__FILE__), '../vendor/plugins/*/lib')].each do |path|
   $LOAD_PATH << path

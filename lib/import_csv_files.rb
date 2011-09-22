@@ -13,6 +13,7 @@ class SchoolDataImporter
     @record       = nil
     @mapping      = self.class::MAPPING unless @filename.blank?
     @symptoms     = Rollcall::Symptom.all
+    @schools      = []
     @rrd_path     = Dir.pwd << "/rrd/"
     @rrd_tool     = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
     @school_year  = 0
@@ -205,7 +206,8 @@ class AttendanceImporter < SchoolDataImporter
   # @params rec   array  an array of records to process
   # @params attrs hash   an attribute hash{:key => value}
   def process_record(rec, attrs)
-    puts "Importing Attendance Data for #{attrs[:school_id]}"
+    puts "Importing Attendance Data for School ID:#{attrs[:school_id]}"
+    @schools.push attrs[:school_id] unless attrs[:school_id].blank?
     daily_info            = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(attrs[:school_id].to_i, attrs[:report_date])
     daily_info            = Rollcall::SchoolDailyInfo.new if !daily_info
     daily_info.attributes = attrs
@@ -217,40 +219,39 @@ class AttendanceImporter < SchoolDataImporter
   def write_rrd_file
     @end_date     = nil
     @end_enrolled = 0
-    Rollcall::School.find_in_batches(:batch_size => 100) do |schools|
-      schools.each{|s|
-        unless Rollcall::SchoolDailyInfo.find_by_school_id(s.id).blank?
-          Rollcall::SchoolDailyInfo.find_in_batches(
-            :conditions => ["school_id = ? AND created_at > ?", s.id, 1.day.ago.utc],
-            :batch_size => 100
-          ) do |recs|
-            recs.each{|r|
-              report_time = r.report_date.to_time
-              if @s_i.blank?
-                @s_i = [ [report_time.to_i.to_s, 0, recs[0].total_enrolled] ]
-              end
-              if r.report_date.strftime("%a").downcase == "sat" || r.report_date.strftime("%a").downcase == "sun"
-                @s_i.push([(report_time + 1.day).to_i.to_s, 0, r.total_enrolled])
-              else
-                @s_i.push([(report_time + 1.day).to_i.to_s, r.total_absent, r.total_enrolled])
-              end
-              @end_time     = report_time
-              @end_enrolled = r.total_enrolled
-            }
-          end
-          begin
-            @s_i.push([(@end_time + 2.days).to_i.to_s, 0, @end_enrolled])
-            puts "Importing RRD Data for #{s.display_name}"
-            if ENV["RAILS_ENV"] == "cucumber" || ENV["RAILS_ENV"] == "test"
-              RRD.update_batch("#{@rrd_path}/#{s.tea_id}_c_absenteeism.rrd", @s_i, "#{@rrd_tool}")
-            else
-              RRD.update_batch("#{@rrd_path}/#{s.tea_id}_absenteeism.rrd", @s_i, "#{@rrd_tool}")
+
+    Rollcall::School.find(:all, :conditions => ["school_id IN (?)", @schools]).each do |s|
+      unless Rollcall::SchoolDailyInfo.find_by_school_id(s.id).blank?
+        Rollcall::SchoolDailyInfo.find_in_batches(
+          :conditions => ["school_id = ? AND created_at > ?", s.id, 1.day.ago.utc],
+          :batch_size => 100
+        ) do |recs|
+          recs.each{|r|
+            report_time = r.report_date.to_time
+            if @s_i.blank?
+              @s_i = [ [report_time.to_i.to_s, 0, recs[0].total_enrolled] ]
             end
-            @s_i = nil
-          rescue
-          end         
+            if r.report_date.strftime("%a").downcase == "sat" || r.report_date.strftime("%a").downcase == "sun"
+              @s_i.push([(report_time + 1.day).to_i.to_s, 0, r.total_enrolled])
+            else
+              @s_i.push([(report_time + 1.day).to_i.to_s, r.total_absent, r.total_enrolled])
+            end
+            @end_time     = report_time
+            @end_enrolled = r.total_enrolled
+          }
         end
-      }
+        begin
+          @s_i.push([(@end_time + 2.days).to_i.to_s, 0, @end_enrolled])
+          puts "Importing RRD Data for #{s.display_name}"
+          if ENV["RAILS_ENV"] == "cucumber" || ENV["RAILS_ENV"] == "test"
+            RRD.update_batch("#{@rrd_path}/#{s.tea_id}_c_absenteeism.rrd", @s_i, "#{@rrd_tool}")
+          else
+            RRD.update_batch("#{@rrd_path}/#{s.tea_id}_absenteeism.rrd", @s_i, "#{@rrd_tool}")
+          end
+          @s_i = nil
+        rescue
+        end
+      end  
     end
   end
 end
@@ -406,7 +407,9 @@ private
         @symptoms.each {|symptom|
           symptom.name.downcase.split(' ').each do |sym|
             if symptom_name.downcase.index(sym.gsub('(','').gsub(')',''))
-              Rollcall::StudentReportedSymptom.create(:symptom => symptom, :student_daily_info => daily_info)
+              unless daily_info.symptoms.map(&:name).include?(symptom.name)
+                Rollcall::StudentReportedSymptom.create(:symptom => symptom, :student_daily_info => daily_info)
+              end
               break
             end
           end

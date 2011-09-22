@@ -30,6 +30,22 @@ module Rollcall
       alarm_queries
     end
 
+    def is_school_user?
+      rollcall_user = Rollcall::RollcallUser.find_by_user_id id
+      unless rollcall_user.blank?
+        return !rollcall_user.school_user.blank?
+      end
+      return false
+    end
+
+    def is_school_district_user?
+      rollcall_user = Rollcall::RollcallUser.find_by_user_id id
+      unless rollcall_user.blank?
+        return !rollcall_user.school_district_user.blank?
+      end
+      return false
+    end
+
     def is_rollcall_power_user?
       roles.should include(Role.power_user)
     end

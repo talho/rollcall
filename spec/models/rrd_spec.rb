@@ -80,7 +80,7 @@ describe Rollcall::Rrd do
       Rollcall::Rrd.all.should include(@result)
     end
     it "creates a physical RRD file" do
-      File.exists?(Dir.pwd << "/rrd/" << @result.file_name).should == true
+      File.exists?(File.join(Rails.root, "/rrd/", @result.file_name)).should == true
     end
   end
 #  TO BE IMPLEMENTED 

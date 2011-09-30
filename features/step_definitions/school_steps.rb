@@ -1,5 +1,5 @@
 Given /^"([^\"]*)" has the following schools:$/ do |isd, table|
-  rrd_path = Dir.pwd << "/rrd/"
+  rrd_path = File.join(Rails.root, "/rrd/")
   table.hashes.each do |row|
     @district = Rollcall::SchoolDistrict.find_by_name(isd)
     result    = Rollcall::School.create(
@@ -27,7 +27,7 @@ Given /^"([^\"]*)" has the following current school absenteeism data:$/ do |isd,
   report_date    = ''
   total_enrolled = ''
   current_time   = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_month
-  rrd_path       = Dir.pwd << "/rrd/"
+  rrd_path       = File.join(Rails.root, "/rrd/")
   rrd_tool       = if File.exist?(doc_yml = RAILS_ROOT+"/vendor/plugins/rollcall/config/rrdtool.yml")
     YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"
   else

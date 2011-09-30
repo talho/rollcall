@@ -25,7 +25,7 @@ class Rollcall::Rrd < Rollcall::Base
     image_file     = set_filename conditions, filename, 'image'
 
     rrd_file       = set_filename conditions, filename, 'rrd'
-    rrd_image_path = Dir.pwd << "/public/rrd/"
+    rrd_image_path = File.join(Rails.root, "public","rrd/")
     results        = find(:all, :conditions => ['file_name LIKE ?', "#{rrd_file}"]).first
     school_name    = school.display_name.gsub(" ", "_")
     if conditions[:confirmed_illness].blank?
@@ -77,7 +77,6 @@ class Rollcall::Rrd < Rollcall::Base
 
     folder.audience.recipients(:force => true).length if folder.audience
     @document          = user_obj.documents.build(:folder_id => folder.id, :file => file)
-    #@document.owner_id = user_obj.id
     @document.save!
     if !@document.folder.nil? && @document.folder.notify_of_document_addition
       DocumentMailer.deliver_rollcall_document_addition(@document, user_obj)
@@ -103,10 +102,11 @@ class Rollcall::Rrd < Rollcall::Base
   end
 
   def self.build_rrd identifier, school_id, gm_date_time
-    rrd_path       = Dir.pwd << "/rrd/"
+    rrd_path       = ROLLCALL_RRDTOOL_CONFIG["rrdfile_path"]
+    rrd_path       = File.join(Rails.root, "rrd") if rrd_path.blank?
     rrd_tool       = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
     rrd_start_date = gm_date_time - 1.day
-    RRD.create("#{rrd_path}#{identifier}_absenteeism.rrd",
+    RRD.create("#{rrd_path}/#{identifier}_absenteeism.rrd",
       {
         :step  => 24.hours.seconds,
         :start => rrd_start_date.to_i,
@@ -130,10 +130,11 @@ class Rollcall::Rrd < Rollcall::Base
         },{
           :type => "LAST", :xff => 0.5, :steps => 1, :rows => 366
         }]
-      } , "#{rrd_tool}") unless File.exists?("#{rrd_path}#{identifier}_absenteeism.rrd")
+      } , "#{rrd_tool}") unless File.exists?("#{rrd_path}/#{identifier}_absenteeism.rrd")
     find_or_create_by_file_name(
       :file_name => "#{identifier}_absenteeism.rrd", :school_id => school_id
     )
+    RRD.update("#{rrd_path}/#{identifier}_absenteeism.rrd",[gm_date_time.to_i.to_s,0,0],"#{rrd_tool}")
   end
 
   private
@@ -141,8 +142,8 @@ class Rollcall::Rrd < Rollcall::Base
   # Dev Note: All Date times must be in UTC format for rrd
   def self.graph rrd_file, image_file, graph_title, params
     test_data_date = Time.gm(Time.now.year, "aug", 01,0,0)
-    rrd_image_path = Dir.pwd << "/public/rrd/"
-    rrd_path       = Dir.pwd << "/rrd/"
+    rrd_image_path = File.join(Rails.root, "/public/rrd/")
+    rrd_path       = File.join(Rails.root, "/rrd/")
     rrd_tool       = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
     if params[:startdt].blank?
       start_date = test_data_date
@@ -275,7 +276,7 @@ class Rollcall::Rrd < Rollcall::Base
   end
 
   def self.reduce_rrd params, school_id, conditions, rrd_file, rrd_image_path, image_file, graph_title
-    rrd_path = Dir.pwd << "/rrd/"
+    rrd_path = File.join(Rails.root, "/rrd/")
     unless conditions.blank?
       rrd_tool = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
       unless conditions[:startdt].blank?
@@ -361,7 +362,7 @@ class Rollcall::Rrd < Rollcall::Base
         end
       end
       update_ary.push([(start_date + (days+2).days).to_i.to_s, 0, total_enrolled])
-      rrd_path = Dir.pwd << "/rrd/"
+      rrd_path = File.join(Rails.root, "/rrd/")
       rrd_tool = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
       RRD.update_batch("#{rrd_path}/#{rrd_file}", update_ary, rrd_tool)
     end

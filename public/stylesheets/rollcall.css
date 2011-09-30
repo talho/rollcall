@@ -187,3 +187,5 @@
 #x-form-el-school_adv, #x-form-el-zip_adv, #x-form-el-school_type_adv{
   padding-left: 0px !important;
 }
+
+.x-action-col-cell div{overflow: visible !important;}

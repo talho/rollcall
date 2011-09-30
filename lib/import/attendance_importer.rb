@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'school_data_importer.rb')
+require 'school_data_importer'
 # Class is derived from SchoolDataImporter, imports attendance data, defines MAPPING and process_record
 class AttendanceImporter < SchoolDataImporter
   AttendanceImporter::MAPPING = [
@@ -26,7 +26,7 @@ class AttendanceImporter < SchoolDataImporter
   def write_rrd_file
     @end_date     = nil
     @end_enrolled = 0
-
+    @schools.uniq!
     Rollcall::School.find(:all, :conditions => ["id IN (?)", @schools]).each do |s|
       unless Rollcall::SchoolDailyInfo.find_by_school_id(s.id).blank?
         Rollcall::SchoolDailyInfo.find_in_batches(
@@ -36,7 +36,11 @@ class AttendanceImporter < SchoolDataImporter
           recs.each{|r|
             report_time = r.report_date.to_time
             if @s_i.blank?
-              @s_i = [ [report_time.to_i.to_s, 0, recs[0].total_enrolled] ]
+              if !@new_rrd.blank?
+                @s_i = [ [report_time.to_i.to_s, 0, recs[0].total_enrolled] ]
+              else
+                @s_i = []
+              end              
             end
             if r.report_date.strftime("%a").downcase == "sat" || r.report_date.strftime("%a").downcase == "sun"
               @s_i.push([(report_time + 1.day).to_i.to_s, 0, r.total_enrolled])

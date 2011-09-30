@@ -139,7 +139,7 @@ namespace :rollcall do
         end
       end
 
-      rrd_path = Dir.pwd << "/rrd/"
+      rrd_path = File.join(Rails.root, "/rrd/")
       rrd_tool = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
       #Change current_time to desired test range to best suite your environment
       begin_time = Time.gm(2010,"sep",01,0,0)

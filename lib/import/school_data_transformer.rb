@@ -200,6 +200,7 @@ class SchoolDataTransformer
         # Second round of transformations - replace tabs with commas, skip the first line since it is now headers
         file_to_write = File.open(file_name, "w")
         line_number   = 0
+
         IO.foreach(file_name+".tmp", sep_string = get_sep_string(file_name+".tmp")) do |line|
           if line_number != 0 && !line.blank?
             # Their might be situations where an ISD might send us tab-delimited files, with free text values that
@@ -243,7 +244,27 @@ class SchoolDataTransformer
                   value.slice!((value.length - 1))
                 end
                 #second strip in case original value was encased in single quotes
-                value.strip!
+                value.strip!                
+                if file_path.downcase.index('att')
+                  if value_pass == 2 && @district.name == "Tyler"
+                    if value.length == 2
+                      value = "0#{value}"
+                    elsif value.length == 1
+                      value = "00#{value}"
+                    end
+                    value = "#{@district.district_id}#{value}"
+                  end
+                  if value_pass == 2 && @district.name == "Socorro"
+                    if value.length < 9
+                      if @district.district_id == value[0..5].to_i && value[6..value.length].length == 2
+                        value = "#{@district.district_id}0#{value[6..value.length]}"
+                      end
+                    end
+                  end
+                  if value_pass == 4 && @district.name == "Socorro"
+                    value.gsub!(",","")
+                  end
+                end
                 # if the value is indeed a true valid date value, we need to make sure the date value is in the
                 # standard datetime interface format YYYY-MM-DD HH:MM:SS
                 if is_date? value
@@ -254,26 +275,8 @@ class SchoolDataTransformer
                   value.gsub!("|","")
                 end
                 if file_path.downcase.index('h1n1') || file_path.downcase.index('ili')
-#                  if value_pass == 3 && @district.name == "Socorro"
-#                    if value.length == 2
-#                      value = "0#{value}"
-#                    elsif value.length == 1
-#                      value = "00#{value}"
-#                    end
-#                    value = "#{@district.district_id}#{value}"
-#                  end
-                end
-                if file_path.downcase.index('att')
-                  if value_pass == 2 && @district.name == "Tyler"
-                    if value.length == 2
-                      value = "0#{value}"
-                    elsif value.length == 1
-                      value = "00#{value}"
-                    end
-                    value = "#{@district.district_id}#{value}"
-                  end
-                  if value_pass == 4 && @district.name == "Socorro"
-                    value.gsub!(",","")
+                  if value_pass == 3 && @district.name == "Socorro"
+                    value = "#{Time.parse(value).year}-#{Time.parse(value).month.to_s.rjust(2, '0')}-#{Time.parse(value).day.to_s.rjust(2, '0')} 00:00:00"
                   end
                 end
                 if value_pass == 1 && (@district.name == "McKinney" || @district.name == "Ector")
@@ -319,15 +322,63 @@ class SchoolDataTransformer
                     values.push(value)
                   end
                 end
-
               elsif value.blank? && (file_path.downcase.index('h1n1') || file_path.downcase.index('ili'))               
                 value.strip!
                 values.push('"'+value+'"')
               end
               value_pass += 1
             end
-            file_to_write.puts values.join(",")
-          else
+            if @district.name == "Socorro" && file_path.downcase.index('ili')
+              @so_lines = [] if @so_lines.blank?
+              if @so_lines.length > 1 && @so_lines.last[1] == values[1]
+                @so_lines.push(values)
+                @so_lines.each{|so|
+                  i = 0
+                  @so_lines.length.times do
+                    unless @so_lines[i+1].blank?
+                      if so[2] == @so_lines[i+1][2]
+                        @so_symptom_line = [] if @so_symptom_line.blank?
+                        @so_symptom_line.push(so[4])
+                        @so_symptom_line.uniq!
+                      end
+                    end
+                    i += 1
+                  end
+                }
+              else
+                if @so_lines.blank? || @so_lines.length == 1
+                  if @so_lines.blank?
+                    @so_lines.push(values)
+                  else
+                    if @so_lines.last[1] == values[1]
+                      @so_lines.push(values)
+                    else
+                      file_to_write.puts @so_lines.last.join(",")
+                      @so_lines = []
+                      @so_lines.push(values)
+                    end
+                  end                  
+                else
+                  if @so_lines.length > 1 && @so_lines.last[1] != values[1]
+                    if @so_symptom_line.blank?
+                      @so_lines.each{|s_o|
+                        file_to_write.puts s_o.join(",")
+                      }
+                    else
+                      symp_string = @so_symptom_line.join(",").gsub('"','')
+                      file_to_write.puts [@so_lines.first[0],@so_lines.first[1],@so_lines.first[2],@so_lines.first[3],
+                                          symp_string,@so_lines.first[5], @so_lines.first[6]].join(",")
+                      @so_symptom_line = []
+                    end
+                    @so_lines = []
+                    @so_lines.push(values)
+                  end
+                end
+              end
+            else
+              file_to_write.puts values.join(",")
+            end
+          elsif !line.blank?
             file_to_write.puts headers
           end
           line_number += 1
@@ -595,7 +646,8 @@ class SchoolDataTransformer
   #
   # Method checks if a common header is present, if not then false, else true
   def has_headers? line
-    if line.downcase.index('campusid') || line.downcase.index('campus_id') || line.downcase.index('building')
+    if line.downcase.index('campusid') || line.downcase.index('campus_id') || line.downcase.index('building') ||
+      line.downcase.index('bld')
       return true
     else
       return false

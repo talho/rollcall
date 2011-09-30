@@ -1,7 +1,7 @@
 #Use this YAML file to set the rrdtool path
 production:
   rrdtool_path: /usr/bin/
-
+  rrdfile_path: /var/www/openphin/shared/rrd
 development: &DEVELOPMENT
   rrdtool_path: /usr/bin
 

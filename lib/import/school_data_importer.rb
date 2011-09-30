@@ -10,10 +10,11 @@ class SchoolDataImporter
     @mapping      = self.class::MAPPING unless @filename.blank?
     @symptoms     = Rollcall::Symptom.all
     @schools      = []
-    @rrd_path     = Dir.pwd << "/rrd/"
+    @rrd_path     = File.join(Rails.root, "/rrd/")
     @rrd_tool     = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
     @school_year  = 0
     @linenum      = 0
+    @new_rrd      = nil
   end
 
   # Method reads in the CSV file and checks the record, seeds it into rrd, and then processes it into the system
@@ -61,7 +62,7 @@ class SchoolDataImporter
         school_type = "Multilevel School"
       end
       string = "#{rec["SchoolName"]},#{district_id},#{school_number},#{rec["CampusID"]},#{school_type},,,''"
-      f      = File.new(File.dirname(__FILE__) + "/../db/fixtures/schools.csv", 'a+')
+      f      = File.new(File.dirname(__FILE__) + "/../../db/fixtures/schools.csv", 'a+')
       f.puts string
       f.close()
 
@@ -74,7 +75,7 @@ class SchoolDataImporter
         :school_type   => school_type
       )
       #create rrd file for school
-      Rollcall::Rrd.build_rrd(school.tea_id, school.id, Time.gm(@school_year,"aug",01,0,0))
+      @new_rrd = Rollcall::Rrd.build_rrd(school.tea_id, school.id, Time.gm(@school_year,"aug",01,0,0))
     end
   end
 

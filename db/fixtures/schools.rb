@@ -19,8 +19,6 @@ end
 
 #Run through the schools.csv file, create a new schools
 FasterCSV.open(File.dirname(__FILE__) + '/schools.csv', :headers => true) do |schools|
-  #we will use this to create the corresponding rrd file for the school
-  rrd_path = Dir.pwd << "/rrd/"
   schools.each do |row|
     #if school name blank, skip to next record
     if row["name"].blank?

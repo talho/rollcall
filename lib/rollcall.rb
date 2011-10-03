@@ -1,5 +1,19 @@
+Dir[File.join(File.dirname(__FILE__), '../lib/*/')].each do |path|
+  $LOAD_PATH << path 
+end
+
+# Add rollcall vendor/plugins/*/lib to LOAD_PATH
+Dir[File.join(File.dirname(__FILE__), '../vendor/plugins/*/lib')].each do |path|
+  $LOAD_PATH << path
+end
+
 # Require rollcall models
 Dir[File.join(File.dirname(__FILE__), 'models', '*.rb')].each do |f|
+  require f
+end
+
+# Require rollcall rollcall recipes
+Dir[File.join(File.dirname(__FILE__), 'models', 'report', '*.rb')].each do |f|
   require f
 end
 
@@ -8,19 +22,20 @@ Dir[File.join(File.dirname(__FILE__), 'import', '*.rb')].each do |f|
   require f
 end
 
-# Add rollcall vendor/plugins/*/lib to LOAD_PATH
-Dir[File.join(File.dirname(__FILE__), '../vendor/plugins/*/lib')].each do |path|
-  $LOAD_PATH << path
-end
-
-# Require the creation of rrd folders
-Dir.ensure_exists(File.join(Dir.pwd, "rrd/"))
-Dir.ensure_exists(File.join(Dir.pwd, "public/rrd/"))
-
 # Load the rrdtool yaml config file
 rrd_yml = YAML.load_file(File.join(File.dirname(__FILE__), '..', 'config', 'rrdtool.yml'))
 ROLLCALL_RRDTOOL_CONFIG = rrd_yml[Rails.env]
 ROLLCALL_RRDTOOL_CONFIG.freeze
+
+# Require the creation of rrd folders
+if ROLLCALL_RRDTOOL_CONFIG["rrdfile_path"]
+  Dir.ensure_exists(ROLLCALL_RRDTOOL_CONFIG["rrdfile_path"])
+  File.symlink(ROLLCALL_RRDTOOL_CONFIG["rrdfile_path"], File.join(Rails.root, "rrd/")) unless File.symlink?(File.join(Rails.root, "rrd/"))
+else
+  Dir.ensure_exists(File.join(Rails.root, "rrd/"))
+end
+
+Dir.ensure_exists(File.join(Rails.root, "public/rrd/"))
 
 # Load the interface fields yaml config file
 if File.exist?(doc_yml = RAILS_ROOT+"/vendor/plugins/rollcall/config/interface_fields.yml")

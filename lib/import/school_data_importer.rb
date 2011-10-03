@@ -20,20 +20,22 @@ class SchoolDataImporter
   # Method reads in the CSV file and checks the record, seeds it into rrd, and then processes it into the system
   def import_csv
     @records = FasterCSV.read(@filename, :headers => true, :row_sep => :auto)
-    @linenum = 0
-    if @filename.index('att') || @filename.index('Att')
-     @school_year = Time.parse(@records[0]["AbsenceDate"]).year
-    end
-    @records.each { |rec |
-      @linenum += 1
-      @record   = rec
-      check_record(@record)
-      seed_record(@record)
-      process_record(@record, rec2attrs(@record)) if rec2attrs(@record) != false
-    }
-    if @filename.index('att') || @filename.index('Att')
-      write_rrd_file
-    end
+    unless @records.blank?
+      @linenum = 0
+      if @filename.index('att') || @filename.index('Att')
+       @school_year = Time.parse(@records[0]["AbsenceDate"]).year
+      end
+      @records.each { |rec |
+        @linenum += 1
+        @record   = rec
+        check_record(@record)
+        seed_record(@record)
+        process_record(@record, rec2attrs(@record)) if rec2attrs(@record) != false
+      }
+      if @filename.index('att') || @filename.index('Att')
+        write_rrd_file
+      end
+    end    
   end
 
   # Method seeds the record if processing new school

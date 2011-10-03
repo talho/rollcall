@@ -4,7 +4,7 @@ parent_lib_dir = File.join(Rails.root, "lib")
   File.unlink(target) if File.symlink?(target)
 }
 
-target = "#{Rails.root}/vendor/plugins/rollcall/spec/spec_helper.rb"
+target = File.join(Rails.root,"vendor","plugins","rollcall","spec", "spec_helper.rb")
 File.unlink(target) if File.symlink?(target)
 
 parent_public_dir = File.join(Rails.root, "public")

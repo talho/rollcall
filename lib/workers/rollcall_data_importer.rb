@@ -21,7 +21,7 @@
 
 class RollcallDataImporter < BackgrounDRb::MetaWorker
   set_worker_name :rollcall_data_importer
-  reload_on_schedule true
+  #reload_on_schedule true
 
   def create(args = nil)
     #logger.warn("Creating new daily information for Schools, School Districts, Students, and Student Reported Symptoms")

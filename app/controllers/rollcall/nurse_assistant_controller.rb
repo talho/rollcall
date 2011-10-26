@@ -7,7 +7,7 @@
 # The actions held in this controller are primarily called by the Rollcall NurseAssistant ExtJS panel.
 
 class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
-  before_filter :rollcall_nurse_required
+  before_filter :rollcall_student_required
   
   # Method returns a set of student records and associated values. Method can be called with :search_term param
   # which will search against the student db object attributes.  Method can also be called with
@@ -175,7 +175,7 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
     zipcodes             = current_user.school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
     schools              = current_user.schools
     student_daily_info   = Rollcall::StudentDailyInfo.find(:all, :include => :student,
-      :conditions => ["student_id >= ? AND rollcall_students.school_id IN (?)", 1, current_user.school_districts.first.schools], 
+      :conditions => ["student_id >= ? AND rollcall_students.school_id IN (?)", 1, current_user.school_districts.first.schools],
       :order      => "rollcall_student_daily_infos.created_at DESC", :limit => 1)
     unless student_daily_info.blank?
       school_id            = student_daily_info.first.student.school_id
@@ -186,11 +186,8 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       app_init             = true
       total_enrolled_alpha = true
     end
-
     respond_to do |format|
       format.json do
-        original_included_root                  = ActiveRecord::Base.include_root_in_json
-        ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :options => [{
             :race                 => race,
@@ -206,9 +203,7 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
             :schools              => schools
           }]
         }
-        ActiveRecord::Base.include_root_in_json = original_included_root
       end
     end
   end
-
 end

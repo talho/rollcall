@@ -395,207 +395,18 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     for(key in queryParams){ params.push([key, queryParams[key]]); }
     storedParams.loadData(params);
 
-    var alarm_console = new Ext.Window({
-      layout:       'fit',
-      width:        300,
-      autoHeight:   true,
-      modal:        true,
-      constrain:    true,
-	    renderTo:     'adst_container',
-      closeAction:  'close',
-      title:        (school_name) ? 'Alarm Query for '+school_name : 'Alarm Query',
-      plain:        true,
-      result_panel: this,
-      items: [{
-        xtype:      'form',
-        id:         'alarmQueryForm',
-        url:        '/rollcall/alarm_query',
-        border:     false,
-        baseParams: {authenticity_token: FORM_AUTH_TOKEN, alarm_query_params: Ext.encode(queryParams)},
-        items:[{
-          xtype:         'textfield',
-          labelStyle:    'margin: 10px 0px 0px 5px',
-          fieldLabel:    'Name',
-          id:            'alarm_query_name',
-          minLengthText: 'The minimum length for this field is 3',
-          blankText:     "This field is required.",
-          minLength:     3,
-          allowBlank:    false,
-          style:{
-            marginTop:    '10px',
-            marginBottom: '5px'
-          }
-        },{
-          xtype: 'fieldset',
-          title: 'Absentee Rate Deviation',
-          style: {
-            marginLeft:  '5px',
-            marginRight: '5px'
-          },
-          buttonAlign: 'left',
-          defaults: {
-            xtype:      'container',
-            labelStyle: 'width:auto;'
-          },
-          items: [{
-            fieldLabel: 'Min',
-            items:[{
-              xtype: 'numberfield',
-              width: 32,
-              cls:   'ux-layout-auto-float-item',
-              style:{
-                marginLeft: '-40px',
-                zIndex: '300'
-              },
-              listeners: {
-                keyup: this.changeSliderField
-              },
-              enableKeyEvents: true,
-              id: 'min_deviation'
-            },{
-              xtype: 'sliderfield',
-              width: 135,
-              listeners: {
-                change: this.changeTextField
-              },
-              tipText: this.showTipText,
-              id:      'deviation_min',
-              cls:     'ux-layout-auto-float-item',
-              value:   100
-            }]
-          },{
-            fieldLabel: 'Max',
-            items:[{
-              xtype: 'numberfield',
-              width: 32,
-              cls:   'ux-layout-auto-float-item',
-              style:{
-                marginLeft: '-40px'
-              },
-              listeners: {
-                keyup: this.changeSliderField
-              },
-              enableKeyEvents: true,
-              id: 'max_deviation'
-            },{
-              xtype: 'sliderfield',
-              width: 135,
-              listeners: {
-                change: this.changeTextField
-              },
-              tipText: this.showTipText,
-              id:      'deviation_max',
-              cls:     'ux-layout-auto-float-item',
-              value:   100
-            }]
-          }],
-          fbar: {
-            xtype: 'toolbar',
-            items: ['->', {
-              text:    'Max All',
-              handler: this.maxFields
-            }]
-          }
-        },{
-          xtype:      'fieldset',
-          autoHeight: true,
-          title:      'Absentee Rate Severity',
-          style:{
-            marginLeft:  '5px',
-            marginRight: '5px'
-          },
-          buttonAlign: 'left',
-          defaults: {
-            xtype:  'container',
-            labelStyle: 'width:auto;',
-            layout: 'anchor'
-          },
-          items: [{
-            fieldLabel: 'Min',
-            items:[{
-              xtype: 'numberfield',
-              width: 32,
-              cls:   'ux-layout-auto-float-item',
-              style:{
-                marginLeft: '-40px'
-              },
-              listeners: {
-                keyup: this.changeSliderField
-              },
-              enableKeyEvents: true,
-              id: 'min_severity'
-            },{
-              xtype: 'sliderfield',
-              width: 135,
-              listeners: {
-                change: this.changeTextField
-              },
-              tipText: this.showTipText,
-              id:      'severity_min',
-              value:   100,
-              cls:     'ux-layout-auto-float-item'
-            }]
-          },{
-            fieldLabel: 'Max',
-            items:[{
-              xtype: 'numberfield',
-              width: 32,
-              cls:   'ux-layout-auto-float-item',
-              style:{
-                marginLeft: '-40px'
-              },
-              listeners: {
-                keyup: this.changeSliderField
-              },
-              enableKeyEvents: true,
-              id: 'max_severity'
-            },{
-              xtype: 'sliderfield',
-              width: 135,
-              listeners: {
-                change: this.changeTextField
-              },
-              tipText: this.showTipText,
-              id:      'severity_max',
-              value:   100,
-              cls:     'ux-layout-auto-float-item'
-            }]
-          }],
-          fbar: {
-            xtype: 'toolbar',
-            items: ['->', {
-              text:    'Max All',
-              handler: this.maxFields
-            }]
-          }
-        },{
-          xtype:      'fieldset',
-          autoWidth:  true,
-          autoHeight: true,
-          title:      'Parameters',
-          style:{
-            marginLeft:  '5px',
-            marginRight: '5px'
-          },
-          collapsible: false,
-          items: [{
-            xtype:               'listview',
-            store:               storedParams,
-            multiSelect:         true,
-            reserveScrollOffset: true,
-            columns: [{
-                header:    'Field Name',
-                width:     .65,
-                dataIndex: 'field'
-            },{
-                header:    'Value Set',
-                width:     .35,
-                dataIndex: 'value'
-            }]
-          }]
-        }]
-      }],
-      buttonAlign: 'right',
+    var o_i = {
+      render_to:         'adst_container',
+      alarm_query_title: (school_name) ? 'Alarm Query for '+school_name : 'Alarm Query',
+      form_id:           'alarmQueryForm',
+      form_url:          '/rollcall/alarm_query',
+      auth_token:        FORM_AUTH_TOKEN,
+      query_params:      Ext.encode(queryParams),
+      deviation_min:     100,
+      deviation_max:     100,
+      severity_min:      100,
+      severity_max:      100,
+      stored_params:     storedParams,
       buttons: [{
         text:    'Submit',
         handler: this.submitAlarmQueryForm
@@ -605,7 +416,8 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           alarm_console.close();
         }
       }]
-    });
+    }
+    var alarm_console = new Talho.Rollcall.ux.AlarmQueryWindow(o_i);
     alarm_console.doLayout();
     alarm_console.show();
   },

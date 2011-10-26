@@ -11,6 +11,7 @@
 #
 
 require 'spec/spec_helper'
+require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::SchoolDistrict do
   describe "validations" do

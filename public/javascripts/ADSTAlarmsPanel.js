@@ -1,7 +1,7 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
-Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
+Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
   constructor: function(config)
   {
     this.tip_array            = new Array();
@@ -135,7 +135,7 @@ Talho.Rollcall.AlarmsPanel = Ext.extend(Ext.Container, {
       }
     });
 
-    Talho.Rollcall.AlarmsPanel.superclass.constructor.call(this, config);
+    Talho.Rollcall.ADSTAlarmsPanel.superclass.constructor.call(this, config);
   },
 
   close_alarm_tip: function()

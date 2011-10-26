@@ -38,16 +38,18 @@ class Rollcall::Rrd < Rollcall::Base
         graph_title = "Absenteeism for #{school_name} based on #{params[:symptoms]}"
       #end
     end
-    if results.blank?
-      school_id      = Rollcall::School.find_by_tea_id(tea_id).id
-      create_results = create :file_name => "#{rrd_file}", :school_id => school_id
-      rrd_id         = create_results.id
-      self.send_later(:reduce_rrd, params, school_id, conditions, rrd_file, rrd_image_path, image_file, graph_title)
-    else
+    if (params[:type] == "simple" && conditions[:confirmed_illness].blank?) ||
+      (params[:type] == "adv" && conditions[:confirmed_illness].blank? && conditions[:gender].blank? && conditions[:age].blank? && conditions[:grade].blank? && conditions[:symptoms].blank?)
       rrd_id         = results.id
       rrd_file       = results.file_name
       File.delete("#{rrd_image_path}#{image_file}") if File.exist?("#{rrd_image_path}#{image_file}")
       self.send_later(:graph, rrd_file, image_file, graph_title, params)
+    else
+      results.destroy unless results.blank?
+      school_id      = Rollcall::School.find_by_tea_id(tea_id).id
+      create_results = create :file_name => "#{rrd_file}", :school_id => school_id
+      rrd_id         = create_results.id
+      self.send_later(:reduce_rrd, params, school_id, conditions, rrd_file, rrd_image_path, image_file, graph_title)  
     end
     { :image_url => "/rrd/#{image_file}", :rrd_id => rrd_id }
   end
@@ -86,7 +88,7 @@ class Rollcall::Rrd < Rollcall::Base
 
   def self.generate_report params, user_obj
     initial_result     = Rollcall::School.search params, user_obj
-    test_data_date     = Time.parse("11/22/2010")
+    test_data_date     = Time.parse("08/01/#{Time.now.month >= 8 ? Time.now.year : (Time.now.year - 1)}")
     start_date         = params[:startdt].blank? ? test_data_date : Time.parse(params[:startdt])
     end_date           = params[:enddt].blank? ? Time.now : Time.parse(params[:enddt])
     conditions         = set_conditions params
@@ -131,10 +133,11 @@ class Rollcall::Rrd < Rollcall::Base
           :type => "LAST", :xff => 0.5, :steps => 1, :rows => 366
         }]
       } , "#{rrd_tool}") unless File.exists?("#{rrd_path}/#{identifier}_absenteeism.rrd")
-    find_or_create_by_file_name(
+    result = find_or_create_by_file_name(
       :file_name => "#{identifier}_absenteeism.rrd", :school_id => school_id
     )
     RRD.update("#{rrd_path}/#{identifier}_absenteeism.rrd",[gm_date_time.to_i.to_s,0,0],"#{rrd_tool}")
+    result
   end
 
   private
@@ -479,15 +482,16 @@ class Rollcall::Rrd < Rollcall::Base
     condition_array[0] += " AND " if string_flag
     condition_array[0] += "report_date = ?"
     condition_array.push(report_date)
-    unless conditions[:symptoms].blank?
+    if !conditions[:symptoms].blank?
       symptom_ids  = conditions[:symptoms].collect {|s| Rollcall::Symptom.find_by_icd9_code(s).id}
       join_string  = "INNER JOIN rollcall_student_reported_symptoms ON
                      rollcall_student_daily_infos.id = rollcall_student_reported_symptoms.student_daily_info_id AND
                      rollcall_student_reported_symptoms.symptom_id IN (#{symptom_ids.join(",")})"
       total_absent = Rollcall::StudentDailyInfo.find_all_by_student_id(students, :include => :student_reported_symptoms, :joins => join_string, :conditions => condition_array).size
-
-    else
+    elsif !conditions[:confirmed_illness].blank?
       total_absent = Rollcall::StudentDailyInfo.find_all_by_student_id(students, :conditions => condition_array).size
+    else
+      total_absent = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(school_id, report_date).total_absent
     end
     return total_absent
   end

@@ -1,14 +1,18 @@
-Feature: GIS
-  In order view GIS information for a school
-  As a Rollcall user
-  I should be able to interact with the GMap Panel
+Feature: Administer Rollcall Users
+  In order to extend the functionality of a administering user accounts for Rollcall
+  As a Rollcall Admin
+  I should be able to assign school districts and schools to rollcall users
 
 Background:
   Given the following entities exist:
-    | Role         | Epidemiologist  | rollcall |
-    | Jurisdiction | Texas           |          |
-    | Jurisdiction | Houston         |          |
-    | Jurisdiction | Harris          |          |
+    | Role         | Admin          |          |
+    | Role         | Rollcall       | rollcall |
+    | Role         | Admin          | rollcall |
+    | Role         | Nurse          | rollcall |
+    | Role         | Epidemiologist | rollcall |
+    | Jurisdiction | Texas          |          |
+    | Jurisdiction | Houston        |          |
+    | Jurisdiction | Harris         |          |
   And Texas is the parent jurisdiction of:
     | Houston | Harris |
   And Houston has the following school districts:
@@ -44,13 +48,9 @@ Background:
     | 787.91    | Diarrhea                |
     | 0         | None                    |
   And the following users exist:
-    | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Houston |
-  And rollcall user "nurse.betty@example.com" has the following school districts assigned:
-    | Houston |
-  And rollcall user "nurse.betty@example.com" has the following schools assigned:
-    | Anderson Elementary |
-    | Ashford Elementary  |
-    | Yates High School   |
+    | Admin Joe    | admin.joe@example.com   | Admin          | Houston |          |
+    | Admin Joe    | admin.joe@example.com   | Admin          | Houston | rollcall |
+    | Roll User    | roll.user@example.com   | Rollcall       | Houston | rollcall |
   And "Houston" has the following current district absenteeism data:
     | day | total_enrolled | total_absent |
     | 1   | 400            | 13           |
@@ -92,52 +92,86 @@ Background:
     | 2   | Yates High School   | 17       |            |           | 04/23/1994 | 10    | F      | false         |                             |                |
     | 2   | Yates High School   | 18       |            |           | 10/17/1993 | 12    | M      | true          | Chills,Cough,Headache       |                |
     | 2   | Yates High School   | 18       |            |           | 07/23/1993 | 12    | M      | true          | Chills,Temperature,Headache |                |
-
-  And I am logged in as "nurse.betty@example.com"
-
-Scenario: User views a school in an alarm state within the GMap Panel
-  When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
-  And I wait for the panel to load
-  And I press "Submit"
   And delayed jobs are processed
-  And "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
-  And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "Alarm Query for Anderson Elementary"
-  And I fill in "Name" with "Example Query"
-  And I fill in "min_deviation" with "1"
-  And I fill in "max_deviation" with "2"
-  And I fill in "min_severity" with "1"
-  And I fill in "max_severity" with "2"
-  And I press "Submit" within ".x-window"
-  And I should see "Example Query" within "#alarm_queries"
-  And I click the "alarm-off" tool on the "Example Query" window
-  And I wait for the panel to load
-  And I should see "Example Query" within "#alarm_grid_panel"
-  And I should see "Schools in Alarm State!"
-  And I click the "alarm" marker for school "Anderson Elementary"
-  And I should see "School Name: Anderson Elementary"
-  And I should see "Click for more info"
-  And I should see "Anderson Elementary School"
-  And I should see "5727 Ludington Dr"
-  And I should see "Houston, TX 77035-4399"
-  And I press "Dismiss"
-  Then I should not see "Schools in Alarm State!"
-
-Scenario: User views schools of search results within the GMap Panel
-  When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
-  And I wait for the panel to load
-  And I press "Submit"
+  
+Scenario: User creates Rollcall User
+  Given I am logged in as "admin.joe@example.com"
+  And I navigate to the ext dashboard page
+  When I fill in the add user form with:
+    | Email address     | rolly.cally@example.com |
+    | First name        | Rolly                   |
+    | Last name         | Cally                   |
+    | Password          | Password1               |
+    | Confirm password  | Password1               |
+    | Display name      | Rolly Cally             |
+    | Language          | English                 |
+    | Home Jurisdiction | Houston                 |
+  And I request the role "Rollcall" for "Houston" in the RolesControl
+  And I press "Apply Changes"
   And delayed jobs are processed
-  And "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
-  And I press "Map Result Set"
-  And I should see "Google Map of Schools"
-  And I click the "result" marker for school "Anderson Elementary"
-  And I should see "5727 Ludington Dr"
-  And I click the "result" marker for school "Ashford Elementary"
-  And I should see "1815 Shannon Valley Dr"
-  And I click the "result" marker for school "Yates High School"
-  And I should see "3703 Sampson St"
-  And I press "Dismiss"
-  Then I should not see "Google Map of Schools"
+  And I should see "The user has been successfully created"
+  And "rolly.cally@example.com" should have the "Public" role for "Houston"
+  And "rolly.cally@example.com" should have the "Rollcall" role for "Houston"
+  And "rolly.cally@example.com" should not receive an email with the subject "Request submitted for Rollcall in Houston"
+  And rollcall user "admin.joe@example.com" should not receive an email
+  And I navigate to "Apps > Rollcall > Admin > Users"
+  And I wait for the panel to load
+  Then I should see "Rolly Cally" within ".x-grid3-cell"
+  
+Scenario: User assigns school district to Rollcall User
+  Given I am logged in as "admin.joe@example.com"
+  And I navigate to "Apps > Rollcall > Admin > Users"
+  And I wait for the panel to load
+  And I click x-grid3-cell "Roll User"
+  And I press "Add School District"
+  And I click x-menu-item "Houston"
+  And I wait for the panel to load
+  Then I should see "Houston" within ".x-grid3-cell"
+  
+Scenario: User assigns school to Rollcall User
+  Given I am logged in as "admin.joe@example.com"
+  And I navigate to "Apps > Rollcall > Admin > Users"
+  And I wait for the panel to load
+  And I click x-grid3-cell "Roll User"
+  And I press "Add School District"
+  And I click x-menu-item "Houston"
+  And I wait for the panel to load
+  And I should see "Houston" within ".x-grid3-cell"
+  And I click x-grid3-cell "Roll User"
+  And I press "Add School"
+  And I click x-menu-item "Yates High School"
+  And I wait for the panel to load
+  Then I should see "Yates High School" within ".x-grid3-cell"
+
+Scenario: User removes school assigned to Rollcall User
+  Given I am logged in as "admin.joe@example.com"
+  And I navigate to "Apps > Rollcall > Admin > Users"
+  And I wait for the panel to load
+  And I click x-grid3-cell "Roll User"
+  And I press "Add School District"
+  And I click x-menu-item "Houston"
+  And I wait for the panel to load
+  And I should see "Houston" within ".x-grid3-cell"
+  And I click x-grid3-cell "Roll User"
+  And I press "Add School"
+  And I click x-menu-item "Yates High School"
+  And I wait for the panel to load
+  And I should see "Yates High School" within ".x-grid3-cell"
+  And I click x-tpl-circle-icon on the "Roll User" grid row
+  And I wait for the panel to load
+  Then I should not see "Yates High School" in column "Schools" within "rollcall_users_grid"
+  
+Scenario: User removes school district assigned to Rollcall User
+  Given I am logged in as "admin.joe@example.com"
+  And I navigate to "Apps > Rollcall > Admin > Users"
+  And I wait for the panel to load
+  And I click x-grid3-cell "Roll User"
+  And I press "Add School District"
+  And I click x-menu-item "Houston"
+  And I wait for the panel to load
+  And I should see "Houston" in column "Districts" within "rollcall_users_grid"
+  And I click x-grid3-cell "Roll User"
+  And I click x-tpl-circle-icon on the "Roll User" grid row
+  And I wait for the panel to load
+  And I wait for the panel to load
+  Then I should not see "Houston" in column "Schools" within "rollcall_users_grid"

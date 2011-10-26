@@ -11,6 +11,7 @@
 #  updated_at      :datetime
 #
 require 'spec/spec_helper'
+require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::SchoolDailyInfo do
   before(:each) do

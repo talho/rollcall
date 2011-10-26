@@ -1,16 +1,19 @@
-Talho.ScriptManager.addInitializer('Talho.Rollcall.NurseAssistant', {js:'$(ext_extensions)/xActionColumn.js /javascripts/rollcall/NurseAssistant.js'});
+Talho.ScriptManager.addInitializer('Talho.Rollcall.NurseAssistant', {
+  js:'$(ext_extensions)/xActionColumn.js $(js)/rollcall/NurseAssistant.js'
+});
 Talho.ScriptManager.addInitializer('Talho.Rollcall.ADST', {
-  js:'( $(ext_extensions)/Portal.js > /javascripts/rollcall/ux/ComboBox.js > ' +
-     '/javascripts/rollcall/AlarmQueriesPanel.js ) $(ext_extensions)/HBox.js ' +
-     '( /javascripts/rollcall/ADST.js >  /javascripts/rollcall/SimpleADSTContainer.js ) '+
-     ' /javascripts/rollcall/ReportsPanel.js ' +
-     '/javascripts/rollcall/AlarmsPanel.js /javascripts/rollcall/AdvancedADSTContainer.js ' +
-     '( $(ext_extensions)/Portal.js > /javascripts/rollcall/ADSTResultPanel.js /javascripts/ext_extensions/GMapPanel.js )'
+  js:'( $(ext_extensions)/Portal.js > $(js)/rollcall/ux/ComboBox.js > \
+        $(js)/rollcall/ux/AlarmQueryWindow.js > $(js)/rollcall/ADSTAlarmQueriesPanel.js ) \
+      $(ext_extensions)/HBox.js ( $(js)/rollcall/ADST.js >  $(js)/rollcall/ADSTSimpleContainer.js ) \
+      $(js)/rollcall/ADSTReportsPanel.js $(js)/rollcall/ADSTAlarmsPanel.js $(js)/rollcall/ADSTAdvancedContainer.js \
+      ( $(ext_extensions)/Portal.js > $(js)/rollcall/ADSTResultPanel.js GMap )'
 });
 Talho.ScriptManager.addInitializer('Talho.Rollcall.Schools', {
-  js:'/javascripts/rollcall/Schools.js  /javascripts/ext_extensions/GMapPanel.js'
+  js:'$(js)/rollcall/Schools.js  $(ext_extensions)/GMapPanel.js'
 });
-
+Talho.ScriptManager.addInitializer('Talho.Rollcall.Users', {
+  js:'$(js)/rollcall/Users.js'
+});
 Ext.sequence(Ext.form.SliderField.prototype, 'setValue', function() {
 	this.fireEvent('change', this, this.getValue());
 }); 

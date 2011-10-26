@@ -10,6 +10,7 @@
 #  school_district_id :integer(4)
 #
 require 'spec/spec_helper'
+require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::SchoolDistrictDailyInfo do
   before(:each) do

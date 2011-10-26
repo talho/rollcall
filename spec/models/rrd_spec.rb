@@ -10,6 +10,7 @@
 #
 
 require 'spec/spec_helper'
+require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::Rrd do
   describe "validations" do
@@ -57,7 +58,7 @@ describe Rollcall::Rrd do
       #@school             = Factory(:rollcall_school)
       @role_membership    = Factory(:role_membership, :user => @user, :jurisdiction => @rrd.school.district.jurisdiction)
       #@rrd                = Factory(:rollcall_rrd)
-      @result             = Rollcall::Rrd.export_rrd_data({:absent => 'gross'}, '11111111', @user)
+      @result             = Rollcall::Rrd.export_rrd_data({:type => 'simple', :absent => 'gross'}, '11111111', @user)
     end
     it "returns true" do
       @result.should == true

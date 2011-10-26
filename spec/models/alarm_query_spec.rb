@@ -15,8 +15,8 @@
 #  alarm_set           :boolean
 #  created_at          :datetime
 #  updated_at          :datetime
-
 require 'spec/spec_helper'
+require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::AlarmQuery do
   describe "validations" do
@@ -41,13 +41,15 @@ describe Rollcall::AlarmQuery do
 
   describe "generate_alarm" do
     before(:each) do
-      @school             = Factory(:rollcall_school)
-      @student            = Factory(:rollcall_student, :school => @school)
-      @school_daily_info  = Factory(:rollcall_school_daily_info, :school => @school)
-      @student_daily_info = Factory(:rollcall_student_daily_info, :student => @student)
-      @user               = Factory(:user)
-      @role_membership    = Factory(:role_membership, :user => @user, :jurisdiction => @school.district.jurisdiction)
-      @alarm_query        = Factory(:rollcall_alarm_query, :alarm_set => true, :user => @user)
+      @school               = Factory(:rollcall_school)
+      @student              = Factory(:rollcall_student, :school => @school)
+      @school_daily_info    = Factory(:rollcall_school_daily_info, :school => @school)
+      @student_daily_info   = Factory(:rollcall_student_daily_info, :student => @student)
+      @user                 = Factory(:user)
+      @user_school          = Factory(:rollcall_user_school, :user => @user, :school => @school)
+      @user_school_district = Factory(:rollcall_user_school_district, :user => @user, :school_district => @school.district)
+      @role_membership      = Factory(:role_membership, :user => @user, :jurisdiction => @school.district.jurisdiction)
+      @alarm_query          = Factory(:rollcall_alarm_query, :alarm_set => true, :user => @user)
     end
     it "returns true if alarms are set" do
       @alarm_query.generate_alarm.should be_true

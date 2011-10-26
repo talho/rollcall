@@ -13,14 +13,11 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
     alarm_queries = current_user.alarm_queries(params)
     respond_to do |format|
       format.json do
-        original_included_root = ActiveRecord::Base.include_root_in_json
-        ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :success       => true,
           :total_results => alarm_queries.length,
           :results       => alarm_queries
         }
-        ActiveRecord::Base.include_root_in_json = original_included_root
       end
     end
   end
@@ -28,11 +25,12 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
   # POST rollcall/alarm_query
   def create
     alarm_exist_by_name = Rollcall::AlarmQuery.find_by_name(params[:alarm_query_name])
+    fs                  = ActiveSupport::JSON.decode(params[:alarm_query_params])
     alarm_name          = alarm_exist_by_name.blank? ? params[:alarm_query_name] : "#{alarm_exist_by_name.name}_1"
     saved_result        = Rollcall::AlarmQuery.create(
       :name          => alarm_name,
       :user_id       => current_user.id,
-      :query_params  => params[:alarm_query_params],
+      :query_params  => (fs.is_a? String) ? fs : params[:alarm_query_params],
       :severity_min  => params[:severity_min],
       :severity_max  => params[:severity_max],
       :deviation_min => params[:deviation_min],

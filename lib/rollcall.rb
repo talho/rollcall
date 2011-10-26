@@ -37,13 +37,6 @@ end
 
 Dir.ensure_exists(File.join(Rails.root, "public/rrd/"))
 
-# Load the interface fields yaml config file
-if File.exist?(doc_yml = RAILS_ROOT+"/vendor/plugins/rollcall/config/interface_fields.yml")
-  int_yml = YAML.load_file(File.join(File.dirname(__FILE__), '..', 'config', 'interface_fields.yml'))
-  INTERFACE_FIELDS_CONFIG = int_yml
-  INTERFACE_FIELDS_CONFIG.freeze
-end
-
 # Require the rails_rrdtool init.rb
 require File.join(File.dirname(__FILE__), '..', 'vendor', 'plugins', 'rails_rrdtool', 'init.rb')
 
@@ -51,13 +44,21 @@ require File.join(File.dirname(__FILE__), '..', 'vendor', 'plugins', 'rails_rrdt
 $expansion_list = [] unless defined?($expansion_list)
 $expansion_list.push(:rollcall) unless $expansion_list.index(:rollcall)
 
+
 # Build the menu in the $menu_config global variable
 $menu_config = {} unless defined?($menu_config)
-$menu_config[:rollcall] = "{name: 'Rollcall', items:[
+$menu_config[:rollcall_admin] = "{name: 'Rollcall', items:[
             {name: 'ADST', tab:{id: 'rollcall_adst', title:'Rollcall ADST', url:'', initializer: 'Talho.Rollcall.ADST'}},
             {name: 'Nurse Assistant', tab:{id: 'rollcall_nurse_assistant', title:'Nurse Assistant', url:'', initializer: 'Talho.Rollcall.NurseAssistant'}},
             {name: 'Schools', tab:{id: 'rollcall_schools', title:'Rollcall Schools', url:'', initializer: 'Talho.Rollcall.Schools'}},
-            {name: 'About Rollcall', tab:{id: 'about_rollcall', title:'About Rollcall', url:''}}]}"
+            {name: 'Admin', items:[
+              {name: 'Users', tab:{id: 'rollcall_users', title:'Rollcall Users', url:'', initializer: 'Talho.Rollcall.Users'}}
+            ]}]}"
+#$menu_config[:rollcall_admin] = ""
+$menu_config[:rollcall] = "{name: 'Rollcall', items:[
+            {name: 'ADST', tab:{id: 'rollcall_adst', title:'Rollcall ADST', url:'', initializer: 'Talho.Rollcall.ADST'}},
+            {name: 'Nurse Assistant', tab:{id: 'rollcall_nurse_assistant', title:'Nurse Assistant', url:'', initializer: 'Talho.Rollcall.NurseAssistant'}},
+            {name: 'Schools', tab:{id: 'rollcall_schools', title:'Rollcall Schools', url:'', initializer: 'Talho.Rollcall.Schools'}}]}"
 
 # Register any required javascript or stylesheet files with the appropriate
 # rails expansion helper

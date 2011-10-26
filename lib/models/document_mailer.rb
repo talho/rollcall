@@ -5,7 +5,6 @@ module Rollcall
     def rollcall_document_addition(document, user)
       users = document.audience.nil? ? [] : document.audience.recipients.reject{|u| u.roles.length == 1 && u.roles.include?(Role.public)}
       users << document.folder.owner
-      #users.delete(user)
 
       bcc users.map(&:formatted_email)
       from DO_NOT_REPLY

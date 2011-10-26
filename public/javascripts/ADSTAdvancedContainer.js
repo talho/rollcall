@@ -1,7 +1,7 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
-Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
+Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
   constructor: function(config)
   {
     Ext.applyIf(config, {
@@ -251,10 +251,11 @@ Talho.Rollcall.AdvancedADSTContainer = Ext.extend(Ext.Container, {
         scope:   this,
         handler: function(buttonEl, eventObj){
           this.hide();
+          Ext.getCmp('rollcall_adst').resetForm();
           Ext.getCmp('simple_query_select').show();
         }
       }]
     });
-    Talho.Rollcall.AdvancedADSTContainer.superclass.constructor.call(this, config);
+    Talho.Rollcall.ADSTAdvancedContainer.superclass.constructor.call(this, config);
   }
 });

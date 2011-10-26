@@ -38,7 +38,12 @@ class Rollcall::AlarmQuery < Rollcall::Base
     query_params.gsub!("[]", "")
     query = {}
     unless query_params.blank?
-      query = ActiveSupport::JSON.decode(query_params).symbolize_keys
+      fs    = ActiveSupport::JSON.decode(query_params)
+      if fs.is_a? String
+        query = ActiveSupport::JSON.decode(fs).symbolize_keys
+      elsif fs.is_a? Hash
+        query = fs.symbolize_keys
+      end
     end
     schools = Rollcall::School.search(query, user)
     schools.each { |school| create_alarms_for_school(school, query) }
@@ -48,7 +53,7 @@ class Rollcall::AlarmQuery < Rollcall::Base
   
   def create_alarms_for_school(school, query)
     @data_set      = []
-    test_data_date = Time.parse("09/01/2010")
+    test_data_date = Time.parse("08/01/#{(Time.now.month >= 8) ? Time.now.year : (Time.now.year - 1)}")
     start_date     = query["startdt"].blank? ? test_data_date : Time.parse(query["startdt"])
     end_date       = query["enddt"].blank? ? Time.now : Time.parse(query["enddt"]) + 1.day
     lock_date      = end_date - 12.months
@@ -102,7 +107,7 @@ class Rollcall::AlarmQuery < Rollcall::Base
         if(Time.parse(report_date) >= lock_date)
           alarm = Rollcall::Alarm.create(
             :school_id      => school.id,
-            :alarm_query_id => id,
+            :alarm_query_id => id,                                                                  
             :deviation      => deviation,
             :severity       => severity,
             :alarm_severity => calc_alarm_severity(absentee_rate),
@@ -116,9 +121,10 @@ class Rollcall::AlarmQuery < Rollcall::Base
             :alarm   => alarm
           )
           ra.audiences << (Audience.new :users => [user])
-          ra.save
+          return ra.save
         end
       end
+      return false
     end
   end
 

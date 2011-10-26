@@ -74,12 +74,12 @@ class Rollcall::School < Rollcall::Base
     search_param = params[:zip]         unless params[:zip].blank?
     search_param = params[:school]      unless params[:school].blank?
     search_condition = "%" + search_param + "%"
-    find(:all, :conditions => [
-      '(display_name LIKE ? OR postal_code LIKE ? OR school_type LIKE ?) AND district_id IN (?)',
+    Rollcall::School.find(:all, :conditions => [
+      '(display_name LIKE ? OR postal_code LIKE ? OR school_type LIKE ?) AND id IN (?)',
       search_condition,
       search_condition,
       search_condition,
-      user_obj.school_districts.map(&:id)
+      user_obj.schools.map(&:id)
     ])
   end
 
@@ -87,7 +87,8 @@ class Rollcall::School < Rollcall::Base
     school_type_qstr     = "school_type IN ('#{params[:school_type].join("','")}')" unless params[:school_type].blank?
     postal_code_qstr     = "postal_code IN ('#{params[:zip].join("','")}')" unless params[:zip].blank?
     school_qstr          = "display_name IN ('#{params[:school].join("','")}')" unless params[:school].blank?
-    district_qstr        = "district_id IN ('#{user_obj.school_districts.map(&:id).join("','")}')"
+    school_id_qstr       = "id IN ('#{user_obj.schools.map(&:id).join("','")}')"
+    #district_qstr        = "district_id IN ('#{user_obj.school_districts.map(&:id).join("','")}')"
 
     cond_part1 = case
     when school_type_qstr && postal_code_qstr
@@ -108,9 +109,9 @@ class Rollcall::School < Rollcall::Base
     end
 
     if condition.blank?
-      condition = district_qstr
+      condition = school_id_qstr
     else
-      condition = "(#{condition}) AND #{district_qstr}"
+      condition = "(#{condition}) AND #{school_id_qstr}"
     end
 
     find(:all, :conditions => [condition])

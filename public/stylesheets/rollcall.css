@@ -189,3 +189,29 @@
 }
 
 .x-action-col-cell div{overflow: visible !important;}
+
+.x-grid3-td-schools div.x-grid3-col-schools{height: 150px !important; overflow: auto;}
+.x-tpl-school-name,
+.x-tpl-district-name{
+  height:20px;
+  border-bottom: 1px solid #EDEDED;
+}
+.x-tpl-school-name span,
+.x-tpl-district-name span{
+  position: relative;
+  top: 4px;
+  left: 4px;
+}
+.x-tpl-circle-icon{
+  width:16px;
+  height: 16px;
+  background: url(/stylesheets/images/cross-circle.png);
+  clear:right;
+  float:right;
+  margin-top: -18px;
+  margin-right: 4px;
+}
+.add_school_btn,
+.add_school_district_btn{
+  background: url(/images/add.png);
+}

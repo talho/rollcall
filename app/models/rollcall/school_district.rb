@@ -12,7 +12,7 @@
 
 class Rollcall::SchoolDistrict < Rollcall::Base
   belongs_to  :jurisdiction
-  has_many    :schools, :class_name => "Rollcall::School", :foreign_key => "district_id"
+  has_many    :schools, :class_name => "Rollcall::School", :foreign_key => "district_id", :order => "display_name"
   has_many    :daily_infos, :class_name => "Rollcall::SchoolDistrictDailyInfo", :foreign_key => "school_district_id", :order => "report_date asc"
 
   set_table_name "rollcall_school_districts"
@@ -40,10 +40,10 @@ class Rollcall::SchoolDistrict < Rollcall::Base
   end
 
   def zipcodes
-    schools.find(:all, :select => "DISTINCT postal_code", :order => "postal_code").map(&:postal_code)
+    schools.find(:all, :select => "DISTINCT postal_code, display_name", :order => "postal_code").map(&:postal_code)
   end
 
   def school_types
-    schools.find(:all, :select => "DISTINCT school_type", :order => "school_type").map(&:school_type)
+    schools.find(:all, :select => "DISTINCT school_type, display_name", :order => "school_type").map(&:school_type)
   end
 end

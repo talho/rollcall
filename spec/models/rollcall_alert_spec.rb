@@ -7,6 +7,7 @@
 # alert_id, :integer not null, foreign key
 #
 require 'spec/spec_helper'
+require File.dirname(__FILE__) + "/../factories.rb"
 
 describe RollcallAlert do
   before(:each) do

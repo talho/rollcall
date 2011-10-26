@@ -37,12 +37,15 @@
 #  fax                :string(255)
 #
 require 'spec/spec_helper'
+require File.dirname(__FILE__) + "/../factories.rb"
 
 describe User do
   before(:each) do
-    @user               = Factory(:user)
-    @school             = Factory(:rollcall_school)
-    @role_membership    = Factory(:role_membership, :user => @user, :jurisdiction => @school.district.jurisdiction)
+    @user                = Factory(:user)
+    @school              = Factory(:rollcall_school)
+    @user_schools        = Factory(:rollcall_user_school, :user => @user, :school => @school)
+    @user_school_district= Factory(:rollcall_user_school_district, :user => @user, :school_district => @school.district)
+    @role_membership     = Factory(:role_membership, :user => @user, :jurisdiction => @school.district.jurisdiction)
   end
   describe "validations" do
     it "should be valid" do

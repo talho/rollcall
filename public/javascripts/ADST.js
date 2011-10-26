@@ -38,7 +38,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           maxSize:    140,
           autoScroll: true,
           layout:     'fit',
-          items:      new Talho.Rollcall.AlarmQueriesPanel({adst_panel: this})
+          items:      new Talho.Rollcall.ADSTAlarmQueriesPanel({adst_panel: this})
         },{
           title:     'Alarms',
           region:    'west',
@@ -48,7 +48,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           minSize:   150,
           maxSize:   175,
           hideBorders: true,
-          items:     new Talho.Rollcall.AlarmsPanel({}),
+          items:     new Talho.Rollcall.ADSTAlarmsPanel({}),
           bbar:[{
             text:    'Refresh',
             iconCls: 'x-tbar-loading',
@@ -361,8 +361,8 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         scope: form_panel,
         load:  function(this_store, records){
           this.ownerCt.show();
-          this.add(new Talho.Rollcall.SimpleADSTContainer({options: records[0].data}));
-          this.add(new Talho.Rollcall.AdvancedADSTContainer({options: records[0].data}));
+          this.add(new Talho.Rollcall.ADSTSimpleContainer({options: records[0].data}));
+          this.add(new Talho.Rollcall.ADSTAdvancedContainer({options: records[0].data}));
           this.buttons[0].show();
           this.buttons[1].show();
           //this.ownerCt.ownerCt.ownerCt.getComponent('reports_panel').getBottomToolbar().findById('create_report_button').enable();

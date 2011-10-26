@@ -59,16 +59,22 @@ class SchoolDataTransformer
     @allowed_enrollment_headers = nil
     @allowed_attendance_headers = nil
     @district                   = Rollcall::SchoolDistrict.find_by_name(district_name)
-    unless INTERFACE_FIELDS_CONFIG.blank?
-      if INTERFACE_FIELDS_CONFIG["#{district_name}"]
-        if INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_ili_field_names"]
-          @allowed_ili_headers = INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_ili_field_names"]
+    # Load the interface fields yaml config file
+    if File.exist?(doc_yml = RAILS_ROOT+"/vendor/plugins/rollcall/config/interface_fields.yml")
+      int_yml = YAML.load_file(File.join(File.dirname(__FILE__), '..', '..', 'config', 'interface_fields.yml'))
+      @INTERFACE_FIELDS_CONFIG = int_yml
+      @INTERFACE_FIELDS_CONFIG.freeze
+    end
+    unless @INTERFACE_FIELDS_CONFIG.blank?
+      if @INTERFACE_FIELDS_CONFIG["#{district_name}"]
+        if @INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_ili_field_names"]
+          @allowed_ili_headers = @INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_ili_field_names"]
         end
-        if INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_enrollment_field_names"]
-          @allowed_enrollment_headers = INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_enrollment_field_names"]
+        if @INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_enrollment_field_names"]
+          @allowed_enrollment_headers = @INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_enrollment_field_names"]
         end
-        if INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_attendance_field_names"]
-          @allowed_attendance_headers = INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_attendance_field_names"]
+        if @INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_attendance_field_names"]
+          @allowed_attendance_headers = @INTERFACE_FIELDS_CONFIG["#{district_name}"]["permitted_attendance_field_names"]
         end
       end
     end

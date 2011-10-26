@@ -6,6 +6,7 @@
 # icd9_code,  :string(255)
 # name,       :string(255)
 require 'spec/spec_helper'
+require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::Symptom do 
   before(:each) do

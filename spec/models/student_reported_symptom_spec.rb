@@ -7,6 +7,7 @@
 #  student_daily_info_id,  :integer(4)  not null, foreign key
 #
 require 'spec/spec_helper'
+require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::StudentReportedSymptom do
   before(:each) do

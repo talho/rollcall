@@ -43,14 +43,11 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
     end
     respond_to do |format|
       format.json do
-        original_included_root                  = ActiveRecord::Base.include_root_in_json
-        ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :success       => true,
           :total_results => students.length,
           :results       => students_paged
         }
-        ActiveRecord::Base.include_root_in_json = original_included_root
       end
     end
   end
@@ -210,14 +207,11 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
 
     respond_to do |format|
       format.json do
-        original_included_root                  = ActiveRecord::Base.include_root_in_json
-        ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :success       => true,
           :total_results => daily_records.length,
           :results       => daily_records
         }
-        ActiveRecord::Base.include_root_in_json = original_included_root
       end
     end
   end

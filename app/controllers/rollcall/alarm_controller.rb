@@ -32,14 +32,11 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
     end
     respond_to do |format|
       format.json do
-        original_included_root = ActiveRecord::Base.include_root_in_json
-        ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :success       => true,
           :total_results => alarms.length,
           :alarms => alarms.flatten
         }
-        ActiveRecord::Base.include_root_in_json = original_included_root
       end
     end
   end
@@ -112,8 +109,6 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
     end
     respond_to do |format|
       format.json do
-        original_included_root = ActiveRecord::Base.include_root_in_json
-        ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :info => [
             {
@@ -127,7 +122,6 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
             }
           ]
         }
-        ActiveRecord::Base.include_root_in_json = original_included_root
       end
     end
   end

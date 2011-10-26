@@ -13,7 +13,7 @@ end
 
 Factory.define :rollcall_alarm_query, :class => Rollcall::AlarmQuery do |m|
   m.association :user, :factory => :user
-  m.query_params "{absent:gross}"
+  m.query_params "{type:simple,absent:gross}"
   m.sequence(:name){|t| "Name ##{t}"}
   m.severity_min 1
   m.severity_max 2
@@ -103,6 +103,17 @@ Factory.define :rollcall_student_reported_symptoms, :class => Rollcall::StudentR
 end
 
 Factory.define :rollcall_symptom , :class => Rollcall::Symptom do |m|
+  m.sequence(:id){|i| i}
   m.sequence(:name){|t| "Name ##{t}"}
   m.sequence(:icd9_code){|num| num}
+end
+
+Factory.define :rollcall_user_school, :class => Rollcall::UserSchool do |m|
+  m.association :user, :factory => :user
+  m.association :school, :factory => :rollcall_school
+end
+
+Factory.define :rollcall_user_school_district, :class => Rollcall::UserSchoolDistrict do |m|
+  m.association :user, :factory => :user
+  m.association :school_district, :factory => :rollcall_school_district
 end

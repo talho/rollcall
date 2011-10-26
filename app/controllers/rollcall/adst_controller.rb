@@ -27,9 +27,6 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     schools_paged.each_index { |i|
       schools_with_rrd.push(schools_paged[i].attributes.merge(rrd_info[i]))
     }
-
-    original_included_root = ActiveRecord::Base.include_root_in_json
-    ActiveRecord::Base.include_root_in_json = false
     respond_to do |format|
       format.json do
         render :json => {
@@ -39,7 +36,6 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
         }
       end
     end
-    ActiveRecord::Base.include_root_in_json = original_included_root
   end
 
   # Action is called by the ADST main panel method exportResultSet and the ADSTResultPanel method exportResult.
@@ -161,14 +157,11 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       {:id => 4, :value => 'Standard Deviation'},
       {:id => 5, :value => 'Cusum'}
     ]
-
-    schools      = current_user.schools(:order => "display_name")
+    schools      = current_user.schools
     zipcodes     = current_user.school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
     school_types = current_user.school_districts.map{|s| s.school_types.map{|i| {:id => i, :value => i}}}.flatten
     respond_to do |format|
       format.json do
-        original_included_root = ActiveRecord::Base.include_root_in_json
-        ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :options => [{
             :absenteeism        => absenteeism,
@@ -183,7 +176,6 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
             :zipcode            => zipcodes
           }]
         }
-        ActiveRecord::Base.include_root_in_json = original_included_root
       end
     end
   end

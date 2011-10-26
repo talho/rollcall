@@ -23,6 +23,7 @@
 #  created_at        :datetime
 #  updated_at        :datetime
 require 'spec/spec_helper'
+require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::StudentDailyInfo do
   before(:each) do
@@ -39,7 +40,7 @@ describe Rollcall::StudentDailyInfo do
   describe "has_and_belongs_to_many" do
     context "symptoms" do
       it "returns all of the symptoms associated with the student daily information record" do
-        @student_daily_info.symptoms.each do |s| Rollcall::Symptom.all.should include(s) end
+        @student_daily_info.symptoms.each do |s| Rollcall::Symptom.all.map(&:icd9_code).should include(s.icd9_code) end
       end
     end
   end

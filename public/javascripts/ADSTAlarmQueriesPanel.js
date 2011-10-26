@@ -1,7 +1,7 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
-Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
+Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
   constructor: function(config){
 
     Ext.applyIf(config, {
@@ -29,7 +29,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
       })
     });
 
-    Talho.Rollcall.AlarmQueriesPanel.superclass.constructor.call(this, config);
+    Talho.Rollcall.ADSTAlarmQueriesPanel.superclass.constructor.call(this, config);
   },
 
   loadAlarmQueries: function(this_store, alarm_queries)
@@ -268,228 +268,20 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
 
     for(key in alarm_query_params){ params.push([key, alarm_query_params[key]]); }
     storedParams.loadData(params);
-
-    var alarm_console = new Ext.Window({
-      layout:'fit',
-      width: 300,
-      autoHeight:true,
-      modal: true,
-      constrain: true,
-      renderTo: 'adst_container',
-      closeAction:'close',
-      title: alarm_query_title,
-      plain: true,
-      items: [{
-        xtype: 'form',
-        id: 'editAlarmQueryForm',
-        url: '/rollcall/alarm_query/'+alarm_query_id+'.json',
-        border: false,
-        method: 'PUT',
-        baseParams: {authenticity_token: FORM_AUTH_TOKEN, alarm_query_params: Ext.encode(alarm_query_params)},
-        items:[{
-          xtype:'textfield',
-          labelStyle: 'margin: 10px 0px 0px 5px',
-          fieldLabel: 'Name',
-          value: alarm_query_title,
-          id: 'alarm_query_name',
-          allowBlank: false,
-          blankText: "This field is required.",
-          minLength: 3,
-          minLengthText: 'The minimum length for this field is 3.',
-          style:{
-            marginTop: '10px',
-            marginBottom: '5px'
-          }
-        },((alarm_query_params.school == null) ? {xtype: 'spacer'} : new Talho.Rollcall.ux.ComboBox({
-          labelStyle: 'margin: 10px 0px 0px 5px',
-          fieldLabel: 'School Name',
-          emptyText:'Select School...',
-          id:'alarm_query_school',
-          itemId: 'alarm_query_school',
-          allowBlank: true,
-          width: 150,
-          value: alarm_query_params.school,
-          mode: 'local',
-          name: 'school',
-          displayField: 'display_name',
-          editable: false,
-          store: new Ext.data.JsonStore({fields: ['id', 'display_name'], data: Ext.getCmp('rollcall_adst').init_store.getAt(0).get('schools')}),
-          listeners: {
-            select: function(this_combo_box, data_record, index)
-            {
-              alarm_query_params['school']                = data_record.get('display_name');
-              this_combo_box.ownerCt.getForm().baseParams = {alarm_query_params: Ext.encode(alarm_query_params)};
-            }
-          }
-        })),{
-          xtype: 'fieldset',
-          title: 'Absentee Rate Deviation',
-          style:{
-            marginLeft: '5px',
-            marginRight: '5px'
-          },
-          buttonAlign:'left',
-          defaults: {
-            xtype: 'container',
-            labelStyle: 'width:auto;'
-          },
-          items: [{
-            fieldLabel: 'Min',
-            items:[{
-              xtype: 'numberfield',
-              width: 32,
-              cls: 'ux-layout-auto-float-item',
-              style:{
-                marginLeft: '-40px'
-              },
-              listeners: {
-                keyup: this.changeSliderField
-              },
-              enableKeyEvents: true
-            },{
-              xtype: 'sliderfield',
-              width: 135,
-              listeners: {
-                change: this.changeTextField
-              },
-              tipText: this.showTipText,
-              id: 'deviation_min',
-              cls: 'ux-layout-auto-float-item',
-              value: deviation_min
-            }]
-          },{
-            fieldLabel: 'Max',
-            items:[{
-              xtype: 'numberfield',
-              width: 32,
-              cls: 'ux-layout-auto-float-item',
-              style:{
-                marginLeft: '-40px'
-              },
-              listeners: {
-                keyup: this.changeSliderField
-              },
-              enableKeyEvents: true
-            },{
-              xtype: 'sliderfield',
-              width: 135,
-              listeners: {
-                change: this.changeTextField
-              },
-              tipText: this.showTipText,
-              id: 'deviation_max',
-              cls: 'ux-layout-auto-float-item',
-              value: deviation_max
-            }]
-          }],
-          fbar: {
-            xtype: 'toolbar',
-            items: ['->', {
-              text: 'Max All',
-              handler: this.maxAllSliders
-            }]
-          }
-        },{
-          xtype: 'fieldset',
-          autoHeight: true,
-          title: 'Absentee Rate Severity',
-          style:{
-            marginLeft: '5px',
-            marginRight: '5px'
-          },
-          buttonAlign: 'left',
-          defaults: {
-            xtype: 'container',
-            labelStyle: 'width:auto;',
-            layout: 'anchor'
-          },
-          items: [{
-            fieldLabel: 'Min',
-            items:[{
-              xtype: 'numberfield',
-              width: 32,
-              cls: 'ux-layout-auto-float-item',
-              style:{
-                marginLeft: '-40px'
-              },
-              listeners: {
-                keyup: this.changeSliderField
-              },
-              enableKeyEvents: true
-            },{
-              xtype: 'sliderfield',
-              width: 135,
-              listeners: {
-                change: this.changeTextField
-              },
-              tipText: this.showTipText,
-              id: 'severity_min',
-              value: severity_min,
-              cls: 'ux-layout-auto-float-item'
-            }]
-          },{
-            fieldLabel: 'Max',
-            items:[{
-              xtype: 'numberfield',
-              width: 32,
-              cls: 'ux-layout-auto-float-item',
-              style:{
-                marginLeft: '-40px'
-              },
-              listeners: {
-                keyup: this.changeSliderField
-              },
-              enableKeyEvents: true
-            },{
-              xtype: 'sliderfield',
-              width: 135,
-              listeners: {
-                scope: this,
-                change: this.changeTextField
-              },
-              tipText: this.showTipText,
-              id: 'severity_max',
-              value: severity_max,
-              cls: 'ux-layout-auto-float-item'
-            }]
-          }],
-          fbar: {
-            xtype: 'toolbar',
-            items: ['->', {
-              text: 'Max All',
-              handler: this.maxAllSliders
-            }]
-          }
-        },{
-          xtype: 'fieldset',
-          autoWidth: true,
-          autoHeight: true,
-          title: 'Parameters',
-          style:{
-            marginLeft: '5px',
-            marginRight: '5px'
-          },
-          collapsible: false,
-          items: [{
-            xtype: 'listview',
-            store: storedParams,
-            multiSelect: true,
-            reserveScrollOffset: true,
-            columns: [{
-                header: 'Field Name',
-                width: .65,
-                dataIndex: 'field'
-            },{
-                header: 'Value Set',
-                width: .35,
-                dataIndex: 'value'
-            }]
-          }]
-        }]
-      }],
-      buttonAlign: 'right',
-      buttons: [{
-        text:'Save As New',
+    o_i = {
+      render_to:         'adst_container',
+      alarm_query_title: alarm_query_title,
+      form_id:           'editAlarmQueryForm',
+      form_url:          '/rollcall/alarm_query/'+alarm_query_id+'.json',
+      auth_token:        FORM_AUTH_TOKEN,
+      query_params:      alarm_query_params,
+      deviation_min:     deviation_min,
+      deviation_max:     deviation_max,
+      severity_min:      severity_min,
+      severity_max:      severity_max,
+      stored_params:     storedParams,
+      buttons:           [{
+        text:    'Save As New',
         handler: function(buttonEl, eventObj){
           alarm_console.getComponent('editAlarmQueryForm').getForm().on('actioncomplete', function(){
             south_panel.updateAlarmQueries({params: {alarm_query_id: alarm_query_id,clone: true}});
@@ -502,7 +294,7 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           });
         }
       },{
-        text:'Submit',
+        text:    'Submit',
         handler: function(buttonEl, eventObj){
           alarm_console.getComponent('editAlarmQueryForm').getForm().on('actioncomplete', function(){
             south_panel.updateAlarmQueries({params: {alarm_query_id: alarm_query_id}});
@@ -514,39 +306,14 @@ Talho.Rollcall.AlarmQueriesPanel = Ext.extend(Ext.Panel, {
           alarm_console.getComponent('editAlarmQueryForm').getForm().submit();
         }
       },{
-        text: 'Close',
+        text:    'Close',
         handler: function(buttonEl, eventObj){
           alarm_console.close();
         }
       }]
-    });
+    }
+    var alarm_console = new Talho.Rollcall.ux.AlarmQueryWindow(o_i);
     alarm_console.doLayout();
     alarm_console.show();
-  },
-
-  changeTextField: function(obj, new_number, old_number)
-  {
-    obj.ownerCt.findByType('textfield')[0].setValue(new_number)
-  },
-
-  changeSliderField: function(this_field, event_obj){
-    this_field.nextSibling().setValue(this_field.getValue());
-  },
-
-  maxAllSliders: function(buttonEl, eventObj)
-  {
-    sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
-    for(key in sliders){
-      try{
-        sliders[key].setValue(100);
-      }catch(e){
-
-      }
-    }
-  },
-
-  showTipText: function(thumb)
-  {
-    return String(thumb.value) + '%';
   }
 });

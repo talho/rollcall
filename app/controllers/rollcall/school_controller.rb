@@ -3,9 +3,7 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
 
   # GET rollcall/schools
   def index
-    original_included_root                  = ActiveRecord::Base.include_root_in_json
-    ActiveRecord::Base.include_root_in_json = false
-    results                                 = Rollcall::School.search(params, current_user)
+    results = Rollcall::School.search(params, current_user)
     respond_to do |format|
       format.json do
         render :json => {
@@ -15,24 +13,6 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
         }
       end
     end
-    ActiveRecord::Base.include_root_in_json = original_included_root
-  end
-
-  # GET rollcall/get_schools_for_combobox
-  def get_schools_for_combobox
-    original_included_root                  = ActiveRecord::Base.include_root_in_json
-    ActiveRecord::Base.include_root_in_json = false
-    results                                 = Rollcall::School.find(:all, :select => "id,display_name")
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success       => true,
-          :total_results => results.length,
-          :results       => results.as_json
-        }
-      end
-    end
-    ActiveRecord::Base.include_root_in_json = original_included_root
   end
 
   # POST rollcall/schools
@@ -76,14 +56,11 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
     end
     respond_to do |format|
       format.json do
-        original_included_root                  = ActiveRecord::Base.include_root_in_json
-        ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :success       => true,
           :results       => {:school_daily_infos  => school_daily_info},
           :total_results => school_daily_info.length
         }
-        ActiveRecord::Base.include_root_in_json = original_included_root
       end
     end
   end
@@ -105,14 +82,11 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
     end   
     respond_to do |format|
       format.json do
-        original_included_root                  = ActiveRecord::Base.include_root_in_json
-        ActiveRecord::Base.include_root_in_json = false
         render :json => {
           :success       => true,
           :results       => {:student_daily_infos => student_daily_info},
           :total_results => student_daily_info.length
         }
-        ActiveRecord::Base.include_root_in_json = original_included_root
       end
     end
   end

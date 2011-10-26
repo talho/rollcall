@@ -6,21 +6,7 @@ class Rollcall::RollcallAppController < ApplicationController
   # Method checks against current_user.role_memberships.  If appropriate application is not found, method redirects to 
   # action unauthorized
   def rollcall_required  
-    if current_user.role_memberships.detect{|rm| rm.role.application == Role.find_by_application('rollcall').application}
-      return true
-    else
-      redirect_to :action => "unauthorized", :controller => 'rollcall/rollcall_app'
-      return false
-    end
-  end
-
-  # Method checks current user role memberships to detect if they have the Nurse role name attached to them
-  #
-  # Method checks against current_user.role_memberships.  If appropriate role is not found, method redirects to
-  # action unauthorized
-  def rollcall_nurse_required
-    if current_user.role_memberships.detect{|rm| rm.role == Role.find_by_name_and_application('Nurse', 'rollcall')} ||
-      is_rollcall_admin? || rollcall_student_required
+    if current_user.is_rollcall_user?
       return true
     else
       redirect_to :action => "unauthorized", :controller => 'rollcall/rollcall_app'
@@ -34,9 +20,7 @@ class Rollcall::RollcallAppController < ApplicationController
   # Method checks against current_user.role_memberships.  If appropriate role is not found, method redirects to
   # action unauthorized
   def rollcall_isd_required
-    if current_user.role_memberships.detect{|rm| rm.role == Role.find_by_name_and_application('Epidemiologist', 'rollcall')} ||
-      current_user.role_memberships.detect{ |rm| rm.role == Role.find_by_name_and_application('Health Officer', 'rollcall')} ||
-      is_rollcall_admin?
+    if current_user.is_rollcall_epi? || current_user.is_rollcall_health_officer? || current_user.is_rollcall_admin?
       return true
     else
       redirect_to :action => "unauthorized", :controller => 'rollcall/rollcall_app'
@@ -50,10 +34,8 @@ class Rollcall::RollcallAppController < ApplicationController
   # Method checks against current_user.role_memberships.  If appropriate role is not found, method redirects to
   # action unauthorized
   def rollcall_student_required
-    if current_user.role_memberships.detect{|rm| rm.role == Role.find_by_name_and_application('Epidemiologist', 'rollcall')} ||
-      current_user.role_memberships.detect{|rm| rm.role == Role.find_by_name_and_application('Health Officer', 'rollcall')} ||
-      current_user.role_memberships.detect{|rm| rm.role == Role.find_by_name_and_application('Nurse', 'rollcall')} ||
-      is_rollcall_admin?
+    if current_user.is_rollcall_epi? || current_user.is_rollcall_health_officer? || current_user.is_rollcall_nurse? ||
+      current_user.is_rollcall_admin?
       return true
     else
       redirect_to :action => "unauthorized", :controller => 'rollcall/rollcall_app'
@@ -61,15 +43,17 @@ class Rollcall::RollcallAppController < ApplicationController
     end
   end
 
-  # Method checks current user role memberships to detect if they have the Admin role name attached to them
+  # Method checks current user for Admin role
   #
-  # Method checks against current_user.role_memberships.  If appropriate role is not found, method redirects to
+  # Method checks against current_user.is_rollcall_admin?  If appropriate role is not found, method redirects to
   # action unauthorized
-  def is_rollcall_admin?
-    if current_user.role_memberships.detect{ |rm| rm.role == Role.find_by_name_and_application('Admin', 'rollcall')}
+  def rollcall_admin_required
+    if current_user.is_rollcall_admin?
       return true
+    else
+      redirect_to :action => "unauthorized", :controller => 'rollcall/rollcall_app'
+      return false
     end
-    return false
   end
 
   # Method returns unauthorized (401) status to client

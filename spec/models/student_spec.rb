@@ -19,6 +19,7 @@
 #  created_at         :datetime
 #  updated_at         :datetime
 require 'spec/spec_helper'
+require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::Student do
   before(:each) do

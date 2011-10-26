@@ -29,18 +29,17 @@ class AttendanceImporter < SchoolDataImporter
     @schools.uniq!
     Rollcall::School.find(:all, :conditions => ["id IN (?)", @schools]).each do |s|
       unless Rollcall::SchoolDailyInfo.find_by_school_id(s.id).blank?
-        Rollcall::SchoolDailyInfo.find_in_batches(
-          :conditions => ["school_id = ? AND created_at > ?", s.id, 1.day.ago.utc],
-          :batch_size => 100
-        ) do |recs|
-          recs.each{|r|
+        Rollcall::SchoolDailyInfo.find(:all,
+          :conditions => ["school_id = ?", s.id],
+          :order      => "report_date ASC"
+        ).each {|r|
             report_time = r.report_date.to_time
             if @s_i.blank?
-              if !@new_rrd.blank?
-                @s_i = [ [report_time.to_i.to_s, 0, recs[0].total_enrolled] ]
-              else
+              #if !@new_rrd.blank?
+              #  @s_i = [ [report_time.to_i.to_s, 0, recs[0].total_enrolled] ]
+              #else
                 @s_i = []
-              end              
+              #end
             end
             if r.report_date.strftime("%a").downcase == "sat" || r.report_date.strftime("%a").downcase == "sun"
               @s_i.push([(report_time + 1.day).to_i.to_s, 0, r.total_enrolled])
@@ -50,9 +49,8 @@ class AttendanceImporter < SchoolDataImporter
             @end_time     = report_time
             @end_enrolled = r.total_enrolled
           }
-        end
         begin
-          @s_i.push([(@end_time + 2.days).to_i.to_s, 0, @end_enrolled])
+          #@s_i.push([(@end_time + 2.days).to_i.to_s, 0, @end_enrolled])
           puts "Importing RRD Data for #{s.display_name}"
           if ENV["RAILS_ENV"] == "cucumber" || ENV["RAILS_ENV"] == "test"
             RRD.update_batch("#{@rrd_path}/#{s.tea_id}_c_absenteeism.rrd", @s_i, "#{@rrd_tool}")

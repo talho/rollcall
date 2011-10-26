@@ -16,6 +16,7 @@
 #  gmap_addr     :string
 
 require 'spec/spec_helper'
+require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::School do
 
@@ -92,9 +93,11 @@ describe Rollcall::School do
 
   describe "search" do
     before(:each) do
-      @school          = Factory(:rollcall_school)
-      @user            = Factory(:user)
-      @role_membership = Factory(:role_membership, :user => @user, :jurisdiction => @school.district.jurisdiction)
+      @school               = Factory(:rollcall_school)
+      @user                 = Factory(:user)
+      @user_school          = Factory(:rollcall_user_school, :user => @user, :school => @school)
+      @user_school_district = Factory(:rollcall_user_school_district, :user => @user, :school_district => @school.district)
+      @role_membership      = Factory(:role_membership, :user => @user, :jurisdiction => @school.district.jurisdiction)
     end
     it "returns a set of schools based on simple search" do
       Rollcall::School.search({:type => 'simple'}, @user).should_not be_blank

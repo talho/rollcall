@@ -16,6 +16,7 @@
 #  ignore_alarm       :boolean
 
 require 'spec/spec_helper'
+require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::Alarm do
   describe "validations" do

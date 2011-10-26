@@ -169,6 +169,7 @@ Scenario: User removes school district assigned to Rollcall User
   And I press "Add School District"
   And I click x-menu-item "Houston"
   And I wait for the panel to load
+  And I wait for the panel to load
   And I should see "Houston" in column "Districts" within "rollcall_users_grid"
   And I click x-grid3-cell "Roll User"
   And I click x-tpl-circle-icon on the "Roll User" grid row

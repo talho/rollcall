@@ -208,186 +208,197 @@ class SchoolDataTransformer
         line_number   = 0
 
         IO.foreach(file_name+".tmp", sep_string = get_sep_string(file_name+".tmp")) do |line|
-          if line_number != 0 && !line.blank?
-            # Their might be situations where an ISD might send us tab-delimited files, with free text values that
-            # might not be properly quoted which could break FasterCSV. The following code replaces all existing
-            # commas with pipes and then replaces all tabs with commas. It then quotes all values, and finally
-            # replaces the Pipes back with commas, leaving a csv line with properly quoted values.  It pushes the
-            # values into an array and then writes out the final transformed line. Note: A regex guru could minimize the
-            # amount of code needed with some rock-solid expression.
-            values   = []
-            new_line = line.gsub(/["][^"]*["]/) { |m| m.gsub(',','|') if @district.name != "Waco" }
-            new_line.gsub!(/['][^']*[']/) { |m| m.gsub(',','|') if @district.name != "Waco" }
-            if new_line.split("\t").length > 1
-              new_line.gsub!(",","|")
-            end
-            new_line = new_line.gsub("\t", ",")
-            #NOTE: Following unique to Anthony files, specifically ILI
-            if @district.name != "Houston" && @district.name != "Waco" && @district.name != "Midland"
-              new_line = new_line.gsub("','", '","')
-              new_line = new_line.gsub(",'",',"')
-              new_line = new_line.gsub(', ','|')
-            end
-            if @district.name == "Waco"
-              new_line = new_line.gsub(",",";") if file_path.downcase.index('ili')
-              new_line = new_line.gsub("|",",")
-            end
-            #NOTE: END
-            value_pass = 1
-            new_line.split(",").each do |value|
-              if !value.blank?
-                value.gsub!("|",",")
-                value.gsub!('"',"'") unless is_transformed
-                #initial strip to remove leading and trailing whitespaces, including new lines and carriage returns
-                value.strip!
-                # We may have values in the data files that are double quoted already.  The above code replaces all
-                # double quotes with single quotes, but this will break valid CSV detection as the code below encases
-                # the entire value into double quotes.  In instances where values are already double quoted, the end
-                # result is something like "'value'".  The following code strips the end and first characters of the
-                # string if they are single quotes.
-                if value[0].chr == "'" && value[(value.length - 1)].chr == "'"
-                  value.slice!(0)
-                  value.slice!((value.length - 1))
-                end
-                #second strip in case original value was encased in single quotes
-                value.strip!                
-                if file_path.downcase.index('att')
-                  if value_pass == 2 && @district.name == "Tyler"
-                    if value.length == 2
-                      value = "0#{value}"
-                    elsif value.length == 1
-                      value = "00#{value}"
-                    end
-                    value = "#{@district.district_id}#{value}"
-                  end
-                  if value_pass == 2 && @district.name == "Socorro"
-                    if value.length < 9
-                      if @district.district_id == value[0..5].to_i && value[6..value.length].length == 2
-                        value = "#{@district.district_id}0#{value[6..value.length]}"
-                      end
-                    end
-                  end
-                  if value_pass == 4 && @district.name == "Socorro"
-                    value.gsub!(",","")
-                  end
-                end
-                # if the value is indeed a true valid date value, we need to make sure the date value is in the
-                # standard datetime interface format YYYY-MM-DD HH:MM:SS
-                if is_date? value
-                  value = is_date? value, true
-                  value = "#{Time.parse(value).year}-#{Time.parse(value).month.to_s.rjust(2, '0')}-#{Time.parse(value).day.to_s.rjust(2, '0')} 00:00:00"
-                end
-                if value_pass == 1
-                  value.gsub!("|","")
-                end
-                if file_path.downcase.index('h1n1') || file_path.downcase.index('ili')
-                  if value_pass == 3 && @district.name == "Socorro"
-                    value = "#{Time.parse(value).year}-#{Time.parse(value).month.to_s.rjust(2, '0')}-#{Time.parse(value).day.to_s.rjust(2, '0')} 00:00:00"
-                  end
-                end
-                if value_pass == 1 && (@district.name == "McKinney" || @district.name == "Ector")
-                  value.gsub!("T00:", " 00:")
-                end
-                if value_pass == 3 && @district.name == "Midland" && file_path.downcase.index('ili')
-                  if all_purpose_f.blank?
-                    for f_p in @files
-                      if f_p.downcase.index('enroll')
-                        IO.foreach(f_p, sep_string = get_sep_string(f_p)) do |l|
-                          all_purpose_f.push([l.split(",")[2].gsub('"', '').strip.downcase,l.split(",")[1].gsub('"','').strip])
-                        end
-                        all_purpose_f.uniq!
-                        break
-                      end
-                    end
-                  end
-                  all_purpose_f.each{|el|
-                    if el[0] == new_line.split(',')[3].gsub('"','').strip.downcase
-                      value = el[1]
-                      break
-                    end
-                  }
-                end
-                if value_pass == 6 && @district.name == "Waco" && file_path.downcase.index('ili')
-                  sym = []
-                  Rollcall::Symptom.all.each {|s|
-                    if value.downcase.index(s.name.downcase)
-                      sym.push(s.name)
-                    end
-                  }
-                  if sym.blank?
-                    value = "None"
-                  else
-                    value = sym.join(",")
-                  end
-                end
-                if value_pass == 8 && @district.name == "Waco" && file_path.downcase.index('ili')
-                else
-                  unless is_transformed
-                    values.push('"'+value+'"')
-                  else
-                    values.push(value)
-                  end
-                end
-              elsif value.blank? && (file_path.downcase.index('h1n1') || file_path.downcase.index('ili'))               
-                value.strip!
-                values.push('"'+value+'"')
-              end
-              value_pass += 1
-            end
-            if @district.name == "Socorro" && file_path.downcase.index('ili')
-              @so_lines = [] if @so_lines.blank?
-              if @so_lines.length > 1 && @so_lines.last[1] == values[1]
-                @so_lines.push(values)
-                @so_lines.each{|so|
-                  i = 0
-                  @so_lines.length.times do
-                    unless @so_lines[i+1].blank?
-                      if so[2] == @so_lines[i+1][2]
-                        @so_symptom_line = [] if @so_symptom_line.blank?
-                        @so_symptom_line.push(so[4])
-                        @so_symptom_line.uniq!
-                      end
-                    end
-                    i += 1
-                  end
-                }
-              else
-                if @so_lines.blank? || @so_lines.length == 1
-                  if @so_lines.blank?
-                    @so_lines.push(values)
-                  else
-                    if @so_lines.last[1] == values[1]
-                      @so_lines.push(values)
-                    else
-                      file_to_write.puts @so_lines.last.join(",")
-                      @so_lines = []
-                      @so_lines.push(values)
-                    end
-                  end                  
-                else
-                  if @so_lines.length > 1 && @so_lines.last[1] != values[1]
-                    if @so_symptom_line.blank?
-                      @so_lines.each{|s_o|
-                        file_to_write.puts s_o.join(",")
-                      }
-                    else
-                      symp_string = @so_symptom_line.join(",").gsub('"','')
-                      file_to_write.puts [@so_lines.first[0],@so_lines.first[1],@so_lines.first[2],@so_lines.first[3],
-                                          symp_string,@so_lines.first[5], @so_lines.first[6]].join(",")
-                      @so_symptom_line = []
-                    end
-                    @so_lines = []
-                    @so_lines.push(values)
-                  end
-                end
-              end
+          if @district.name == "Socorro" && file_path.downcase.index('att') &&
+                  ((Time.now.month > 7 ? Time.now.year : (Time.now.year - 1)) - Time.parse(line.split(",").first).year) >=1
+          else
+            if @district.name == "Socorro" && file_path.downcase.index('att') && Time.parse(line.split(",").first).month < 8
             else
-              file_to_write.puts values.join(",")
+              if line_number != 0 && !line.blank?
+                # Their might be situations where an ISD might send us tab-delimited files, with free text values that
+                # might not be properly quoted which could break FasterCSV. The following code replaces all existing
+                # commas with pipes and then replaces all tabs with commas. It then quotes all values, and finally
+                # replaces the Pipes back with commas, leaving a csv line with properly quoted values.  It pushes the
+                # values into an array and then writes out the final transformed line. Note: A regex guru could minimize the
+                # amount of code needed with some rock-solid expression.
+                values   = []
+                new_line = line.gsub(/["][^"]*["]/) { |m| m.gsub(',','|') if @district.name != "Waco" }
+                new_line.gsub!(/['][^']*[']/) { |m| m.gsub(',','|') if @district.name != "Waco" }
+                if new_line.split("\t").length > 1
+                  new_line.gsub!(",","|")
+                end
+                new_line = new_line.gsub("\t", ",")
+                #NOTE: Following unique to Anthony files, specifically ILI
+                if @district.name != "Houston" && @district.name != "Waco" && @district.name != "Midland"
+                  new_line = new_line.gsub("','", '","')
+                  new_line = new_line.gsub(",'",',"')
+                  new_line = new_line.gsub(', ','|')
+                end
+                if @district.name == "Waco"
+                  new_line = new_line.gsub(",",";") if file_path.downcase.index('ili')
+                  new_line = new_line.gsub("|",",")
+                end
+                #NOTE: END
+                value_pass = 1
+                new_line.split(",").each do |value|
+                  if !value.blank?
+                    value.gsub!("|",",")
+                    value.gsub!('"',"'") unless is_transformed
+                    #initial strip to remove leading and trailing whitespaces, including new lines and carriage returns
+                    value.strip!
+                    # We may have values in the data files that are double quoted already.  The above code replaces all
+                    # double quotes with single quotes, but this will break valid CSV detection as the code below encases
+                    # the entire value into double quotes.  In instances where values are already double quoted, the end
+                    # result is something like "'value'".  The following code strips the end and first characters of the
+                    # string if they are single quotes.
+                    if value[0].chr == "'" && value[(value.length - 1)].chr == "'"
+                      value.slice!(0)
+                      value.slice!((value.length - 1))
+                    end
+                    #second strip in case original value was encased in single quotes
+                    value.strip!
+                    if file_path.downcase.index('att')
+                      if value_pass == 2 && @district.name == "Tyler"
+                        if value.length == 2
+                          value = "0#{value}"
+                        elsif value.length == 1
+                          value = "00#{value}"
+                        end
+                        value = "#{@district.district_id}#{value}"
+                      end
+                      if value_pass == 2 && @district.name == "Socorro"
+                        if value.length < 9
+                          if @district.district_id == value[0..5].to_i && value[6..value.length].length == 2
+                            value = "#{@district.district_id}0#{value[6..value.length]}"
+                          end
+                        end
+                      end
+                      if (value_pass == 4 || value_pass == 5) && @district.name == "Socorro"
+                        value.gsub!(",","")
+                      end
+                    end
+                    # if the value is indeed a true valid date value, we need to make sure the date value is in the
+                    # standard datetime interface format YYYY-MM-DD HH:MM:SS
+                    if is_date? value
+                      value = is_date? value, true
+                      value = "#{Time.parse(value).year}-#{Time.parse(value).month.to_s.rjust(2, '0')}-#{Time.parse(value).day.to_s.rjust(2, '0')} 00:00:00"
+                    end
+                    if value_pass == 1
+                      value.gsub!("|","")
+                    end
+                    if file_path.downcase.index('h1n1') || file_path.downcase.index('ili')
+                      if value_pass == 3 && @district.name == "Socorro"
+                        value = "#{Time.parse(value).year}-#{Time.parse(value).month.to_s.rjust(2, '0')}-#{Time.parse(value).day.to_s.rjust(2, '0')} 00:00:00"
+                      end
+                    end
+                    if value_pass == 1 && (@district.name == "McKinney" || @district.name == "Ector")
+                      value.gsub!("T00:", " 00:")
+                    end
+                    if value_pass == 3 && @district.name == "Midland" && file_path.downcase.index('ili')
+                      if all_purpose_f.blank?
+                        for f_p in @files
+                          if f_p.downcase.index('enroll')
+                            IO.foreach(f_p, sep_string = get_sep_string(f_p)) do |l|
+                              all_purpose_f.push([l.split(",")[2].gsub('"', '').strip.downcase,l.split(",")[1].gsub('"','').strip])
+                            end
+                            all_purpose_f.uniq!
+                            break
+                          end
+                        end
+                      end
+                      all_purpose_f.each{|el|
+                        if el[0] == new_line.split(',')[3].gsub('"','').strip.downcase
+                          value = el[1]
+                          break
+                        end
+                      }
+                    end
+                    if value_pass == 6 && @district.name == "Waco" && file_path.downcase.index('ili')
+                      sym = []
+                      Rollcall::Symptom.all.each {|s|
+                        if value.downcase.index(s.name.downcase)
+                          sym.push(s.name)
+                        end
+                      }
+                      if sym.blank?
+                        value = "None"
+                      else
+                        value = sym.join(",")
+                      end
+                    end
+                    if (value_pass == 8 && @district.name == "Waco" && file_path.downcase.index('ili')) ||
+                      (value_pass == 2 && @district.name == "Socorro" && file_path.downcase.index('att'))
+                    else
+                      unless is_transformed
+                        values.push('"'+value+'"')
+                      else
+                        values.push(value)
+                      end
+                    end
+                  elsif value.blank? && (file_path.downcase.index('h1n1') || file_path.downcase.index('ili'))
+                    value.strip!
+                    values.push('"'+value+'"')
+                  end
+                  value_pass += 1
+                end
+
+
+                if @district.name == "Socorro" && file_path.downcase.index('ili')
+                  @so_lines = [] if @so_lines.blank?
+                  if @so_lines.length > 1 && @so_lines.last[1] == values[1]
+                    @so_lines.push(values)
+                    @so_lines.each{|so|
+                      i = 0
+                      @so_lines.length.times do
+                        unless @so_lines[i+1].blank?
+                          if so[2] == @so_lines[i+1][2]
+                            @so_symptom_line = [] if @so_symptom_line.blank?
+                            @so_symptom_line.push(so[4])
+                            @so_symptom_line.uniq!
+                          end
+                        end
+                        i += 1
+                      end
+                    }
+                  else
+                    if @so_lines.blank? || @so_lines.length == 1
+                      if @so_lines.blank?
+                        @so_lines.push(values)
+                      else
+                        if @so_lines.last[1] == values[1]
+                          @so_lines.push(values)
+                        else
+                          file_to_write.puts @so_lines.last.join(",")
+                          @so_lines = []
+                          @so_lines.push(values)
+                        end
+                      end
+                    else
+                      if @so_lines.length > 1 && @so_lines.last[1] != values[1]
+                        if @so_symptom_line.blank?
+                          @so_lines.each{|s_o|
+                            file_to_write.puts s_o.join(",")
+                          }
+                        else
+                          symp_string = @so_symptom_line.join(",").gsub('"','')
+                          file_to_write.puts [@so_lines.first[0],@so_lines.first[1],@so_lines.first[2],@so_lines.first[3],
+                                              symp_string,@so_lines.first[5], @so_lines.first[6]].join(",")
+                          @so_symptom_line = []
+                        end
+                        @so_lines = []
+                        @so_lines.push(values)
+                      end
+                    end
+                  end
+                else
+                  file_to_write.puts values.join(",")
+                end
+              elsif !line.blank?
+                file_to_write.puts headers
+              end
+              line_number += 1
             end
-          elsif !line.blank?
-            file_to_write.puts headers
+
           end
-          line_number += 1
         end
         file_to_write.close
         File.delete(file_name+".tmp")

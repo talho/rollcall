@@ -257,7 +257,8 @@ class SchoolDataTransformer
                     #second strip in case original value was encased in single quotes
                     value.strip!
                     if file_path.downcase.index('att')
-                      if value_pass == 2 && @district.name == "Tyler"
+                      if (value_pass == 2 && @district.name == "Tyler") ||
+                        (value_pass == 2 && @district.name == "Socorro")
                         if value.length == 2
                           value = "0#{value}"
                         elsif value.length == 1
@@ -286,7 +287,7 @@ class SchoolDataTransformer
                       value.gsub!("|","")
                     end
                     if file_path.downcase.index('h1n1') || file_path.downcase.index('ili')
-                      if value_pass == 3 && @district.name == "Socorro"
+                      if value_pass == 2 && @district.name == "Socorro"
                         value = "#{Time.parse(value).year}-#{Time.parse(value).month.to_s.rjust(2, '0')}-#{Time.parse(value).day.to_s.rjust(2, '0')} 00:00:00"
                       end
                     end
@@ -325,8 +326,7 @@ class SchoolDataTransformer
                         value = sym.join(",")
                       end
                     end
-                    if (value_pass == 8 && @district.name == "Waco" && file_path.downcase.index('ili')) ||
-                      (value_pass == 2 && @district.name == "Socorro" && file_path.downcase.index('att'))
+                    if (value_pass == 8 && @district.name == "Waco" && file_path.downcase.index('ili'))
                     else
                       unless is_transformed
                         values.push('"'+value+'"')

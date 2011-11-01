@@ -68,11 +68,11 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
     end
   end
 
-  # DELETE rollcall/alarms/:alarm_query_id
+  # DELETE rollcall/alarms/:id
   def destroy
     result = false
     unless params[:alarm_query_id].blank?
-      find(:all, :conditions => ['alarm_query_id = ?', params[:alarm_query_id]]).each { |a| result = a.destroy }
+      Rollcall::Alarm.find(:all, :conditions => ['alarm_query_id = ?', params[:alarm_query_id]]).each { |a| result = a.destroy }
     else
       result = Rollcall::Alarm.find(params[:id]).destroy
     end

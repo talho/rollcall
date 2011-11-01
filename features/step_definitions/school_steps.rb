@@ -16,7 +16,11 @@ Given /^"([^\"]*)" has the following schools:$/ do |isd, table|
     File.delete("#{rrd_path}#{result.tea_id}_c_absenteeism.rrd") if File.exist?("#{rrd_path}#{result.tea_id}_c_absenteeism.rrd")
     rrd_file = Rollcall::Rrd.find_by_file_name_and_school_id("#{result.tea_id}_c_absenteeism.rrd", result.id)
     rrd_file.destroy unless rrd_file.blank?
-    current_time = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_month
+    if Date.today.day < 5
+      current_time = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_month - 1.week
+    else
+      current_time = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_month
+    end
     Rollcall::Rrd.build_rrd("#{result.tea_id}_c", result.id, current_time)
   end
 end
@@ -26,7 +30,12 @@ Given /^"([^\"]*)" has the following current school absenteeism data:$/ do |isd,
   first_run      = false
   report_date    = ''
   total_enrolled = ''
-  current_time   = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_month
+  if Date.today.day < 5
+    current_time = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_month - 1.week
+  else
+    current_time = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_month
+  end
+
   rrd_path       = File.join(Rails.root, "/rrd/")
   rrd_tool       = if File.exist?(doc_yml = RAILS_ROOT+"/vendor/plugins/rollcall/config/rrdtool.yml")
     YAML.load(IO.read(doc_yml))[Rails.env]["rrdtool_path"] + "/rrdtool"

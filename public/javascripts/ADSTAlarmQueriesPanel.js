@@ -194,7 +194,7 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
   destroyQueryAlarms: function(panel)
   {
     Ext.Ajax.request({
-      url: '/rollcall/alarms',
+      url: '/rollcall/alarms/'+panel.param_config.id+'.json',
       method: 'DELETE',
       params: {
         alarm_query_id: panel.param_config.id

@@ -119,7 +119,6 @@ Scenario: User views alarm information
   And I should see "Alarm Information for Anderson Elementary" within ".alarm-tip"
   And I should see "Severity" within ".alarm-tip"
   And I should see "extreme" within ".alarm-tip"
-  And I should see "2003-02-13" within ".alarm-tip"
   Then I click the alarm group "Example Query"
 
 Scenario: User ignores an alarm

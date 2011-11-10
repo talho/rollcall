@@ -3,7 +3,7 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
 
   # GET rollcall/schools
   def index
-    results = Rollcall::School.search(params, current_user)
+    results = current_user.school_search params
     respond_to do |format|
       format.json do
         render :json => {

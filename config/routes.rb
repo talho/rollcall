@@ -5,7 +5,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :schools, :controller => "rollcall/school", :as => "rollcall/schools"
   map.resources :nurse_assistant, :controller => "rollcall/nurse_assistant", :as => "rollcall/nurse_assistant"
   map.resources :students, :controller => "rollcall/student", :as => "rollcall/students"
-  map.resources :users, :controller => "rollcall/user", :as => "rollcall/users"
+  map.resources :rollcall_users, :controller => "rollcall/user", :as => "rollcall/users"
 
   map.student_history "/rollcall/students/history", :controller => "rollcall/student", :action => "get_history" 
   map.get_nurse_assistant_options "/rollcall/nurse_assistant_options", :controller => "rollcall/nurse_assistant", :action => "get_options"

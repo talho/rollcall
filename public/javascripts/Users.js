@@ -194,16 +194,14 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
         scope:       this,
         afterrender: function(cmp){
           this.searchingLoadMask = new Ext.LoadMask(cmp.getEl(), { msg:"Searching...", store: this.resultsStore });
-          var searchData                  = [];
-          var roleIds                     = [];
-          searchData['with[role_ids][]']  = roleIds;
-          searchData['conditions[email]'] = '';
-          searchData['conditions[name]']  = '';
-          searchData['conditions[phone]'] = '';
-          searchData['conditions[title]'] = '';
-          searchData['dir']               = 'ASC';
-          searchData['sort']              = 'last_name';
-          searchData['format']            = 'json';
+          var searchData                         = [];
+          var roleIds                            = [];
+          var jurisdictionIds                    = [];
+          searchData['with[role_ids][]']         = roleIds;
+          searchData['with[jurisdiction_ids][]'] = jurisdictionIds;
+          searchData['dir']                      = 'ASC';
+          searchData['sort']                     = 'last_name';
+          searchData['format']                   = 'json';
           for (var derp in searchData ){
             this.resultsStore.setBaseParam( derp, searchData[derp] );
           }

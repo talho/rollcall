@@ -9,11 +9,12 @@ FasterCSV.open(File.dirname(__FILE__) + '/school_districts.csv', :headers => tru
     end
     puts "seeding #{row["school_district_name"]}"
     #create school district
-    Rollcall::SchoolDistrict.find_or_create_by_district_id(
+    r = Rollcall::SchoolDistrict.find_or_create_by_district_id(
       :district_id  => row["school_district_id"],
       :name         => row["school_district_name"],
       :jurisdiction => Jurisdiction.find_by_name(row['jurisdiction_name'])
     )
+    Rollcall::Rrd.build_rrd(r.district_id, r.id, Time.gm(Time.now.year,"aug",01,0,0), "district")
   end
 end
 

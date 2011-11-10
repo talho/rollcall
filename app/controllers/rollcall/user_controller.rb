@@ -2,40 +2,53 @@ class Rollcall::UserController < Rollcall::RollcallAppController
   before_filter :rollcall_admin_required
 
   def index
-    if params.count == 2
-      @results = []
-    else
-      params[:conditions].delete_if{|k,v| v.blank?} if params[:conditions]
-      params[:with].delete_if{|k,v| v.blank?} if params[:with]
-      unless params[:name].blank? || params[:name].index('@').nil?
-        params[:conditions][:email] = params[:name]
-        params.delete(:name)
-      end
-      sanitize(params[:conditions])
-      params[:with] = Hash.new if !params.has_key?(:with)
-      params[:with][:applications] = current_user.roles.map{|r| r.application.to_crc32 }
-      if params[:admin_mode] == "1"
-        if !params[:with].has_key?(:jurisdiction_ids)
-          params[:with][:jurisdiction_ids] = Array.new
-          current_user.jurisdictions.admin.each { |j|
-            j.self_and_descendants.each { |jsub| params[:with][:jurisdiction_ids].push(jsub.id) }
+    results  = []
+    unless params[:with].blank?
+      begin
+        params[:with][:jurisdiction_ids] = []
+        params[:with][:role_ids]         = []
+        roles                            = current_user.roles.for_app("rollcall")
+        RoleMembership.find_all_by_user_id(current_user.id, :conditions => ["role_id IN (?)", roles]).each{ |r|
+          params[:with][:jurisdiction_ids].push(r.jurisdiction_id)
+        }
+        Role.find_all_by_application("rollcall").each{ |r|
+          if r.name != "Admin"
+            params[:with][:role_ids].push(r.id)
+          elsif current_user.is_super_admin?("rollcall")
+            params[:with][:role_ids].push(r.id)
+          end
+        }
+        options = build_options(params)       
+        if current_user.is_super_admin?("rollcall")
+          options[:with] = {}
+          options[:with][:role_ids] = params[:with][:role_ids]
+          User.search(options).each{|u|
+            results.push(u) unless u.id == current_user.id
+          }
+        else
+          options[:with] = params[:with]
+          jurisdiction   = Jurisdiction.find_all_by_id(params[:with][:jurisdiction_ids])
+          User.search(options).each{|u|
+            jurisdiction.each{|j|
+              if u.jurisdictions.include? j
+                results.push(u) unless u.id == current_user.id
+              end
+            }
           }
         end
+      rescue
       end
-      params[:conditions][:phone].gsub!(/([^0-9*])/,"") unless params[:conditions].blank? || params[:conditions][:phone].blank?
-      Role.find_all_by_application("rollcall").each{|r| params[:with][:role_ids].push(r.id) if r.name != "Admin"}
-      params.merge!(build_options(params))
-      @results = User.search(params)
     end
+    for_admin = current_user.is_admin?
     respond_to do |format|
-     format.json do
-       for_admin = current_user.is_admin?
-       @results ||= []
-       render :json => { :success => true,
-                         :results => @results.collect {|u| u.to_json_results_rollcall(for_admin)},
-                         :total   => @results.total_entries}
-     end
-   end
+      format.json do
+        render :json => {
+          :success => true,
+          :results => results.collect {|u| u.to_json_results_rollcall(for_admin)},
+          :total   => results.length
+        }
+      end
+    end
   end
 
   def create
@@ -67,40 +80,6 @@ class Rollcall::UserController < Rollcall::RollcallAppController
         :school_district_id => params[:school_district_id]
       })  
     end
-#    u       = User.find_by_id params[:id]
-#    p_u_s   = params[:user_schools]
-#    p_u_s_d = params[:user_school_district]
-#    u_s     = Rollcall::UserSchool.find_all_by_user_id u.id
-#    u_s_d   = Rollcall::UserSchoolDistrict.find_all_by_user_id u.id
-#    p_u_s.each{|pus|
-#      u_s.each{|us|
-#        if us.id == pus[:id]
-#          u_s.delete(us)
-#          p_u_s.delete(pus)
-#        end
-#      }
-#    }
-#    p_u_s_d.each{|pusd|
-#      u_s_d.each{|usd|
-#        if usd.id == pusd[:id]
-#          u_s_d.delete(usd)
-#          p_u_s_d.delete(pusd)
-#        end
-#      }
-#    }
-#    u_s.each{|us|
-#      us.destroy
-#    }
-#    p_u_s.each{|pus|
-#      Rollcall::UserSchool.create(:user_ud => u.id, :school_id => pus[:school_id])
-#    }
-#    u_s_d.each{|usd|
-#      usd.destroy
-#    }
-#    p_u_s_d.each{|pusd|
-#      Rollcall::UserSchoolDistrict.create(:User_id => u.id, :school_district_id => pusd[:school_district_id])
-#    }
-    # DEVNOTE: How do we calculate success
     respond_to do |format|
       format.json do
         render :json => {
@@ -145,16 +124,6 @@ class Rollcall::UserController < Rollcall::RollcallAppController
     end
   end
   protected
-
-  def sanitize(conditions,exclude=[:phone])
-    return unless conditions
-    email = /[:"\*\!&]/
-    other = /[:"@\-\*\!\~\&]/
-    conditions.reject{ |k,v| exclude.include? k }.each do |k,v|
-      regexp = (k == "email") ? email : other
-      conditions[k] = v.gsub(regexp,'') unless conditions[k].blank?
-    end
-  end
 
   def build_options(params)
     #  map EXT params to Sphinx params

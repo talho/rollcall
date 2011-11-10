@@ -33,9 +33,9 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           itemId:     'alarm_queries',
           id:         'alarm_queries',
           region:     'south',
-          height:     140,
-          minSize:    100,
-          maxSize:    140,
+          height:     120,
+          minSize:    120,
+          maxSize:    120,
           autoScroll: true,
           layout:     'fit',
           items:      new Talho.Rollcall.ADSTAlarmQueriesPanel({adst_panel: this})
@@ -44,9 +44,9 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           region:    'west',
           layout:    'fit',
           bodyStyle: 'padding:0px',
-          width:     175,
-          minSize:   150,
-          maxSize:   175,
+          width:     140,
+          minSize:   140,
+          maxSize:   140,
           hideBorders: true,
           items:     new Talho.Rollcall.ADSTAlarmsPanel({}),
           bbar:[{
@@ -215,9 +215,11 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   },
   mapResultSet: function(buttonEl, eventObj)
   {
-    var form_values = buttonEl.findParentByType('form').getForm().getValues();
+    var form_panel  = this.find('id', 'ADSTFormPanel')[0];
+    var form_values = form_panel.getForm().getValues();
     var params      = this.buildParams(form_values);
     params["limit"] = this.getResultPanel().getResultStore().getTotalCount();
+    this._grabListViewFormValues(params, this);
     Ext.Ajax.request({
       url:      '/rollcall/schools',
       method:   'GET',
@@ -299,10 +301,11 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     this.find('id', 'age_adv')[0].clearSelections();
     this.find('id', 'grade_adv')[0].clearSelections();
     this.find('id', 'symptoms_adv')[0].clearSelections();
+    this.find('id', 'school_district_adv')[0].clearSelections();
   },
   _grabListViewFormValues: function(params, topEl)
   {
-    var list_fields  = ["school", "school_type", "zip", "age", "grade", "symptoms"];
+    var list_fields  = ["school", "school_district", "school_type", "zip", "age", "grade", "symptoms"];
     for (var i=0; i < list_fields.length; i++) {
       var selected_records = topEl.find('id', list_fields[i]+'_adv')[0].getSelectedRecords();
       var vals             = jQuery.map(selected_records, function(e,i){ return e.get('value'); });
@@ -354,7 +357,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   {
     this.init_store = new Ext.data.JsonStore({
       root:     'options',
-      fields:   ['absenteeism', 'age', 'data_functions', 'data_functions_adv', 'gender', 'grade', 'school_type', 'schools', 'symptoms', 'zipcode'],
+      fields:   ['absenteeism', 'age', 'data_functions', 'data_functions_adv', 'gender', 'grade', 'school_districts','school_type', 'schools', 'symptoms', 'zipcode'],
       url:      '/rollcall/query_options',
       autoLoad: false,
       listeners:{

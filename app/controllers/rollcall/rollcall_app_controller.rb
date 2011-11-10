@@ -62,4 +62,5 @@ class Rollcall::RollcallAppController < ApplicationController
   def unauthorized
     render :json => "You are not authorized for access.", :status => :unauthorized
   end
+
 end

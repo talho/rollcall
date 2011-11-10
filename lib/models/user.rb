@@ -9,17 +9,20 @@ module Rollcall
     end
 
     def school_districts
-      if is_rollcall_admin?
-        jurisdictions.map{|jur| jur.school_districts}.flatten.uniq
+      if is_rollcall_admin? || is_super_admin?("rollcall")
+        r = jurisdictions.admin("rollcall").map{|jur| jur.self_and_descendants.map{|j|j.school_districts}.flatten.uniq}.flatten.uniq
       else
-        self.school_districts_base.map(&:school_district)
+        r = self.school_districts_base.map(&:school_district)
       end
+      r.sort{|a,b| a.name.downcase <=> b.name.downcase}
     end
 
     def schools
       s = self.school_districts.map(&:schools).flatten
-      s = s & self.schools_base.map(&:school).flatten unless is_rollcall_admin?
-      s.uniq
+      if !is_rollcall_admin? && !is_super_admin?('rollcall')
+        s = s & self.schools_base.map(&:school).flatten
+      end
+      s.uniq.sort{|a,b| a.display_name <=> b.display_name}
     end
 
     def alarm_queries(options={})
@@ -95,6 +98,55 @@ module Rollcall
       else
         return false
       end
+    end
+
+    def school_search(params)
+      if params[:type] == "simple"
+        results =  simple_school_search(params)
+      else
+        results = adv_school_search(params)
+      end
+      return results
+    end
+   
+    def simple_school_search params
+      unless params[:school_district].blank?
+        district_id = Rollcall::SchoolDistrict.find_by_name(params[:school_district]).id
+        schools.find_all{|s| s.district_id == district_id }
+      else
+        r = schools.find_all{|s| s.school_type == params[:school_type] } unless params[:school_type].blank?
+        r = schools.find{|s| s.display_name == params[:school] } unless params[:school].blank?
+        r = schools if params[:school].blank? && params[:school_type].blank?
+        r = [r] unless r.kind_of?(Array)
+        r
+      end
+    end
+
+    def adv_school_search params
+      r = []
+      unless params[:school_district].blank?
+        district_ids = Rollcall::SchoolDistrict.find_all_by_name(params[:school_district]).map(&:id)
+        r += schools.find_all{|s| district_ids.include?(s.district_id)}
+      end
+      if !params[:school_type].blank? && !params[:zip].blank?
+        r += schools.find_all{|s| params[:school_type].include?(s.school_type) && params[:zip].include?(s.postal_code)}
+      elsif !params[:school_type].blank?
+        r += schools.find_all{|s| params[:school_type].include?(s.school_type)}
+      elsif !params[:zip].blank?
+        r += schools.find_all{|s| params[:zip].include?(s.postal_code)}
+      end
+      if r.blank?
+        unless params[:school].blank?
+          r += schools.find_all{|s| params[:school].include?(s.display_name)}
+        else
+          r += schools
+        end
+      else
+        r += schools.find_all{|s| params[:school].include?(s.display_name)} unless params[:school].blank?
+        r.flatten!
+      end
+      r.uniq!
+      r
     end
   end
 

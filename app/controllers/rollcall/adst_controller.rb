@@ -1,5 +1,5 @@
 # The ADST controller class for the Rollcall application.  This controller class handles
-# the initial search request, the export request, the report request, and the
+# the initial search request(index), the export request, the report request, and the
 # get_options method (which returns the drop down values for the Rollcall ADST application).
 #
 # Author::    Eddie Gomez  (mailto:eddie@talho.org)
@@ -15,24 +15,26 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   #
   # GET /rollcall/adst
   def index
-    schools       = Rollcall::School.search(params, current_user)
-    options       = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
-    schools_paged = schools.paginate(options)
-    rrd_info = Array.new
-    schools_paged.each do |school|
-      rrd_info.push(Rollcall::Rrd.render_graphs(params, school))
+    results_with_rrd = Array.new
+    rrd_info         = Array.new
+    options          = {:page => params[:page] || 1, :per_page => params[:limit] || 6}    
+    results          = current_user.school_search params if params[:return_individual_school]
+    results          = current_user.school_districts if params[:return_individual_school].blank?
+    if params[:school_district] && params[:return_individual_school].blank?
+      results = results.find_all{|r| params[:school_district].include?(r.name)}
     end
-
-    schools_with_rrd = Array.new
-    schools_paged.each_index { |i|
-      schools_with_rrd.push(schools_paged[i].attributes.merge(rrd_info[i]))
-    }
+    results_paged    = results.paginate(options)
+    results_paged.each do |r|
+      rrd_info.push(Rollcall::Rrd.render_graphs(params, r)) if params[:return_individual_school]
+      rrd_info.push(Rollcall::Rrd.render_graphs(params, r, {:foo_bar => true})) if params[:return_individual_school].blank?
+    end
+    results_paged.each_index { |i| results_with_rrd.push(results_paged[i].attributes.merge(rrd_info[i])) }
     respond_to do |format|
       format.json do
         render :json => {
           :success       => true,
-          :total_results => schools.length,
-          :results       => schools_with_rrd
+          :total_results => results.length,
+          :results       => results_with_rrd
         }
       end
     end
@@ -45,32 +47,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   #
   # GET /rollcall/export
   def export
-    filename = "rollcall_csv_export"
-    params.each { |key,value|
-      case key
-      when "absent"
-        if value == "Confirmed Illness"
-          filename = "AB_#{filename}"
-        end
-      when "gender"
-        if value == "Male"
-          filename = "G-#{value}_#{filename}"
-        elsif value == "Female"
-          filename = "G-#{value}_#{filename}"
-        end
-      when "startdt"
-        filename = "SD-#{Time.parse(value).strftime("%s")}_#{filename}"
-      when "enddt"
-        filename = "ED-#{Time.parse(value).strftime("%s")}_#{filename}"
-      when "school"
-        filename = "SC-#{value}_#{filename}"
-      when "data_func"
-        filename = "DF-#{value}_#{filename}"
-      when "school_type"
-        filename = "ST-#{value}_#{filename}"
-      else
-      end
-    }
+    filename = "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}.csv"
     Rollcall::Rrd.send_later(:export_rrd_data, params, filename, current_user)
     respond_to do |format|
       format.json do
@@ -152,14 +129,15 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     data_functions_adv = [
       {:id => 0, :value => 'Raw'},
       {:id => 1, :value => 'Average'},
-      {:id => 2, :value => 'Moving Average 30 Day'},
-      {:id => 3, :value => 'Moving Average 60 Day'},
+      {:id => 2, :value => 'Average 30 Day'},
+      {:id => 3, :value => 'Average 60 Day'},
       {:id => 4, :value => 'Standard Deviation'},
       {:id => 5, :value => 'Cusum'}
     ]
-    schools      = current_user.schools
-    zipcodes     = current_user.school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
-    school_types = current_user.school_districts.map{|s| s.school_types.map{|i| {:id => i, :value => i}}}.flatten
+    schools          = current_user.schools
+    school_districts = current_user.school_districts
+    zipcodes         = school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
+    school_types     = school_districts.map{|s| s.school_types.map{|i| {:id => i, :value => i}}}.flatten
     respond_to do |format|
       format.json do
         render :json => {
@@ -170,6 +148,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
             :data_functions_adv => data_functions_adv,
             :gender             => gender,
             :grade              => grade,
+            :school_districts   => school_districts,
             :school_type        => school_types,
             :schools            => schools,
             :symptoms           => symptoms,

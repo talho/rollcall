@@ -45,7 +45,8 @@ class Rollcall::AlarmQuery < Rollcall::Base
         query = fs.symbolize_keys
       end
     end
-    schools = Rollcall::School.search(query, user)
+    #schools = Rollcall::School.search(query, user)
+    schools = user.school_search query
     schools.each { |school| create_alarms_for_school(school, query) }
     !Rollcall::Alarm.find_all_by_alarm_query_id(id).blank?
   end

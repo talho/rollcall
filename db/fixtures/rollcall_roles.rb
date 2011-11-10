@@ -1,33 +1,8 @@
-Role.create(
-  :name              => "Rollcall",
-  :approval_required => true,
-  :user_role         => false,
-  :application       => 'rollcall'
-)
-Role.create(
-  :name              => "Admin",
-  :approval_required => true,
-  :user_role         => true,
-  :application       => 'rollcall'
-)
-Role.create(
-  :name              => "Epidemiologist",
-  :approval_required => true,
-  :user_role         => true,
-  :application       => 'rollcall'
-)
-Role.create(
-  :name              => "Health Officer",
-  :approval_required => true,
-  :user_role         => true,
-  :application       => 'rollcall'
-)
-Role.create(
-  :name              => "Nurse",
-  :approval_required => true,
-  :user_role         => true,
-  :application       => 'rollcall'
-)
+Role.find_or_create_by_name_and_approval_required_and_user_role_and_application("Rollcall",true,false,'rollcall')
+Role.find_or_create_by_name_and_approval_required_and_user_role_and_application("Admin",true,true,'rollcall')
+Role.find_or_create_by_name_and_approval_required_and_user_role_and_application("Epidemiologist",true,true,'rollcall')
+Role.find_or_create_by_name_and_approval_required_and_user_role_and_application("Health Officer",true,true,'rollcall')
+Role.find_or_create_by_name_and_approval_required_and_user_role_and_application("Nurse",true,true,'rollcall')
 # TODO
 # Integrate school selection into roles and/or user
 # 

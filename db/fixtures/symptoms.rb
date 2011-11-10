@@ -1,6 +1,6 @@
-require 'fastercsv'
+require 'csv'
 #run through the symptoms file
-FasterCSV.open(File.dirname(__FILE__) + '/symptoms.csv', :headers => true) do |symptoms|
+CSV.open(File.dirname(__FILE__) + '/symptoms.csv', :headers => true) do |symptoms|
   symptoms.each do |row|
     #if icd9_code is blank, skip record
     if row["icd9_code"].blank?

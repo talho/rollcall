@@ -1,6 +1,6 @@
-#require 'fastercsv'
+#require 'csv'
 ##run through the school districts file
-#FasterCSV.open(File.dirname(__FILE__) + '/school_districts.csv', :headers => true) do |school_districts|
+#CSV.open(File.dirname(__FILE__) + '/school_districts.csv', :headers => true) do |school_districts|
 #  school_districts.each do |row|
 #    #if school district id blank, skip to next record
 #    if row["school_district_id"].blank?

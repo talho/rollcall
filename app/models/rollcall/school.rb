@@ -68,52 +68,39 @@ class Rollcall::School < Rollcall::Base
     self.display_name = self.name if self.display_name.nil? || self.display_name.strip.blank?
   end
 
-  def self.simple_search(params, user_obj)
-    search_param = ""
-    search_param = params[:school_type] unless params[:school_type].blank?
-    search_param = params[:zip]         unless params[:zip].blank?
-    search_param = params[:school]      unless params[:school].blank?
-    search_condition = "%" + search_param + "%"
-    Rollcall::School.find(:all, :conditions => [
-      '(display_name LIKE ? OR postal_code LIKE ? OR school_type LIKE ?) AND id IN (?)',
-      search_condition,
-      search_condition,
-      search_condition,
-      user_obj.schools.map(&:id)
-    ])
-  end
-
-  def self.adv_search(params, user_obj)
-    school_type_qstr     = "school_type IN ('#{params[:school_type].join("','")}')" unless params[:school_type].blank?
-    postal_code_qstr     = "postal_code IN ('#{params[:zip].join("','")}')" unless params[:zip].blank?
-    school_qstr          = "display_name IN ('#{params[:school].join("','")}')" unless params[:school].blank?
-    school_id_qstr       = "id IN ('#{user_obj.schools.map(&:id).join("','")}')"
-    #district_qstr        = "district_id IN ('#{user_obj.school_districts.map(&:id).join("','")}')"
-
-    cond_part1 = case
-    when school_type_qstr && postal_code_qstr
-      "(#{school_type_qstr} AND #{postal_code_qstr})"
-    when school_type_qstr
-      school_type_qstr
-    when postal_code_qstr
-      postal_code_qstr
-    end
-
-    condition = case
-    when cond_part1 && school_qstr
-      ["#{cond_part1} OR #{school_qstr}"]
-    when cond_part1
-      [cond_part1]
-    when school_qstr
-      [school_qstr]
-    end
-
-    if condition.blank?
-      condition = school_id_qstr
+  def self.simple_search params, current_user
+    unless params[:school_district].blank?
+      district_id = Rollcall::SchoolDistrict.find_by_name(params[:school_district]).id
+      current_user.schools.find{|s| s.district_id == district_id }
     else
-      condition = "(#{condition}) AND #{school_id_qstr}"
+      r = current_user.schools.find_all{|s| s.school_type == params[:school_type] } unless params[:school_type].blank?
+      r = current_user.schools.find{|s| s.display_name == params[:school] } unless params[:school].blank?
+      r = current_user.schools if params[:school].blank? && params[:school_type].blank?
+      r = [r] unless r.kind_of?(Array)
+      r
     end
-
-    find(:all, :conditions => [condition])
   end
+
+  def self.adv_search params, current_user
+    r = []
+    if !params[:school_type].blank? && !params[:zip].blank?
+      r = current_user.schools.find_all{|s| params[:school_type].include?(s.school_type) && params[:zip].include?(s.postal_code)}
+    elsif !params[:school_type].blank?
+      r = current_user.schools.find_all{|s| params[:school_type].include?(s.school_type)}
+    elsif !params[:zip].blank?
+      r = current_user.schools.find_all{|s| params[:zip].include?(s.postal_code)}
+    end
+    if r.blank?
+      r = []
+      unless params[:school].blank?
+        r.push(current_user.schools.find{|s| params[:school].include?(s.display_name)})
+      else
+        r = current_user.schools
+      end
+    else
+      r.push(current_user.schools.find{|s| params[:school].include?(s.display_name)}) unless params[:school].blank?
+    end
+    r
+  end
+
 end

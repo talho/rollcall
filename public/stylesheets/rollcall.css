@@ -105,12 +105,15 @@
   width: 14px !important;
   height: 14px !important;
 }
-.base-line-check{
+.line-check{
   margin: 0 0 0 8px !important;
 }
 #x-form-el-enrolled_base_line_simple,
-#x-form-el-enrolled_base_line_adv{
+#x-form-el-enrolled_base_line_adv,
+#x-form-el-return_individual_school_simple,
+#x-form-el-return_individual_school_adv{
   padding-left: 0px !important;
+  margin-top: -25px;
 }
 .x-tip-anchor-adjust{
   left: -8px;

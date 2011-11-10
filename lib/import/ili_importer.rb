@@ -38,100 +38,102 @@ class IliImporter < SchoolDataImporter
   # @params rec   array  an array of records to process
   # @params attrs hash   an attribute hash{:key => value}
   def process_record(rec, attrs)
-    puts "Importing ILI Data for School ID: #{attrs[:school_id]}"
-    student_attrs       = {}
-    student_daily_attrs = {}
-    @mapping.each { |mapping|
-      if mapping[:action] == :ignoreCsvField || rec[mapping[:field_name]].blank?
-        next
-      end
-      if mapping.has_key?(:school_daily_info)
-        student_daily_attrs[mapping[:name]] = attrs[mapping[:name]]
+    if attrs[:school_id]
+      puts "Importing ILI Data for School ID: #{attrs[:school_id]}"
+      student_attrs       = {}
+      student_daily_attrs = {}
+      @mapping.each { |mapping|
+        if mapping[:action] == :ignoreCsvField || rec[mapping[:field_name]].blank?
+          next
+        end
+        if mapping.has_key?(:school_daily_info)
+          student_daily_attrs[mapping[:name]] = attrs[mapping[:name]]
+        else
+          student_attrs[mapping[:name]] = attrs[mapping[:name]]
+        end
+      }
+      if attrs[:description].blank? || attrs[:description].downcase.index('none')
+        student_daily_attrs[:confirmed_illness] = false
       else
-        student_attrs[mapping[:name]] = attrs[mapping[:name]]
+        student_daily_attrs[:confirmed_illness] = true
       end
-    }
-    if attrs[:description].blank? || attrs[:description].downcase.index('none')
-      student_daily_attrs[:confirmed_illness] = false
-    else
-      student_daily_attrs[:confirmed_illness] = true
-    end
-    student_daily_attrs[:report_time] = attrs[:report_date]
-    description                       = attrs[:description]
-    if student_attrs[:name].blank?
-      first_name = ""
-      last_name  = ""
-    else
-      if student_attrs[:name].split(",").length > 1
-        first_name = student_attrs[:name].split(",").last
-        last_name  = student_attrs[:name].split(",").first
+      student_daily_attrs[:report_time] = attrs[:report_date]
+      description                       = attrs[:description]
+      if student_attrs[:name].blank?
+        first_name = ""
+        last_name  = ""
       else
-        first_name = student_attrs[:name].split(" ").first
-        last_name  = student_attrs[:name].split(" ").last
+        if student_attrs[:name].split(",").length > 1
+          first_name = student_attrs[:name].split(",").last
+          last_name  = student_attrs[:name].split(",").first
+        else
+          first_name = student_attrs[:name].split(" ").first
+          last_name  = student_attrs[:name].split(" ").last
+        end
       end
-    end
-    if student_attrs[:contact].blank?
-      contact_first_name = ""
-      contact_last_name  = ""
-    else
-      if student_attrs[:contact].split(",").length > 1
-        contact_first_name = student_attrs[:contact].split(",").last
-        contact_last_name  = student_attrs[:contact].split(",").first
+      if student_attrs[:contact].blank?
+        contact_first_name = ""
+        contact_last_name  = ""
       else
-        contact_first_name = student_attrs[:contact].split(" ").first
-        contact_last_name  = student_attrs[:contact].split(" ").last
+        if student_attrs[:contact].split(",").length > 1
+          contact_first_name = student_attrs[:contact].split(",").last
+          contact_last_name  = student_attrs[:contact].split(",").first
+        else
+          contact_first_name = student_attrs[:contact].split(" ").first
+          contact_last_name  = student_attrs[:contact].split(" ").last
+        end
       end
-    end
-    student_attrs[:first_name]         = first_name.strip
-    student_attrs[:last_name]          = last_name.strip
-    student_attrs[:contact_first_name] = contact_first_name.strip
-    student_attrs[:contact_last_name]  = contact_last_name.strip
-    student_attrs.delete :name
-    student_attrs.delete :contact
-    student_attrs.delete :description
-    student = {}
-    student = Rollcall::Student.find_by_student_number_and_school_id(student_attrs[:student_number],attrs[:school_id]) unless student_attrs[:student_number].blank?
-    if student.blank?
-      unless student_attrs[:student_number].blank?
-        student = Rollcall::Student.find_by_first_name_and_last_name_and_contact_first_name_and_contact_last_name_and_school_id_and_student_number(
-          student_attrs[:first_name],
-          student_attrs[:last_name],
-          student_attrs[:contact_first_name],
-          student_attrs[:contact_last_name],
-          attrs[:school_id],
-          student_attrs[:student_number]
-        )
+      student_attrs[:first_name]         = first_name.strip
+      student_attrs[:last_name]          = last_name.strip
+      student_attrs[:contact_first_name] = contact_first_name.strip
+      student_attrs[:contact_last_name]  = contact_last_name.strip
+      student_attrs.delete :name
+      student_attrs.delete :contact
+      student_attrs.delete :description
+      student = {}
+      student = Rollcall::Student.find_by_student_number_and_school_id(student_attrs[:student_number],attrs[:school_id]) unless student_attrs[:student_number].blank?
+      if student.blank?
+        unless student_attrs[:student_number].blank?
+          student = Rollcall::Student.find_by_first_name_and_last_name_and_contact_first_name_and_contact_last_name_and_school_id_and_student_number(
+            student_attrs[:first_name],
+            student_attrs[:last_name],
+            student_attrs[:contact_first_name],
+            student_attrs[:contact_last_name],
+            attrs[:school_id],
+            student_attrs[:student_number]
+          )
+        else
+          student = Rollcall::Student.find_by_first_name_and_last_name_and_contact_first_name_and_contact_last_name_and_address_and_zip_and_gender_and_phone_and_race_and_dob_and_school_id(
+            student_attrs[:first_name],
+            student_attrs[:last_name],
+            student_attrs[:contact_first_name],
+            student_attrs[:contact_last_name],
+            student_attrs[:address],
+            student_attrs[:zip],
+            student_attrs[:gender],
+            student_attrs[:phone],
+            student_attrs[:race],
+            student_attrs[:dob],
+            attrs[:school_id]
+          )
+        end
+      end
+      if student.blank?
+        daily_info = Rollcall::StudentDailyInfo.find_by_cid_and_report_date(student_daily_attrs[:cid],student_daily_attrs[:report_date])
       else
-        student = Rollcall::Student.find_by_first_name_and_last_name_and_contact_first_name_and_contact_last_name_and_address_and_zip_and_gender_and_phone_and_race_and_dob_and_school_id(
-          student_attrs[:first_name],
-          student_attrs[:last_name],
-          student_attrs[:contact_first_name],
-          student_attrs[:contact_last_name],
-          student_attrs[:address],
-          student_attrs[:zip],
-          student_attrs[:gender],
-          student_attrs[:phone],
-          student_attrs[:race],
-          student_attrs[:dob],
-          attrs[:school_id]
-        )
+        daily_info = Rollcall::StudentDailyInfo.find_by_cid_and_report_date_and_student_id(student_daily_attrs[:cid],student_daily_attrs[:report_date],student.id)
       end
+      if !daily_info
+        student = Rollcall::Student.create student_attrs if student.blank?
+        student.update_attributes(student_attrs)
+        student.save
+        student_daily_attrs[:student] = student
+        daily_info                    = Rollcall::StudentDailyInfo.new
+        daily_info.update_attributes(student_daily_attrs)
+      end
+      daily_info.save
+      add_symptoms(daily_info, description)
     end
-    if student.blank?
-      daily_info = Rollcall::StudentDailyInfo.find_by_cid_and_report_date(student_daily_attrs[:cid],student_daily_attrs[:report_date])
-    else
-      daily_info = Rollcall::StudentDailyInfo.find_by_cid_and_report_date_and_student_id(student_daily_attrs[:cid],student_daily_attrs[:report_date],student.id)
-    end
-    if !daily_info
-      student = Rollcall::Student.create student_attrs if student.blank?
-      student.update_attributes(student_attrs)
-      student.save
-      student_daily_attrs[:student] = student
-      daily_info                    = Rollcall::StudentDailyInfo.new
-      daily_info.update_attributes(student_daily_attrs)
-    end
-    daily_info.save
-    add_symptoms(daily_info, description)
   end
 
 private

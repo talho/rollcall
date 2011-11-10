@@ -13,7 +13,7 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
       items:   [{
         xtype:   'container',
         layout:  'hbox',
-        height:  350,
+        height:  275,
         padding: '0 5',
         items:   [{
           xtype: 'spacer',
@@ -21,14 +21,14 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
         },{
           xtype:  'fieldset',
           layout: 'hbox',
-          width:  335,
+          width:  262,
           title:  'School Query',
           items:  [{
             xtype:    'container',
             layout:   'vbox',
-            width:    150,
-            height:   300,
-            defaults: {width:150},
+            width:    100,
+            height:   230,
+            defaults: {width:100},
             items:    [{
               xtype: 'label',
               html:  'School Type:'
@@ -40,11 +40,11 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
               cls:          'ux-query-form',
               columns:      [{dataIndex: 'value', cls:'school-type-list-item'}],
               hideHeaders:  true,
-              height:       100,
+              height:       90,
               store:        new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.school_type})
             },{
               xtype:  'spacer',
-              height: 10
+              height: 5
             },{
               xtype: 'label',
               html:  'Zipcode:'
@@ -56,19 +56,35 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
               cls:          'ux-query-form',
               columns:      [{dataIndex: 'value', cls:'zipcode-list-item'}],
               hideHeaders:  true,
-              height:       100,
+              height:       90,
               store:        new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.zipcode})
             }]
           },{
             xtype: 'spacer',
-            width: 10
+            width: 5
           },{
             xtype:    'container',
             layout:   'vbox',
-            width:    150,
-            height:   300,
-            defaults: {width:150},
+            width:    135,
+            height:   230,
+            defaults: {width:135},
             items: [{
+              xtype: 'label',
+              html:  'School District:'
+            },{
+              xtype:        'listview',
+              id:           'school_district_adv',
+              multiSelect:  true,
+              simpleSelect: true,
+              cls:          'ux-query-form',
+              columns:      [{dataIndex: 'value', cls:'school-district-list-item'}],
+              hideHeaders:  true,
+              height:       90,
+              store:        new Ext.data.JsonStore({fields: ['id', {name:'value', mapping:'name'}], data: config.options.school_districts})
+            },{
+              xtype:  'spacer',
+              height: 5
+            },{
               xtype: 'label',
               html:  'School Name:'
             },{
@@ -79,7 +95,7 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
               cls:          'ux-query-form',
               columns:      [{dataIndex: 'value', cls:'school-name-list-item'}],
               hideHeaders:  true,
-              height:       229,
+              height:       90,
               store:        new Ext.data.JsonStore({fields: ['id', {name:'value', mapping:'display_name'}], data: config.options.schools})
             }]
           }]
@@ -89,14 +105,14 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
         },{
           xtype:  'fieldset',
           layout: 'hbox',
-          width:  385,
+          width:  328,
           title:  'Data Filter',
           items:  [{
             xtype:    'container',
             layout:   'vbox',
-            width:    150,
-            height:   300,
-            defaults: {width:150},
+            width:    120,
+            height:   230,
+            defaults: {width:120},
             items:    [{
               xtype: 'label',
               html:  'Age:'
@@ -108,11 +124,11 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
               cls:          'ux-query-form',
               columns:      [{dataIndex: 'value', cls: 'age-list-item'}],
               hideHeaders:  true,
-              height:       100,
+              height:       90,
               store:        new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.age})
             },{
               xtype: 'spacer',
-              height: 10
+              height: 5
             },{
               xtype: 'label',
               html:  'Grade:'
@@ -124,18 +140,18 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
               cls:          'ux-query-form',
               columns:      [{dataIndex: 'value', cls: 'grade-list-item'}],
               hideHeaders:  true,
-              height:       100,
+              height:       90,
               store:        new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.grade})
             }]
           },{
             xtype: 'spacer',
-            width: 10
+            width: 5
           },{
             xtype:    'container',
             layout:   'vbox',
-            width:    200,
-            height:   300,
-            defaults: {width:200},
+            width:    180,
+            height:   230,
+            defaults: {width:180},
             items:    [{
               xtype: 'label',
               html:  'Symptoms:'
@@ -147,11 +163,11 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
               cls:          'ux-query-form',
               columns:      [{dataIndex: 'name', width: 0.70, cls:'symptom-list-item'}, {dataIndex: 'value'}],
               hideHeaders:  true,
-              height:       179,
+              height:       160,
               store:        new Ext.data.JsonStore({fields: ['id', 'name', {name:'value', mapping:'icd9_code'}], data: config.options.symptoms})
             },{
               xtype: 'spacer',
-              height: 10
+              height: 5
             },{
               xtype: 'label',
               html:  'Gender:'
@@ -169,14 +185,14 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
         },{
           xtype:  'fieldset',
           layout: 'hbox',
-          width:  335,
+          width:  252,
           title:  'Data Types/Date Range',
           items:  [{
             xtype:    'container',
             layout:   'vbox',
-            width:    150,
-            height:   300,
-            defaults: {width:150},
+            width:    110,
+            height:   230,
+            defaults: {width:110},
             items:    [{
               xtype: 'label',
               html:  'Absenteeism:'
@@ -208,9 +224,9 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
           },{
             xtype:    'container',
             layout:   'vbox',
-            width:    150,
-            height:   300,
-            defaults: {width:150},
+            width:    110,
+            height:   230,
+            defaults: {width:110},
             items:    [{
               xtype: 'label',
               html:  'Data Function:'
@@ -240,9 +256,15 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
       },{
         xtype:     'checkbox',
         id:        'enrolled_base_line_adv',
-        cls:       'base-line-check',
+        cls:       'line-check',
         boxLabel:  'Display Total Enrolled Base Line',
         hideLabel: true
+      },{
+        xtype:    'checkbox',
+        id:       'return_individual_school_adv',
+        cls:      'line-check',
+        checked:  true,
+        boxLabel: "Return Individual School Results"
       },{
         cls:     'clear',
         xtype:   'button',

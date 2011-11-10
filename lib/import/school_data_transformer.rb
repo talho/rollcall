@@ -198,9 +198,11 @@ class SchoolDataTransformer
         all_purpose_f = []
         file_to_write.puts headers
         IO.foreach(file_path, sep_string = get_sep_string(file_path)) do |line|
-          if !has_headers? line
-            file_to_write.puts line  
-          end
+          unless line.blank?
+            if !has_headers? line
+              file_to_write.puts line
+            end
+          end         
         end
         file_to_write.close
         # Second round of transformations - replace tabs with commas, skip the first line since it is now headers
@@ -475,6 +477,7 @@ class SchoolDataTransformer
   # file to have an EnrollDate that equates to its Attendance counterpart.  For that reason, this method reconstructs
   # the enrollment file with an EnrollDate and insures that the enrollment file mirrors the attendance file
   def transform_enrollment_file
+    puts "Transforming enrollment file for #{@district.name}"
     att_array = []
     enr_array = []
     tmp_array = []
@@ -482,9 +485,11 @@ class SchoolDataTransformer
     for file_path in @files
       if !File.directory?(file_path)
         IO.foreach(file_path, sep_string = get_sep_string(file_path)) do |line|
-          line.gsub!(/["][^"]*["]/) { |m| m.gsub(',','|') }
-          att_array.push(line) if file_path.downcase.index('att')
-          enr_array.push(line) if file_path.downcase.index('enroll')
+          unless line.blank?
+            line.gsub!(/["][^"]*["]/) { |m| m.gsub(',','|') }
+            att_array.push(line) if file_path.downcase.index('att')
+            enr_array.push(line) if file_path.downcase.index('enroll')
+          end         
         end
       end
     end

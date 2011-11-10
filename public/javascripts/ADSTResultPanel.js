@@ -390,8 +390,13 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       if(baseParams[key].indexOf("...") == -1 && key != "authenticity_token") queryParams[key] = baseParams[key];
     }
     queryParams["type"] = (Ext.getCmp('advanced_query_select').isVisible()) ? "adv" : "simple";
-    if (school_name) queryParams["school"] = school_name;
-
+    if (school_name){
+      if(queryParams["type"] == "adv"){
+        queryParams["school[]"] = [];
+        queryParams["school[]"].push(school_name);
+        //queryParams["school"][] = t_a;
+      }else queryParams["school"] = school_name;
+    }
     for(key in queryParams){ params.push([key, queryParams[key]]); }
     storedParams.loadData(params);
 

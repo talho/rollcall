@@ -182,7 +182,7 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       app_init             = false
       total_enrolled_alpha = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id).blank?
     else     
-      school_id            = current_user.school_districts.first.schools.first[:id]
+      school_id            = current_user.school_districts.map(&:schools).flatten.first[:id]
       app_init             = true
       total_enrolled_alpha = true
     end

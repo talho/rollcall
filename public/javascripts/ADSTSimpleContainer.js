@@ -33,6 +33,24 @@ Talho.Rollcall.ADSTSimpleContainer = Ext.extend(Ext.Container, {
         },{
         items:
           new Talho.Rollcall.ux.ComboBox({
+            fieldLabel: 'School District',
+            emptyText:'Select School District...',
+            allowBlank: true,
+            id: 'school_district_simple',
+            itemId: 'school_district_simple',
+            displayField: 'name',
+            editable:   false,
+            store: new Ext.data.JsonStore({fields: ['id', 'name'], data: config.options.school_districts}),
+            listeners:{
+              select: function(comboBox, record, index){
+                Ext.getCmp('school_simple').clearValue();
+                Ext.getCmp('school_type_simple').clearValue();
+              }
+            }
+          })
+        },{
+        items:
+          new Talho.Rollcall.ux.ComboBox({
             fieldLabel: 'School',
             emptyText:'Select School...',
             allowBlank: true,
@@ -43,6 +61,7 @@ Talho.Rollcall.ADSTSimpleContainer = Ext.extend(Ext.Container, {
             store: new Ext.data.JsonStore({fields: ['id', 'display_name'], data: config.options.schools}),
             listeners:{
               select: function(comboBox, record, index){
+                Ext.getCmp('school_district_simple').clearValue();
                 Ext.getCmp('school_type_simple').clearValue();
               }
             }
@@ -59,6 +78,7 @@ Talho.Rollcall.ADSTSimpleContainer = Ext.extend(Ext.Container, {
             store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.school_type}),
             listeners:{
               select: function(comboBox, record, index){
+                Ext.getCmp('school_district_simple').clearValue();
                 Ext.getCmp('school_simple').clearValue();
               }
             }
@@ -97,12 +117,17 @@ Talho.Rollcall.ADSTSimpleContainer = Ext.extend(Ext.Container, {
               store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.data_functions})
             })
         },{
-          cls: 'base-line-check',
-          items:{
+          cls: 'line-check',
+          items:[{
             xtype: 'checkbox',
             id: 'enrolled_base_line_simple',
             boxLabel: "Display Total Enrolled Base Line"
-          }
+          },{
+            xtype: 'checkbox',
+            id: 'return_individual_school_simple',
+            checked: true,
+            boxLabel: "Return Individual School Results"
+          }]
         },{
           cls: 'clear',
           items:{

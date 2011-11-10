@@ -95,7 +95,11 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           if(records.length != 0){
             this.main_panel.getComponent('nurse_assistant').getSelectionModel().selectRow(0);
             this.main_panel.getComponent('nurse_assistant').fireEvent('rowclick', this.main_panel.getComponent('nurse_assistant'),0);
-          }else{this.build_detail_template();}
+          }else{
+            var html_string = '<div class="details"><div class="details-info"><span>No Student Data to Display</span></div></div>';
+            this.build_detail_template();
+            this.main_panel.getComponent('student_detail_panel').getComponent('student-stats').update(html_string);
+          }
           this.init_mask.hide();
         },
         beforeload: function(this_store, options_obj)
@@ -257,13 +261,13 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             }]
           }),
           listeners: {scope: this, rowclick: this.show_details},
-          bbar: new Ext.PagingToolbar({
+          bbar: [
+            '->',
+            new Ext.PagingToolbar({
             store:          this.student_list_store,
             pageSize:       10,
-            scope:          this,
-            displayInfo:    true,
-            prependButtons: true
-          }),
+            scope:          this
+          })],
           tbar: ['Student ID:', {
             xtype:           'textfield',
             id:              'list_filter_student_number',
@@ -579,13 +583,14 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
               }
             }]
           },
-          bbar: new Ext.PagingToolbar({
+          bbar: [          
+            new Ext.PagingToolbar({
             store:          this.student_list_store,
             pageSize:       10,
             scope:          this,
             displayInfo:    true,
             prependButtons: true
-          })
+          }),'->']
         };
     }
 

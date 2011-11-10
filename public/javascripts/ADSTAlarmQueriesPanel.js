@@ -91,8 +91,8 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
           param_config: param_config,
           collapsible:  false,
           draggable:    false,
-          width:        200,
-          height:       100,
+          width:        250,
+          height:       80,
           autoScroll:   true,
           tools:        [{
             id:      'run-query',
@@ -303,7 +303,10 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
             this.hide();
             this.destroy();
           }, alarm_console);
-          alarm_console.getComponent('editAlarmQueryForm').getForm().submit();
+          alarm_console.getComponent('editAlarmQueryForm').getForm().doAction('submit',{
+           // url: '/rollcall/alarm_query',
+            method: 'put'
+          });
         }
       },{
         text:    'Close',

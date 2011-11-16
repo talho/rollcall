@@ -30,7 +30,7 @@ class AttendanceImporter < SchoolDataImporter
     Rollcall::School.find(:all, :conditions => ["id IN (?)", @schools]).each do |s|
       unless Rollcall::SchoolDailyInfo.find_by_school_id(s.id).blank?
         Rollcall::SchoolDailyInfo.find(:all,
-          :conditions => ["school_id = ?", s.id],
+          :conditions => ["school_id = ? AND created_at > ?", s.id, Time.now.strftime("%Y-%m-%d")],
           :order      => "report_date ASC"
         ).each {|r|
             report_time = r.report_date.to_time
@@ -46,8 +46,8 @@ class AttendanceImporter < SchoolDataImporter
             else
               @s_i.push([(report_time + 1.day).to_i.to_s, r.total_absent, r.total_enrolled])
             end
-            @end_time     = report_time
-            @end_enrolled = r.total_enrolled
+            #@end_time     = report_time
+            #@end_enrolled = r.total_enrolled
           }
         begin
           #@s_i.push([(@end_time + 2.days).to_i.to_s, 0, @end_enrolled])

@@ -117,7 +117,7 @@ Talho.Rollcall.ADSTSimpleContainer = Ext.extend(Ext.Container, {
               store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.data_functions})
             })
         },{
-          cls: 'line-check',
+          cls: 'line-check-simple',
           items:[{
             xtype: 'checkbox',
             id: 'enrolled_base_line_simple',

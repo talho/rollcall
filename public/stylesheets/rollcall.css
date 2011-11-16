@@ -105,6 +105,10 @@
   width: 14px !important;
   height: 14px !important;
 }
+.line-check-simple{
+  margin: 0 0 0 8px !important;
+  clear: both;
+}
 .line-check{
   margin: 0 0 0 8px !important;
 }

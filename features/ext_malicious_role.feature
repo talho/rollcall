@@ -11,12 +11,11 @@ Background:
     | Role         | Nurse           | rollcall |
     | Role         | Admin           | rollcall |
     | Jurisdiction | Texas           |          |
-    | Jurisdiction | Houston         |          |
     | Jurisdiction | Harris          |          |
   And Texas is the parent jurisdiction of:
-    | Houston | Harris |
-  And Houston has the following school districts:
-    | Houston |
+    | Harris |
+  And Harris has the following school districts:
+    | Houston | 101912 |
   And "Houston" has the following schools:
     | name                | school_number | tea_id    | school_type       | postal_code | gmap_lat   | gmap_lng    | gmap_addr                                                                      |
     | Anderson Elementary | 105           | 101912105 | Elementary School | 77035       | 29.6496766 | -95.4879978 | "Anderson Elementary School, 5727 Ludington Dr, Houston, TX 77035-4399, USA"   |

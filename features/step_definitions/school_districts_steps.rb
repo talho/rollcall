@@ -1,10 +1,20 @@
 Given /^(.*) has the following school districts:$/ do |jurisdiction, table|
+  rrd_path = File.join(Rails.root, "/rrd/")
   table.raw.each do |row|
-    #Factory(:school_district, :name => row[0], :jurisdiction => Jurisdiction.find_by_name!(jurisdiction))
-    Rollcall::SchoolDistrict.create(
+    result = Rollcall::SchoolDistrict.create(
+      :district_id  => row[1],
       :name         => row[0],
       :jurisdiction => Jurisdiction.find_by_name!(jurisdiction)
     )
+    File.delete("#{rrd_path}district_#{result.district_id}_c_absenteeism.rrd") if File.exist?("#{rrd_path}district_#{result.district_id}_c_absenteeism.rrd")
+    rrd_file = Rollcall::Rrd.find_by_file_name_and_record_id("district_#{result.district_id}_c_absenteeism.rrd", result.id)
+    rrd_file.destroy unless rrd_file.blank?
+    if Date.today.day < 5
+      current_time = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_month - 1.week
+    else
+      current_time = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_month
+    end
+    Rollcall::Rrd.build_rrd("district_#{result.district_id}_c", result.id, current_time)
   end
 end
 

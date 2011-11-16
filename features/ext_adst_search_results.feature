@@ -7,12 +7,11 @@ Background:
   Given the following entities exist:
     | Role         | Epidemiologist  | rollcall |
     | Jurisdiction | Texas           |          |
-    | Jurisdiction | Houston         |          |
     | Jurisdiction | Harris          |          |
   And Texas is the parent jurisdiction of:
-    | Houston | Harris |
-  And Houston has the following school districts:
-    | Houston |
+    | Harris |
+  And Harris has the following school districts:
+    | Houston | 101912 |
   And "Houston" has the following schools:
     | name                | school_number | tea_id    | school_type       | postal_code | gmap_lat   | gmap_lng    | gmap_addr                                                                      |
     | Anderson Elementary | 105           | 101912105 | Elementary School | 77035       | 29.6496766 | -95.4879978 | "Anderson Elementary School, 5727 Ludington Dr, Houston, TX 77035-4399, USA"   |
@@ -44,7 +43,7 @@ Background:
     | 787.91    | Diarrhea                |
     | 0         | None                    |
   And the following users exist:
-    | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Houston |
+    | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Harris |
   And rollcall user "nurse.betty@example.com" has the following school districts assigned:
     | Houston |
   And rollcall user "nurse.betty@example.com" has the following schools assigned:
@@ -115,7 +114,7 @@ Scenario: User exports result data
   And I navigate to "Documents"
   And I expand the folders ""
   And I select the "Rollcall Documents" grid row
-  Then I should see "DF-Raw_SC-Anderson_Elementary_rollcall_csv_export.csv" within ".document-file-icon-view"
+  Then I should see "rollcall_export.cucumber.csv" within ".document-file-icon-view"
 
 Scenario: User saves result as alarm query
   When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading

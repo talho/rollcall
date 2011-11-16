@@ -41,5 +41,8 @@ class RollcallDataImporter < BackgrounDRb::MetaWorker
         SchoolDataTransformer.new(rollcall_data_path, "#{district.name}").transform_and_import
       end
     end
+    Rollcall::AlarmQuery.find_all_by_alarm_set(true).each do |a|
+      a.generate_alarm
+    end
   end
 end

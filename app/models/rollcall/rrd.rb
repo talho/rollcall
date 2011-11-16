@@ -31,7 +31,7 @@ class Rollcall::Rrd < Rollcall::Base
     end
     image_file  = set_filename conditions, filename, 'image'
     rrd_file    = set_filename conditions, filename, 'rrd'
-    result     = find(:all, :conditions => ['file_name LIKE ?', "#{rrd_file}"]).first
+    result      = find(:all, :conditions => ['file_name LIKE ?', "#{rrd_file}"]).first
     obj_name    = obj[:display_name].blank? ? obj[:name] : obj[:display_name]
     graph_title = "Gross Absenteeism for #{obj_name}" if conditions[:confirmed_illness].blank?
     graph_title = "Confirmed Absenteeism for #{obj_name}" if conditions[:confirmed_illness]
@@ -241,9 +241,9 @@ class Rollcall::Rrd < Rollcall::Base
     when "Average"
       cdefs.push({:key => 'a', :new_key => 'sum', :rpn => ['PREV','UN','0','PREV','IF','+']})
       cdefs.push({:key => 'sum', :new_key => 'mavg', :rpn => ['COUNT','/']})
-    when "Moving Average 30 Day"
+    when "Average 30 Day"
       cdefs.push({:key => 'a', :new_key => 'mavg30d', :rpn => [2592000,'TREND']})
-    when "Moving Average 60 Day"
+    when "Average 60 Day"
       cdefs.push({:key => 'a', :new_key => 'mavg60d', :rpn => [5184000,'TREND']})
     when "Cusum"
       cdefs.push({:key => 'a', :new_key => 'cusum', :rpn => ['PREV','UN','0','PREV','IF','+','20','-','0','MAX']})
@@ -267,12 +267,12 @@ class Rollcall::Rrd < Rollcall::Base
     when "Average"
       school_color = get_random_color
       elements.push({:key => 'mavg', :element => "LINE1", :color => school_color, :text => "Average"})
-    when "Moving Average 30 Day"
+    when "Average 30 Day"
       school_color = get_random_color
-      elements.push({:key => 'mavg30d', :element => "LINE1", :color => school_color, :text => "Moving Average 30 Day"})
-    when "Moving Average 60 Day"
+      elements.push({:key => 'mavg30d', :element => "LINE1", :color => school_color, :text => "Average 30 Day"})
+    when "Average 60 Day"
       school_color = get_random_color
-      elements.push({:key => 'mavg60d', :element => "LINE1", :color => school_color, :text => "Moving Average 60 Day"})
+      elements.push({:key => 'mavg60d', :element => "LINE1", :color => school_color, :text => "Average 60 Day"})
     when "Cusum"
       school_color = get_random_color
       elements.push({:key => 'cusum', :element => "LINE1", :color => school_color, :text => "Cusum"})

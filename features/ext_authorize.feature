@@ -10,12 +10,11 @@ Background:
     | Role         | Health Officer  | rollcall |
     | Role         | Nurse           | rollcall |
     | Jurisdiction | Texas           |          |
-    | Jurisdiction | Houston         |          |
     | Jurisdiction | Harris          |          |
   And Texas is the parent jurisdiction of:
-    | Houston | Harris |
-  And Houston has the following school districts:
-    | Houston |
+    | Harris |
+  And Harris has the following school districts:
+    | Houston | 101912 |
   And "Houston" has the following schools:
     | name                | school_number | tea_id    | school_type       | postal_code | gmap_lat   | gmap_lng    | gmap_addr                                                                      |
     | Anderson Elementary | 105           | 101912105 | Elementary School | 77035       | 29.6496766 | -95.4879978 | "Anderson Elementary School, 5727 Ludington Dr, Houston, TX 77035-4399, USA"   |
@@ -47,9 +46,9 @@ Background:
     | 787.91    | Diarrhea                |
     | 0         | None                    |
   And the following users exist:
-    | Nurse Betty  | nurse.betty@example.com  | Nurse          | Houston |
-    | Epi Smith    | epi.smith@example.com    | Epidemiologist | Houston |
-    | Health Offcr | heatlh.offcr@example.com | Health Officer | Houston |
+    | Nurse Betty  | nurse.betty@example.com  | Nurse          | Harris  |
+    | Epi Smith    | epi.smith@example.com    | Epidemiologist | Harris  |
+    | Health Offcr | heatlh.offcr@example.com | Health Officer | Harris  |
   And rollcall user "nurse.betty@example.com" has the following school districts assigned:
     | Houston |
   And rollcall user "nurse.betty@example.com" has the following schools assigned:

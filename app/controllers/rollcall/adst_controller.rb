@@ -46,8 +46,12 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   # in the users documents folder and sending out message to users email when process is done. 
   #
   # GET /rollcall/export
-  def export
-    filename = "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}.csv"
+  def export   
+    if RAILS_ENV == "test"
+      filename = "rollcall_export.cucumber.csv"
+    else
+      filename = "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}.csv"
+    end    
     Rollcall::Rrd.send_later(:export_rrd_data, params, filename, current_user)
     respond_to do |format|
       format.json do

@@ -108,6 +108,7 @@ class SchoolDataImporter
     schools       = Rollcall::School.find_all_by_district_id district.id
     daily_results = Rollcall::SchoolDailyInfo.find_all_by_school_id schools
     dates         = daily_results.map{|m| m.report_date}.uniq
+    s_i           = []
     dates.each do |i|
       report_date    = i
       total_absent   = 0
@@ -127,7 +128,27 @@ class SchoolDataImporter
           :total_absent       => total_absent,
           :school_district_id => district.id
         )
+        report_time = report_date.to_time
+        if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
+          s_i.push([(report_time + 1.day).to_i.to_s, 0, total_enrolled])
+        else
+          s_i.push([(report_time + 1.day).to_i.to_s, total_absent, total_enrolled])
+        end
+        #@end_time     = report_time
+        #@end_enrolled = r.total_enrolled
+        #s_i.push([(report_time + 1.day).to_i.to_s, 0, r.total_enrolled])
       end
+    end
+    begin
+      #@s_i.push([(@end_time + 2.days).to_i.to_s, 0, @end_enrolled])
+      s_i.sort!{|a,b| a.first <=> b.first}
+      puts "Importing RRD Data for #{district.name}"
+      if ENV["RAILS_ENV"] == "cucumber" || ENV["RAILS_ENV"] == "test"
+        RRD.update_batch("#{@rrd_path}/district_#{district.district_id}_c_absenteeism.rrd", s_i, "#{@rrd_tool}")
+      else
+        RRD.update_batch("#{@rrd_path}/district_#{district.district_id}_absenteeism.rrd", s_i, "#{@rrd_tool}")
+      end
+    rescue
     end
   end
 

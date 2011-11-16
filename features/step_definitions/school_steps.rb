@@ -5,7 +5,7 @@ Given /^"([^\"]*)" has the following schools:$/ do |isd, table|
     result    = Rollcall::School.create(
       :display_name  => row["name"],
       :tea_id        => row["tea_id"],
-      :district_id   => @district,
+      :district_id   => @district.id,
       :school_number => row["school_number"],
       :gmap_lat      => row["gmap_lat"],
       :gmap_lng      => row["gmap_lng"],
@@ -14,7 +14,7 @@ Given /^"([^\"]*)" has the following schools:$/ do |isd, table|
       :school_type   => row["school_type"]
     )
     File.delete("#{rrd_path}#{result.tea_id}_c_absenteeism.rrd") if File.exist?("#{rrd_path}#{result.tea_id}_c_absenteeism.rrd")
-    rrd_file = Rollcall::Rrd.find_by_file_name_and_school_id("#{result.tea_id}_c_absenteeism.rrd", result.id)
+    rrd_file = Rollcall::Rrd.find_by_file_name_and_record_id("#{result.tea_id}_c_absenteeism.rrd", result.id)
     rrd_file.destroy unless rrd_file.blank?
     if Date.today.day < 5
       current_time = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_month - 1.week
@@ -26,10 +26,14 @@ Given /^"([^\"]*)" has the following schools:$/ do |isd, table|
 end
 
 Given /^"([^\"]*)" has the following current school absenteeism data:$/ do |isd, table|
-  school         = ''
-  first_run      = false
-  report_date    = ''
-  total_enrolled = ''
+  school            = ''
+  first_run         = false
+  report_date       = ''
+  total_enrolled    = ''
+  district_absent   = 0
+  district_enrolled = 0
+  district_dates    = []
+  district          = Rollcall::SchoolDistrict.find_by_name isd
   if Date.today.day < 5
     current_time = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_month - 1.week
   else
@@ -60,13 +64,6 @@ Given /^"([^\"]*)" has the following current school absenteeism data:$/ do |isd,
       RRD.update "#{rrd_path}#{school.tea_id}_c_absenteeism.rrd",[report_date.to_i.to_s,0,total_enrolled],"#{rrd_tool}"
       first_run = false
     end
-
-    Rollcall::SchoolDailyInfo.create(
-      :school_id      => school.id,
-      :total_absent   => total_absent,
-      :total_enrolled => row['total_enrolled'],
-      :report_date    => report_date
-    )
     if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
       RRD.update("#{rrd_path}#{school.tea_id}_c_absenteeism.rrd", [(report_date + 1.day).to_i.to_s,0,total_enrolled], "#{rrd_tool}")
     else
@@ -77,7 +74,16 @@ Given /^"([^\"]*)" has the following current school absenteeism data:$/ do |isd,
         :total_enrolled => total_enrolled,
         :report_date    => report_date
       )
+      district_dates.push(report_date)
     end
-
+  end
+  district_dates.uniq!
+  district_dates.each do |d|
+    r = Rollcall::SchoolDailyInfo.find_all_by_report_date_and_school_id(d, district.schools.map(&:id))
+    r.each do |s|
+      district_absent   += s.total_absent
+      district_enrolled += s.total_enrolled
+    end
+    RRD.update("#{rrd_path}district_#{district.district_id}_c_absenteeism.rrd", [(d + 1.day).to_i.to_s,district_absent,district_enrolled], "#{rrd_tool}")
   end
 end

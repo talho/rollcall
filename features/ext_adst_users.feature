@@ -11,12 +11,11 @@ Background:
     | Role         | Nurse          | rollcall |
     | Role         | Epidemiologist | rollcall |
     | Jurisdiction | Texas          |          |
-    | Jurisdiction | Houston        |          |
     | Jurisdiction | Harris         |          |
   And Texas is the parent jurisdiction of:
-    | Houston | Harris |
-  And Houston has the following school districts:
-    | Houston |
+    | Harris |
+  And Harris has the following school districts:
+    | Houston | 101912 |
   And "Houston" has the following schools:
     | name                | school_number | tea_id    | school_type       | postal_code | gmap_lat   | gmap_lng    | gmap_addr                                                                      |
     | Anderson Elementary | 105           | 101912105 | Elementary School | 77035       | 29.6496766 | -95.4879978 | "Anderson Elementary School, 5727 Ludington Dr, Houston, TX 77035-4399, USA"   |
@@ -48,9 +47,9 @@ Background:
     | 787.91    | Diarrhea                |
     | 0         | None                    |
   And the following users exist:
-    | Admin Joe    | admin.joe@example.com   | Admin          | Houston |          |
-    | Admin Joe    | admin.joe@example.com   | Admin          | Houston | rollcall |
-    | Roll User    | roll.user@example.com   | Rollcall       | Houston | rollcall |
+    | Admin Joe    | admin.joe@example.com   | Admin          | Harris  |          |
+    | Admin Joe    | admin.joe@example.com   | Admin          | Harris  | rollcall |
+    | Roll User    | roll.user@example.com   | Rollcall       | Harris  | rollcall |
   And "Houston" has the following current district absenteeism data:
     | day | total_enrolled | total_absent |
     | 1   | 400            | 13           |
@@ -105,14 +104,14 @@ Scenario: User creates Rollcall User
     | Confirm password  | Password1               |
     | Display name      | Rolly Cally             |
     | Language          | English                 |
-    | Home Jurisdiction | Houston                 |
-  And I request the role "Rollcall" for "Houston" in the RolesControl
+    | Home Jurisdiction | Harris                  |
+  And I request the role "Rollcall" for "Harris" in the RolesControl
   And I press "Apply Changes"
   And delayed jobs are processed
   And I should see "The user has been successfully created"
-  And "rolly.cally@example.com" should have the "Public" role for "Houston"
-  And "rolly.cally@example.com" should have the "Rollcall" role for "Houston"
-  And "rolly.cally@example.com" should not receive an email with the subject "Request submitted for Rollcall in Houston"
+  And "rolly.cally@example.com" should have the "Public" role for "Harris"
+  And "rolly.cally@example.com" should have the "Rollcall" role for "Harris"
+  And "rolly.cally@example.com" should not receive an email with the subject "Request submitted for Rollcall in Harris"
   And rollcall user "admin.joe@example.com" should not receive an email
   And I navigate to "Apps > Rollcall > Admin > Users"
   And I wait for the panel to load
@@ -170,9 +169,9 @@ Scenario: User removes school district assigned to Rollcall User
   And I click x-menu-item "Houston"
   And I wait for the panel to load
   And I wait for the panel to load
-  And I should see "Houston" in column "Districts" within "rollcall_users_grid"
+  And I should see "Houston" within ".x-grid3-cell"
   And I click x-grid3-cell "Roll User"
   And I click x-tpl-circle-icon on the "Roll User" grid row
   And I wait for the panel to load
   And I wait for the panel to load
-  Then I should not see "Houston" in column "Schools" within "rollcall_users_grid"
+  Then I should not see "Houston" within ".x-grid3-cell"

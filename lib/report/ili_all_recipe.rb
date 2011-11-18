@@ -1,4 +1,4 @@
-class Report::IliAllRecipe < Report::Recipe
+class Report::Rollcall::IliAllRecipe < Report::Recipe
   class << self
     # create_table :report, :force => true do |t|
     #   t.string    :type

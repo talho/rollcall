@@ -12,7 +12,7 @@ Dir.ensure_exists(File.join(Rails.root, "lib/workers/plugin_workers"))
 
 Dir.ensure_exists(File.join(Rails.root, "app/models/report/rollcall"))
 ["report"].each{ |lib_subdir|
-  rel_path = File.join(Rails.root,"vendor","plugins","rollcall","app","models",lib_subdir)
+  rel_path = File.join(Rails.root,"vendor","plugins","rollcall","lib",lib_subdir)
   target   = File.join(Rails.root,"app","models",lib_subdir, "rollcall")
   Dir["#{rel_path}/*.rb"].each do |d|
     File.symlink(d, "#{target}/#{File.basename(d)}") unless File.symlink?("#{target}/#{File.basename(d)}")

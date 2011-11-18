@@ -816,6 +816,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
       height:    412,
       renderTo:  'nurse_assistant',
       scope:     this,
+      cls:       'nurse_assistant_student_window',
       modal:     true,
       constrain: true,
       items:     {

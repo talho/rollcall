@@ -10,7 +10,10 @@ module Rollcall
 
     def school_districts
       if is_rollcall_admin? || is_super_admin?("rollcall")
-        r = jurisdictions.admin("rollcall").map{|jur| jur.self_and_descendants.map{|j|j.school_districts}.flatten.uniq}.flatten.uniq
+        r = role_memberships.find(:all, :include => [:role, :jurisdiction], :conditions => {:role_id => [Role.admin('rollcall'), Role.superadmin('rollcall')]}).map(
+          &:jurisdiction).map(
+            &:self_and_descendants).flatten.uniq.map(
+              &:school_districts).flatten.uniq
       else
         r = self.school_districts_base.map(&:school_district)
       end
@@ -62,42 +65,23 @@ module Rollcall
     end
 
     def is_rollcall_admin?
-      if role_memberships.detect{ |rm| rm.role == Role.find_by_name_and_application('Admin', 'rollcall')}
-        return true
-      end
-      return false
+      is_admin?('rollcall')
     end
 
     def is_rollcall_user?
-      if role_memberships.detect{|rm| rm.role.application == Role.find_by_application('rollcall').application}
-        return true
-      else
-        return false
-      end
+      has_application?(:rollcall)
     end
 
     def is_rollcall_nurse?
-      if role_memberships.detect{|rm| rm.role == Role.find_by_name_and_application('Nurse', 'rollcall')}
-        return true
-      else
-        return false
-      end
+      has_role?(:nurse, 'rollcall')
     end
 
     def is_rollcall_epi?
-      if role_memberships.detect{|rm| rm.role == Role.find_by_name_and_application('Epidemiologist', 'rollcall')}
-        return true
-      else
-        return false
-      end
+      has_role?(:epidemiologist, 'rollcall')
     end
 
     def is_rollcall_health_officer?
-      if role_memberships.detect{ |rm| rm.role == Role.find_by_name_and_application('Health Officer', 'rollcall')}
-        return true
-      else
-        return false
-      end
+      has_role?(:health_officer, 'rollcall')
     end
 
     def school_search(params)

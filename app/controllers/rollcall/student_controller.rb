@@ -54,7 +54,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
 
   # POST rollcall/students
   def create
-    report_date = Time.gm(Time.now.year, Time.now.month, Time.now.day)
+    report_date =  Date.today.to_datetime.to_time
     race        = [
       {:id => 0, :value => 'Select Race...'},
       {:id => 1, :value => 'White'},
@@ -75,9 +75,9 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
         :zip                => params[:zip],
         :gender             => params[:gender].first,
         :phone              => params[:phone].to_i,
-        :race               => race.each do |rec, index| rec[:value] == params[:race] ? index : 0  end,
+        :race               => race.each{ |rec, index| rec[:value] == params[:race] ? index : 0 },
         :school_id          => params[:school_id].to_i,
-        :dob                => Time.parse("#{params[:dob]}"),
+        :dob                => DateTime.strptime(params[:dob].to_s, "%m/%d/%Y"),
         :student_number     => params[:student_number]
       )  
     end
@@ -133,7 +133,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       :address            => params[:address],
       :zip                => params[:zip],
       :phone              => params[:phone],
-      :dob                => Time.parse("#{params[:dob]}"),
+      :dob                => DateTime.strptime(params[:dob].to_s, "%m/%d/%Y"),
       :student_number     => params[:student_number],
       :gender             => params[:gender].first,
       :race               => race.each do |rec, index| rec[:value] == params[:race] ? index : 0  end

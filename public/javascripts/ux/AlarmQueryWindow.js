@@ -6,7 +6,8 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
     Ext.apply(this,{
       layout:       'fit',
       width:        300,
-      autoHeight:   true,
+      //autoHeight:   true,
+      //height:       200,
       modal:        true,
       constrain:    true,
 	    renderTo:     config.render_to,
@@ -14,6 +15,13 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
       title:        config.alarm_query_title,
       plain:        true,
       result_panel: this,
+      defaults: {
+        listeners:{
+          afterrender: function(this_obj){
+            this_obj.doLayout();
+          }
+        }
+      },
       items: [{
         xtype:      'form',
         id:         config.form_id,
@@ -226,7 +234,12 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
         }]
       }],
       buttonAlign: 'right',
-      buttons: [config.buttons]
+      buttons: [config.buttons],
+      listeners:{
+        afterrender: function(this_window){
+          this_window.doLayout();
+        }
+      }
     });
     Talho.Rollcall.ux.AlarmQueryWindow.superclass.constructor.call(this);
   },

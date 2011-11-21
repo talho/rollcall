@@ -28,38 +28,40 @@ class AttendanceImporter < SchoolDataImporter
     @end_enrolled = 0
     @schools.uniq!
     Rollcall::School.find(:all, :conditions => ["id IN (?)", @schools]).each do |s|
-      unless Rollcall::SchoolDailyInfo.find_by_school_id(s.id).blank?
-        Rollcall::SchoolDailyInfo.find(:all,
-          :conditions => ["school_id = ? AND created_at > ?", s.id, Time.now.strftime("%Y-%m-%d")],
-          :order      => "report_date ASC"
-        ).each {|r|
-            report_time = r.report_date.to_time
-            if @s_i.blank?
-              #if !@new_rrd.blank?
-              #  @s_i = [ [report_time.to_i.to_s, 0, recs[0].total_enrolled] ]
-              #else
+      if ENV["RAILS_ENV"] == "cucumber" || ENV["RAILS_ENV"] == "test"
+        last_update = `#{@rrd_tool} lastupdate #{@rrd_path}/#{s.tea_id}_c_absenteeism.rrd`
+      else
+        last_update = `#{@rrd_tool} lastupdate #{@rrd_path}/#{s.tea_id}_absenteeism.rrd`
+      end
+      begin
+        last_update = Time.at(last_update.split("\n").last.split(':').first.to_i) + 1.day
+        unless Rollcall::SchoolDailyInfo.find_by_school_id(s.id).blank?
+          Rollcall::SchoolDailyInfo.find(:all,
+            :conditions => ["school_id = ? AND report_date >= ?", s.id, last_update.strftime("%Y-%m-%d")],
+            :order      => "report_date ASC"
+          ).each {|r|
+              report_time = r.report_date.to_time
+              if @s_i.blank?
                 @s_i = []
-              #end
-            end
-            if r.report_date.strftime("%a").downcase == "sat" || r.report_date.strftime("%a").downcase == "sun"
-              @s_i.push([(report_time + 1.day).to_i.to_s, 0, r.total_enrolled])
+              end
+              if r.report_date.strftime("%a").downcase == "sat" || r.report_date.strftime("%a").downcase == "sun"
+                @s_i.push([(report_time + 1.day).to_i.to_s, 0, r.total_enrolled])
+              else
+                @s_i.push([(report_time + 1.day).to_i.to_s, r.total_absent, r.total_enrolled])
+              end
+            }
+          begin
+            puts "Importing RRD Data for #{s.display_name}"
+            if ENV["RAILS_ENV"] == "cucumber" || ENV["RAILS_ENV"] == "test"
+              RRD.update_batch("#{@rrd_path}/#{s.tea_id}_c_absenteeism.rrd", @s_i, "#{@rrd_tool}")
             else
-              @s_i.push([(report_time + 1.day).to_i.to_s, r.total_absent, r.total_enrolled])
+              RRD.update_batch("#{@rrd_path}/#{s.tea_id}_absenteeism.rrd", @s_i, "#{@rrd_tool}")
             end
-            #@end_time     = report_time
-            #@end_enrolled = r.total_enrolled
-          }
-        begin
-          #@s_i.push([(@end_time + 2.days).to_i.to_s, 0, @end_enrolled])
-          puts "Importing RRD Data for #{s.display_name}"
-          if ENV["RAILS_ENV"] == "cucumber" || ENV["RAILS_ENV"] == "test"
-            RRD.update_batch("#{@rrd_path}/#{s.tea_id}_c_absenteeism.rrd", @s_i, "#{@rrd_tool}")
-          else
-            RRD.update_batch("#{@rrd_path}/#{s.tea_id}_absenteeism.rrd", @s_i, "#{@rrd_tool}")
+            @s_i = nil
+          rescue
           end
-          @s_i = nil
-        rescue
         end
+      rescue
       end
     end
   end

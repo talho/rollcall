@@ -41,7 +41,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     this._getResultStore = function()
     {
       return result_store;
-    }
+    };
 
     Talho.Rollcall.ADSTResultPanel.superclass.constructor.call(this, config);
   },
@@ -63,7 +63,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     Ext.each(store.getRange(), function(school_record,i){
       var school           = school_record.json; // TODO
       var school_id        = school.id;
-      var school_name      = school.display_name;
+      var school_name      = typeof school.display_name == "undefined" ? school.name : school.display_name;
       var result_obj       = null;
       var graphImageConfig = {
         title:       'Query Result for '+school_name,
@@ -90,11 +90,13 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
               buttons: Ext.MessageBox.OK,
               icon: Ext.MessageBox.INFO
             });
-          }
+          },
+          hidden: true
         },{
           id:      'gis',
           qtip:    'Show School Profile',
-          handler: this.showSchoolProfile
+          handler: this.showSchoolProfile,
+          hidden:  typeof school.gmap_lat == "undefined" ? true : false
         },{
           id:      'save',
           qtip:    'Save As Alarm',
@@ -421,7 +423,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           alarm_console.close();
         }
       }]
-    }
+    };
     var alarm_console = new Talho.Rollcall.ux.AlarmQueryWindow(o_i);
     alarm_console.doLayout();
     alarm_console.show();

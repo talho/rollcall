@@ -111,7 +111,11 @@ Scenario: User views a school in an alarm state within the GMap Panel
   And I press "Submit" within ".x-window"
   And I should see "Example Query" within "#alarm_queries"
   And I click the "alarm-off" tool on the "Example Query" window
+  And delayed jobs are processed
   And I wait for the panel to load
+  And I should see "Your alarms have been activated"
+  And I press "OK"
+  And I press "Refresh" within "#alarms_c"
   And I should see "Example Query" within "#alarm_grid_panel"
   And I should see "Schools in Alarm State!"
   And I click the "alarm" marker for school "Anderson Elementary"

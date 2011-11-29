@@ -113,5 +113,8 @@ Scenario: User receives alarm alert
   And I click the "alarm-off" tool on the "Example Query" window
   And delayed jobs are processed
   And I wait for the panel to load
+  And I should see "Your alarms have been activated"
+  And I press "OK"
+  And I press "Refresh" within "#alarms_c"
   And I should see "Example Query" within "#alarm_grid_panel" 
   Then "nurse.betty@example.com" should receive an email with title "New Alarm for Anderson Elementary[extreme]"

@@ -18,7 +18,7 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
         fields:   ['id', 'name'],
         proxy:    new Ext.data.HttpProxy({url: '/rollcall/alarm_query', method: 'get'}),
         listeners:{
-          scope: this,
+          scope:      this,
           beforeload: function(this_store, options)
           {
             this_store.container_mask = new Ext.LoadMask(this.getEl(), {msg:"Please wait..."});
@@ -28,42 +28,36 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
         }
       })
     });
-
     Talho.Rollcall.ADSTAlarmQueriesPanel.superclass.constructor.call(this, config);
   },
 
   loadAlarmQueries: function(this_store, alarm_queries)
   {
-    var result_obj          = null;
-    var column_obj          = null;
-    var alarm_id            = '';
-    var q_tip               = '';
+    var result_obj = null;
+    var column_obj = null;
+    var alarm_id   = '';
+    var q_tip      = '';
     if(alarm_queries.length == 0){
       column_obj = this.add({itemId: 'empty_alarm_query_container'});
       result_obj = column_obj.add({
         cls:    'ux-alarm-thumbnails',
         html:   '<div class="ux-empty-alarm-query-container"><p>There are no alarm queries.</p></div>',
         height: 100,
-        width: 300
+        width:  300
       });
     }else{
-      if(this.getComponent('empty_alarm_query_container')){
-        this.getComponent('empty_alarm_query_container').destroy();
-      }
+      if(this.getComponent('empty_alarm_query_container')) this.getComponent('empty_alarm_query_container').destroy();
       for(var cnt=0;cnt<alarm_queries.length;cnt++){
         var param_config          = alarm_queries[cnt].json;
         var myData                = new Array();
         param_config.query_params = Ext.decode(alarm_queries[cnt].json.query_params);
         alarm_id                  = (param_config.alarm_set) ? 'alarm-on' : 'alarm-off';
         column_obj                = this.add({});
-                
         myData.push(['severity_min', param_config.severity_min]);
         myData.push(['severity_max', param_config.severity_max]);
         myData.push(['deviation_min', param_config.deviation_min]);
         myData.push(['deviation_max', param_config.deviation_max]);
-        for(param in param_config.query_params){
-          myData.push([param, param_config.query_params[param]]);
-        }
+        for(param in param_config.query_params){myData.push([param, param_config.query_params[param]]);}
         var store = new Ext.data.ArrayStore({
           fields: [
             {name: 'settings'},
@@ -209,36 +203,37 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
   {
     var alarm_set = false;
     if(targetEl.hasClass('x-tool-alarm-off')) alarm_set = true;
-    Ext.getCmp('alarm_panel').alarms_store.container_mask.show();
+    if(alarm_set == false) Ext.getCmp('alarm_panel').alarms_store.container_mask.show();
     Ext.Ajax.request({
-      url:    '/rollcall/alarm_query/'+panel.param_config.id+'.json',
-      params: {
-        alarm_set: alarm_set
-      },
-      method:  'PUT',
+      url:      '/rollcall/alarm_query/'+panel.param_config.id+'.json',
+      params:   {alarm_set: alarm_set},
+      method:   'PUT',
       callback: function(options, success, response)
       {
-        Ext.Ajax.request({
-          url:      '/rollcall/alarm/'+panel.param_config.id,
-          callback: function(options, success, response){
-            if(alarm_set) Ext.getCmp('alarm_panel').getComponent(0).getStore().load({
-              add: true,
-              params:{
-                alarm_query_id: panel.param_config.id
-              }
-            });
-            else Ext.getCmp('alarm_panel').getComponent(0).getStore().load();
-            targetEl.toggleClass('x-tool-alarm-off');
-            targetEl.toggleClass('x-tool-alarm-on');
-          },
-          failure: function(){
+        if(alarm_set == false){
+          Ext.getCmp('alarm_panel').getComponent(0).getStore().load();
+          targetEl.toggleClass('x-tool-alarm-off');
+          targetEl.toggleClass('x-tool-alarm-on');
+        }else{
+          Ext.Ajax.request({
+            url:      '/rollcall/alarms/',
+            method:   'POST',
+            params:   {alarm_query_id: panel.param_config.id},
+            callback: function(options,success,response){
+              Ext.MessageBox.show({
+                title:   'Creating Alarms',
+                msg:     'Your alarms have been activated and the system will alert you via email when any alarms are generated.',
+                buttons: Ext.MessageBox.OK,
+                icon:    Ext.MessageBox.INFO
+              });
+              targetEl.toggleClass('x-tool-alarm-off');
+              targetEl.toggleClass('x-tool-alarm-on');
+            }
+          });
 
-          }
-        });
+        }
       },
-      failure: function(){
-
-      }
+      failure: function(){}
     });
   },
 

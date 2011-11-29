@@ -41,6 +41,8 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           items:      new Talho.Rollcall.ADSTAlarmQueriesPanel({adst_panel: this})
         },{
           title:     'Alarms',
+          itemId:    'alarms_c',
+          id:        'alarms_c',
           region:    'west',
           layout:    'fit',
           bodyStyle: 'padding:0px',

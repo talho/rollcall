@@ -81,7 +81,6 @@ class Rollcall::Rrd < Rollcall::Base
       :notify_of_document_addition => true,
       :owner => user_obj) if folder.blank?
 
-    folder.audience.recipients(:force => true).length if folder.audience
     @document          = user_obj.documents.build(:folder_id => folder.id, :file => file)
     @document.save!
     if !@document.folder.nil? && @document.folder.notify_of_document_addition

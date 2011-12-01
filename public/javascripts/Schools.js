@@ -277,12 +277,13 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
     });
     marker.info_popup = new google.maps.InfoWindow({content: marker.info});
     marker.info_popup.open(gmap_panel.gmap, marker);
-    this.gmap_panel.ownerCt.show();
-    this.gmap_panel.ownerCt.doLayout();
+    //this.gmap_panel.ownerCt.show();
+    //this.gmap_panel.ownerCt.doLayout();
     profile_panel.show();
     profile_panel.doLayout();
     this.school_grid_panel().ownerCt.ownerCt.getComponent('sch_tpl_cnt').update(school.data);
     grid_panel.ownerCt.ownerCt.doLayout();
+    grid_panel.ownerCt.doLayout();
     main_panel.doLayout();
     this.getSchoolData(1, this.school_grid_panel(), 'school', school.get('id'));
     this.getSchoolData(1, this.student_grid_panel(), 'student', school.get('id'));
@@ -309,7 +310,8 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
         grid_panel.store.loadData(jsonObj);
         grid_owner.doLayout();
         grid_mask.hide();
-        if(data_type == "student") this.grid_mask.hide();
+        this.grid_mask.hide();
+        //if(data_type == "student") this.grid_mask.hide();
       }
     });
   }

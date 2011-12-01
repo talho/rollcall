@@ -63,6 +63,7 @@ Talho.Rollcall.ADSTSimpleContainer = Ext.extend(Ext.Container, {
               select: function(comboBox, record, index){
                 Ext.getCmp('school_district_simple').clearValue();
                 Ext.getCmp('school_type_simple').clearValue();
+                Ext.getCmp('return_individual_school_simple').setValue(true);               
               }
             }
           })

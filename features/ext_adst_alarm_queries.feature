@@ -54,28 +54,53 @@ Background:
     | day | total_enrolled | total_absent |
     | 1   | 400            | 13           |
     | 2   | 400            | 14           |
+    | 3   | 400            | 13           |
+    | 4   | 400            | 10           |
+    | 5   | 400            | 7            |
+    | 6   | 400            | 8            |
   And "Houston" has the following current school absenteeism data:
     | day | school_name         | total_enrolled | total_absent |
-    | 1   | Anderson Elementary | 100            | 2            |
-    | 2   | Anderson Elementary | 100            | 5            |
+    | 1   | Anderson Elementary | 100            | 5            |
+    | 2   | Anderson Elementary | 100            | 4            |
+    | 3   | Anderson Elementary | 100            | 3            |
+    | 4   | Anderson Elementary | 100            | 2            |
     | 1   | Ashford Elementary  | 100            | 1            |
     | 2   | Ashford Elementary  | 100            | 4            |
+    | 3   | Ashford Elementary  | 100            | 5            |
+    | 4   | Ashford Elementary  | 100            | 3            |
     | 1   | Yates High School   | 200            | 10           |
     | 2   | Yates High School   | 200            | 5            |
+    | 3   | Yates High School   | 200            | 4            |
+    | 4   | Yates High School   | 200            | 4            |
   And "Houston" has the following current student absenteeism data:
     | day | school_name         | age      | first_name | last_name | dob        | grade | gender | confirmed_ill | symptoms                    | student_number |
-    | 1   | Anderson Elementary | 8        |            |           | 02/13/2003 | 2     | M      | true          | Cough,Temperature           |                |
+    | 1   | Anderson Elementary | 8        | John       | Dorian    | 02/13/2003 | 2     | M      | true          | Cough,Temperature,Chills    | 10055500       |
+    | 1   | Anderson Elementary | 6        |            |           | 12/01/2005 | 1     | F      | false         |                             |                |
+    | 1   | Anderson Elementary | 6        |            |           | 09/11/2005 | 1     | F      | false         |                             |                |
+    | 1   | Anderson Elementary | 8        |            |           | 05/01/2003 | 2     | M      | true          | Congestion,Cough,Headache   |                |
     | 1   | Anderson Elementary | 7        |            |           | 03/01/2004 | 1     | F      | false         |                             |                |
     | 2   | Anderson Elementary | 8        | John       | Dorian    | 02/13/2003 | 2     | M      | true          | Cough,Temperature,Chills    | 10055500       |
     | 2   | Anderson Elementary | 6        |            |           | 12/01/2005 | 1     | F      | false         |                             |                |
     | 2   | Anderson Elementary | 6        |            |           | 09/11/2005 | 1     | F      | false         |                             |                |
     | 2   | Anderson Elementary | 8        |            |           | 05/01/2003 | 2     | M      | true          | Congestion,Cough,Headache   |                |
-    | 2   | Anderson Elementary | 7        |            |           | 03/01/2004 | 1     | F      | false         |                             |                |
+    | 3   | Anderson Elementary | 7        |            |           | 02/15/2004 | 1     | M      | true          | Cough                       |                |
+    | 3   | Anderson Elementary | 7        |            |           | 04/05/2004 | 1     | M      | true          | Cough                       |                |
+    | 3   | Anderson Elementary | 7        |            |           | 03/25/2004 | 1     | F      | false         |                             |                |
+    | 4   | Anderson Elementary | 8        |            |           | 02/13/2003 | 2     | M      | true          | Cough,Temperature           |                |
+    | 4   | Anderson Elementary | 7        |            |           | 03/01/2004 | 1     | F      | false         |                             |                |    
     | 1   | Ashford Elementary  | 9        |            |           | 05/12/2002 | 3     | F      | true          | Influenza                   |                |
     | 2   | Ashford Elementary  | 8        |            |           | 01/02/2003 | 2     | F      | true          | Temperature                 |                |
     | 2   | Ashford Elementary  | 7        |            |           | 01/22/2004 | 2     | M      | true          | None                        |                |
     | 2   | Ashford Elementary  | 7        | Chris      | Turk      | 08/27/2004 | 2     | F      | true          | Temperature                 | 900800700      |
     | 2   | Ashford Elementary  | 8        |            |           | 02/12/2003 | 2     | M      | true          | Temperature,Cough           |                |
+    | 3   | Ashford Elementary  | 8        |            |           | 01/02/2003 | 2     | F      | true          | Temperature                 |                |
+    | 3   | Ashford Elementary  | 7        |            |           | 01/22/2004 | 2     | M      | true          | None                        |                |
+    | 3   | Ashford Elementary  | 7        | Chris      | Turk      | 08/27/2004 | 2     | F      | true          | Temperature                 | 900800700      |
+    | 3   | Ashford Elementary  | 8        |            |           | 02/12/2003 | 2     | M      | true          | Temperature,Cough           |                |
+    | 3   | Ashford Elementary  | 8        |            |           | 02/12/2003 | 2     | M      | true          | Temperature,Cough           |                |
+    | 4   | Ashford Elementary  | 8        |            |           | 04/22/2003 | 2     | F      | false         |                             |                |
+    | 4   | Ashford Elementary  | 7        |            |           | 01/12/2004 | 1     | M      | false         |                             |                |
+    | 4   | Ashford Elementary  | 8        |            |           | 05/12/2003 | 2     | M      | true          | Cough,Temperature           |                |
     | 1   | Yates High School   | 16       |            |           | 06/16/1995 | 10    | M      | false         |                             |                |
     | 1   | Yates High School   | 18       |            |           | 04/26/1993 | 12    | F      | false         |                             |                |
     | 1   | Yates High School   | 18       |            |           | 02/19/1993 | 12    | M      | false         |                             |                |
@@ -91,6 +116,14 @@ Background:
     | 2   | Yates High School   | 17       |            |           | 04/23/1994 | 10    | F      | false         |                             |                |
     | 2   | Yates High School   | 18       |            |           | 10/17/1993 | 12    | M      | true          | Chills,Cough,Headache       |                |
     | 2   | Yates High School   | 18       |            |           | 07/23/1993 | 12    | M      | true          | Chills,Temperature,Headache |                |
+    | 3   | Yates High School   | 15       |            |           | 08/04/1996 | 09    | F      | false         |                             |                |
+    | 3   | Yates High School   | 17       |            |           | 12/13/1994 | 11    | M      | false         |                             |                |
+    | 3   | Yates High School   | 17       |            |           | 04/23/1994 | 10    | F      | false         |                             |                |
+    | 3   | Yates High School   | 18       |            |           | 10/17/1993 | 12    | M      | true          | Chills,Cough,Headache       |                |
+    | 4   | Yates High School   | 16       |            |           | 03/08/1995 | 10    | M      | true          | Chills,Cough                |                |
+    | 4   | Yates High School   | 17       |            |           | 06/21/1994 | 10    | F      | true          | Lethargy,Headache           |                |
+    | 4   | Yates High School   | 17       |            |           | 02/11/1994 | 10    | F      | false         |                             |                |
+    | 4   | Yates High School   | 18       |            |           | 11/09/1993 | 12    | F      | true          | Temperature,Cough           |                |
 
   And I am logged in as "nurse.betty@example.com"
   And I navigate to the ext dashboard page
@@ -159,7 +192,11 @@ Scenario: User toggles Alarm
   And I press "Submit" within ".x-window"
   Then I should see "Example Query" within "#alarm_queries"
   And I click the "alarm-off" tool on the "Example Query" window
+  And delayed jobs are processed
   And I wait for the panel to load
+  And I should see "Your alarms have been activated"
+  And I press "OK"
+  And I press "Refresh" within "#alarms_c"
   Then I should see "Example Query" within "#alarm_grid_panel"
 
 Scenario: User executes search query off of an existing Alarm Query
@@ -172,6 +209,5 @@ Scenario: User executes search query off of an existing Alarm Query
   And I click the "run-query" tool on the "Example Query" window
   And delayed jobs are processed
   And I wait for the panel to load   
-  #When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
   And I should not see graphs "DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
   Then I should see graphs "DF-Raw_101912105_c_absenteeism.png" within the results

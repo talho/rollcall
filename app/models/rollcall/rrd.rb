@@ -59,19 +59,66 @@ class Rollcall::Rrd < Rollcall::Base
   end
 
   def self.export_rrd_data params, filename, user_obj
-    initial_result = user_obj.school_search params
-    unless params[:startdt].blank?
-      start_date = Time.gm(Time.parse(params[:startdt]).year,Time.parse(params[:startdt]).month,Time.parse(params[:startdt]).day)
-    else
-      start_date = Time.gm(Time.now.year,"aug",01,0,0)
+    initial_result = user_obj.school_search params if params[:return_individual_school]
+    initial_result = user_obj.school_districts if params[:return_individual_school].blank?
+    conditions     = set_conditions params
+    if params[:school_district] && params[:return_individual_school].blank?
+      initial_result = initial_result.find_all{|r| params[:school_district].include?(r.name)}
     end
-    unless params[:enddt].blank?
-      end_date = Time.gm(Time.parse(params[:enddt]).year,Time.parse(params[:enddt]).month,Time.parse(params[:enddt]).day)
-    else
-      end_date = Time.gm(Time.now.year,Time.now.month,Time.now.day)
+
+    update_ary = []
+    initial_result.each do |i|
+      unless params[:startdt].blank?
+        conditions[:startdt] = params[:startdt]
+      else
+        conditions[:startdt] = "08/01/#{Time.now.year}"
+      end
+      unless params[:enddt].blank?
+        conditions[:enddt] = params[:enddt]
+      else
+        conditions[:enddt] = Time.now.strftime("%m/%d/%Y")
+      end
+      if i[:tea_id].blank?
+        Rollcall::SchoolDistrict.find_by_district_id(i[:district_id]).schools.each{|s|
+          t_array = build_update_array s.id, conditions
+          t_array.pop()
+          t_array.delete_at(0)
+          t_array.each{|t|
+            gm_time = Time.gm(Time.at(t.first.to_i).year,Time.at(t.first.to_i).month,Time.at(t.first.to_i).day) - 1.day
+            t[0] = gm_time
+            t.push(i.name)
+            t.push(i.district_id)
+          }
+          unless update_ary.blank?
+            update_ary.each{|u|
+              @t_count = 0
+              t_array.each{|t|
+                if u.first == t.first
+                  u[1] += t[1]
+                  u[2] += t[2]
+                  t_array.delete_at(@t_count)
+                  break
+                end
+                @t_count += 1
+              }
+            }
+          end
+          update_ary += t_array
+          update_ary.sort!{|a,b| a.first <=> b.first}
+        }
+      else
+        update_ary = build_update_array Rollcall::School.find_by_tea_id(i[:tea_id]).id, conditions
+        update_ary.pop()
+        update_ary.delete_at(0)
+        update_ary.each{|u|
+          gm_time = Time.gm(Time.at(u.first.to_i).year,Time.at(u.first.to_i).month,Time.at(u.first.to_i).day) - 1.day
+          u[0]    = gm_time
+          u.push(i.display_name)
+          u.push(i.tea_id)
+        }
+      end
     end
-    conditions         = set_conditions params
-    @csv_data          = build_csv_string initial_result, end_date, start_date, conditions
+    @csv_data          = build_csv_string update_ary
     newfile            = File.join(Rails.root,'tmp',"#{filename}.csv")
     file_result        = File.open(newfile, 'wb') {|f| f.write(@csv_data) }
     file               = File.new(newfile, "r")
@@ -90,7 +137,7 @@ class Rollcall::Rrd < Rollcall::Base
   end
 
   def self.generate_report params, user_obj
-    initial_result    = user_obj.school_search params
+    initial_result     = user_obj.school_search params
     test_data_date     = Time.parse("08/01/#{Time.now.month >= 8 ? Time.now.year : (Time.now.year - 1)}")
     start_date         = params[:startdt].blank? ? test_data_date : Time.parse(params[:startdt])
     end_date           = params[:enddt].blank? ? Time.now : Time.parse(params[:enddt])
@@ -180,21 +227,24 @@ class Rollcall::Rrd < Rollcall::Base
       }, "#{rrd_tool}")
   end
 
-  def self.build_csv_string data_obj, end_date, start_date, conditions
-    csv_data = "School Name,TEA ID,Total Absent,Total Enrolled,Report Date\n"
-    days     = ((end_date - start_date) / 86400)
-    data_obj.each do |rec|      
-      (0..days).each do |i|
-        report_date  = start_date + i.days
-        school_info  = Rollcall::SchoolDailyInfo.find_by_report_date_and_school_id(report_date, rec.id)
-        unless school_info.blank?
-          total_enrolled      = school_info.total_enrolled
-          total_absent        = get_total_absent report_date, conditions, rec.id
-          total_absent_string = total_absent == false ? "Not available" : total_absent
-          csv_data            = "#{csv_data}#{rec.display_name},#{rec.tea_id},#{total_absent_string},#{total_enrolled},#{report_date}\n"
-        end
+  def self.build_csv_string data_obj
+    csv_data = "Name,Identifier,Total Absent,Total Enrolled,Report Date\n"
+    trip     = false
+    count    = data_obj.length
+    data_obj.reverse_each{|d|
+      count -= 1
+      if d[1].to_s == "0"
+        data_obj.delete_at(count)
+      else
+        break
       end
-    end
+    }
+    data_obj.each{|d|
+      trip = true if d[1].to_s != "0"
+      if trip
+        csv_data = "#{csv_data}#{d[3]},#{d.last},#{d[1]},#{d[2]},#{d.first}\n"
+      end
+    }
     csv_data
   end
 
@@ -328,7 +378,7 @@ class Rollcall::Rrd < Rollcall::Base
       if type == "district"
         update_ary = []
         Rollcall::SchoolDistrict.find_by_district_id(record_id).schools.each{|s|
-          t_array = build_rrd_update_array s.id, conditions
+          t_array = build_update_array s.id, conditions
           unless update_ary.blank?
             update_ary.each{|u|
               @t_count = 0
@@ -347,7 +397,7 @@ class Rollcall::Rrd < Rollcall::Base
           update_ary.sort!{|a,b| a.first <=> b.first}
         }
       else
-        update_ary = build_rrd_update_array record_id, conditions
+        update_ary = build_update_array record_id, conditions
       end
       rrd_path = File.join(Rails.root, "/rrd/")
       rrd_tool = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
@@ -357,7 +407,7 @@ class Rollcall::Rrd < Rollcall::Base
     self.send_later(:graph, rrd_file, image_file, graph_title, params)
   end
 
-  def self.build_rrd_update_array record_id, conditions
+  def self.build_update_array record_id, conditions
     students           = Rollcall::Student.find_all_by_school_id(record_id)
     student_daily_info = Rollcall::StudentDailyInfo.find_all_by_student_id(students, :order => "report_date ASC")
     if !conditions[:startdt].blank?

@@ -115,7 +115,7 @@ module Rollcall
         schools.find_all{|s| s.district_id == district_id }
       else
         r = schools.find_all{|s| s.school_type == params[:school_type] } unless params[:school_type].blank?
-        r = schools.find{|s| s.display_name == params[:school] } unless params[:school].blank?
+        r = schools.find_all{|s| s.display_name == params[:school] } unless params[:school].blank?
         r = schools if params[:school].blank? && params[:school_type].blank?
         r = [r] unless r.kind_of?(Array)
         r

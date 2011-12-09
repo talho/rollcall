@@ -1,20 +1,21 @@
-<%- results.map(){|a|a["tea_id"]}.uniq.each do |b| -%>
-
-  <%- filtered = filters.present? ? "(FILTERED)" : "" -%>
-  <%- content_tag(:table,:cellspacing=>"0", :class=>"BreadnButter") do -%>
-    <%= content_tag(:caption, "Schools #{filtered} as of #{Time.now}", :style=>"text-align:center")%>
-    <%- content_tag(:thead) do -%>
-      <%- content_tag(:tr) do -%>
-        <%=content_tag(:th,"Name")%>
-        <%=content_tag(:th,"TeaID")%>
-        <%=content_tag(:th,"Attendance")%>
-        <%=content_tag(:th,"Enrollment")%>
-        <%=content_tag(:th,"AbsenteePercentage")%>
-        <%=content_tag(:th,"Severity")%>
+<div class="rollcall_report">
+  <h1>Attendance Report</h1>
+  <%- entries.map(){|a|a["tea_id"]}.uniq.each do |b| -%>
+    <%- filtered = filters.present? ? "(FILTERED)" : "" -%>
+    <%- content_tag(:table,:cellspacing=>"0", :class=>"zebra-striped") do -%>
+      <%= content_tag(:caption, "Schools #{filtered} as of #{Time.now}", :style=>"text-align:center")%>
+      <%- content_tag(:thead) do -%>
+        <%- content_tag(:tr) do -%>
+          <%=content_tag(:th,"Name")%>
+          <%=content_tag(:th,"TeaID")%>
+          <%=content_tag(:th,"Attendance")%>
+          <%=content_tag(:th,"Enrollment")%>
+          <%=content_tag(:th,"AbsenteePercentage")%>
+          <%=content_tag(:th,"Severity")%>
+        <%- end -%>
       <%- end -%>
-    <%- end -%>
-    <%- content_tag(:div, :class=>"nobreak") do -%>
-      <%- results.map(){|c| c if c["tea_id"] == b}.each_with_index do |d,i| -%>
+
+      <%- entries.map(){|c| c if c["tea_id"] == b}.each_with_index do |d,i| -%>
         <%- content_tag(:tr,:class=>"#{(i%2 > 0) ? "Odd" : "Even"}") do -%>
           <%= content_tag(:td, d["display_name"]) %>
           <%= content_tag(:td, d["tea_id"]) %>
@@ -24,7 +25,14 @@
           <%= content_tag(:td, d["severity"]) %>
         <%- end -%>
       <%- end -%>
-    <%- end  -%>
+
+    <%- end -%>
+    <ul class="media-grid">
+      <li>
+        <a href="#">
+          <img src="rrd/DF-Raw_<%= b %>_absenteeism.png" />
+        </a>        
+      </li>
+    </ul>
   <%- end -%>
-  <img src="rrd/DF-Raw_<%= b %>_absenteeism.png" />
-<%- end -%>
+</div>

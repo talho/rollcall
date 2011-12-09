@@ -123,15 +123,8 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                 text:    "Generate Report from Result Set",
                 hidden:  true,
                 scope:   this,
-                handler: function()
-                {
-                  Ext.MessageBox.show({
-                    title: 'Generating Report',
-                    msg: 'Your report will be placed in the report portal when the system '+
-                    'is done generating it. Please check the report portal in a few minutes.',
-                    buttons: Ext.MessageBox.OK,
-                    icon: Ext.MessageBox.INFO
-                  });
+                handler: function(buttonObj, eventObj){
+                  this.showReportMenu(buttonObj.getEl(), null);
                 }
               }],
               listeners:{
@@ -335,7 +328,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     form_panel.buttons[2].show();
     form_panel.buttons[3].show();
     form_panel.buttons[4].show();
-    form_panel.buttons[5].show();
+    //form_panel.buttons[5].show();
     var panel_mask = new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(), {msg:"Please wait..."});
     panel_mask.show();
     result_store.on('load', function(){ panel_mask.hide(); });
@@ -382,6 +375,34 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     });
     this.loadInitMask();
     this.init_store.load();
+  },
+  showReportMenu: function(element, school_id)
+  {
+    var scrollMenu = new Ext.menu.Menu();
+    scrollMenu.add({school_id: school_id, recipe: 'Report::AttendanceAllRecipe', text: 'Attendance Report', handler: this.showReportMessage});
+    scrollMenu.add({school_id: school_id, recipe: 'Report::IliAllRecipe',        text: 'ILI Report',        handler: this.showReportMessage});
+    scrollMenu.show(element);
+  },
+  showReportMessage: function(buttonObj, eventObj)
+  {
+    Ext.Ajax.request({
+      url:      '/rollcall/report',
+      params:   {recipe_id: buttonObj.recipe, school_id: buttonObj.school_id},
+      method:   'GET',
+      callback: function(options, success, response)
+      {
+        var title = 'Generating Report';
+        var msg   = 'Your report will be placed in the report portal when the system '+
+                    'is done generating it. Please check the report portal in a few minutes.';
+        Ext.MessageBox.show({
+          title:   title,
+          msg:     msg,
+          buttons: Ext.MessageBox.OK,
+          icon:    Ext.MessageBox.INFO
+        });
+      },
+      failure: function(){}
+    });
   },
   init_store: null
 });

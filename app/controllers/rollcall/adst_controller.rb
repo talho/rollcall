@@ -64,12 +64,22 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
 
   # GET /rollcall/report
   def report
-    Rollcall::Rrd.send_later(:generate_report, params, current_user)
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => true  
-        }
+    begin
+      recipe             = params[:recipe_id]
+      #@r_school          = Rollcall::School.find_by_id(params[:school_id])
+      #@r_school_district = Rollcall::SchoolDistrict.find_by_id(params[:school_district_id])
+      report             = current_user.reports.create!(:recipe=>recipe,:criteria=>params,:incomplete=>true)
+      unless Rails.env == 'development'
+        Delayed::Job.enqueue( Reporters::Reporter.new(:report_id=>report[:id]) )
+      else
+        Reporters::Reporter.new(:report_id=>report[:id]).perform  # for development
+      end
+      respond_to do |format|
+        format.json {render :json => {:success => true, :id => report[:id]}}
+      end
+    rescue StandardError => error
+      respond_to do |format|
+        format.json {render :json => {:success => false, :msg => error.as_json}, :content_type => 'text/html', :status => 406}
       end
     end
   end

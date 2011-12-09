@@ -1,24 +1,27 @@
-<%- filtered = filters.present? ? "(FILTERED)" : "" -%>
-<%- content_tag(:table,:cellspacing=>"0", :class=>"BreadnButter") do -%>
-  <%= content_tag(:caption, "Schools #{filtered} as of #{Time.now}", :style=>"text-align:center")%>
-  <%- content_tag(:thead) do -%>
-    <%- content_tag(:tr) do -%>
-      <%=content_tag(:th,"Name")%>
-      <%=content_tag(:th,"TeaID")%>
-      <%=content_tag(:th,"Student")%>
-      <%=content_tag(:th,"Symptoms")%>
-      <%=content_tag(:th,"ReportDate")%>
+<div class="rollcall_report">
+  <h1>ILI Report</h1>
+  <%- filtered = filters.present? ? "(FILTERED)" : "" -%>
+  <%- content_tag(:table,:cellspacing=>"0", :class=>"zebra-striped") do -%>
+    <%= content_tag(:caption, "Schools #{filtered} as of #{Time.now}", :style=>"text-align:center")%>
+    <%- content_tag(:thead) do -%>
+      <%- content_tag(:tr) do -%>
+        <%=content_tag(:th,"Name")%>
+        <%=content_tag(:th,"TeaID")%>
+        <%=content_tag(:th,"Student")%>
+        <%=content_tag(:th,"Symptoms")%>
+        <%=content_tag(:th,"ReportDate")%>
+      <%- end -%>
     <%- end -%>
+    <%- content_tag(:div, :class=>"nobreak") do -%>
+      <%- entries.each_with_index do |r,i| -%>
+        <%- content_tag(:tr,:class=>"#{(i%2 > 0) ? "Odd" : "Even"}") do -%>
+          <%= content_tag(:td, r["display_name"]) %>
+          <%= content_tag(:td, r["tea_id"]) %>
+          <%= content_tag(:td, "#{r["student_first_name"]} #{r["student_last_name"]}") %>
+          <%= content_tag(:td, r["symptoms"]) %>
+          <%= content_tag(:td, r["report_date"]) %>
+        <%- end -%>
+      <%- end -%>
+    <%- end  -%>
   <%- end -%>
-  <%- content_tag(:div, :class=>"nobreak") do -%>
-	  <%- results.each_with_index do |r,i| -%>
-	    <%- content_tag(:tr,:class=>"#{(i%2 > 0) ? "Odd" : "Even"}") do -%>
-	      <%= content_tag(:td, r["display_name"]) %>
-	      <%= content_tag(:td, r["tea_id"]) %>
-	      <%= content_tag(:td, "#{r["student_first_name"]} #{r["student_last_name"]}") %>
-        <%= content_tag(:td, r["symptoms"]) %>
-        <%= content_tag(:td, r["report_date"]) %>
-	    <%- end -%>
-	  <%- end -%>
-  <%- end  -%>
-<%- end -%>
+</div>

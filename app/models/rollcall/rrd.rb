@@ -127,29 +127,11 @@ class Rollcall::Rrd < Rollcall::Base
       :name => "Rollcall Documents",
       :notify_of_document_addition => true,
       :owner => user_obj) if folder.blank?
-
     folder.audience.recipients(:force => true).length if folder.audience
     @document          = user_obj.documents.build(:folder_id => folder.id, :file => file)
     @document.save!
     if !@document.folder.nil? && @document.folder.notify_of_document_addition
       DocumentMailer.deliver_rollcall_document_addition(@document, user_obj)
-    end
-    return true
-  end
-
-  def self.generate_report params, user_obj
-    initial_result     = user_obj.school_search params
-    test_data_date     = Time.parse("08/01/#{Time.now.month >= 8 ? Time.now.year : (Time.now.year - 1)}")
-    start_date         = params[:startdt].blank? ? test_data_date : Time.parse(params[:startdt])
-    end_date           = params[:enddt].blank? ? Time.now : Time.parse(params[:enddt])
-    conditions         = set_conditions params
-    report_data        = build_report initial_result, end_date, start_date, conditions
-    report_file        = user_obj.reports.build({:report => report_data, :template => report_template})
-    @document          = user_obj.documents.build({:folder_id => nil, :file => report_file})
-    @document.owner_id = user_obj.id
-    @document.save!
-    if !@document.folder.nil? && @document.folder.notify_of_document_addition
-      DocumentMailer.deliver_document_addition(@document, user_obj)
     end
     return true
   end

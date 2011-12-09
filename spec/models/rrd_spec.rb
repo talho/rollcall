@@ -84,17 +84,4 @@ describe Rollcall::Rrd do
       File.exists?(File.join(Rails.root, "/rrd/", @result.file_name)).should == true
     end
   end
-#  TO BE IMPLEMENTED 
-#  describe "generate_report" do
-#    before(:each) do
-#      @user = Factory(:user)
-#      @rrd  = Factory(:rollcall_rrd)
-#      @role_membership = Factory(:role_membership, :user => @user, :jurisdiction => @rrd.school.district.jurisdiction)
-#      @result = Rollcall::Rrd.generate_report({:absent => 'gross'},@user)
-#    end
-#    it "returns true" do
-#      @result.should == true
-#    end
-#    it "creates a "
-#  end
 end

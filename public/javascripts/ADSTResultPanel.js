@@ -81,17 +81,11 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         },{
           id:      'report',
           qtip:    'Generate Report',
-          handler: function(e, targetEl, panel, tc)
-          {
-            Ext.MessageBox.show({
-              title: 'Generating Report',
-              msg: 'Your report will be placed in the report portal when the system '+
-              'is done generating it. Please check the report portal in a few minutes.',
-              buttons: Ext.MessageBox.OK,
-              icon: Ext.MessageBox.INFO
-            });
-          },
-          hidden: true
+          scope:   this,
+          handler: function(e, targetEl, panel, tc){
+            var adst_container = panel.ownerCt.ownerCt.ownerCt.ownerCt.ownerCt;
+            adst_container.showReportMenu(targetEl, school_id);
+          }
         },{
           id:      'gis',
           qtip:    'Show School Profile',

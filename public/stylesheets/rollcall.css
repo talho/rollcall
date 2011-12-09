@@ -31,11 +31,11 @@
   height:32px !important;
 }
 .ux-empty-alarm-query-container{
-  background: url(/stylesheets/rollcall/images/saved_query_icon_ext.png) no-repeat;
-  height: 60px;
+  background: url(/images/info_icon.png) no-repeat;
+  height: 40px;
 }
 .ux-empty-alarm-query-container p{
-  padding:5px 0px 0px 70px;
+  padding:10px 0px 0px 50px;
   font-size: 1.5em;
 }
 .ux-query-form{
@@ -221,4 +221,243 @@
 .add_school_btn,
 .add_school_district_btn{
   background: url(/images/add.png);
+}
+/*
+ * Tables.less
+ * Tables for, you guessed it, tabular data
+ * ---------------------------------------- */
+.rollcall_report table {
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 0;
+  font-size: 13px;
+  border-collapse: collapse;
+}
+.rollcall_report table th, .rollcall_report table td {
+  padding: 10px 10px 9px;
+  line-height: 18px;
+  text-align: left;
+}
+.rollcall_report table th {
+  padding-top: 9px;
+  font-weight: bold;
+  vertical-align: middle;
+}
+.rollcall_report table td {
+  vertical-align: top;
+  border-top: 1px solid #ddd;
+}
+.rollcall_report table tbody th {
+  border-top: 1px solid #ddd;
+  vertical-align: top;
+}
+.condensed-table th, .condensed-table td {
+  padding: 5px 5px 4px;
+}
+.bordered-table {
+  border: 1px solid #ddd;
+  border-collapse: separate;
+  *border-collapse: collapse;
+  /* IE7, collapse table to remove spacing */
+
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+.bordered-table th + th, .bordered-table td + td, .bordered-table th + td {
+  border-left: 1px solid #ddd;
+}
+.bordered-table thead tr:first-child th:first-child, .bordered-table tbody tr:first-child td:first-child {
+  -webkit-border-radius: 4px 0 0 0;
+  -moz-border-radius: 4px 0 0 0;
+  border-radius: 4px 0 0 0;
+}
+.bordered-table thead tr:first-child th:last-child, .bordered-table tbody tr:first-child td:last-child {
+  -webkit-border-radius: 0 4px 0 0;
+  -moz-border-radius: 0 4px 0 0;
+  border-radius: 0 4px 0 0;
+}
+.bordered-table tbody tr:last-child td:first-child {
+  -webkit-border-radius: 0 0 0 4px;
+  -moz-border-radius: 0 0 0 4px;
+  border-radius: 0 0 0 4px;
+}
+.bordered-table tbody tr:last-child td:last-child {
+  -webkit-border-radius: 0 0 4px 0;
+  -moz-border-radius: 0 0 4px 0;
+  border-radius: 0 0 4px 0;
+}
+.rollcall_report table .span1 {
+  width: 20px;
+}
+.rollcall_report table .span2 {
+  width: 60px;
+}
+.rollcall_report table .span3 {
+  width: 100px;
+}
+.rollcall_report table .span4 {
+  width: 140px;
+}
+.rollcall_report table .span5 {
+  width: 180px;
+}
+.rollcall_report table .span6 {
+  width: 220px;
+}
+.rollcall_report table .span7 {
+  width: 260px;
+}
+.rollcall_report table .span8 {
+  width: 300px;
+}
+.rollcall_report table .span9 {
+  width: 340px;
+}
+.rollcall_report table .span10 {
+  width: 380px;
+}
+.rollcall_report table .span11 {
+  width: 420px;
+}
+.rollcall_report table .span12 {
+  width: 460px;
+}
+.rollcall_report table .span13 {
+  width: 500px;
+}
+.rollcall_report table .span14 {
+  width: 540px;
+}
+.rollcall_report table .span15 {
+  width: 580px;
+}
+.rollcall_report table .span16 {
+  width: 620px;
+}
+.zebra-striped tbody tr:nth-child(odd) td, .zebra-striped tbody tr:nth-child(odd) th {
+  background-color: #f9f9f9;
+}
+.zebra-striped tbody tr:hover td, .zebra-striped tbody tr:hover th {
+  background-color: #f5f5f5;
+}
+.rollcall_report table .header {
+  cursor: pointer;
+}
+.rollcall_report table .header:after {
+  content: "";
+  float: right;
+  margin-top: 7px;
+  border-width: 0 4px 4px;
+  border-style: solid;
+  border-color: #000 transparent;
+  visibility: hidden;
+}
+.rollcall_report table .headerSortUp, table .headerSortDown {
+  background-color: rgba(141, 192, 219, 0.25);
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+}
+.rollcall_report table .header:hover:after {
+  visibility: visible;
+}
+.rollcall_report table .headerSortDown:after, table .headerSortDown:hover:after {
+  visibility: visible;
+  filter: alpha(opacity=60);
+  -khtml-opacity: 0.6;
+  -moz-opacity: 0.6;
+  opacity: 0.6;
+}
+.rollcall_report table .headerSortUp:after {
+  border-bottom: none;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid #000;
+  visibility: visible;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  filter: alpha(opacity=60);
+  -khtml-opacity: 0.6;
+  -moz-opacity: 0.6;
+  opacity: 0.6;
+}
+.rollcall_report table .blue {
+  color: #049cdb;
+  border-bottom-color: #049cdb;
+}
+.rollcall_report table .headerSortUp.blue, table .headerSortDown.blue {
+  background-color: #ade6fe;
+}
+.rollcall_report table .green {
+  color: #46a546;
+  border-bottom-color: #46a546;
+}
+.rollcall_report table .headerSortUp.green, table .headerSortDown.green {
+  background-color: #cdeacd;
+}
+.rollcall_report table .red {
+  color: #9d261d;
+  border-bottom-color: #9d261d;
+}
+.rollcall_report table .headerSortUp.red, table .headerSortDown.red {
+  background-color: #f4c8c5;
+}
+.rollcall_report table .yellow {
+  color: #ffc40d;
+  border-bottom-color: #ffc40d;
+}
+.rollcall_report table .headerSortUp.yellow, table .headerSortDown.yellow {
+  background-color: #fff6d9;
+}
+.rollcall_report table .orange {
+  color: #f89406;
+  border-bottom-color: #f89406;
+}
+.rollcall_report table .headerSortUp.orange, table .headerSortDown.orange {
+  background-color: #fee9cc;
+}
+.rollcall_report table .purple {
+  color: #7a43b6;
+  border-bottom-color: #7a43b6;
+}
+.rollcall_report table .headerSortUp.purple, table .headerSortDown.purple {
+  background-color: #e2d5f0;
+}
+
+.media-grid {
+  margin-left: -20px;
+  margin-bottom: 0;
+  zoom: 1;
+}
+.media-grid:before, .media-grid:after {
+  display: table;
+  content: "";
+  zoom: 1;
+}
+.media-grid:after {
+  clear: both;
+}
+.media-grid li {
+  display: inline;
+}
+.media-grid a {
+  float: left;
+  padding: 4px;
+  margin: 0 0 18px 20px;
+  border: 1px solid #ddd;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
+  -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+.media-grid a img {
+  display: block;
+}
+.media-grid a:hover {
+  border-color: #0069d6;
+  -webkit-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+  -moz-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+  box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
 }

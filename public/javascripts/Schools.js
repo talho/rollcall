@@ -54,7 +54,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
     var school_grid_panel = new Ext.grid.GridPanel({
       forceLayout: true,
       scope:       this,
-      height:      200,
+      height:      155,
       viewConfig:  {
         emptyText: '<div><b style="color:#000">No School Data Available</b></div>',
         forceFit: true
@@ -84,7 +84,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
     var student_grid_panel  = new Ext.grid.GridPanel({
       forceLayout: true,
       scope:       this,
-      height:      200,
+      height:      155,
       viewConfig:  {
         emptyText: '<div><b style="color:#000">No Student Data Available</b></div>',
         forceFit: true
@@ -207,6 +207,24 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
               xtype: 'container',
               width: 253,
               items: [student_radio_group,student_grid_panel]
+            },{
+              xtype:  'spacer',
+              height: 10
+            },{
+              xtype:   'button',
+              text:    'Generate Attendance Report',
+              recipe:  'Report::AttendanceAllRecipe',
+              scope:   this,
+              handler: this.showReportMessage
+            },{
+              xtype:  'spacer',
+              height: 10
+            },{
+              xtype:   'button',
+              text:    'Generate ILI Report',
+              recipe:  'Report::IliAllRecipe',
+              scope:   this,
+              handler: this.showReportMessage
             }]
           }]
         },{
@@ -252,8 +270,8 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
     var school              = grid_panel.getStore().getAt(row_index);
     var profile_panel       = grid_panel.ownerCt.ownerCt.getComponent('school_profile_panel');
     var main_panel          = grid_panel.ownerCt.ownerCt.getComponent('school_main_panel');
+    profile_panel.school_id = school.get('id');
     profile_panel.setTitle('School Profile for ' + school.get('display_name'));
-    
     if(this.current_marker){
       this.gmap_panel.removeMarker(this.current_marker);
     }
@@ -314,6 +332,36 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
         //if(data_type == "student") this.grid_mask.hide();
       }
     });
+  },
+
+  showReportMenu: function(element, school_id)
+  {
+    var scrollMenu = new Ext.menu.Menu();
+    scrollMenu.add({school_id: school_id, recipe: 'Report::AttendanceAllRecipe', text: 'Attendance Report', handler: this.showReportMessage});
+    scrollMenu.add({school_id: school_id, recipe: 'Report::IliAllRecipe',        text: 'ILI Report',        handler: this.showReportMessage});
+    scrollMenu.show(element);
+  },
+
+  showReportMessage: function(buttonObj, eventObj)
+  {
+    Ext.Ajax.request({
+      url:      '/rollcall/report',
+      params:   {recipe_id: buttonObj.recipe, school_id: buttonObj.ownerCt.ownerCt.school_id},
+      method:   'GET',
+      callback: function(options, success, response)
+      {
+        var title = 'Generating Report';
+        var msg   = 'Your report will be placed in the report portal when the system '+
+                    'is done generating it. Please check the report portal in a few minutes.';
+        Ext.MessageBox.show({
+          title:   title,
+          msg:     msg,
+          buttons: Ext.MessageBox.OK,
+          icon:    Ext.MessageBox.INFO
+        });
+      },
+      failure: function(){}
+    });
   }
 });
 
@@ -324,3 +372,8 @@ Talho.Rollcall.Schools.initialize = function(config)
 }
 
 Talho.ScriptManager.reg('Talho.Rollcall.Schools', Talho.Rollcall.Schools, Talho.Rollcall.Schools.initialize);
+
+var some_var = {
+  value1: 'some_value',
+  schools: ['sddssd','dsdsds','dsdsdsd']
+}

@@ -1,7 +1,7 @@
 Role.create(
   :name              => "Rollcall",
-  :approval_required => true,
-  :user_role         => false,
+  :approval_required => false,
+  :user_role         => true,
   :application       => 'rollcall'
 )
 Role.create(
@@ -13,19 +13,19 @@ Role.create(
 Role.create(
   :name              => "Epidemiologist",
   :approval_required => true,
-  :user_role         => false,
+  :user_role         => true,
   :application       => 'rollcall'
 )
 Role.create(
   :name              => "Health Officer",
   :approval_required => true,
-  :user_role         => false,
+  :user_role         => true,
   :application       => 'rollcall'
 )
 Role.create(
   :name              => "Nurse",
   :approval_required => true,
-  :user_role         => false,
+  :user_role         => true,
   :application       => 'rollcall'
 )
 # TODO

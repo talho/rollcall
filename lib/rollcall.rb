@@ -60,6 +60,14 @@ $menu_config[:rollcall] = <<EOF
   end
   nav += "]}"
 EOF
+
+begin
+  $public_roles = [] unless defined?($public_roles)
+  r = Role.find_by_name_and_application('Rollcall', 'rollcall')
+  $public_roles << r.id unless r.nil?
+rescue
+end
+
 # Register any required javascript or stylesheet files with the appropriate
 # rails expansion helper
 ActionView::Helpers::AssetTagHelper.register_javascript_expansion(

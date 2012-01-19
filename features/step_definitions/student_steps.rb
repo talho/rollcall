@@ -36,7 +36,7 @@ Given /^"([^\"]*)" has the following student data:$/ do |isd, table|
        :contact_last_name  => row['contact_last_name'],
        :address            => row['address'],
        :zip                => row['zip'],
-       :dob                => row['dob'],
+       :dob                => DateTime.strptime(row['dob'].to_s, "%m/%d/%Y"),
        :gender             => row['gender'],
        :phone              => row['phone'],
        :race               => row['race'],

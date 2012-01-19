@@ -17,6 +17,10 @@ class RollcallAlert < Alert
     title || ''
   end
 
+  def app
+    'rollcall'
+  end
+
   def self.default_alert
     title = "Rollcall Alarm Alert"
     message = "This message is intended to update the user on a newly created Alarm."

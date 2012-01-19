@@ -1,33 +1,9 @@
-Role.create(
-  :name              => "Rollcall",
-  :approval_required => false,
-  :user_role         => true,
-  :application       => 'rollcall'
-)
-Role.create(
-  :name              => "Admin",
-  :approval_required => true,
-  :user_role         => false,
-  :application       => 'rollcall'
-)
-Role.create(
-  :name              => "Epidemiologist",
-  :approval_required => true,
-  :user_role         => true,
-  :application       => 'rollcall'
-)
-Role.create(
-  :name              => "Health Officer",
-  :approval_required => true,
-  :user_role         => true,
-  :application       => 'rollcall'
-)
-Role.create(
-  :name              => "Nurse",
-  :approval_required => true,
-  :user_role         => true,
-  :application       => 'rollcall'
-)
+
+Role.find_or_create_by_name_and_application("Rollcall",'rollcall'){|r| r.attributes = {:approval_required => false, :user_role => true,} }
+Role.find_or_create_by_name_and_application("Admin",'rollcall'){|r| r.attributes = {:approval_required => false, :user_role => true,} }
+Role.find_or_create_by_name_and_application("Epidemiologist",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => true,} }
+Role.find_or_create_by_name_and_application("Health Officer",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => true,} }
+Role.find_or_create_by_name_and_application("Nurse",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => true,} }
 # TODO
 # Integrate school selection into roles and/or user
 

@@ -1,6 +1,8 @@
 begin
   require 'cucumber/rake/task'
 
+  ENV["RAILS_ENV"] ||= "cucumber"
+  
   namespace :cucumber do
     desc = "Rollcall plugin, add any cmd args after --"
     Cucumber::Rake::Task.new(:rollcall, desc) do |t|

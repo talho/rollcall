@@ -1,4 +1,4 @@
-require 'fastercsv'
+require 'csv'
 # Class is responsible for transforming data import files into a standard specification
 #
 # Example:
@@ -217,7 +217,7 @@ class SchoolDataTransformer
             else
               if line_number != 0 && !line.blank?
                 # Their might be situations where an ISD might send us tab-delimited files, with free text values that
-                # might not be properly quoted which could break FasterCSV. The following code replaces all existing
+                # might not be properly quoted which could break CSV. The following code replaces all existing
                 # commas with pipes and then replaces all tabs with commas. It then quotes all values, and finally
                 # replaces the Pipes back with commas, leaving a csv line with properly quoted values.  It pushes the
                 # values into an array and then writes out the final transformed line. Note: A regex guru could minimize the

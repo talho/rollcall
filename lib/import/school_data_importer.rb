@@ -1,4 +1,4 @@
-require 'fastercsv'
+require 'csv'
 # Class is responsible for importing the data into the system appropriately
 class SchoolDataImporter
   # Method sets global variables
@@ -19,7 +19,7 @@ class SchoolDataImporter
 
   # Method reads in the CSV file and checks the record, seeds it into rrd, and then processes it into the system
   def import_csv
-    @records = FasterCSV.read(@filename, :headers => true, :row_sep => :auto)
+    @records = CSV.read(@filename, :headers => true, :row_sep => :auto)
     unless @records.blank?
       @linenum = 0
       if @filename.index('att') || @filename.index('Att')

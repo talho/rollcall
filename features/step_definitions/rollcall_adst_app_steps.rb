@@ -13,33 +13,57 @@ Then /^I should see dated graphs for schools "([^\"]*)" starting "([^\"]*)" days
   string_end_date   = Time.parse("#{end_date.month}/#{end_date.day}/#{end_date.year}").strftime("%s")
   schools.split(',').each do |value|
     image_name = "DF-Raw_ED-#{string_end_date.to_i}_SD-#{string_start_date.to_i}_#{value}_c_absenteeism.png"
-    page.should have_xpath(".//img[contains(concat(' ', @src, ' '), '#{image_name}')]")
+    #page.should have_xpath(".//img[contains(concat(' ', @src, ' '), '#{image_name}')]")
+    page.should have_xpath(".//object")
   end
 end
 
 
-Then /^I should not see graphs "([^\"]*)" within the results$/ do |image_files|
-  image_files.split(',').each do |value|
+#Then /^I should not see graphs "([^\"]*)" within the results$/ do |image_files|
+#  image_files.split(',').each do |value|
+#    begin
+#      #graph = page.find(:xpath, ".//img[contains(concat(' ', @src, ' '), '#{value}')]")
+#      graph = page.find(:xpath, ".//object")
+#    rescue Selenium::WebDriver::Error::ObsoleteElementError, Capybara::ElementNotFound
+#    end while !graph.blank?
+#    graph.should be_nil
+#  end
+#end
+
+Then /^I should not see "([^\"]*)" within the results$/ do |result_name|
+  result_name.split(',').each do |value|
     begin
-      graph = page.find(:xpath, ".//img[contains(concat(' ', @src, ' '), '#{value}')]")
+      #graph = page.find(:xpath, ".//img[contains(concat(' ', @src, ' '), '#{value}')]")
+      graph = page.find(:xpath, ".//span[text() = 'Query Result for #{value}']")
     rescue Selenium::WebDriver::Error::ObsoleteElementError, Capybara::ElementNotFound
     end while !graph.blank?
     graph.should be_nil
   end
 end
 
-Then /^I should see graphs "([^\"]*)" within the results$/ do |image_files|
-  image_files.split(',').each do |value|
+Then /^I should see "([^\"]*)" within the results$/ do |result_name|
+  result_name.split(',').each do |value|
     begin
-      graph = page.find(:xpath, ".//img[contains(concat(' ', @src, ' '), '#{value}')]")
+      graph = page.find(:xpath, ".//span[text() = 'Query Result for #{value}']")
     rescue Selenium::WebDriver::Error::ObsoleteElementError, Capybara::ElementNotFound
     end while graph.blank?
     graph.should_not be_nil
   end
 end
 
+#Then /^I should see graphs "([^\"]*)" within the results$/ do |image_files|
+#  image_files.split(',').each do |value|
+#    begin
+#      #graph = page.find(:xpath, ".//img[contains(concat(' ', @src, ' '), '#{value}')]")
+#      graph = page.find(:xpath, ".//object")
+#    rescue Selenium::WebDriver::Error::ObsoleteElementError, Capybara::ElementNotFound
+#    end while graph.blank?
+#    graph.should_not be_nil
+#  end
+#end
+
 Then /^"([^\"]*)" graphs has done loading$/ do |schools|
-  And %{I should see graphs "#{schools}" within the results}
+  And %{I should see "#{schools}" within the results}
 end
 
 Then /^I close the "([^\"]*)" window$/ do |title|

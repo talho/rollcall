@@ -151,7 +151,8 @@ Scenario: User runs a simple query against absenteeism to view the raw data
   And I wait for the panel to load
   And I press "Submit"
   And delayed jobs are processed
-  Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
+  Then I should see "Anderson Elementary,Ashford Elementary,Yates High School,Ector Junior High School,Gale Pond Alamo Elementary School,Austin Elementary School" within the results
+  #Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
 
 Scenario: User runs a simple query against a school to view the raw data
   When I navigate to the ext dashboard page
@@ -159,7 +160,8 @@ Scenario: User runs a simple query against a school to view the raw data
   And I select "Yates High School" from ext combo "school_simple"
   And I press "Submit"
   And delayed jobs are processed
-  Then I should see graphs "DF-Raw_101912020_c_absenteeism.png" within the results
+  Then I should see "Yates High School" within the results
+  #Then I should see graphs "DF-Raw_101912020_c_absenteeism.png" within the results
 
 Scenario: User runs a simple query against a school type to view the raw data
   When I navigate to the ext dashboard page
@@ -167,7 +169,8 @@ Scenario: User runs a simple query against a school type to view the raw data
   And I select "Elementary School" from ext combo "school_type_simple"
   And I press "Submit"
   And delayed jobs are processed
-  Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912273_c_absenteeism.png" within the results
+  Then I should see "Anderson Elementary,Ashford Elementary,Gale Pond Alamo Elementary School,Austin Elementary School" within the results
+  #Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912273_c_absenteeism.png" within the results
 
 Scenario: User runs a simple query against absenteeism and school type to view the raw data
   When I navigate to the ext dashboard page
@@ -176,7 +179,8 @@ Scenario: User runs a simple query against absenteeism and school type to view t
   And I select "Elementary School" from ext combo "school_type_simple"
   And I press "Submit"
   And delayed jobs are processed
-  Then I should see graphs "CNF_DF-Raw_101912105_c_absenteeism.png,CNF_DF-Raw_101912273_c_absenteeism.png" within the results
+  Then I should see "Anderson Elementary,Ashford Elementary,Gale Pond Alamo Elementary School,Austin Elementary School" within the results
+  #Then I should see graphs "CNF_DF-Raw_101912105_c_absenteeism.png,CNF_DF-Raw_101912273_c_absenteeism.png" within the results
 
 Scenario: User runs a simple query against absenteeism and school type to view the average data
   When I navigate to the ext dashboard page
@@ -186,7 +190,8 @@ Scenario: User runs a simple query against absenteeism and school type to view t
   And I select "Average" from ext combo "Data Function"
   And I press "Submit"
   And delayed jobs are processed
-  Then I should see graphs "CNF_DF-Average_101912105_c_absenteeism.png,CNF_DF-Average_101912273_c_absenteeism.png" within the results
+  Then I should see "Anderson Elementary,Ashford Elementary,Gale Pond Alamo Elementary School,Austin Elementary School" within the results
+  #Then I should see graphs "CNF_DF-Average_101912105_c_absenteeism.png,CNF_DF-Average_101912273_c_absenteeism.png" within the results
 
 Scenario: User runs a simple search against absenteeism and school type to view the standard deviation
   When I navigate to the ext dashboard page
@@ -196,7 +201,8 @@ Scenario: User runs a simple search against absenteeism and school type to view 
   And I select "Standard Deviation" from ext combo "data_func_simple"
   And I press "Submit"
   And delayed jobs are processed
-  And I should see graphs "CNF_DF-StandardDeviation_101912105_c_absenteeism.png,CNF_DF-StandardDeviation_101912273_c_absenteeism.png" within the results
+  Then I should see "Anderson Elementary,Ashford Elementary,Gale Pond Alamo Elementary School,Austin Elementary School" within the results
+  #And I should see graphs "CNF_DF-StandardDeviation_101912105_c_absenteeism.png,CNF_DF-StandardDeviation_101912273_c_absenteeism.png" within the results
 
 Scenario: User runs a simple query using the start and end date to view the raw data
   When I navigate to the ext dashboard page
@@ -214,7 +220,8 @@ Scenario: User runs a simple query against a school district
   And I select "District2" from ext combo "school_district_simple"
   And I press "Submit"
   And delayed jobs are processed
-  Then I should see graphs "DF-Raw_68901047_c_absenteeism.png,DF-Raw_68901101_c_absenteeism.png,DF-Raw_68901102_c_absenteeism.png" within the results
+  Then I should see "Ector Junior High School,Gale Pond Alamo Elementary School,Austin Elementary School" within the results
+  #Then I should see graphs "DF-Raw_68901047_c_absenteeism.png,DF-Raw_68901101_c_absenteeism.png,DF-Raw_68901102_c_absenteeism.png" within the results
 
 Scenario: User runs a simple query against a school district, requests school district graph
   When I navigate to the ext dashboard page
@@ -223,4 +230,5 @@ Scenario: User runs a simple query against a school district, requests school di
   And I click "#return_individual_school_simple"
   And I press "Submit"
   And delayed jobs are processed
-  Then I should see graphs "DF-Raw_district_68901_c_absenteeism.png" within the results
+  Then I should see "District2" within the results
+  #Then I should see graphs "DF-Raw_district_68901_c_absenteeism.png" within the results

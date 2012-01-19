@@ -10,14 +10,11 @@ class SchoolDataImporter
     @mapping      = self.class::MAPPING unless @filename.blank?
     @symptoms     = Rollcall::Symptom.all
     @schools      = []
-    @rrd_path     = File.join(Rails.root, "/rrd/")
-    @rrd_tool     = ROLLCALL_RRDTOOL_CONFIG["rrdtool_path"] + "/rrdtool"
     @school_year  = 0
     @linenum      = 0
-    @new_rrd      = nil
   end
 
-  # Method reads in the CSV file and checks the record, seeds it into rrd, and then processes it into the system
+  # Method reads in the CSV file and checks the record and then processes it into the system
   def import_csv
     @records = FasterCSV.read(@filename, :headers => true, :row_sep => :auto)
     unless @records.blank?
@@ -32,9 +29,6 @@ class SchoolDataImporter
         seed_record(@record)
         process_record(@record, rec2attrs(@record)) if rec2attrs(@record) != false
       }
-      if @filename.index('att') || @filename.index('Att')
-        write_rrd_file
-      end
     end    
   end
 
@@ -76,8 +70,6 @@ class SchoolDataImporter
         :school_number => school_number,
         :school_type   => school_type
       )
-      #create rrd file for school
-      @new_rrd = Rollcall::Rrd.build_rrd(school.tea_id, school.id, Time.gm(@school_year,"aug",01,0,0))
     end
   end
 
@@ -134,20 +126,10 @@ class SchoolDataImporter
         else
           s_i.push([(report_time + 1.day).to_i.to_s, total_absent, total_enrolled])
         end
-        #@end_time     = report_time
-        #@end_enrolled = r.total_enrolled
-        #s_i.push([(report_time + 1.day).to_i.to_s, 0, r.total_enrolled])
       end
     end
     begin
-      #@s_i.push([(@end_time + 2.days).to_i.to_s, 0, @end_enrolled])
       s_i.sort!{|a,b| a.first <=> b.first}
-      puts "Importing RRD Data for #{district.name}"
-      if ENV["RAILS_ENV"] == "cucumber" || ENV["RAILS_ENV"] == "test"
-        RRD.update_batch("#{@rrd_path}/district_#{district.district_id}_c_absenteeism.rrd", s_i, "#{@rrd_tool}")
-      else
-        RRD.update_batch("#{@rrd_path}/district_#{district.district_id}_absenteeism.rrd", s_i, "#{@rrd_tool}")
-      end
     rescue
     end
   end

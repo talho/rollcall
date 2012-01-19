@@ -16,6 +16,7 @@ Role.create(
   :user_role         => true,
   :application       => 'rollcall'
 )
+
 Role.create(
   :name              => "Health Officer",
   :approval_required => true,

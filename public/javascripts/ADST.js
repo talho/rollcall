@@ -154,7 +154,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       if(Ext.getCmp('gmap_alarm_window')) Ext.getCmp('gmap_alarm_window').close();
       this.get(0).get(1).getComponent('alarm_panel').close_alarm_tip();
     });
-  },
+  },/*
   renderGraphs: function(id, image, obj, class_name, total)
   {
     provider = new Ext.direct.PollingProvider({
@@ -185,7 +185,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     });
     this.providers.push(provider);
     Ext.Direct.addProvider(provider); 
-  },
+  },*/
   buildParams: function(form_values)
   {
     var params = new Object;

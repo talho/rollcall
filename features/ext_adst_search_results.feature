@@ -100,12 +100,12 @@ Background:
   And delayed jobs are processed
 
 Scenario: User closes a graph window
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
+  When "Anderson Elementary" graphs has done loading
   And I close the "Query Result for Anderson Elementary" window
   Then I should not see the "Anderson Elementary" window
 
 Scenario: User exports result data
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
+  When "Anderson Elementary" graphs has done loading
   And I click the "down" tool on the "Query Result for Anderson Elementary" window
   And I should see "Your CSV file will be placed in your documents folders"
   And delayed jobs are processed
@@ -117,7 +117,7 @@ Scenario: User exports result data
   Then I should see "rollcall_export.cucumber.csv" within ".document-file-icon-view"
 
 Scenario: User saves result as alarm query
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
+  When "Anderson Elementary" graphs has done loading
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
   And I should see "Alarm Query for Anderson Elementary"
   And I fill in "Name" with "Example Query"
@@ -125,16 +125,17 @@ Scenario: User saves result as alarm query
   Then I should see "Example Query" within "#alarm_queries"
 
 Scenario: User views a results school profile
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
+  When "Anderson Elementary" graphs has done loading
   And I click the "gis" tool on the "Query Result for Anderson Elementary" window
   And I should see "School Profile for Anderson Elementary"
   Then I should see "5727 Ludington Dr"
 
 Scenario: User pins a graph result
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
+  When "Anderson Elementary" graphs has done loading
   And I click the "pin" tool on the "Query Result for Anderson Elementary" window
   And the "Anderson Elementary" graph result is pinned
   And I select "Yates High School" from ext combo "school_simple"
   And I press "Submit"
   And delayed jobs are processed
-  Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
+  Then I should see "Anderson Elementary,Yates High School" within the results
+  #Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results

@@ -100,7 +100,7 @@ Scenario: User receives alarm alert
   And I wait for the panel to load
   And I press "Submit"
   And delayed jobs are processed
-  And "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
+  And "Anderson Elementary" graphs has done loading
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
   And I should see "Alarm Query for Anderson Elementary"
   And I fill in "Name" with "Example Query"

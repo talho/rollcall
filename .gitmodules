@@ -1,3 +1,0 @@
-[submodule "vendor/plugins/rails_rrdtool"]
-	path = vendor/plugins/rails_rrdtool
-	url = git://github.com/talho/rails_rrdtool.git

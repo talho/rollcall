@@ -127,6 +127,15 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                   this.showReportMenu(buttonObj.getEl(), null);
                 }
               }],
+              html: '<div id="graph_legend" style="margin-top:4px;display:none;">' +
+                    '<div style="float:left;margin-left:8px;margin-right:20px">Legend:&nbsp;</div>' +
+                    '<div style="float:left;margin-right:20px"><span style="background-color:#99BBE8">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Raw&nbsp;</div>' +
+                    '<div style="float:left;margin-right:20px"><span style="background-color:#FF6600">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Average&nbsp;</div>' +
+                    '<div style="float:left;margin-right:20px"><span style="background-color:#0666FF">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Average 30 Day&nbsp;</div>' +
+                    '<div style="float:left;margin-right:20px"><span style="background-color:#660066">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Average 60 Day&nbsp;</div>' +
+                    '<div style="float:left;margin-right:20px"><span style="background-color:#006600">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Standard Deviation&nbsp;</div>' +
+                    '<div style="float:left;margin-right:20px"><span style="background-color:#FF0066">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Cusum&nbsp;</div>' +
+                    '</div>',
               listeners:{
                 scope:        this,
                 beforerender: this.initFormComponent
@@ -328,6 +337,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     form_panel.buttons[2].show();
     form_panel.buttons[3].show();
     form_panel.buttons[4].show();
+    $('#graph_legend').show();
     //form_panel.buttons[5].show();
     var panel_mask = new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(), {msg:"Please wait..."});
     panel_mask.show();

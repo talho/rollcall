@@ -4,7 +4,7 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
   constructor: function(config)
   {
     Talho.Rollcall.Users.superclass.constructor.call(this, config);
-    this.RESULTS_PAGE_SIZE = 10;
+    this.RESULTS_PAGE_SIZE = 25;
     this.resultsStore      = new Ext.data.JsonStore({
       proxy:      new Ext.data.HttpProxy({url: '/rollcall/users', method: 'get'}),
       root:       'results',
@@ -106,10 +106,7 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
           items:  []
         },
         scope: this,
-        disabled: true,
-        handler: function(){
-//        Application.fireEvent('opentab', {title: 'Add User', id: 'add_new_user', initializer: 'Talho.AddUser'});
-        }
+        disabled: true
       },
       {
         text: 'Add School District',
@@ -122,25 +119,8 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
           items:  []
         },
         scope: this,
-        disabled: true,
-        handler: function(){
-//        var selected_records = this.searchResults.getSelectionModel().getSelections();
-//        Ext.each(selected_records, function(e,i){ this.openEditUserTab(e) }, this);
-      }}//,
-//      {text: 'Delete User', name: 'delete_btn', disabled: true, scope: this, handler: function(){
-//        var selected_records = this.searchResults.getSelectionModel().getSelections();
-//        if (selected_records.length == 0) return;
-//        Ext.Msg.confirm("Confirm User Deletion", "Are you sure you wish to delete " + selected_records.length + " users?",
-//          function(id){
-//            if (id != "yes") return;
-//            var delete_params = new Object;
-//            Ext.each(selected_records, function(record,i){ delete_params["users[user_ids][]"] = record.get('user_id'); });
-//            var json_auth = Ext.apply({'authenticity_token': FORM_AUTH_TOKEN}, delete_params);
-//            Ext.Ajax.request({ url: "/users/deactivate.json", method: "POST", params: json_auth,
-//              success: function(response){this.ajax_success_cb(response)},
-//              failure: function(response){this.ajax_err_cb(response)}, scope: this });
-//          }, this);
-//      }}
+        disabled: true
+      }
     ];
     
     this.searchResults = new Ext.grid.GridPanel({
@@ -169,7 +149,7 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
           scope: this,
           afterrender: function(comp){
             this.schoolDistrictStore.load();
-            this.schoolStore.load();
+           // this.schoolStore.load();
           }
         }
       })
@@ -271,7 +251,7 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
       if(btn_name == 'add_school_btn')
         t_o.sid = records[i].get('id');
       else if(btn_name == 'add_school_district_btn')
-        t_o.sdid = records[i].get('id')
+        t_o.sdid = records[i].get('id');
       tbar.find("name",btn_name)[0].menu.addMenuItem(t_o);
       tbar.find("name",btn_name)[0].menu.doLayout(false, true);
     }
@@ -301,7 +281,7 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
     if(menu_item.sid != undefined)
       params = {school_id: menu_item.sid};
     else if(menu_item.sdid != undefined)
-      params = {school_district_id: menu_item.sdid}
+      params = {school_district_id: menu_item.sdid};
     Ext.Ajax.request({
       url:      '/rollcall/users/'+this.c_u_id+'.json',
       params:   params,

@@ -9,8 +9,8 @@ Then /^I should see dated graphs for schools "([^\"]*)" starting "([^\"]*)" days
   current_time      = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_week - 1.week
   start_date        = current_time - start_days.to_i.days
   end_date          = current_time - end_days.to_i.days
-  string_start_date = Time.parse("#{start_date.month}/#{start_date.day}/#{start_date.year}").strftime("%s")
-  string_end_date   = Time.parse("#{end_date.month}/#{end_date.day}/#{end_date.year}").strftime("%s")
+  string_start_date = DateTime.strptime("#{start_date.month}/#{start_date.day}/#{start_date.year}", "%m/%d/%Y").strftime("%s")
+  string_end_date   = DateTime.strptime("#{end_date.month}/#{end_date.day}/#{end_date.year}", "%m/%d/%Y").strftime("%s")
   schools.split(',').each do |value|
     image_name = "DF-Raw_ED-#{string_end_date.to_i}_SD-#{string_start_date.to_i}_#{value}_c_absenteeism.png"
     #page.should have_xpath(".//img[contains(concat(' ', @src, ' '), '#{image_name}')]")

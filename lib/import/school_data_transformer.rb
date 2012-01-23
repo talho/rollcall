@@ -620,7 +620,7 @@ class SchoolDataTransformer
         # A match, but might not be a valid date value
         # first round of elimination, if the value is out of range, it's not a valid date
         begin
-          tmp_time = Time.parse("#{Date.strptime(value, regex[1])}")
+          tmp_time = Date.strptime(value, regex[1]).to_time
         rescue
           next
         end

@@ -54,9 +54,9 @@ class Rollcall::AlarmQuery < Rollcall::Base
   
   def create_alarms_for_school(school, query)
     @data_set      = []
-    test_data_date = Time.parse("08/01/#{(Time.now.month >= 8) ? Time.now.year : (Time.now.year - 1)}")
-    start_date     = query["startdt"].blank? ? test_data_date : Time.parse(query["startdt"])
-    end_date       = query["enddt"].blank? ? Time.now : Time.parse(query["enddt"]) + 1.day
+    test_data_date = DateTime.strptime("08/01/#{(Time.now.month >= 8) ? Time.now.year : (Time.now.year - 1)}", "%m/%d/%Y")
+    start_date     = query["startdt"].blank? ? test_data_date : DateTime.strptime(query["startdt"], "%m/%d/%Y")
+    end_date       = query["enddt"].blank? ? Time.now : DateTime.strptime(query["enddt"], "%m/%d/%Y") + 1.day
     lock_date      = end_date - 12.months
     days           = ((end_date - start_date) / 86400)
     alarm_count    = 0

@@ -243,7 +243,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     students           = Rollcall::Student.find_all_by_school_id(record_id)
     student_daily_info = Rollcall::StudentDailyInfo.find_all_by_student_id(students, :order => "report_date ASC")
     if !conditions[:startdt].blank?
-      parsed_sd  = Time.parse(conditions[:startdt])
+      parsed_sd  = DateTime.strptime(conditions[:startdt], "%m/%d/%Y")
       start_date = Time.gm(parsed_sd.year,parsed_sd.month,parsed_sd.day)
     elsif !student_daily_info.blank?
       first_start_date = student_daily_info.first.report_date
@@ -252,7 +252,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       start_date = Time.gm(Time.now.year,Time.now.month,Time.now.day)
     end
     if !conditions[:enddt].blank?
-      parsed_ed  = Time.parse(conditions[:enddt])
+      parsed_ed  = DateTime.strptime(conditions[:enddt], "%m/%d/%Y")
       end_date   = Time.gm(parsed_ed.year,parsed_ed.month,parsed_ed.day)
     elsif !student_daily_info.blank?
       last_end_date = student_daily_info.last.report_date

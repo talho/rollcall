@@ -45,7 +45,7 @@ class Report::Rollcall::IliAllRecipe < Report::Recipe
           s.student_daily_info.each do |st|
             symptoms = st.student_reported_symptoms.map(&:symptom).map(&:name).join(",")
             doc      = Hash["i",i, "display_name",u.display_name,"tea_id",u.tea_id,"student_first_name",s.first_name,
-              "student_last_name",s.last_name,"symptoms",symptoms,"report_date",Time.parse("#{st.report_date}").utc]
+              "student_last_name",s.last_name,"symptoms",symptoms,"report_date",st.report_date.to_time).utc]
             dataset.insert(doc)
             i += 1
           end

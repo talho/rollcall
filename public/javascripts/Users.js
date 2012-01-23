@@ -149,7 +149,7 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
           scope: this,
           afterrender: function(comp){
             this.schoolDistrictStore.load();
-           // this.schoolStore.load();
+            this.schoolStore.load();
           }
         }
       })

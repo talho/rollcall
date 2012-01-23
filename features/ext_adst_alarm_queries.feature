@@ -133,7 +133,7 @@ Background:
   And delayed jobs are processed
 
 Scenario: User creates an Alarm Query
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
+  When "Anderson Elementary" graphs has done loading
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
   And I should see "Alarm Query for Anderson Elementary"
   And I fill in "Name" with "Example Query"
@@ -141,7 +141,7 @@ Scenario: User creates an Alarm Query
   Then I should see "Example Query" within "#alarm_queries"
 
 Scenario: User creates an Alarm Query with specific threshold
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
+  When "Anderson Elementary" graphs has done loading
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
   And I should see "Alarm Query for Anderson Elementary"
   And I fill in "Name" with "Example Query"
@@ -155,7 +155,7 @@ Scenario: User creates an Alarm Query with specific threshold
   Then I should see "2" within ".x-grid3-td-values"
 
 Scenario: User creates a new Alarm Query off of an existing Alarm Query
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
+  When "Anderson Elementary" graphs has done loading
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
   And I should see "Alarm Query for Anderson Elementary"
   And I fill in "Name" with "Example Query"
@@ -168,7 +168,7 @@ Scenario: User creates a new Alarm Query off of an existing Alarm Query
   Then I should see "Ashford Elementary" within ".ux-alarm-thumbnails"
 
 Scenario: User deletes an existing Alarm Query
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
+  When "Anderson Elementary" graphs has done loading
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
   And I should see "Alarm Query for Anderson Elementary"
   And I fill in "Name" with "Example Query"
@@ -181,7 +181,7 @@ Scenario: User deletes an existing Alarm Query
   Then I should not see "Example Query" within "#alarm_queries"
 
 Scenario: User toggles Alarm
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
+  When "Anderson Elementary" graphs has done loading
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
   And I should see "Alarm Query for Anderson Elementary"
   And I fill in "Name" with "Example Query"
@@ -200,7 +200,7 @@ Scenario: User toggles Alarm
   Then I should see "Example Query" within "#alarm_grid_panel"
 
 Scenario: User executes search query off of an existing Alarm Query
-  When "DF-Raw_101912105_c_absenteeism.png" graphs has done loading
+  When "Anderson Elementary" graphs has done loading
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
   And I should see "Alarm Query for Anderson Elementary"
   And I fill in "Name" with "Example Query"
@@ -209,5 +209,9 @@ Scenario: User executes search query off of an existing Alarm Query
   And I click the "run-query" tool on the "Example Query" window
   And delayed jobs are processed
   And I wait for the panel to load   
-  And I should not see graphs "DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
-  Then I should see graphs "DF-Raw_101912105_c_absenteeism.png" within the results
+  #And I should not see graphs "DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
+  #Then I should see graphs "DF-Raw_101912105_c_absenteeism.png" within the results
+  And I should not see "Ashford Elementary, Yates High School" within the results
+  #And I should not see "Query Result for Ashford Elementary"
+  #And I should not see "Yates High School"
+  Then I should see "Anderson Elementary" within the results

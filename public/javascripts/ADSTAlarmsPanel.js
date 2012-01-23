@@ -58,7 +58,6 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     
     this.tmpl = new Ext.XTemplate(
       '<tpl for=".">',
-        //'<div class="{[this.ignore_alarm(values.ignore_alarm)]}">',
           '<div class="{[this.ignore_alarm(values.ignore_alarm)]} alarm {alarm_severity}" id="{id}">',
             '<div>',
               '<b>Report Date:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b><span>{report_date}</span>',
@@ -70,7 +69,6 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
               '<b>Deviation Rate: </b><span>{[this.format_number(values.deviation)]}%</span>',
             '</div>',
           '</div>',
-        //'</div>',
       '</tpl>',
       '<div class="x-clear"></div>',
       {
@@ -158,7 +156,6 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
       cls:      'alarm-tip',
       layout:   'fit',
       data:     [1],
-      //bodyStyle: 'background:#fff;',
       tpl:      new Ext.XTemplate(
         '<div class="all-purpose-load-icon"></div>',
         '<div class="x-tip-anchor x-tip-anchor-left x-tip-anchor-adjust"></div>'

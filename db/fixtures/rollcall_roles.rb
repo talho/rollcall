@@ -1,6 +1,5 @@
-
 Role.find_or_create_by_name_and_application("Rollcall",'rollcall'){|r| r.attributes = {:approval_required => false, :user_role => true,} }
-Role.find_or_create_by_name_and_application("Admin",'rollcall'){|r| r.attributes = {:approval_required => false, :user_role => true,} }
+Role.find_or_create_by_name_and_application("Admin",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => false,} }
 Role.find_or_create_by_name_and_application("Epidemiologist",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => true,} }
 Role.find_or_create_by_name_and_application("Health Officer",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => true,} }
 Role.find_or_create_by_name_and_application("Nurse",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => true,} }

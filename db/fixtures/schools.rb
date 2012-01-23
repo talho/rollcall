@@ -14,7 +14,6 @@ CSV.open(File.dirname(__FILE__) + '/school_districts.csv', :headers => true) do 
       :name         => row["school_district_name"],
       :jurisdiction => Jurisdiction.find_by_name(row['jurisdiction_name'])
     )
-    Rollcall::Rrd.build_rrd(r.district_id, r.id, Time.gm(Time.now.year,"aug",01,0,0), "district")
   end
 end
 
@@ -42,7 +41,5 @@ CSV.open(File.dirname(__FILE__) + '/schools.csv', :headers => true) do |schools|
       :gmap_lng      => row["gmap_lng"],
       :gmap_addr     => row["gmap_addr"]
     )
-    #create rrd file for school
-    Rollcall::Rrd.build_rrd(school.tea_id, school.id, Time.gm(Time.now.year,"aug",01,0,0))
   end
 end

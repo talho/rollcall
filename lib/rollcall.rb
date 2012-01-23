@@ -22,24 +22,6 @@ Dir[File.join(File.dirname(__FILE__), 'import', '*.rb')].each do |f|
   require f
 end
 
-# Load the rrdtool yaml config file
-rrd_yml = YAML.load_file(File.join(File.dirname(__FILE__), '..', 'config', 'rrdtool.yml'))
-ROLLCALL_RRDTOOL_CONFIG = rrd_yml[Rails.env]
-ROLLCALL_RRDTOOL_CONFIG.freeze
-
-# Require the creation of rrd folders
-if ROLLCALL_RRDTOOL_CONFIG["rrdfile_path"]
-  Dir.ensure_exists(ROLLCALL_RRDTOOL_CONFIG["rrdfile_path"])
-  File.symlink(ROLLCALL_RRDTOOL_CONFIG["rrdfile_path"], File.join(Rails.root, "rrd/")) unless File.symlink?(File.join(Rails.root, "rrd/"))
-else
-  Dir.ensure_exists(File.join(Rails.root, "rrd/"))
-end
-
-Dir.ensure_exists(File.join(Rails.root, "public/rrd/"))
-
-# Require the rails_rrdtool init.rb
-require File.join(File.dirname(__FILE__), '..', 'vendor', 'plugins', 'rails_rrdtool', 'init.rb')
-
 # Register the plugin expansion in the $expansion_list global variable
 $expansion_list = [] unless defined?($expansion_list)
 $expansion_list.push(:rollcall) unless $expansion_list.index(:rollcall)

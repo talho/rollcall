@@ -119,11 +119,11 @@ Talho.Rollcall.ADSTSimpleContainer = Ext.extend(Ext.Container, {
             })
         },{
           cls: 'line-check-simple',
-          items:[{
-            xtype: 'checkbox',
-            id: 'enrolled_base_line_simple',
-            boxLabel: "Display Total Enrolled Base Line"
-          },{
+          items:[//{
+            //xtype: 'checkbox',
+            //id: 'enrolled_base_line_simple',
+            //boxLabel: "Display Total Enrolled Base Line"
+          /*},*/{
             xtype: 'checkbox',
             id: 'return_individual_school_simple',
             checked: true,

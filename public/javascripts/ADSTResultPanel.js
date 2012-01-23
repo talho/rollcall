@@ -24,17 +24,23 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
 
     var result_store = new Ext.data.JsonStore({
-      totalProperty: 'total_results',
+      autoLoad:       false,
+      autoSave:       true,   
       root:          'results',
-      url:           '/rollcall/adst',
-      fields:        ['id','img_urls', 'r_ids', 'schools', 'school_names'],
-      writer:        new Ext.data.JsonWriter({encode: false}),
-      restful:       true,
-      autoLoad:      false,
-      autoSave:      true,
-      listeners: {
-        scope: this,
-        load:  this.loadGraphResults
+      totalProperty: 'total_results',
+      fields: [
+        {name:'tea_id',      type:'int'},
+        {name:'report_date', renderer: Ext.util.Format.dateRenderer('m-d-Y')},
+        {name:'enrolled',    type:'int'},
+        {name:'total',       type:'int'},
+        {name:'school_name', type:'string'}
+      ],
+      writer:         new Ext.data.JsonWriter({encode: false}),
+      url:            '/rollcall/adst',
+      restful:        true,
+      listeners:      {
+        scope:      this,
+        load:       this.loadGraphResults
       }
     });
 
@@ -61,15 +67,82 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
 
     Ext.each(store.getRange(), function(school_record,i){
-      var school           = school_record.json; // TODO
-      var school_id        = school.id;
-      var school_name      = typeof school.display_name == "undefined" ? school.name : school.display_name;
+      var school           = school_record.json[0]; // TODO
+      var school_id        = school.school_id;
+      var school_name      = typeof school.school_name == "undefined" ? school.name : school.school_name;
       var result_obj       = null;
+      var field_array      = [
+          {name: 'report_date', renderer: Ext.util.Format.dateRenderer('m-d-Y')},
+          {name: 'total', type:'int'},
+          {name: 'enrolled', type:'int'}
+        ];
+      var graph_series = [{
+          type: 'line',
+          displayName: 'Absent',
+          yField: 'total',
+          style: {
+              mode: 'stretch',
+              color:0x99BBE8
+          }
+        },{
+          type: 'line',
+          displayName: 'Average',
+          yField: 'average',
+          style: {
+              mode: 'stretch',
+              color:0xFF6600
+          }
+        },{
+          type: 'line',
+          displayName: 'Deviation',
+          yField: 'deviation',
+          style: {
+              mode: 'stretch',
+              color:0x006600
+          }
+        },{
+          type: 'line',
+          displayName: 'Average 30 Day',
+          yField: 'average30',
+          style: {
+              mode: 'stretch',
+              color:0x0666FF
+          }
+        },{
+          type: 'line',
+          displayName: 'Average 60 Day',
+          yField: 'average60',
+          style: {
+              mode: 'stretch',
+              color:0x660066
+          }
+        },{
+          type: 'line',
+          displayName: 'Cusum',
+          yField: 'cusum',
+          style: {
+              mode: 'stretch',
+              color:0xFF0066
+          }
+        }];
+      if(typeof school.average != "undefined"){
+        field_array.push({name:'average', type: 'int'})
+      }else if(typeof school.deviation != "undefined"){
+        field_array.push({name:'deviation', type: 'int'})
+      }else if(typeof school.average30 != "undefined"){
+        field_array.push({name:'average30', type: 'int'})
+      }else if(typeof school.average60 != "undefined"){
+        field_array.push({name:'average60', type: 'int'})
+      }else if(typeof school.cusum != "undefined"){
+        field_array.push({name:'cusum', type: 'int'})
+      }
+      var some_store = new Ext.data.JsonStore({fields: field_array,data: school_record.json});
+
       var graphImageConfig = {
         title:       'Query Result for '+school_name,
         style:       'margin:5px',
         school:      school,
-        school_name: school.display_name,
+        school_name: school_name,
         school_id:   school_id,
         provider_id: 'image'+i+'-provider',
         collapsible: false,
@@ -110,25 +183,72 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         }],
         height: 230,
         boxMinWidth: 320,
-        html:   '<div class="ux-result-graph-container"><img src="/images/Ajax-loader.gif" /></div>'
+        items: {
+          xtype: 'columnchart',
+          store: some_store,
+          xField: 'report_date',
+          chartStyle: {
+              padding: 10,
+              animationEnabled: true,
+              font: {
+                  name: 'Tahoma',
+                  color: 0x444444,
+                  size: 11
+              },
+              dataTip: {
+                  padding: 5,
+                  border: {
+                      color: 0x99bbe8,
+                      size:1
+                  },
+                  background: {
+                      color: 0xDAE7F6,
+                      alpha: .9
+                  },
+                  font: {
+                      name: 'Tahoma',
+                      color: 0x15428B,
+                      size: 10,
+                      bold: true
+                  }
+              },
+              xAxis: {
+                  color: 0x69aBc8,
+                  majorTicks: {color: 0x69aBc8, length: 4},
+                  minorTicks: {color: 0x69aBc8, length: 2},
+                  majorGridLines: {size: 1, color: 0xeeeeee}
+              },
+              yAxis: {
+                  color: 0x69aBc8,
+                  majorTicks: {color: 0x69aBc8, length: 4},
+                  minorTicks: {color: 0x69aBc8, length: 2},
+                  majorGridLines: {size: 1, color: 0xdfe8f6}
+              }
+          },
+          yAxis: new Ext.chart.NumericAxis({
+              displayName: 'Absent',
+              labelRenderer : Ext.util.Format.numberRenderer('0,0')
+          }),
+          tipRenderer : function(chart, record, index, series){
+            var tip_string = Ext.util.Format.number(record.data.total, '0,0') + ' students absent on ' + record.data.report_date;
+            tip_string    += '\n\r'+Ext.util.Format.number(record.data.enrolled, '0,0') + ' students enrolled on ' + record.data.report_date;
+            return tip_string;
+          },
+          series: graph_series
+        }
       };
-
-      if(i == 0 || i%2 == 0){
-        result_obj = rightColumn.add(graphImageConfig);
-      }else{
-        result_obj = leftColumn.add(graphImageConfig);
-      }
+      if(i == 0 || i%2 == 0) result_obj = rightColumn.add(graphImageConfig);
+      else result_obj = leftColumn.add(graphImageConfig);
       this.doLayout();
-      this.ownerCt.ownerCt.ownerCt.renderGraphs(i, school.image_url, result_obj, 'ux-result-graph-container', resultLength);
     }, this);
-    if(resultLength == 0) this.ownerCt.find('id', 'ADSTFormPanel')[0].buttons[0].enable();
+    this.ownerCt.find('id', 'ADSTFormPanel')[0].buttons[0].enable();
   },
 
   closeResult: function(e, target, panel)
   {
-    var provider = Ext.Direct.getProvider(panel.provider_id);
-    provider.purgeListeners();
-    provider.disconnect();
+    //var provider = Ext.Direct.getProvider(panel.provider_id);
+    //provider.purgeListeners();
+    //provider.disconnect();
     panel.ownerCt.remove(panel, true);
   },
 

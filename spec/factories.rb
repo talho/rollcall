@@ -29,11 +29,6 @@ Factory.define :rollcall_alert, :class => RollcallAlert do |m|
   m.association :alarm, :factory => :rollcall_alarm
 end
 
-Factory.define :rollcall_rrd, :class => Rollcall::Rrd do |m|
-  m.association :school, :factory => :rollcall_school
-  m.file_name "11111111.rrd"
-end
-
 Factory.define :rollcall_school , :class => Rollcall::School do |m|  
   m.sequence(:display_name){|t| "Display Name ##{t}"}
   m.tea_id 11111111

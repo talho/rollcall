@@ -670,7 +670,7 @@ class SchoolDataTransformer
   # Method checks if a common header is present, if not then false, else true
   def has_headers? line
     if line.downcase.index('campusid') || line.downcase.index('campus_id') || line.downcase.index('building') ||
-      line.downcase.index('bld')
+      line.downcase.index('bld') || line.downcase.index('loc_id')
       return true
     else
       return false

@@ -13,7 +13,7 @@ class AttendanceImporter < SchoolDataImporter
   # @params rec   array  an array of records to process
   # @params attrs hash   an attribute hash{:key => value}
   def process_record(rec, attrs)
-    puts "Importing Attendance Data for School ID: #{attrs[:school_id]}"
+    #puts "Importing Attendance Data for School ID: #{attrs[:school_id]}"
     @schools.push attrs[:school_id] unless attrs[:school_id].blank?
     daily_info            = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(attrs[:school_id].to_i, attrs[:report_date])
     daily_info            = Rollcall::SchoolDailyInfo.new if !daily_info

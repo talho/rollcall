@@ -42,10 +42,10 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
       container_mask: null,
       listeners:      {
         scope:      this,
-        beforeload: this.load_alarm_panel_mask,
+        beforeload: this._load_alarm_panel_mask,
         load:       function()
         {
-          if(!this.alarm_gmap_displayed) this.load_alarm_gmap_window();
+          if(!this.alarm_gmap_displayed) this._load_alarm_gmap_window();
           this.get_store().container_mask.hide();
         }
       }
@@ -58,7 +58,7 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     
     this.tmpl = new Ext.XTemplate(
       '<tpl for=".">',
-          '<div class="{[this.ignore_alarm(values.ignore_alarm)]} alarm {alarm_severity}" id="{id}">',
+          '<div class="{[this._ignore_alarm(values.ignore_alarm)]} alarm {alarm_severity}" id="{id}">',
             '<div>',
               '<b>Report Date:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b><span>{report_date}</span>',
             '</div>',
@@ -73,7 +73,7 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
       '<div class="x-clear"></div>',
       {
         compiled:     true,
-        ignore_alarm: function(ignore)
+        _ignore_alarm: function(ignore)
         {
           if(ignore) return 'ignore';
         },
@@ -118,12 +118,12 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
         }),
         listeners:{
           scope:      this,
-          collapse:   this.close_alarm_tip,
-          resize:     this.close_alarm_tip,
-          hide:       this.close_alarm_tip,
-          groupclick: this.close_alarm_tip,
-          bodyscroll: this.body_scroll,
-          rowclick:   this.row_click
+          collapse:   this._close_alarm_tip,
+          resize:     this._close_alarm_tip,
+          hide:       this._close_alarm_tip,
+          groupclick: this._close_alarm_tip,
+          bodyscroll: this._body_scroll,
+          rowclick:   this._row_click
         }
       }),
       setToScroll:  false,
@@ -136,17 +136,17 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     Talho.Rollcall.ADSTAlarmsPanel.superclass.constructor.call(this, config);
   },
 
-  close_alarm_tip: function()
+  _close_alarm_tip: function()
   {
     if(this.tip_array.length != 0) this.tip_array.pop().destroy();  
   },
 
-  body_scroll: function(scroll_left, scroll_right)
+  _body_scroll: function(scroll_left, scroll_right)
   {
     if(this.tip_array.length != 0 && !this.setToScroll) this.tip_array.pop().destroy();
   },
 
-  row_click: function(this_grid, index, event_obj)
+  _row_click: function(this_grid, index, event_obj)
   {
     var row_record = this_grid.getStore().getAt(index);
     if(this.tip_array.length != 0) this.tip_array.pop().destroy();
@@ -163,7 +163,6 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     });
     this.tip_array.push(tip);
     tip.showBy(this_grid.getView().getRow(index), 'tl-tr');
-
     Ext.Ajax.request({
       url:     '/rollcall/get_info',
       method:  'POST',
@@ -178,11 +177,11 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
       success: function(response, options)
       {
         jsonObj                = Ext.decode(response.responseText).info;
-        var template           = this.build_alarm_console_template();
+        var template           = this._build_alarm_console_template();
         var ignore_button_text = "Ignore Alarm";
         if(row_record.get('ignore_alarm'))ignore_button_text = "Unignore Alarm";
         if(this.tip_array.length != 0) this.tip_array.pop().destroy();
-        tip = this.build_alarm_console(row_record, template, ignore_button_text);
+        tip = this._build_alarm_console(row_record, template, ignore_button_text);
         this.tip_array.push(tip);
         tip.showBy(this_grid.getView().getRow(index), 'tl-tr');
         template.overwrite(tip.getComponent(0).getEl(),jsonObj);
@@ -192,7 +191,7 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     });
   },
 
-  build_alarm_console: function (row_record, template, btn_txt)
+  _build_alarm_console: function (row_record, template, btn_txt)
   {
     return new Ext.Tip({
       title:    '<b>Alarm Information for '+ row_record.get('school_name')+'</b>',
@@ -241,11 +240,11 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
         fbar:        [{
           text:    btn_txt,
           scope:   this,
-          handler: this.ignore_alarm
+          handler: this._ignore_alarm
         },'->',{
           text:    'Delete Alarm',
           scope:   this,
-          handler: this.delete_alarm
+          handler: this._delete_alarm
         }],
         listeners:   {
           afterrender: function(this_panel)
@@ -258,7 +257,7 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     });
   },
 
-  build_alarm_console_template: function()
+  _build_alarm_console_template: function()
   {
     return new Ext.XTemplate(
       '<tpl for=".">',
@@ -304,7 +303,7 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     );  
   },
 
-  delete_alarm: function(btn,event)
+  _delete_alarm: function(btn,event)
   {
     this.tip_array[0].hide();
     Ext.MessageBox.show({
@@ -328,7 +327,7 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     });
   },
 
-  ignore_alarm: function(btn,event)
+  _ignore_alarm: function(btn,event)
   {
     if(btn.ownerCt.ownerCt.row_record.get('ignore_alarm')){
       btn.ownerCt.ownerCt.row_record.set('ignore_alarm', false);
@@ -358,13 +357,13 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     }
   },
 
-  load_alarm_panel_mask: function(this_store, options)
+  _load_alarm_panel_mask: function(this_store, options)
   {
     this_store.container_mask = new Ext.LoadMask(this.getEl(), {msg:"Please wait..."});
     this_store.container_mask.show();
   },
 
-  load_alarm_gmap_window: function()
+  _load_alarm_gmap_window: function()
   {
     if(this.get_store().getTotalCount() != 0 ){
       this.alarm_gmap_displayed = true;
@@ -381,9 +380,9 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
         items:      [gmap_panel],
         listeners: {
           scope:        this,
-          close:        this.enable_gis_button,
-          beforerender: this.disable_gis_button,
-          afterrender:  this.render_gmap_markers
+          close:        this._enable_gis_button,
+          beforerender: this._disable_gis_button,
+          afterrender:  this._render_gmap_markers
         },
         buttons: [{
           text:    'Dismiss',
@@ -399,7 +398,7 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     }
   },
 
-  render_gmap_markers: function(panel)
+  _render_gmap_markers: function(panel)
   {
     var gmap_panel  = panel.get(0);
     var school_ids  = new Array();
@@ -410,10 +409,10 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
       {
         if(school_ids[school_ids.length - 1] != record.get("school_id")){
           school_ids.push(record.get("school_id"));
-          var color         = this.get_alarm_color_code(record.get("alarm_severity"));
+          var color         = this._get_alarm_color_code(record.get("alarm_severity"));
           var loc           = new google.maps.LatLng(record.get("school_lat"), record.get("school_lng"));
           var marker        = gmap_panel.addStyledMarker(loc, record.get("school_name"), {color:color});
-          marker.info       = this.build_gmap_marker_info(record, store_index);                  
+          marker.info       = this._build_gmap_marker_info(record, store_index);                  
           marker.info_popup = null;
           google.maps.event.addListener(marker, 'click', function(){
             if (this.info_popup) {
@@ -437,17 +436,17 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     }
   },
 
-  enable_gis_button: function()
+  _enable_gis_button: function()
   {
     Ext.getCmp('gis_button').enable();
   },
 
-  disable_gis_button: function()
+  _disable_gis_button: function()
   {
     Ext.getCmp('gis_button').disable();
   },
 
-  get_alarm_color_code: function(alarm_status)
+  _get_alarm_color_code: function(alarm_status)
   {
     var color = "";
     if(alarm_status == "unknown"){
@@ -464,7 +463,7 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     return color;
   },
 
-  remote_row_click: function(store_index)
+  _remote_row_click: function(store_index)
   {
     var grid         = this.getComponent('alarm_grid_panel');
     var row_record   = grid.getStore().getAt(store_index);
@@ -472,13 +471,13 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     grid.view.toggleAllGroups(false);
     grid.view.toggleRowIndex(store_index, true);
     this.getEl().select("div[id='"+row_record.get('id')+"']").first().dom.scrollIntoView(this.getEl());
-    this.row_click(grid,store_index,null);  
+    this._row_click(grid,store_index,null);
   },
 
-  build_gmap_marker_info: function(record, store_index)
+  _build_gmap_marker_info: function(record, store_index)
   {
     var addr_elems    = record.get("school_addr").split(",");
-    var click_string  = "javascript:Ext.getCmp(\'alarm_panel\').remote_row_click("+store_index+")";
+    var click_string  = "javascript:Ext.getCmp(\'alarm_panel\')._remote_row_click("+store_index+")";
     var marker_info   = '<div class="school_marker_info">';
     marker_info      += "<b>School Name: </b>" + record.get("school_name") + "<br/>";
     marker_info      += '<b>Absentee Rate: </b>'+Math.round(record.get("absentee_rate")*100)/100+'%<br/>';

@@ -105,6 +105,7 @@ Background:
 Scenario: User enters a new student visit
   When I press "New"
   And I should see "New Visit"
+  And I wait for the panel to load
   And I press "New Student"
   And I fill in "Student ID" with "000111000"
   And I fill in "Student First Name" with "John"

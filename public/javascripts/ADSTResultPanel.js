@@ -40,7 +40,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       restful:        true,
       listeners:      {
         scope:      this,
-        load:       this.loadGraphResults
+        load:       this._loadGraphResults
       }
     });
 
@@ -52,7 +52,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     Talho.Rollcall.ADSTResultPanel.superclass.constructor.call(this, config);
   },
 
-  writeGraphs: function(store)
+  _writeGraphs: function(store)
   {
     this.ownerCt.find('id', 'ADSTFormPanel')[0].buttons[0].disable();
     var resultLength = store.getRange().length;
@@ -150,19 +150,19 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         tools: [{
           id:      'pin',
           qtip:    'Pin This Graph',
-          handler: this.pinGraph
+          handler: this._pinGraph
         },{
           id:      'report',
           qtip:    'Generate Report',
           scope:   this,
           handler: function(e, targetEl, panel, tc){
             var adst_container = panel.ownerCt.ownerCt.ownerCt.ownerCt.ownerCt;
-            adst_container.showReportMenu(targetEl, school_id);
+            adst_container._showReportMenu(targetEl, school_id);
           }
         },{
           id:      'gis',
           qtip:    'Show School Profile',
-          handler: this.showSchoolProfile,
+          handler: this._showSchoolProfile,
           hidden:  typeof school.gmap_lat == "undefined" ? true : false
         },{
           id:      'save',
@@ -170,16 +170,16 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           scope:   this,
           handler: function(e, targetEl, panel, tc)
           {
-            this.showAlarmQueryConsole(panel.school_name);
+            this._showAlarmQueryConsole(panel.school_name);
           }
         },{
           id:      'down',
           qtip:    'Export Result',
-          handler: this.exportResult
+          handler: this._exportResult
         },{
           id:      'close',
           qtip:    "Close",
-          handler: this.closeResult
+          handler: this._closeResult
         }],
         height: 230,
         boxMinWidth: 320,
@@ -244,7 +244,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     this.ownerCt.find('id', 'ADSTFormPanel')[0].buttons[0].enable();
   },
 
-  closeResult: function(e, target, panel)
+  _closeResult: function(e, target, panel)
   {
     //var provider = Ext.Direct.getProvider(panel.provider_id);
     //provider.purgeListeners();
@@ -252,7 +252,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     panel.ownerCt.remove(panel, true);
   },
 
-  showSchoolProfile: function(e, targetEl, panel, tc)
+  _showSchoolProfile: function(e, targetEl, panel, tc)
   {
     var html_pad          = '<table class="alarm-tip-table"><tr><td><b>Student Daily Info:</b></td>'+
                             '<td><span>&nbsp;</span></td></tr></table>';
@@ -358,12 +358,12 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
     school_radio_group.addListener("change", function(group, chkd_radio )
       {
-        panel.ownerCt.ownerCt.getSchoolData(chkd_radio.value, win, panel, school_grid_panel, 'school');
+        panel.ownerCt.ownerCt._getSchoolData(chkd_radio.value, win, panel, school_grid_panel, 'school');
       }
     );
     student_radio_group.addListener("change", function(group, chkd_radio )
       {
-        panel.ownerCt.ownerCt.getSchoolData(chkd_radio.value, win, panel, student_grid_panel, 'student');
+        panel.ownerCt.ownerCt._getSchoolData(chkd_radio.value, win, panel, student_grid_panel, 'student');
       }
     );
     var win = new Ext.Window({
@@ -416,14 +416,14 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       marker.info_popup.open(gmapPanel.gmap, marker);
     });
     win.addListener("afterrender", function(obj){
-      panel.ownerCt.ownerCt.getSchoolData(1, obj, panel, school_grid_panel, 'school');
-      panel.ownerCt.ownerCt.getSchoolData(1, obj, panel, student_grid_panel, 'student');
+      panel.ownerCt.ownerCt._getSchoolData(1, obj, panel, school_grid_panel, 'school');
+      panel.ownerCt.ownerCt._getSchoolData(1, obj, panel, student_grid_panel, 'student');
 
     });
     win.show();
   },
 
-  getSchoolData: function(month, win_obj, main_panel, grid_panel, type)
+  _getSchoolData: function(month, win_obj, main_panel, grid_panel, type)
   {
     var grid_mask = new Ext.LoadMask(grid_panel.getEl(), {msg:"Please wait...", removeMask: true});
     grid_mask.show();
@@ -446,10 +446,10 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
   },
 
-  exportResult: function(e, targetEl, panel, tc)
+  _exportResult: function(e, targetEl, panel, tc)
   {
     var adst_container = panel.ownerCt.ownerCt.ownerCt.ownerCt.ownerCt;
-    var params = adst_container.buildParams(panel.ownerCt.ownerCt.ownerCt.findByType('form')[0].getForm().getValues());
+    var params = adst_container._buildParams(panel.ownerCt.ownerCt.ownerCt.findByType('form')[0].getForm().getValues());
     adst_container._grabListViewFormValues(params, adst_container);
     var param_string = '';
     for(key in params){
@@ -475,23 +475,18 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
   },
 
-  loadGraphResults: function(store, records, options)
+  _loadGraphResults: function(store, records, options)
   {
     this.show();
-    this.writeGraphs(store);
+    this._writeGraphs(store);
   },
 
-  processQuery: function(json_result)
-  {
-    this._getResultStore().loadData(json_result);
-  },
-
-  getResultStore: function()
+  _getResultStore: function()
   {
     return this._getResultStore();
   },
 
-  showAlarmQueryConsole: function(school_name)
+  _showAlarmQueryConsole: function(school_name)
   {
     var params       = new Array();
     var storedParams = new Ext.data.ArrayStore({
@@ -530,7 +525,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       stored_params:     storedParams,
       buttons: [{
         text:    'Submit',
-        handler: this.submitAlarmQueryForm
+        handler: this._submitAlarmQueryForm
       },{
         text: 'Close',
         handler: function(buttonEl, eventObj){
@@ -543,12 +538,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     alarm_console.show();
   },
 
-  showTipText: function(thumb)
-  {
-    return String(thumb.value) + '%';
-  },
-
-  submitAlarmQueryForm: function(buttonEl, eventObj)
+  _submitAlarmQueryForm: function(buttonEl, eventObj)
   {
     var obj_options = {
       result_panel: this.ownerCt.ownerCt.result_panel
@@ -559,33 +549,14 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       }
     }
     this.ownerCt.ownerCt.getComponent('alarmQueryForm').getForm().on('actioncomplete', function(){
-      Ext.getCmp('alarm_queries').getComponent('portalId_south').updateAlarmQueries(update_params);
+      Ext.getCmp('alarm_queries').getComponent('portalId_south')._updateAlarmQueries(update_params);
       this.hide();
       this.destroy();
     }, this.ownerCt.ownerCt, obj_options);
     this.ownerCt.ownerCt.getComponent('alarmQueryForm').getForm().submit();
   },
-
-  changeTextField: function(obj, new_number, old_number)
-  {
-    obj.ownerCt.findByType('textfield')[0].setValue(new_number)
-  },
-
-  changeSliderField: function(this_field, event_obj){
-    this_field.nextSibling().setValue(this_field.getValue());
-  },
   
-  maxFields: function(buttonEl, eventObj)
-  {
-    sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
-    for(key in sliders){
-      try{
-        sliders[key].setValue(100);
-      }catch(e){}
-    }
-  },
-  
-  clearProviders: function()
+  _clearProviders: function()
   {
     Ext.each(this.providers, function(item, index, allItems) {
       item.purgeListeners();
@@ -594,7 +565,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     this.providers = new Array();
   },
 
-  pinGraph: function(e, targetEl, panel, tc)
+  _pinGraph: function(e, targetEl, panel, tc)
   {
     targetEl.findParent('div.x-panel-tl', 50, true).toggleClass('x-panel-pinned')
     targetEl.toggleClass('x-tool-pin');

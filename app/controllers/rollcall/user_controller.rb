@@ -171,6 +171,6 @@ class Rollcall::UserController < Rollcall::RollcallAppController
       options[:per_page]    = 30000
       options[:max_matches] = 30000
     end
-    return options
+    options
   end
 end

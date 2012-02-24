@@ -253,13 +253,7 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
             }]
           }]
         }]
-      },/*{
-        xtype:     'checkbox',
-        id:        'enrolled_base_line_adv',
-        cls:       'line-check',
-        boxLabel:  'Display Total Enrolled Base Line',
-        hideLabel: true
-      },*/{
+      },{
         xtype:    'checkbox',
         id:       'return_individual_school_adv',
         cls:      'line-check',
@@ -273,7 +267,7 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
         scope:   this,
         handler: function(buttonEl, eventObj){
           this.hide();
-          Ext.getCmp('rollcall_adst').resetForm();
+          Ext.getCmp('rollcall_adst')._resetForm();
           Ext.getCmp('simple_query_select').show();
         }
       }]

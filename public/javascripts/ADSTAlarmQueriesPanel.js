@@ -1,7 +1,7 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
-Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
+Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Container, {
   constructor: function(config){
 
     Ext.applyIf(config, {
@@ -24,14 +24,14 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
             this_store.container_mask = new Ext.LoadMask(this.getEl(), {msg:"Please wait..."});
             this_store.container_mask.show();
           },
-          load: this.loadAlarmQueries
+          load: this._loadAlarmQueries
         }
       })
     });
     Talho.Rollcall.ADSTAlarmQueriesPanel.superclass.constructor.call(this, config);
   },
 
-  loadAlarmQueries: function(this_store, alarm_queries)
+  _loadAlarmQueries: function(this_store, alarm_queries)
   {
     var result_obj = null;
     var column_obj = null;
@@ -92,29 +92,30 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
             id:      'run-query',
             qtip:    "Run This Query",
             scope:   this,
-            handler: this.runSavedQuery
+            handler: this._runSavedQuery
           },{
             id:      alarm_id,
             qtip:    "Toggle Alarm",
             scope:   this,
-            handler: this.toggleAlarm
+            handler: this._toggleAlarm
           },{
             id:      'save',
             qtip:    'Edit Alarm Query',
             scope:   this,
             handler: function(e, targetEl, panel, tc)
             {
-              this.showEditAlarmQueryConsole(panel,this);
+              this._showEditAlarmQueryConsole(panel,this);
             }
           },{
             id:      'close',
             qtip:    'Delete Alarm Query',
             scope:   this,
-            handler: this.deleteAlarmQuery
+            handler: this._deleteAlarmQuery
           }],
           cls:        'ux-alarm-thumbnails',
           adst_panel: this.adst_panel,
-          items:      [grid_obj]
+          items:      [grid_obj],
+          style:      {marginTop: '5px', marginLeft: '5px'}
         });
       }
     }
@@ -123,12 +124,12 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
     this.setSize('auto','auto');
   },
 
-  runSavedQuery: function(e, targetEl, panel, tc)
+  _runSavedQuery: function(e, targetEl, panel, tc)
   {
     var form      = panel.adst_panel.find('id', 'ADSTFormPanel')[0].getForm();
     var qtype     = panel.param_config.query_params["type"];
     var vals      = new Object;
-    this.adst_panel.resetForm();
+    this.adst_panel._resetForm();
     if (qtype == "adv") {
       Ext.getCmp('simple_query_select').hide();
       Ext.getCmp('advanced_query_select').show().doLayout();
@@ -150,10 +151,10 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
       }
     }
     form.setValues(vals);
-    panel.adst_panel.submitQuery();
+    panel.adst_panel._submitQuery();
   },
   
-  deleteAlarmQuery: function(e, targetEl, panel, tc)
+  _deleteAlarmQuery: function(e, targetEl, panel, tc)
   {
     Ext.MessageBox.show({
       title: 'Delete '+panel.title,
@@ -172,7 +173,7 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
             method: 'DELETE',
             scope:  this,
             callback: function(options, success, response){
-              panel.ownerCt.ownerCt.destroyQueryAlarms(panel);
+              panel.ownerCt.ownerCt._destroyQueryAlarms(panel);
               this.hide();
               this.destroy();
             },
@@ -185,7 +186,7 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
     });
   },
 
-  destroyQueryAlarms: function(panel)
+  _destroyQueryAlarms: function(panel)
   {
     Ext.Ajax.request({
       url: '/rollcall/alarms/'+panel.param_config.id+'.json',
@@ -199,9 +200,11 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
     });
   },
 
-  toggleAlarm: function(e, targetEl, panel, tc)
+  _toggleAlarm: function(e, targetEl, panel, tc)
   {
-    var alarm_set = false;
+    var panel_mask = new Ext.LoadMask(Ext.getCmp('adst_container').getEl(),{msg:"Please wait..."});
+    var alarm_set  = false;
+    panel_mask.show();
     if(targetEl.hasClass('x-tool-alarm-off')) alarm_set = true;
     if(alarm_set == false) Ext.getCmp('alarm_panel').alarms_store.container_mask.show();
     Ext.Ajax.request({
@@ -210,39 +213,35 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
       method:   'PUT',
       callback: function(options, success, response)
       {
+        panel_mask.hide();
         if(alarm_set == false){
           Ext.getCmp('alarm_panel').getComponent(0).getStore().load();
-          targetEl.toggleClass('x-tool-alarm-off');
-          targetEl.toggleClass('x-tool-alarm-on');
         }else{
+          Ext.MessageBox.show({
+            title:   'Creating Alarms',
+            msg:     'Your alarms have been activated and the system will alert you via email when any alarms are generated.',
+            buttons: Ext.MessageBox.OK,
+            icon:    Ext.MessageBox.INFO
+          });
           Ext.Ajax.request({
             url:      '/rollcall/alarms/',
             method:   'POST',
-            params:   {alarm_query_id: panel.param_config.id},
-            callback: function(options,success,response){
-              Ext.MessageBox.show({
-                title:   'Creating Alarms',
-                msg:     'Your alarms have been activated and the system will alert you via email when any alarms are generated.',
-                buttons: Ext.MessageBox.OK,
-                icon:    Ext.MessageBox.INFO
-              });
-              targetEl.toggleClass('x-tool-alarm-off');
-              targetEl.toggleClass('x-tool-alarm-on');
-            }
+            params:   {alarm_query_id: panel.param_config.id}
           });
-
         }
+        targetEl.toggleClass('x-tool-alarm-off');
+        targetEl.toggleClass('x-tool-alarm-on');
       },
       failure: function(){}
     });
   },
 
-  updateAlarmQueries: function(options)
+  _updateAlarmQueries: function(options)
   {
     this.saved_store.load(options);
   },
 
-  showEditAlarmQueryConsole: function(panel,south_panel)
+  _showEditAlarmQueryConsole: function(panel,south_panel)
   {
     var params              = new Array();
     var param_string        = '';
@@ -279,7 +278,7 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
         text:    'Save As New',
         handler: function(buttonEl, eventObj){
           alarm_console.getComponent('editAlarmQueryForm').getForm().on('actioncomplete', function(){
-            south_panel.updateAlarmQueries({params: {alarm_query_id: alarm_query_id,clone: true}});
+            south_panel._updateAlarmQueries({params: {alarm_query_id: alarm_query_id,clone: true}});
             this.hide();
             this.destroy();
           }, alarm_console);
@@ -292,14 +291,13 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Panel, {
         text:    'Submit',
         handler: function(buttonEl, eventObj){
           alarm_console.getComponent('editAlarmQueryForm').getForm().on('actioncomplete', function(){
-            south_panel.updateAlarmQueries({params: {alarm_query_id: alarm_query_id}});
+            south_panel._updateAlarmQueries({params: {alarm_query_id: alarm_query_id}});
             panel.hide();
             panel.destroy();
             this.hide();
             this.destroy();
           }, alarm_console);
           alarm_console.getComponent('editAlarmQueryForm').getForm().doAction('submit',{
-           // url: '/rollcall/alarm_query',
             method: 'put'
           });
         }

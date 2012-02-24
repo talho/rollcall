@@ -21,7 +21,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         {
           if(this_store.getAt(0).get("app_init") == true) this.setup_app();
           else{
-            this.main_panel.get(0).getBottomToolbar().getComponent('new_student_btn').enable();
+            this.main_panel.get(0).getBottomToolbar().getComponent('new-student-btn').enable();
             this.main_panel.get(0).getBottomToolbar().getComponent('settings-btn').enable();
             this.student_list_store.load();
             this.user_school_id = this_store.getAt(0).get('school_id');
@@ -78,6 +78,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         {name:'report_date',        renderer: Ext.util.Format.dateRenderer('m-d-Y')}
       ]
     });
+
     this.main_panel_store = new Ext.data.GroupingStore({
       autoLoad:       false,
       autoDestroy:    true,
@@ -140,7 +141,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
                 click: function(this_column, this_grid, row_index, event_obj)
                 {
                   this.window_open = true;
-                  this.student_entry_window(this.main_panel_store.getAt(row_index),'visit');
+                  this._student_entry_window(this.main_panel_store.getAt(row_index),'visit');
                 }
               }
             },{
@@ -181,7 +182,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         bbar: [
           {xtype: 'button',    text: 'Search', scope:this, handler: this.search_student},
           {xtype: 'textfield', id: 'search_field'},        
-          {text: 'New', iconCls:'add_forum', itemId:'new_student_btn', disabled: true, handler: function(){this.student_entry_window();}, scope: this},
+          {text: 'New', iconCls:'add_forum', itemId:'new-student-btn', disabled: true, handler: function(){this._student_entry_window();}, scope: this},
           {text: 'Change School', iconCls:'settings-btn', itemId: 'settings-btn', disabled: true, handler: this.setup_app, scope: this},'->',
           new Ext.PagingToolbar({store: this.main_panel_store, listeners:{refresh: function(){}}})
         ],
@@ -255,7 +256,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
                 click: function(this_column, this_grid, row_index, event_obj)
                 {
                   this.window_open = true;
-                  this.student_entry_window(this.student_list_store.getAt(row_index),'student');
+                  this._student_entry_window(this.student_list_store.getAt(row_index),'student');
                 }
               }
             }]
@@ -285,7 +286,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           },{
             text:    'New Student',
             scope:   this,
-            handler: function(button, event){this.student_entry_window(null, 'student');}
+            handler: function(button, event){this._student_entry_window(null, 'student');}
           }]
         },{
           xtype:      'grid',
@@ -371,7 +372,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             var selected_index  = buttonEl.ownerCt.ownerCt.getComponent('select_school').selectedIndex;
             var school_name     = this.init_store.getAt(0).get('schools')[selected_index].display_name;
             this.user_school_id = buttonEl.ownerCt.ownerCt.getComponent('select_school').getValue();
-            this.main_panel.get(0).getBottomToolbar().getComponent('new_student_btn').enable();
+            this.main_panel.get(0).getBottomToolbar().getComponent('new-student-btn').enable();
             this.main_panel.get(0).getBottomToolbar().getComponent('settings-btn').enable();
             this.student_list_store.load({params:{school_id: this.user_school_id}});
             this.main_panel_store.load({params:{school_id: this.user_school_id}});
@@ -477,36 +478,37 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
 		);
 		this.details_template.compile();
   },
-  student_entry_window: function()
+  _student_entry_window: function()
   {
     this.window_open                          = true;
-    this.student_entry_window.argv            = this.student_entry_window.arguments;
-    this.student_entry_window.student_record  = {};
-    this.student_entry_window.form_method     = 'POST';
-    this.student_entry_window.form_url        = '/rollcall/students';
-    this.student_entry_window.symptom_data    = [];
-    this.student_entry_window.panel_mask      = null;
-    this.student_entry_window.student_list    = null;
-    this.student_entry_window.student_info_id = null;
+    this.student_window                 = {};
+    this.student_window.argv            = this._student_entry_window.arguments;
+    this.student_window.student_record  = {};
+    this.student_window.form_method     = 'POST';
+    this.student_window.form_url        = '/rollcall/students';
+    this.student_window.symptom_data    = [];
+    this.student_window.panel_mask      = null;
+    this.student_window.student_list    = null;
+    this.student_window.student_info_id = null;
 
-    if(this.student_entry_window.argv.length != 0){
-      if(this.student_entry_window.argv[0] != null){
-        this.student_entry_window.student_record = this.student_entry_window.argv[0].copy();
-        if(this.student_entry_window.argv[1] == 'visit')
-          this.student_entry_window.student_record.data.id = this.student_entry_window.argv[0].get('student_id');
-        this.student_entry_window.form_method       = 'PUT';
-        this.student_entry_window.form_url         += '/'+this.student_entry_window.student_record.get('id');
-        if(this.student_entry_window.argv[1] == 'visit'){
-          this.student_entry_window.student_info_id = this.student_entry_window.argv[0].get('id');
-          this.student_entry_window.symptom_data    = [];
-          for(i=0;i<this.student_entry_window.student_record.get('symptom').split(',').length;i++){
-            this.student_entry_window.symptom_data.push({name: this.student_entry_window.student_record.get('symptom').split(',')[i]})
+    if(this.student_window.argv.length != 0){
+      if(this.student_window.argv[0] != null){
+        this.student_window.student_record = this.student_window.argv[0].copy();
+        if(this.student_window.argv[1] == 'visit')
+          this.student_window.student_record.data.id = this.student_window.argv[0].get('student_id');
+        this.student_window.form_method       = 'PUT';
+        this.student_window.form_url         += '/'+this.student_window.student_record.get('id');
+        if(this.student_window.argv[1] == 'visit'){
+          this.student_window.student_info_id = this.student_window.argv[0].get('id');
+          this.student_window.symptom_data    = [];
+          for(i=0;i<this.student_window.student_record.get('symptom').split(',').length;i++){
+            this.student_window.symptom_data.push({name: this.student_window.student_record.get('symptom').split(',')[i]})
           }
         }
-        this.student_entry_window.student_record.data.grade += 1;
+        this.student_window.student_record.data.grade += 1;
       }
     }else{
-      this.student_entry_window.student_list = {
+      this.student_window.student_list = {
           xtype:      'grid',
           id:         'student_list',
           cls:        'student_list',
@@ -594,7 +596,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         };
     }
 
-    this.student_entry_window.entry_form_container = {
+    this.student_window.entry_form_container = {
       xtype:      'container',
       id:         'entry_form_container',
       itemId:     'entry_form_container',
@@ -619,7 +621,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             fieldLabel:      'Student ID',
             id:              'student_number',
             name:            'student_number',
-            value:           (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.data.student_number
+            value:           (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.data.student_number
           }
         },{
           items:{
@@ -627,7 +629,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             fieldLabel: 'Student First Name',
             id:         'first_name',
             name:       'first_name',
-            value:      (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.data.first_name
+            value:      (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.data.first_name
           }
         },{
           items:{
@@ -635,28 +637,28 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             fieldLabel: 'Student Last Name',
             id:         'last_name',
             name:       'last_name',
-            value:      (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.data.last_name
+            value:      (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.data.last_name
           }
         },{
           items:{
             xtype:      'textfield',
             fieldLabel: 'Contact First Name',
             id:         'contact_first_name',
-            value:      (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.data.contact_first_name
+            value:      (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.data.contact_first_name
           }
         },{
           items:{
             xtype:      'textfield',
             fieldLabel: 'Contact Last Name',
             id:         'contact_last_name',
-            value:      (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.data.contact_last_name
+            value:      (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.data.contact_last_name
           }
         },{
           items:{
             xtype:      'textfield',
             fieldLabel: 'Address',
             id:         'address',
-            value:      (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.data.address
+            value:      (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.data.address
           }
         },{
           items: new Ext.form.ComboBox({
@@ -675,14 +677,14 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             selectOnFocus: true,
             valueField:    'id',
             displayField:  'value',
-            value:         (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.data.zip
+            value:         (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.data.zip
           })
         },{
           items:{
             xtype:      'textfield',
             fieldLabel: 'Phone Number',
             id:         'phone',
-            value:      (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.data.phone
+            value:      (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.data.phone
           }
         },{
           items:{
@@ -692,7 +694,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             emptyText:     'Select Date of Birth...',
             allowBlank:    false,
             selectOnFocus: true,
-            value:         (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.data.dob
+            value:         (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.data.dob
           }
         },{
           items: new Ext.form.ComboBox({
@@ -710,7 +712,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             selectOnFocus: true,
             valueField:    'id',
             displayField:  'value',
-            value:         (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.data.gender
+            value:         (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.data.gender
           })
         },{
           items: new Ext.form.ComboBox({
@@ -728,12 +730,12 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             selectOnFocus: true,
             valueField:    'id',
             displayField:  'value',
-            value:         (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.data.race
+            value:         (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.data.race
           })
         }]
       }
     };
-    this.student_entry_window.entry_grid_container = {
+    this.student_window.entry_grid_container = {
       xtype:      'container',
       id:         'entry_grid_container',
       itemId:     'entry_grid_container',
@@ -749,7 +751,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         anchor:     '100%',
         allowBlank: false,
         height:     72,
-        value:      (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.data.treatment
+        value:      (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.data.treatment
       },{
         xtype:  'container',
         layout: 'fit',
@@ -761,7 +763,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           loadMask:         true,
           autoExpandColumn: 'symptom_list_column',
           emptyText:        '<div style="color:#000;">No symptom selected.</div>',
-          store:            new Ext.data.JsonStore({fields:['name'], data:this.student_entry_window.symptom_data}),
+          store:            new Ext.data.JsonStore({fields:['name'], data:this.student_window.symptom_data}),
           cm:               new Ext.grid.ColumnModel({
             columns:[{
               id:        'symptom_list_column',
@@ -809,7 +811,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         }]
       }]
     };
-    this.student_entry_window.window_config        = {
+    this.student_window.window_config        = {
       layout:    'fit',
       title:     'New Visit',
       width:     550,
@@ -823,15 +825,15 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         xtype:        'form',
         layout:       'hbox',
         layoutConfig: {align:'stretch'},
-        url:          this.student_entry_window.form_url,
+        url:          this.student_window.form_url,
         border:       false,
-        method:       this.student_entry_window.form_method,
+        method:       this.student_window.form_method,
         baseParams:   {
           authenticity_token: FORM_AUTH_TOKEN, school_id: this.user_school_id,
-          student_id: (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.get('id'),
-          student_info_id: this.student_entry_window.student_info_id
+          student_id: (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.get('id'),
+          student_info_id: this.student_window.student_info_id
         },
-        items:        [this.student_entry_window.entry_form_container,this.student_entry_window.entry_grid_container],
+        items:        [this.student_window.entry_form_container,this.student_window.entry_grid_container],
         listeners:    {
           scope:        this,
           beforeaction: function(this_form, action)
@@ -876,23 +878,23 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
       listeners: {scope: this, close: function(){this.window_open = false;}}
     };
 
-    if(this.student_entry_window.student_list != null){
-      this.student_entry_window.window_config.items.items.push(this.student_entry_window.student_list);
+    if(this.student_window.student_list != null){
+      this.student_window.window_config.items.items.push(this.student_window.student_list);
     }else{
-      this.student_entry_window.entry_form_container.hidden = false;
-      if(this.student_entry_window.symptom_data.length != 0){
-        this.student_entry_window.entry_grid_container.hidden = false;
-        this.student_entry_window.window_config.title = "Edit Visit"
+      this.student_window.entry_form_container.hidden = false;
+      if(this.student_window.symptom_data.length != 0){
+        this.student_window.entry_grid_container.hidden = false;
+        this.student_window.window_config.title = "Edit Visit"
       }else{
-        if(typeof this.student_entry_window.student_record.data != "undefined"){
-          if(this.student_entry_window.student_record.get('id')) this.student_entry_window.window_config.title = "Edit Student";
-        }else this.student_entry_window.window_config.title = "New Student";
-        this.student_entry_window.window_config.items.items.splice(1);
-        this.student_entry_window.window_config.width = 280;
+        if(typeof this.student_window.student_record.data != "undefined"){
+          if(this.student_window.student_record.get('id')) this.student_window.window_config.title = "Edit Student";
+        }else this.student_window.window_config.title = "New Student";
+        this.student_window.window_config.items.items.splice(1);
+        this.student_window.window_config.width = 280;
       }
     }
-    if(this.student_entry_window.student_list != null || this.student_entry_window.symptom_data.length != 0){
-      this.student_entry_window.entry_form_container.items.items.push({
+    if(this.student_window.student_list != null || this.student_window.symptom_data.length != 0){
+      this.student_window.entry_form_container.items.items.push({
         items: new Ext.form.ComboBox({
           fieldLabel:    'Grade',
           emptyText:     'Select Grade...',
@@ -908,18 +910,19 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           selectOnFocus: true,
           valueField:    'id',
           displayField:  'value',
-          value:         (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.get('grade')
+          value:         (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.get('grade')
         })
       },{
         items:{
           xtype:      'textfield',
           fieldLabel: 'Temperature',
           id:         'temperature',
-          value:      (typeof this.student_entry_window.student_record.data == "undefined") ? null : this.student_entry_window.student_record.get('temperature')
+          value:      (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.get('temperature')
         }
       });
     }
-    new Ext.Window(this.student_entry_window.window_config).show();
+    var some_win = new Ext.Window(this.student_window.window_config);
+    some_win.show();
   },
   clear_filter: function(button, event)
   {

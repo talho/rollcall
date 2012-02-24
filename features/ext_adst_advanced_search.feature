@@ -153,7 +153,7 @@ Scenario: User runs an advanced query against multiple schools
   And I click school-name-list-item "Anderson Elementary"
   And I click school-name-list-item "Yates High School"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "Anderson Elementary,Yates High School" within the results
   #Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
 
@@ -162,7 +162,7 @@ Scenario: User runs an advanced query against multiple school types
   And I click school-type-list-item "Elementary School"
   And I click school-type-list-item "High School"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Yates High School" within the results
   #Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
 
@@ -171,16 +171,16 @@ Scenario: User runs an advanced query against multiple zipcodes
   And I click zipcode-list-item "77077"
   And I click zipcode-list-item "77004"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "Ashford Elementary,Yates High School" within the results
   #Then I should see graphs "DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
 
 Scenario: User runs an advanced query against multiple ages
   When I press "Switch to Advanced View >>"
   And I click age-list-item "8"
-  And I click age-list-item "18"
+  And I click age-list-item "17"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Yates High School" within the results
   #Then I should see graphs "AGE-8-18_DF-Raw_101912105_c_absenteeism.png,AGE-8-18_DF-Raw_101912273_c_absenteeism.png,AGE-8-18_DF-Raw_101912020_c_absenteeism.png" within the results
 
@@ -189,7 +189,7 @@ Scenario: User runs an advanced query against multiple grades
   And I click grade-list-item "2"
   And I click grade-list-item "10"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "Ector Junior High School,Gale Pond Alamo Elementary School,Austin Elementary School,Anderson Elementary,Ashford Elementary,Yates High School" within the results
   #Then I should see graphs "DF-Raw_GRD-2-10_101912105_c_absenteeism.png,DF-Raw_GRD-2-10_101912273_c_absenteeism.png,DF-Raw_GRD-2-10_101912020_c_absenteeism.png" within the results
 
@@ -198,7 +198,7 @@ Scenario: User runs an advanced query against multiple symptoms
   And I click symptom-list-item "Chills"
   And I click symptom-list-item "Influenza"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Yates High School" within the results
   #Then I should see graphs "DF-Raw_SYM-780.64-487.1_101912105_c_absenteeism.png,DF-Raw_SYM-780.64-487.1_101912273_c_absenteeism.png,DF-Raw_SYM-780.64-487.1_101912020_c_absenteeism.png" within the results
 
@@ -206,7 +206,7 @@ Scenario: User runs an advanced query against male gender
   When I press "Switch to Advanced View >>"
   And I select "Male" from ext combo "gender_adv"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Yates High School" within the results
   #Then I should see graphs "DF-Raw_GNDR-M_101912105_c_absenteeism.png,DF-Raw_GNDR-M_101912273_c_absenteeism.png,DF-Raw_GNDR-M_101912020_c_absenteeism.png" within the results
 
@@ -214,7 +214,7 @@ Scenario: User runs an advanced query against female gender
   When I press "Switch to Advanced View >>"
   And I select "Female" from ext combo "gender_adv"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Yates High School" within the results
   #Then I should see graphs "DF-Raw_GNDR-F_101912105_c_absenteeism.png,DF-Raw_GNDR-F_101912273_c_absenteeism.png,DF-Raw_GNDR-F_101912020_c_absenteeism.png" within the results
 
@@ -226,7 +226,7 @@ Scenario: User runs an advanced query against school type, age, grade, gender an
   And I click symptom-list-item "Influenza"
   And I click age-list-item "8"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Austin Elementary School,Gale Pond Alamo Elementary School" within the results
   #Then I should see graphs "AGE-8_DF-Raw_GNDR-M_GRD-10_SYM-487.1_101912105_c_absenteeism.png,AGE-8_DF-Raw_GNDR-M_GRD-10_SYM-487.1_101912273_c_absenteeism.png" within the results
 
@@ -234,7 +234,7 @@ Scenario: User runs an advanced query to view the average data
   When I press "Switch to Advanced View >>"
   And I select "Average" from ext combo "data_func_adv"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Yates High School" within the results
   #Then I should see graphs "DF-Average_101912105_c_absenteeism.png,DF-Average_101912273_c_absenteeism.png,DF-Average_101912020_c_absenteeism.png" within the results
 
@@ -242,7 +242,7 @@ Scenario: User runs an advanced query to view the standard deviation
   When I press "Switch to Advanced View >>"
   And I select "Standard Deviation" from ext combo "data_func_adv"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Yates High School" within the results
   #Then I should see graphs "DF-StandardDeviation_101912105_c_absenteeism.png,DF-StandardDeviation_101912273_c_absenteeism.png,DF-StandardDeviation_101912020_c_absenteeism.png" within the results
 
@@ -250,7 +250,7 @@ Scenario: User runs an advanced query to view the cusum data
   When I press "Switch to Advanced View >>"
   And I select "Cusum" from ext combo "data_func_adv"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Yates High School" within the results
   #Then I should see graphs "DF-Cusum_101912105_c_absenteeism.png,DF-Cusum_101912273_c_absenteeism.png,DF-Cusum_101912020_c_absenteeism.png" within the results
 
@@ -258,7 +258,7 @@ Scenario: User runs an advanced query to view the moving average data for 30 day
   When I press "Switch to Advanced View >>"
   And I select "Average 30 Day" from ext combo "data_func_adv"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Yates High School" within the results
   #Then I should see graphs "DF-Average30Day_101912105_c_absenteeism.png,DF-Average30Day_101912273_c_absenteeism.png,DF-Average30Day_101912020_c_absenteeism.png" within the results
 
@@ -266,7 +266,7 @@ Scenario: User runs an advanced query to view the moving average data for 60 day
   When I press "Switch to Advanced View >>"
   And I select "Average 60 Day" from ext combo "data_func_adv"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Yates High School" within the results
   #Then I should see graphs "DF-Average60Day_101912105_c_absenteeism.png,DF-Average60Day_101912273_c_absenteeism.png,DF-Average60Day_101912020_c_absenteeism.png" within the results
 
@@ -282,7 +282,7 @@ Scenario: User runs an advanced query against a school district
   When I press "Switch to Advanced View >>"
   And I click school-district-list-item "District2"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "Ector Junior High School,Gale Pond Alamo Elementary School,Austin Elementary School" within the results
   #Then I should see graphs "DF-Raw_68901047_c_absenteeism.png,DF-Raw_68901101_c_absenteeism.png,DF-Raw_68901102_c_absenteeism.png" within the results
 
@@ -291,6 +291,6 @@ Scenario: User runs a simple query against a school district, requests school di
   And I click school-district-list-item "District2"
   And I click "#return_individual_school_adv"
   And I press "Submit"
-  And delayed jobs are processed
+  #And delayed jobs are processed
   Then I should see "District2" within the results
   #Then I should see graphs "DF-Raw_district_68901_c_absenteeism.png" within the results

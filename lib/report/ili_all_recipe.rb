@@ -1,4 +1,6 @@
-class Report::Rollcall::IliAllRecipe < Report::Recipe
+class Report::IliAllRecipe < Report::Recipe
+  include Report::Select::UnSelectable  # do not display in recipe selection list
+
   class << self
     # create_table :report, :force => true do |t|
     #   t.string    :type
@@ -31,21 +33,19 @@ class Report::Rollcall::IliAllRecipe < Report::Recipe
       @current_user = report.author
       dataset       = report.dataset
       i             = 0
-      #dataset.insert({"created_at"=>Time.now.utc})
       dataset.insert({:report=>{:created_at=>Time.now.utc}})
       dataset.insert({:meta=>{:template_directives=>template_directives}}.as_json )
       unless report.criteria[:school_id].blank?
-        school_set          = Rollcall::School.find_all_by_id(report.criteria[:school_id])
-        #@r_school_district = Rollcall::SchoolDistrict.find_by_id(params[:school_district_id])
+        school_set = Rollcall::School.find_all_by_id(report.criteria[:school_id])
       else
-        school_set = Rollcall::School.all
+        school_set = @current_user.schools
       end
       school_set.each do |u|
         u.students.each do |s|
           s.student_daily_info.each do |st|
             symptoms = st.student_reported_symptoms.map(&:symptom).map(&:name).join(",")
             doc      = Hash["i",i, "display_name",u.display_name,"tea_id",u.tea_id,"student_first_name",s.first_name,
-              "student_last_name",s.last_name,"symptoms",symptoms,"report_date",st.report_date.to_time).utc]
+              "student_last_name",s.last_name,"symptoms",symptoms,"report_date",st.report_date.to_time.utc]
             dataset.insert(doc)
             i += 1
           end

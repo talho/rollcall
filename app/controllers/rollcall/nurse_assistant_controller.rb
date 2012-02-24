@@ -15,15 +15,6 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
   #
   # GET rollcall/nurse_assistant
   def index
-    race = [
-      {:id => 0, :value => 'Select Race...'},
-      {:id => 1, :value => 'White'},
-      {:id => 2, :value => 'Black'},
-      {:id => 3, :value => 'Asian'},
-      {:id => 4, :value => 'Hispanic'},
-      {:id => 5, :value => 'Native American'},
-      {:id => 6, :value => 'Other'}
-    ]
     unless params[:start].blank?
       per_page = params[:limit].to_i
       if params[:start].to_i == 0
@@ -119,61 +110,9 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
   #
   # GET rollcall/nurse_assistant_options
   def get_options
-    gender = [
-      {:id => 0, :value => 'Select Gender...'},
-      {:id => 1, :value => 'Male'},
-      {:id => 2, :value => 'Female'}
-    ]
-    race = [
-      {:id => 0, :value => 'Select Race...'},
-      {:id => 1, :value => 'White'},
-      {:id => 2, :value => 'Black'},
-      {:id => 3, :value => 'Asian'},
-      {:id => 4, :value => 'Hispanic'},
-      {:id => 5, :value => 'Native American'},
-      {:id => 6, :value => 'Other'}
-    ]
-    age = [
-      {:id => 0, :value => 'Select Age...'},
-      {:id => 1, :value => '0'},
-      {:id => 2, :value => '1'},
-      {:id => 3, :value => '2'},
-      {:id => 4, :value => '3'},
-      {:id => 5, :value => '4'},
-      {:id => 6, :value => '5'},
-      {:id => 7, :value => '6'},
-      {:id => 8, :value => '7'},
-      {:id => 9, :value => '8'},
-      {:id => 10, :value => '9'},
-      {:id => 11, :value => '10'},
-      {:id => 12, :value => '11'},
-      {:id => 13, :value => '12'},
-      {:id => 14, :value => '13'},
-      {:id => 15, :value => '14'},
-      {:id => 16, :value => '15'},
-      {:id => 17, :value => '16'},
-      {:id => 18, :value => '17'},
-      {:id => 19, :value => '18'}
-    ]
-    grade = [
-      {:id => 0, :value => 'Select Grade...'},
-      {:id => 1, :value => 'Kindergarten (Pre-K)'},
-      {:id => 2, :value => '1st Grade'},
-      {:id => 3, :value => '2nd Grade'},
-      {:id => 4, :value => '3rd Grade'},
-      {:id => 5, :value => '4th Grade'},
-      {:id => 6, :value => '5th Grade'},
-      {:id => 7, :value => '6th Grade'},
-      {:id => 8, :value => '7th Grade'},
-      {:id => 9, :value => '8th Grade'},
-      {:id => 10,:value => '9th Grade'},
-      {:id => 11,:value => '10th Grade'},
-      {:id => 12,:value => '11th Grade'},
-      {:id => 13,:value => '12th Grade'}
-    ]
-    symptoms             = Rollcall::Symptom.find(:all)
     zipcodes             = current_user.school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
     schools              = current_user.schools
+    default_options      = get_default_options({:schools => schools, :nurse => true})
     student_daily_info   = Rollcall::StudentDailyInfo.find(:all, :include => :student,
       :conditions => ["student_id >= ? AND rollcall_students.school_id IN (?)", 1, current_user.school_districts.first.schools],
       :order      => "rollcall_student_daily_infos.created_at DESC", :limit => 1)
@@ -190,11 +129,11 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       format.json do
         render :json => {
           :options => [{
-            :race                 => race,
-            :age                  => age,
-            :gender               => gender,
-            :grade                => grade,
-            :symptoms             => symptoms,
+            :race                 => default_options[:race],
+            :age                  => default_options[:age],
+            :gender               => default_options[:gender],
+            :grade                => default_options[:grade],
+            :symptoms             => default_options[:symptoms],
             :zip                  => zipcodes,
             :total_enrolled_alpha => total_enrolled_alpha,
             :app_init             => app_init,

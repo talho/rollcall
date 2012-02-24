@@ -39,7 +39,7 @@ class IliImporter < SchoolDataImporter
   # @params attrs hash   an attribute hash{:key => value}
   def process_record(rec, attrs)
     if attrs[:school_id]
-      puts "Importing ILI Data for School ID: #{attrs[:school_id]}"
+      #puts "Importing ILI Data for School ID: #{attrs[:school_id]}"
       student_attrs       = {}
       student_daily_attrs = {}
       @mapping.each { |mapping|

@@ -14,7 +14,7 @@ class EnrollmentImporter < SchoolDataImporter
   # @params attrs hash   an attribute hash{:key => value}
   def process_record(rec, attrs)
     if attrs[:school_id]
-      puts "Importing Enrollment Data for School ID: #{attrs[:school_id]}"
+      #puts "Importing Enrollment Data for School ID: #{attrs[:school_id]}"
       daily_info            = Rollcall::SchoolDailyInfo.find_by_school_id_and_report_date(attrs[:school_id], attrs[:report_date])
       daily_info            = Rollcall::SchoolDailyInfo.new if !daily_info
       daily_info.attributes = attrs

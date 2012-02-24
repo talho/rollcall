@@ -1,4 +1,5 @@
 class Rollcall::Data
+  # Method exports data into CSV file and places it in users "Rollcall Documents" folder
   def self.export_data params, filename, user_obj
     initial_result = user_obj.school_search params if params[:return_individual_school]
     initial_result = user_obj.school_districts if params[:return_individual_school].blank?
@@ -60,6 +61,7 @@ class Rollcall::Data
     return true
   end
 
+  # Method extracts data from and returns array of objects
   def self.get_graph_data(params, obj, options={})
     conditions = set_conditions params
     update_ary = []
@@ -77,22 +79,15 @@ class Rollcall::Data
     if i[:tea_id].blank?
       sd = Rollcall::SchoolDistrict.find_by_district_id(i[:district_id])
       sd.daily_infos.each{|s|
-        update_ary.push({
-          :report_date => s[:report_date],
-          :total       => s[:total_absent],
-          :enrolled    => s[:total_enrolled],
-          :name        => sd[:name]
-        })
+        update_ary.push({:report_date => s[:report_date],:total => s[:total_absent],:name => sd[:name]})
       }
       if update_ary.length > 0
         data_func_ary = build_data_function_sets update_ary, params
         update_ary    = (update_ary + data_func_ary).group_by{|a| a[:report_date]}.map{|k,v| v.reduce(:merge)}
       end
-      if update_ary.length == 0
-        update_ary.push(:name => sd[:name])
-      end
+      update_ary.push(:name => sd[:name]) if update_ary.length == 0
     else
-      update_ary = build_update_array Rollcall::School.find_by_tea_id(i[:tea_id]).id, conditions
+      update_ary = build_update_array Rollcall::School.find_by_tea_id(i[:tea_id]).id, conditions, {:graph => true}
       if update_ary.length > 0
         data_func_ary = build_data_function_sets update_ary, params
         update_ary    = (update_ary + data_func_ary).group_by{|a| a[:report_date]}.map{|k,v| v.reduce(:merge)}
@@ -100,30 +95,33 @@ class Rollcall::Data
       update_ary.each{|u|
         r_d_t_i         = Time.at(u[:report_date].to_i)
         u[:report_date] = "#{r_d_t_i.strftime('%b')}-#{r_d_t_i.strftime('%d')}-#{r_d_t_i.strftime('%y')}"
-        u[:tea_id]      = i.tea_id
-        u[:school_name] = i.display_name
-        u[:school_id]   = i.id
-        u[:gmap_lat]    = i.gmap_lat
-        u[:gmap_lng]    = i.gmap_lng
-        u[:gmap_addr]   = i.gmap_addr
       }
       if update_ary.length == 0
         update_ary.push({
           :school_name => i.display_name,
           :tea_id      => i.tea_id,
-          :school_name => i.display_name,
+          :school_id   => i.id,
           :gmap_lat    => i.gmap_lat,
           :gmap_lng    => i.gmap_lng,
           :gmap_addr   => i.gmap_addr
-      })
+        })
+      else
+        update_ary.first[:tea_id]      = i.tea_id
+        update_ary.first[:school_name] = i.display_name
+        update_ary.first[:school_id]   = i.id
+        update_ary.first[:gmap_lat]    = i.gmap_lat
+        update_ary.first[:gmap_lng]    = i.gmap_lng
+        update_ary.first[:gmap_addr]   = i.gmap_addr
       end
     end
     update_ary
   end
 
-  def self.build_update_array record_id, conditions
+  def self.build_update_array record_id, conditions, options={}
     students           = Rollcall::Student.find_all_by_school_id(record_id)
-    student_daily_info = Rollcall::StudentDailyInfo.find_all_by_student_id(students, :order => "report_date ASC")
+    student_daily_info = students.map(&:student_daily_info).flatten.sort{|a,b| a.report_date <=> b.report_date}
+
+    #student_daily_info = Rollcall::StudentDailyInfo.find_all_by_student_id(students, :order => "report_date ASC")
     if !conditions[:startdt].blank?
       parsed_sd  = DateTime.strptime(conditions[:startdt], "%m/%d/%Y")
       start_date = Time.gm(parsed_sd.year,parsed_sd.month,parsed_sd.day)
@@ -151,15 +149,13 @@ class Rollcall::Data
     total_enrolled = school_total.blank? ? 0 : school_total.total_enrolled
     update_ary = []
     (0..days).each do |i|
-      report_date  = start_date + i.days
-      total_absent = get_total_absent report_date, conditions, record_id
-      total_absent = total_absent == false ? 0 : total_absent
-      total_absent = total_absent.blank? ? 0 : total_absent
-      update_ary.push({
-        :report_date => (report_date + 1.day).to_i.to_s,
-        :total       => total_absent,
-        :enrolled    => total_enrolled
-      }) if total_absent > 0
+      report_date           = start_date + i.days
+      total_absent          = get_total_absent report_date, conditions, record_id
+      total_absent          = total_absent == false ? 0 : total_absent
+      total_absent          = total_absent.blank? ? 0 : total_absent
+      update_obj            = {:report_date => (report_date + 1.day).to_i.to_s,:total => total_absent}
+      update_obj[:enrolled] = total_enrolled if options[:graph].blank?
+      update_ary.push(update_obj) if total_absent > 0
     end
     update_ary
   end
@@ -175,7 +171,8 @@ class Rollcall::Data
           dobs = []
           value.each{|v| dobs.push("'#{(Time.now - v.to_i.years)}'")}
           value = dobs
-        else
+        end
+        #else
           condition_array[0] += " AND " if string_flag
           if value.is_a?(Array)
             condition_array[0] += "#{key} IN (#{value.join(",")})"
@@ -184,7 +181,7 @@ class Rollcall::Data
             condition_array.push(value)
           end
           string_flag = true
-        end
+        #end
       end
     }
     condition_array[0] += " AND " if string_flag

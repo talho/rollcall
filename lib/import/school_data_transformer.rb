@@ -120,7 +120,7 @@ class SchoolDataTransformer
           extension = '7z' if file_path.downcase.index('.7z')
           extension = 'zip' if file_path.downcase.index('.zip')
           cmd = "7za e -o#{@dir} #{file_path}"
-          puts "Extracting #{file_path}: #{cmd}"
+          #puts "Extracting #{file_path}: #{cmd}"
           system(cmd)
           if cmd
             if file_path.downcase.index('att')
@@ -477,7 +477,7 @@ class SchoolDataTransformer
   # file to have an EnrollDate that equates to its Attendance counterpart.  For that reason, this method reconstructs
   # the enrollment file with an EnrollDate and insures that the enrollment file mirrors the attendance file
   def transform_enrollment_file
-    puts "Transforming enrollment file for #{@district.name}"
+    #puts "Transforming enrollment file for #{@district.name}"
     att_array = []
     enr_array = []
     tmp_array = []

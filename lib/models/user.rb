@@ -94,43 +94,80 @@ module Rollcall
     end
    
     def simple_school_search params
+      options = {:count_limit => (params[:page].to_i || 1) * (params[:limit].to_i || 6), :count => 0}
       unless params[:school_district].blank?
-        district_id = Rollcall::SchoolDistrict.find_by_name(params[:school_district]).id
-        schools.find_all{|s| s.district_id == district_id }
+        district_id          = Rollcall::SchoolDistrict.find_by_name(params[:school_district]).id
+        schools.find_all{|s|
+          options[:count] += 1 if ([s.district_id] == district_id || [s.district_id].include?(district_id)) && options[:count] <= options[:count_limit]
+          ([s.district_id] == district_id || [s.district_id].include?(district_id)) && (options[:count] - 1) <= options[:count_limit]
+        }
       else
-        r = schools.find_all{|s| s.school_type == params[:school_type] } unless params[:school_type].blank?
-        r = schools.find_all{|s| s.display_name == params[:school] } unless params[:school].blank?
+        r = schools.find_all{|s|
+          options[:count] += 1 if (s.school_type == params[:school_type] || s.school_type.include?(params[:school_type])) && options[:count] <= options[:count_limit]
+          (s.school_type == params[:school_type] || s.school_type.include?(params[:school_type])) && (options[:count] - 1) <= options[:count_limit]
+        } unless params[:school_type].blank?
+        r = schools.find_all{|s|
+          options[:count] += 1 if (s.display_name == params[:school] || s.display_name.include?(params[:school])) && options[:count] <= options[:count_limit]
+          (s.display_name == params[:school] || s.display_name.include?(params[:school])) && (options[:count] - 1) <= options[:count_limit]
+        } unless params[:school].blank?
         r = schools if params[:school].blank? && params[:school_type].blank?
         r = [r] unless r.kind_of?(Array)
         r
       end
     end
 
+    def compare a, b, options={}
+      options[:count] += 1 if (a == b || a.include?(b)) && options[:count] <= options[:count_limit]
+    end
+
     def adv_school_search params
-      r = []
+      r       = []
+      options = {:count_limit => (params[:page].to_i || 1) * (params[:limit].to_i || 6), :count => 0}
       unless params[:school_district].blank?
         district_ids = Rollcall::SchoolDistrict.find_all_by_name(params[:school_district]).map(&:id)
-        r += schools.find_all{|s| district_ids.include?(s.district_id)}
+        r += schools.find_all{|s|
+          options[:count] += 1 if (district_ids == s.district_id || district_ids.include?(s.district_id)) && options[:count] <= options[:count_limit]
+          (district_ids == s.district_id || district_ids.include?(s.district_id)) && (options[:count] - 1) <= options[:count_limit]
+        }
       end
       if !params[:school_type].blank? && !params[:zip].blank?
-        r += schools.find_all{|s| params[:school_type].include?(s.school_type) && params[:zip].include?(s.postal_code)}
+        r += schools.find_all{|s|
+          options[:count] += 1 if (params[:school_type] == s.school_type || params[:school_type].include?(s.school_type)) && options[:count] <= options[:count_limit] && params[:zip].include?(s.postal_code)
+          (params[:school_type] == s.school_type || params[:school_type].include?(s.school_type)) && (options[:count] - 1) <= options[:count_limit] && params[:zip].include?(s.postal_code)
+        }
       elsif !params[:school_type].blank?
-        r += schools.find_all{|s| params[:school_type].include?(s.school_type)}
+        r += schools.find_all{|s|
+          options[:count] += 1 if (params[:school_type] == s.school_type || params[:school_type].include?(s.school_type)) && options[:count] <= options[:count_limit]
+          (params[:school_type] == s.school_type || params[:school_type].include?(s.school_type)) && (options[:count] - 1) <= options[:count_limit]
+        }
       elsif !params[:zip].blank?
-        r += schools.find_all{|s| params[:zip].include?(s.postal_code)}
+        r += schools.find_all{|s|
+          options[:count] += 1 if (params[:zip] == s.postal_code || params[:zip].include?(s.postal_code)) && options[:count] <= options[:count_limit]
+          (params[:zip] == s.postal_code || params[:zip].include?(s.postal_code)) && (options[:count] - 1) <= options[:count_limit]
+        }
       end
       if r.blank?
         unless params[:school].blank?
-          r += schools.find_all{|s| params[:school].include?(s.display_name)}
+          r += schools.find_all{|s|
+            options[:count] += 1 if (params[:school] == s.display_name || params[:school].include?(s.display_name)) && options[:count] <= options[:count_limit]
+            (params[:school] == s.display_name || params[:school].include?(s.display_name)) && (options[:count] - 1) <= options[:count_limit]
+          }
         else
           r += schools
         end
       else
-        r += schools.find_all{|s| params[:school].include?(s.display_name)} unless params[:school].blank?
+        r += schools.find_all{|s|
+          options[:count] += 1 if (params[:school] == s.display_name || params[:school].include?(s.display_name)) && options[:count] <= options[:count_limit]
+          (params[:school] == s.display_name || params[:school].include?(s.display_name)) && (options[:count] - 1) <= options[:count_limit]
+        } unless params[:school].blank?
         r.flatten!
       end
       r.uniq!
       r
+    end
+
+    def students
+      Rollcall::Student.find_all_by_school_id schools
     end
   end
 

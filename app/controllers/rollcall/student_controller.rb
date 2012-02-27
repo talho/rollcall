@@ -2,17 +2,8 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
   before_filter :rollcall_student_required
   # GET rollcall/students
   def index
-    race = [
-      {:id => 0, :value => 'Select Race...'},
-      {:id => 1, :value => 'White'},
-      {:id => 2, :value => 'Black'},
-      {:id => 3, :value => 'Asian'},
-      {:id => 4, :value => 'Hispanic'},
-      {:id => 5, :value => 'Native American'},
-      {:id => 6, :value => 'Other'}
-    ]
-
-    students       = Rollcall::Student.find_all_by_school_id(params[:school_id])
+    #default_options = get_default_options({:simple => true})
+    students        = Rollcall::Student.find_all_by_school_id(params[:school_id])
     unless params[:start].blank?
       per_page = params[:limit].to_i
       if params[:start].to_i == 0
@@ -39,7 +30,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       record[:student_number]     = student_obj.student_number.blank? ? "Unknown" : student_obj.student_number
       record[:phone]              = student_obj.phone.blank? ? "Unknown" : student_obj.phone
       record[:gender]             = student_obj.gender.blank? ? "Unknown" : student_obj.gender
-      record[:race]               = race.each do |rec, index| rec[:value] == student_obj.race ? index : 0  end
+      record[:race]               = get_default_options({:simple => true})[:race].each do |rec, index| rec[:value] == student_obj.race ? index : 0  end
     end
     respond_to do |format|
       format.json do
@@ -54,17 +45,9 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
 
   # POST rollcall/students
   def create
-    report_date =  Date.today.to_datetime.to_time
-    race        = [
-      {:id => 0, :value => 'Select Race...'},
-      {:id => 1, :value => 'White'},
-      {:id => 2, :value => 'Black'},
-      {:id => 3, :value => 'Asian'},
-      {:id => 4, :value => 'Hispanic'},
-      {:id => 5, :value => 'Native American'},
-      {:id => 6, :value => 'Other'}
-    ]
-    student_obj = Rollcall::Student.find_by_id(params[:student_id]) unless params[:student_id].blank?
+    report_date     =  Date.today.to_datetime.to_time
+    #default_options = get_default_options({:simple => true})
+    student_obj     = Rollcall::Student.find_by_id(params[:student_id]) unless params[:student_id].blank?
     if student_obj.blank?
       student_obj = Rollcall::Student.create(
         :first_name         => params[:first_name],
@@ -75,7 +58,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
         :zip                => params[:zip],
         :gender             => params[:gender].first,
         :phone              => params[:phone].to_i,
-        :race               => race.each{ |rec, index| rec[:value] == params[:race] ? index : 0 },
+        :race               => get_default_options({:simple => true})[:race].each{ |rec, index| rec[:value] == params[:race] ? index : 0 },
         :school_id          => params[:school_id].to_i,
         :dob                => DateTime.strptime(params[:dob].to_s, "%m/%d/%Y"),
         :student_number     => params[:student_number]
@@ -114,16 +97,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
 
   # PUT rollcall/students/:id
   def update
-    race = [
-      {:id => 0, :value => 'Select Race...'},
-      {:id => 1, :value => 'White'},
-      {:id => 2, :value => 'Black'},
-      {:id => 3, :value => 'Asian'},
-      {:id => 4, :value => 'Hispanic'},
-      {:id => 5, :value => 'Native American'},
-      {:id => 6, :value => 'Other'}
-    ]
-
+    #default_options = get_default_options({:simple => true})
     student_record  = Rollcall::Student.find_by_id params[:id]
     student_success = student_record.update_attributes(
       :first_name         => params[:first_name],
@@ -136,7 +110,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       :dob                => DateTime.strptime(params[:dob].to_s, "%m/%d/%Y"),
       :student_number     => params[:student_number],
       :gender             => params[:gender].first,
-      :race               => race.each do |rec, index| rec[:value] == params[:race] ? index : 0  end
+      :race               => get_default_options({:simple => true})[:race].each do |rec, index| rec[:value] == params[:race] ? index : 0  end
     )
     student_record.save if student_success
     unless params[:student_info_id].blank?

@@ -35,7 +35,7 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
         render :json => {
           :success       => true,
           :total_results => alarms.length,
-          :alarms => alarms.flatten
+          :alarms        => alarms.flatten
         }
       end
     end
@@ -43,11 +43,11 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
 
   # POST rollcall/alarms
   def create
-    result = Rollcall::AlarmQuery.find(params[:alarm_query_id]).send_later(:generate_alarm)
+    Rollcall::AlarmQuery.find(params[:alarm_query_id]).delay.generate_alarm
     respond_to do |format|
       format.json do
         render :json => {
-          :success => result
+          :success => true
         }
       end
     end

@@ -119,11 +119,7 @@ Talho.Rollcall.ADSTSimpleContainer = Ext.extend(Ext.Container, {
             })
         },{
           cls: 'line-check-simple',
-          items:[//{
-            //xtype: 'checkbox',
-            //id: 'enrolled_base_line_simple',
-            //boxLabel: "Display Total Enrolled Base Line"
-          /*},*/{
+          items:[{
             xtype: 'checkbox',
             id: 'return_individual_school_simple',
             checked: true,
@@ -140,7 +136,7 @@ Talho.Rollcall.ADSTSimpleContainer = Ext.extend(Ext.Container, {
             scope: this,
             handler: function(buttonEl, eventObj){
               this.hide();
-              Ext.getCmp('rollcall_adst').resetForm();
+              Ext.getCmp('rollcall_adst')._resetForm();
               Ext.getCmp('advanced_query_select').show();
               Ext.getCmp('advanced_query_select').doLayout();
             }

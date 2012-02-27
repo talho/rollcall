@@ -79,7 +79,7 @@ class SchoolDataImporter
   # @params attrs hash   an attribute hash{:key => value}
   def process_record(rec, attrs)
     # must be defined in derived class
-    puts "Write method to import #{rec}, #{attrs}"
+    #puts "Write method to import #{rec}, #{attrs}"
   end
 
   # Method returns the PK for school with tea_id

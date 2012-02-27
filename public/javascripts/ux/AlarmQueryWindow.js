@@ -86,7 +86,7 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
                 zIndex: '300'
               },
               listeners: {
-                keyup: this.changeSliderField
+                keyup: this._changeSliderField
               },
               enableKeyEvents: true,
               id: 'min_deviation'
@@ -94,9 +94,9 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
               xtype: 'sliderfield',
               width: 135,
               listeners: {
-                change: this.changeTextField
+                change: this._changeTextField
               },
-              tipText: this.showTipText,
+              tipText: this._showTipText,
               id:      'deviation_min',
               cls:     'ux-layout-auto-float-item',
               value:   config.deviation_min
@@ -111,7 +111,7 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
                 marginLeft: '-40px'
               },
               listeners: {
-                keyup: this.changeSliderField
+                keyup: this._changeSliderField
               },
               enableKeyEvents: true,
               id: 'max_deviation'
@@ -119,9 +119,9 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
               xtype: 'sliderfield',
               width: 135,
               listeners: {
-                change: this.changeTextField
+                change: this._changeTextField
               },
-              tipText: this.showTipText,
+              tipText: this._showTipText,
               id:      'deviation_max',
               cls:     'ux-layout-auto-float-item',
               value:   config.deviation_max
@@ -131,7 +131,7 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
             xtype: 'toolbar',
             items: ['->', {
               text:    'Max All',
-              handler: this.maxFields
+              handler: this._maxFields
             }]
           }
         },{
@@ -158,7 +158,7 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
                 marginLeft: '-40px'
               },
               listeners: {
-                keyup: this.changeSliderField
+                keyup: this._changeSliderField
               },
               enableKeyEvents: true,
               id: 'min_severity'
@@ -166,9 +166,9 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
               xtype: 'sliderfield',
               width: 135,
               listeners: {
-                change: this.changeTextField
+                change: this._changeTextField
               },
-              tipText: this.showTipText,
+              tipText: this._showTipText,
               id:      'severity_min',
               value:   config.severity_min,
               cls:     'ux-layout-auto-float-item'
@@ -183,7 +183,7 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
                 marginLeft: '-40px'
               },
               listeners: {
-                keyup: this.changeSliderField
+                keyup: this._changeSliderField
               },
               enableKeyEvents: true,
               id: 'max_severity'
@@ -191,9 +191,9 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
               xtype: 'sliderfield',
               width: 135,
               listeners: {
-                change: this.changeTextField
+                change: this._changeTextField
               },
-              tipText: this.showTipText,
+              tipText: this._showTipText,
               id:      'severity_max',
               value:   config.severity_max,
               cls:     'ux-layout-auto-float-item'
@@ -203,7 +203,7 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
             xtype: 'toolbar',
             items: ['->', {
               text:    'Max All',
-              handler: this.maxFields
+              handler: this._maxFields
             }]
           }
         },{
@@ -243,15 +243,15 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
     });
     Talho.Rollcall.ux.AlarmQueryWindow.superclass.constructor.call(this);
   },
-  changeTextField: function(obj, new_number, old_number)
+  _changeTextField: function(obj, new_number, old_number)
   {
     obj.ownerCt.findByType('textfield')[0].setValue(new_number)
   },
-  changeSliderField: function(this_field, event_obj)
+  _changeSliderField: function(this_field, event_obj)
   {
     this_field.nextSibling().setValue(this_field.getValue());
   },
-  maxFields: function(buttonEl, eventObj)
+  _maxFields: function(buttonEl, eventObj)
   {
     sliders = buttonEl.ownerCt.ownerCt.findByType("sliderfield");
     for(key in sliders){
@@ -260,7 +260,7 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
       }catch(e){}
     }
   },
-  showTipText: function(thumb)
+  _showTipText: function(thumb)
   {
     return String(thumb.value) + '%';
   }

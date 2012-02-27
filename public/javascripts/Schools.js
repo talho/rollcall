@@ -150,7 +150,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
       },
       listeners: {
         scope:     this,
-        rowclick:  this.showSchoolProfile
+        rowclick:  this._showSchoolProfile
       }
     });
 
@@ -215,7 +215,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
               text:    'Generate Attendance Report',
               recipe:  'Report::AttendanceAllRecipe',
               scope:   this,
-              handler: this.showReportMessage
+              handler: this._showReportMessage
             },{
               xtype:  'spacer',
               height: 10
@@ -224,7 +224,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
               text:    'Generate ILI Report',
               recipe:  'Report::IliAllRecipe',
               scope:   this,
-              handler: this.showReportMessage
+              handler: this._showReportMessage
             }]
           }]
         },{
@@ -242,14 +242,14 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
     school_radio_group.addListener('change', function(group, chkd_radio )
       {
         var id = this.school_list_grid().getSelectionModel().getSelected().get('id');
-        this.getSchoolData(chkd_radio.value, this.school_grid_panel(), 'school', id);
+        this._getSchoolData(chkd_radio.value, this.school_grid_panel(), 'school', id);
       },
     this);
 
     student_radio_group.addListener('change', function(group, chkd_radio )
       {
         var id = this.school_list_grid().getSelectionModel().getSelected().get('id');
-        this.getSchoolData(chkd_radio.value, this.student_grid_panel(), 'student', id);
+        this._getSchoolData(chkd_radio.value, this.student_grid_panel(), 'student', id);
       },
     this);
 
@@ -263,7 +263,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
 
   },
 
-  showSchoolProfile: function(grid_panel, row_index, event_obj)
+  _showSchoolProfile: function(grid_panel, row_index, event_obj)
   {
     this.grid_mask = new Ext.LoadMask(grid_panel.getEl(), {msg:"Please wait...", removeMask: true});
     this.grid_mask.show();
@@ -303,11 +303,11 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
     grid_panel.ownerCt.ownerCt.doLayout();
     grid_panel.ownerCt.doLayout();
     main_panel.doLayout();
-    this.getSchoolData(1, this.school_grid_panel(), 'school', school.get('id'));
-    this.getSchoolData(1, this.student_grid_panel(), 'student', school.get('id'));
+    this._getSchoolData(1, this.school_grid_panel(), 'school', school.get('id'));
+    this._getSchoolData(1, this.student_grid_panel(), 'student', school.get('id'));
   },
 
-  getSchoolData: function(month, grid_panel, type, school_id)
+  _getSchoolData: function(month, grid_panel, type, school_id)
   {
     var grid_mask  = new Ext.LoadMask(grid_panel.getEl(), {msg:"Please wait...", removeMask: true});
     var grid_owner = grid_panel.ownerCt.ownerCt;
@@ -334,15 +334,15 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
     });
   },
 
-  showReportMenu: function(element, school_id)
+  _showReportMenu: function(element, school_id)
   {
     var scrollMenu = new Ext.menu.Menu();
-    scrollMenu.add({school_id: school_id, recipe: 'Report::AttendanceAllRecipe', text: 'Attendance Report', handler: this.showReportMessage});
-    scrollMenu.add({school_id: school_id, recipe: 'Report::IliAllRecipe',        text: 'ILI Report',        handler: this.showReportMessage});
+    scrollMenu.add({school_id: school_id, recipe: 'Report::AttendanceAllRecipe', text: 'Attendance Report', handler: this._showReportMessage});
+    scrollMenu.add({school_id: school_id, recipe: 'Report::IliAllRecipe',        text: 'ILI Report',        handler: this._showReportMessage});
     scrollMenu.show(element);
   },
 
-  showReportMessage: function(buttonObj, eventObj)
+  _showReportMessage: function(buttonObj, eventObj)
   {
     Ext.Ajax.request({
       url:      '/rollcall/report',

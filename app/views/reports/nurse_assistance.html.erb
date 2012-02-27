@@ -1,0 +1,25 @@
+<div class="rollcall_report">
+  <h1>Schools Sending ILI Data</h1>
+  <%- filtered = filters.present? ? "(FILTERED)" : "" -%>
+  <%- content_tag(:table,:cellspacing=>"0", :class=>"zebra-striped") do -%>
+    <%= content_tag(:caption, "Schools #{filtered} as of #{Time.now}", :style=>"text-align:center")%>
+    <%- content_tag(:thead) do -%>
+      <%- content_tag(:tr) do -%>
+        <%=content_tag(:th,"Name")%>
+        <%=content_tag(:th,"TeaID")%>
+        <%=content_tag(:th,"TotalReportedStudents")%>
+        <%=content_tag(:th,"TotalReportedSymptoms")%>
+      <%- end -%>
+    <%- end -%>
+    <%- content_tag(:div, :class=>"nobreak") do -%>
+      <%- entries.each_with_index do |r,i| -%>
+        <%- content_tag(:tr,:class=>"#{(i%2 > 0) ? "Odd" : "Even"}") do -%>
+          <%= content_tag(:td, r["display_name"]) %>
+          <%= content_tag(:td, r["tea_id"]) %>
+          <%= content_tag(:td, r["total_students"]) %>
+          <%= content_tag(:td, r["total_symptoms"]) %>
+        <%- end -%>
+      <%- end -%>
+    <%- end  -%>
+  <%- end -%>
+</div>

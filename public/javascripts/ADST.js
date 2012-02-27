@@ -66,7 +66,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
             disabled: true,
             handler:  function()
             {
-              this.ownerCt.ownerCt.getComponent('alarm_panel').load_alarm_gmap_window();
+              this.ownerCt.ownerCt.getComponent('alarm_panel')._load_alarm_gmap_window();
             }
           }]
         },{
@@ -97,34 +97,36 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                 text:     "Submit",
                 scope:    this,
                 hidden:   true,
-                handler:  this.submitQuery,
+                itemId:   'submit_ext4',
+                id:       'submit_ext4',
+                handler:  this._submitQuery,
                 formBind: true
               },{
                 text:    "Reset Form",
                 scope:   this,
                 hidden:  true,
-                handler: this.resetForm
+                handler: this._resetForm
               },{
                 text:    "Export Result Set",
                 hidden:  true,
                 scope:   this,
-                handler: this.exportResultSet
+                handler: this._exportResultSet
               },{
                 text:    "Map Result Set",
                 hidden:  true,
                 scope:   this,
-                handler: this.mapResultSet
+                handler: this._mapResultSet
               },{
                 text:    "Create Alarm from Result Set",
                 hidden:  true,
                 scope:   this,
-                handler: this.saveResultSet
+                handler: this._saveResultSet
               },{
                 text:    "Generate Report from Result Set",
                 hidden:  true,
                 scope:   this,
                 handler: function(buttonObj, eventObj){
-                  this.showReportMenu(buttonObj.getEl(), null);
+                  this._showReportMenu(buttonObj.getEl(), null);
                 }
               }],
               html: '<div id="graph_legend" style="margin-top:4px;display:none;">' +
@@ -138,7 +140,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                     '</div>',
               listeners:{
                 scope:        this,
-                beforerender: this.initFormComponent
+                beforerender: this._initFormComponent
               }
             }]
           }, resultPanel ],
@@ -148,54 +150,26 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
             prependButtons: true,
             pageSize:       6,
             listeners:{
-              'beforechange': this.setNextPage
+              'beforechange': this._setNextPage
             }
           })
         }]
-      }]
-    });
-    Talho.Rollcall.ADST.superclass.constructor.call(this, config);
-    this.addListener("deactivate", function(w){
-      if(Ext.getCmp('gmap_alarm_window')) Ext.getCmp('gmap_alarm_window').close();
-      this.get(0).get(1).getComponent('alarm_panel').close_alarm_tip();
-    });
-    this.addListener("close", function(w){
-      if(Ext.getCmp('gmap_alarm_window')) Ext.getCmp('gmap_alarm_window').close();
-      this.get(0).get(1).getComponent('alarm_panel').close_alarm_tip();
-    });
-  },/*
-  renderGraphs: function(id, image, obj, class_name, total)
-  {
-    provider = new Ext.direct.PollingProvider({
-      id:         'image' + id + '-provider',
-      type:       'polling',
-      url:        image,
-      form_panel: this.find('id', 'ADSTFormPanel')[0],
-      index:      id,
-      total:      total - 1,
-      interval:   5000,
-      listeners: {
-        scope: obj,
-        data: function(provider, e)
-        {
-          if(e.xhr.status == 200) {
-            var element_id = Ext.id();
-            this.update('<div id="'+element_id+'" class="'+class_name+'"><img src="'+provider.url+'"/></div>');
-            this.doLayout();
-            provider.purgeListeners();
-            provider.disconnect();
-            if(provider.index == provider.total) provider.form_panel.buttons[0].enable();
-            return true;
-          } else {
-            return false;
-          }
+      }],
+      listeners:{
+        scope: this,
+        deactivate: function(w){
+          if(Ext.getCmp('gmap_alarm_window')) Ext.getCmp('gmap_alarm_window').close();
+          this.get(0).get(1).getComponent('alarm_panel')._close_alarm_tip();
+        },
+        close: function(w){
+          if(Ext.getCmp('gmap_alarm_window')) Ext.getCmp('gmap_alarm_window').close();
+          this.get(0).get(1).getComponent('alarm_panel')._close_alarm_tip();
         }
       }
     });
-    this.providers.push(provider);
-    Ext.Direct.addProvider(provider); 
-  },*/
-  buildParams: function(form_values)
+    Talho.Rollcall.ADST.superclass.constructor.call(this, config);
+  },
+  _buildParams: function(form_values)
   {
     var params = new Object;
     params['authenticity_token'] = FORM_AUTH_TOKEN;
@@ -212,17 +186,17 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     else params['type'] = 'simple'
     return params;
   },
-  saveResultSet: function(buttonEl, eventObj)
+  _saveResultSet: function(buttonEl, eventObj)
   {
-    this.getResultPanel().showAlarmQueryConsole(null);
+    this.getResultPanel()._showAlarmQueryConsole(null);
     return true;
   },
-  mapResultSet: function(buttonEl, eventObj)
+  _mapResultSet: function(buttonEl, eventObj)
   {
     var form_panel  = this.find('id', 'ADSTFormPanel')[0];
     var form_values = form_panel.getForm().getValues();
-    var params      = this.buildParams(form_values);
-    params["limit"] = this.getResultPanel().getResultStore().getTotalCount();
+    var params      = this._buildParams(form_values);
+    params["limit"] = this.getResultPanel()._getResultStore().getTotalCount();
     this._grabListViewFormValues(params, this);
     Ext.Ajax.request({
       url:      '/rollcall/schools',
@@ -274,9 +248,9 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       failure: function(){}
     });
   },
-  exportResultSet: function(buttonEl, eventObj)
+  _exportResultSet: function(buttonEl, eventObj)
   {
-    var params = this.buildParams(buttonEl.findParentByType("form").getForm().getValues());
+    var params = this._buildParams(buttonEl.findParentByType("form").getForm().getValues());
     this._grabListViewFormValues(params, this);
     Ext.Ajax.request({
       url:    '/rollcall/export',
@@ -295,10 +269,9 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       failure: function(){}
     });  
   },
-  resetForm: function()
+  _resetForm: function()
   {
     this.find('id', 'ADSTFormPanel')[0].getForm().reset();
-    //buttonEl.findParentByType("form").getForm().reset();
     this.find('id', 'school_adv')[0].clearSelections();
     this.find('id', 'school_type_adv')[0].clearSelections();
     this.find('id', 'zip_adv')[0].clearSelections();
@@ -316,21 +289,21 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       if (vals.length > 0) params[list_fields[i]+'[]'] = vals;
     }
   },
-  submitQuery: function(buttonEl, eventObj)
+  _submitQuery: function(buttonEl, eventObj)
   {
-    this.getResultPanel().clearProviders();
+    //this.getResultPanel()._clearProviders();
     var form_panel   = this.find('id', 'ADSTFormPanel')[0];
     var form_values  = form_panel.getForm().getValues();
-    var result_store = this.getResultPanel().getResultStore();
+    var result_store = this.getResultPanel()._getResultStore();
     form_panel.findParentByType('panel').getBottomToolbar().bindStore(result_store);
     result_store.baseParams = {}; // clear previous search values
-    var params              = this.buildParams(form_values);
+    var params              = this._buildParams(form_values);
     this._grabListViewFormValues(params, this);
     for(key in params){
       if(params[key].indexOf('...') == -1 && key.indexOf("[]") == -1 && key != 'authenticity_token'){
         result_store.setBaseParam(key, params[key].replace(/\+/g, " "));
       }else if(params[key].indexOf('...') == -1){
-        result_store.setBaseParam(key, params[key]);      
+        result_store.setBaseParam(key, params[key]);
       }
     }
     //form_panel.buttons[0].disable();
@@ -339,26 +312,26 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     form_panel.buttons[4].show();
     $('#graph_legend').show();
     //form_panel.buttons[5].show();
-    var panel_mask = new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(), {msg:"Please wait..."});
+    var panel_mask = new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(),{msg:"Please wait..."});
     panel_mask.show();
     result_store.on('load', function(){ panel_mask.hide(); });
     result_store.load();
     return true;
   },
-  setNextPage: function(this_toolbar, params)
+  _setNextPage: function(this_toolbar, params)
   {
-    var result_store   = this_toolbar.ownerCt.ownerCt.ownerCt.getResultPanel().getResultStore();
-    var container_mask = new Ext.LoadMask(this_toolbar.ownerCt.ownerCt.ownerCt.getResultPanel().getEl(), {msg:"Please wait..."});
+    var result_store   = this_toolbar.ownerCt.ownerCt.ownerCt.getResultPanel()._getResultStore();
+    var container_mask = new Ext.LoadMask(this_toolbar.ownerCt.ownerCt.ownerCt.getResultPanel().getEl(),{msg:"Please wait..."});
     params['page']     = Math.floor(params.start /  params.limit) + 1;
     container_mask.show();
     result_store.on('load', function(){ container_mask.hide(); });
     return true;
   },
-  loadInitMask: function()
+  _loadInitMask: function()
   {
-    new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(),    {msg:"Please wait...", store: this.init_store});
+    new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(),{msg:"Please wait...", store: this.init_store});
   },
-  initFormComponent: function(form_panel)
+  _initFormComponent: function(form_panel)
   {
     this.init_store = new Ext.data.JsonStore({
       root:     'options',
@@ -373,8 +346,8 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           this.add(new Talho.Rollcall.ADSTAdvancedContainer({options: records[0].data}));
           this.buttons[0].show();
           this.buttons[1].show();
-          //this.ownerCt.ownerCt.ownerCt.getComponent('reports_panel').getBottomToolbar().findById('create_report_button').enable();
           this.doLayout();
+          //Ext4.supports.init();
         },
         exception: function(misc){
           Ext.Msg.alert('Access', 'You are not authorized to access this feature.  Please contact TX PHIN.', function(){
@@ -383,17 +356,17 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         }
       }
     });
-    this.loadInitMask();
+    this._loadInitMask();
     this.init_store.load();
   },
-  showReportMenu: function(element, school_id)
+  _showReportMenu: function(element, school_id)
   {
     var scrollMenu = new Ext.menu.Menu();
-    scrollMenu.add({school_id: school_id, recipe: 'Report::AttendanceAllRecipe', text: 'Attendance Report', handler: this.showReportMessage});
-    scrollMenu.add({school_id: school_id, recipe: 'Report::IliAllRecipe',        text: 'ILI Report',        handler: this.showReportMessage});
+    scrollMenu.add({school_id: school_id, recipe: 'Report::AttendanceAllRecipe', text: 'Attendance Report', handler: this._showReportMessage});
+    scrollMenu.add({school_id: school_id, recipe: 'Report::IliAllRecipe',        text: 'ILI Report',        handler: this._showReportMessage});
     scrollMenu.show(element);
   },
-  showReportMessage: function(buttonObj, eventObj)
+  _showReportMessage: function(buttonObj, eventObj)
   {
     Ext.Ajax.request({
       url:      '/rollcall/report',

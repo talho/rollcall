@@ -22,8 +22,6 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     if params[:return_individual_school].blank?
       if params[:school_district]
         results = results.find_all{|r| params[:school_district].include?(r.name)}
-      #else
-      #  results = results.find_all{|r| current_user.school_districts.include?(r.name)}
       end
     end
     results_paged = results.paginate(options)
@@ -55,7 +53,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       Rollcall::Data.export_data(params, filename, current_user)
     else
       filename = "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}"
-      Rollcall::Data.send_later(:export_data, params, filename, current_user)
+      Rollcall::Data.delay.export_data(params, filename, current_user)
     end
 
     respond_to do |format|
@@ -92,83 +90,33 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   #
   # POST /rollcall/query_options
   def get_options
-    absenteeism = [
-      {:id => 0, :value => 'Gross'},
-      {:id => 1, :value => 'Confirmed Illness'}
-    ]
-    age = [
-      {:id => 1, :value => '0'},
-      {:id => 2, :value => '1'},
-      {:id => 3, :value => '2'},
-      {:id => 4, :value => '3'},
-      {:id => 5, :value => '4'},
-      {:id => 6, :value => '5'},
-      {:id => 7, :value => '6'},
-      {:id => 8, :value => '7'},
-      {:id => 9, :value => '8'},
-      {:id => 10, :value => '9'},
-      {:id => 11, :value => '10'},
-      {:id => 12, :value => '11'},
-      {:id => 13, :value => '12'},
-      {:id => 14, :value => '13'},
-      {:id => 15, :value => '14'},
-      {:id => 16, :value => '15'},
-      {:id => 17, :value => '16'},
-      {:id => 18, :value => '17'},
-      {:id => 19, :value => '18'}
-    ]
-    gender = [
-      {:id => 0, :value => 'Select Gender...'},
-      {:id => 1, :value => 'Male'},
-      {:id => 2, :value => 'Female'}
-    ]
-    grade = [
-      {:id => 1, :value => 'Kindergarten (Pre-K)'},
-      {:id => 2, :value => '1st Grade'},
-      {:id => 3, :value => '2nd Grade'},
-      {:id => 4, :value => '3rd Grade'},
-      {:id => 5, :value => '4th Grade'},
-      {:id => 6, :value => '5th Grade'},
-      {:id => 7, :value => '6th Grade'},
-      {:id => 8, :value => '7th Grade'},
-      {:id => 9, :value => '8th Grade'},
-      {:id => 10,:value => '9th Grade'},
-      {:id => 11,:value => '10th Grade'},
-      {:id => 12,:value => '11th Grade'},
-      {:id => 13,:value => '12th Grade'}
-    ]
-    symptoms       = Rollcall::Symptom.find(:all)
-    data_functions = [
-      {:id => 0, :value => 'Raw'},
-      {:id => 1, :value => 'Average'},
-      {:id => 2, :value => 'Standard Deviation'}
-    ]
-    data_functions_adv = [
-      {:id => 0, :value => 'Raw'},
-      {:id => 1, :value => 'Average'},
-      {:id => 2, :value => 'Average 30 Day'},
-      {:id => 3, :value => 'Average 60 Day'},
-      {:id => 4, :value => 'Standard Deviation'},
-      {:id => 5, :value => 'Cusum'}
-    ]
     schools          = current_user.schools
     school_districts = current_user.school_districts
-    zipcodes         = school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
-    school_types     = school_districts.map{|s| s.school_types.map{|i| {:id => i, :value => i}}}.flatten
+    default_options  = get_default_options({:schools => schools})
+    zipcodes         = school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten.uniq
+    school_types     = school_districts.map{|s| s.school_types.map{|i| {:id => i, :value => i}}}.flatten.uniq
+    grades           = []
+    Rollcall::StudentDailyInfo.find_by_sql("SELECT grade FROM rollcall_student_daily_infos WHERE
+                      student_id IN (SELECT id FROM rollcall_students WHERE school_id IN
+                      (#{schools.map(&:id).to_s.gsub(/[\[\]]/,"")})) ORDER BY grade ASC").map(&:grade).uniq.delete_if{|d| d.blank?}.delete_if{|d| d < 0 || d > 12}.each_with_index{|g,i|
+                        text = "#{g.ordinalize} Grade"
+                        text = "Kindergarten (Pre-K)" if g == 0
+                        grades.push({:id => i+1, :value => text})
+                      }
     respond_to do |format|
       format.json do
         render :json => {
           :options => [{
-            :absenteeism        => absenteeism,
-            :age                => age,
-            :data_functions     => data_functions,
-            :data_functions_adv => data_functions_adv,
-            :gender             => gender,
-            :grade              => grade,
+            :absenteeism        => default_options[:absenteeism],
+            :age                => default_options[:age],
+            :data_functions     => default_options[:data_functions],
+            :data_functions_adv => default_options[:data_functions_adv],
+            :gender             => default_options[:gender],
+            :grade              => grades,
             :school_districts   => school_districts,
             :school_type        => school_types,
             :schools            => schools,
-            :symptoms           => symptoms,
+            :symptoms           => default_options[:symptoms],
             :zipcode            => zipcodes
           }]
         }

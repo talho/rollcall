@@ -1,4 +1,6 @@
-class Report::Rollcall::AttendanceAllRecipe < Report::Recipe
+class Report::AttendanceAllRecipe < Report::Recipe
+  include Report::Select::UnSelectable  # do not display in recipe selection list
+
   class << self
     # create_table :report, :force => true do |t|
     #   t.string    :type
@@ -25,20 +27,18 @@ class Report::Rollcall::AttendanceAllRecipe < Report::Recipe
 
     def layout_path
       File.join(Rails.root, 'vendor','plugins','rollcall','app','views', 'reports','layout.html.erb')
-      #File.join(Rails.root, 'vendor','plugins','rollcall','app','views', 'reports','attendance_all.html.erb')
     end
     
     def capture_to_db(report)
       @current_user = report.author
       dataset       = report.dataset
       i             = 0
-      #dataset.insert({"created_at"=>Time.now.utc})
       dataset.insert({:report=>{:created_at=>Time.now.utc}})
       dataset.insert({:meta=>{:template_directives=>template_directives}}.as_json )
       unless report.criteria[:school_id].blank?
         school_set = Rollcall::School.find_all_by_id(report.criteria[:school_id])
       else
-        school_set = Rollcall::School.all
+        school_set = @current_user.schools
       end
       school_set.each do |u|
         u.school_daily_infos.each do |sd|

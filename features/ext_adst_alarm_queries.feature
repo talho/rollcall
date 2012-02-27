@@ -130,7 +130,6 @@ Background:
   And I navigate to "Apps > Rollcall > ADST"
   And I wait for the panel to load
   And I press "Submit"
-  And delayed jobs are processed
 
 Scenario: User creates an Alarm Query
   When "Anderson Elementary" graphs has done loading

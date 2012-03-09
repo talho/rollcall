@@ -213,7 +213,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
             },{
               xtype:   'button',
               text:    'Generate Attendance Report',
-              recipe:  'Report::AttendanceAllRecipe',
+              recipe:  'Report::AttendanceAllRecipeInternal',
               scope:   this,
               handler: this._showReportMessage
             },{
@@ -222,7 +222,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
             },{
               xtype:   'button',
               text:    'Generate ILI Report',
-              recipe:  'Report::IliAllRecipe',
+              recipe:  'Report::IliAllRecipeInternal',
               scope:   this,
               handler: this._showReportMessage
             }]
@@ -337,8 +337,8 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
   _showReportMenu: function(element, school_id)
   {
     var scrollMenu = new Ext.menu.Menu();
-    scrollMenu.add({school_id: school_id, recipe: 'Report::AttendanceAllRecipe', text: 'Attendance Report', handler: this._showReportMessage});
-    scrollMenu.add({school_id: school_id, recipe: 'Report::IliAllRecipe',        text: 'ILI Report',        handler: this._showReportMessage});
+    scrollMenu.add({school_id: school_id, recipe: 'Report::AttendanceAllRecipeInternal', text: 'Attendance Report', handler: this._showReportMessage});
+    scrollMenu.add({school_id: school_id, recipe: 'Report::IliAllRecipeInternal',        text: 'ILI Report',        handler: this._showReportMessage});
     scrollMenu.show(element);
   },
 

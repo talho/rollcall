@@ -13,9 +13,12 @@ Dir[File.join(File.dirname(__FILE__), 'models', '*.rb')].each do |f|
 end
 
 # Require rollcall rollcall recipes
-Dir[File.join(File.dirname(__FILE__), 'models', 'report', '*.rb')].each do |f|
+Dir[File.join(File.dirname(__FILE__), 'recipe', '*.rb')].each do |f|
   require f
 end
+#Dir[File.join(File.dirname(__FILE__), 'recipe_internal', '*.rb')].each do |f|
+#  require f
+#end
 
 # Require rollcall import scripts
 Dir[File.join(File.dirname(__FILE__), 'import', '*.rb')].each do |f|

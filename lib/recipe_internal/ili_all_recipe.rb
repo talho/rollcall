@@ -1,4 +1,4 @@
-class Report::AttendanceAllRecipeInternal < Report::Recipe
+class RecipeInternal::IliAllRecipe < Recipe
 
   class << self
     # create_table :report, :force => true do |t|
@@ -8,7 +8,7 @@ class Report::AttendanceAllRecipeInternal < Report::Recipe
     #   t.timestamps
     # end
     def description
-      "Report of Attendance for all schools"
+      "Report of ILI for all schools"
     end
 
     def current_user
@@ -16,18 +16,18 @@ class Report::AttendanceAllRecipeInternal < Report::Recipe
     end
 
     def template_path
-      File.join(Rails.root, 'vendor','plugins','rollcall','app','views', 'reports','attendance_all.html.erb')
+      File.join(Rails.root, 'vendor','plugins','rollcall','app','views', 'reports','ili_all.html.erb')
     end
 
     def template_directives
-      [['display_name','School Name'],['tea_id','TEA ID'],['total_absent','Total Absent'],['total_enrolled', 'Total Enrolled'],
-       ['absentee_percentage','Absentee Rate'],['severity','Absentee Severity']]
+      [['display_name','School Name'],['tea_id','TEA ID'],['student_first_name','First Name'],['student_last_name', 'Last Name'],
+       ['symptoms','Symptoms'],['report_date','Report Date']]
     end
 
     def layout_path
       File.join(Rails.root, 'vendor','plugins','rollcall','app','views', 'reports','layout.html.erb')
     end
-    
+
     def capture_to_db(report)
       @current_user = report.author
       dataset       = report.dataset
@@ -40,13 +40,16 @@ class Report::AttendanceAllRecipeInternal < Report::Recipe
         school_set = @current_user.schools
       end
       school_set.each do |u|
-        u.school_daily_infos.each do |sd|
-          doc = Hash["i",i,"display_name",u.display_name,"tea_id",u.tea_id, "total_absent", sd.total_absent,
-            "total_enrolled",sd.total_enrolled,"absentee_percentage",sd.absentee_percentage,"severity",sd.severity]
-          dataset.insert(doc)
-          i += 1
+        u.students.each do |s|
+          s.student_daily_info.each do |st|
+            symptoms = st.student_reported_symptoms.map(&:symptom).map(&:name).join(",")
+            doc      = Hash["i",i, "display_name",u.display_name,"tea_id",u.tea_id,"student_first_name",s.first_name,
+              "student_last_name",s.last_name,"symptoms",symptoms,"report_date",st.report_date.to_time.utc]
+            dataset.insert(doc)
+            i += 1
+          end
         end
-      end    
+      end
       dataset.create_index("i")
     end
   end

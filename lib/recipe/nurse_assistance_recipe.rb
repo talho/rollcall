@@ -1,4 +1,4 @@
-class Report::NurseAssistanceRecipe < Report::Recipe
+class Recipe::NurseAssistanceRecipe < Recipe
   class << self
     # create_table :report, :force => true do |t|
     #   t.string    :type

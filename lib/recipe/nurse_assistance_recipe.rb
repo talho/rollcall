@@ -3,6 +3,7 @@ NurseAssitanceRecipe will gather up all schools attached to the author(user) and
 is reporting
 =end
 class Report::NurseAssistanceRecipe < Report::Recipe
+
   class << self
 
     def description

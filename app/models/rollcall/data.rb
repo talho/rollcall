@@ -94,7 +94,7 @@ class Rollcall::Data
       end
       update_ary.each{|u|
         r_d_t_i         = Time.at(u[:report_date].to_i)
-        u[:report_date] = "#{r_d_t_i.strftime('%b')}-#{r_d_t_i.strftime('%d')}-#{r_d_t_i.strftime('%y')}"
+        u[:report_date] = "#{r_d_t_i.strftime('%m')}-#{r_d_t_i.strftime('%d')}-#{r_d_t_i.strftime('%y')}"
       }
       if update_ary.length == 0
         update_ary.push({
@@ -117,6 +117,9 @@ class Rollcall::Data
     update_ary
   end
 
+  # Method builds array with data
+  #
+  # Method runs and gathers student data, pushes it into array, returns array
   def self.build_update_array record_id, conditions, options={}
     students           = Rollcall::Student.find_all_by_school_id(record_id)
     student_daily_info = students.map(&:student_daily_info).flatten.sort{|a,b| a.report_date <=> b.report_date}
@@ -160,6 +163,9 @@ class Rollcall::Data
     update_ary
   end
 
+  # Method returns total absent of students
+  #
+  # Method returns total absent of student based on conditions and school
   def self.get_total_absent report_date, conditions, school_id
     condition_array = []
     string_flag     = false
@@ -222,6 +228,9 @@ class Rollcall::Data
     return total_absent
   end
 
+  # Method returns conditions object
+  #
+  # Method builds a condition array based on passed options
   def self.set_conditions options
     conditions = {}
     options.each { |key,value|
@@ -249,6 +258,9 @@ class Rollcall::Data
     return conditions
   end
 
+  # Method builds the data function set
+  #
+  # Method builds the data function set based on options, returns data function data set
   def self.build_data_function_sets data, options
     set = []
     case options[:data_func]
@@ -314,6 +326,9 @@ class Rollcall::Data
     set
   end
 
+  # Method builds a csv string
+  #
+  # Method builds a csv string based off the data_obj
   def self.build_csv_string data_obj
     csv_data = "Name,Identifier,Total Absent,Total Enrolled,Report Date\n"
     trip     = false

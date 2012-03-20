@@ -41,10 +41,14 @@ class Rollcall::SchoolDailyInfo < Rollcall::Base
   
   set_table_name "rollcall_school_daily_infos"
 
+  # Method returns absentee percentage
   def absentee_percentage
     ((total_absent.to_f / total_enrolled.to_f) * 100).to_f.round(2)
   end
-  
+
+  # Method returns severity
+  #
+  # Method returns severity as string depending on absentee percentage
   def severity
     return "low"    if absentee_percentage >= (SEVERITY[:low][:min]*100) && absentee_percentage < (SEVERITY[:low][:max]*100)
     return "medium" if absentee_percentage >= (SEVERITY[:medium][:min]*100) && absentee_percentage < (SEVERITY[:medium][:max]*100)

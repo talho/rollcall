@@ -41,6 +41,9 @@ class Rollcall::SchoolDistrictDailyInfo < Rollcall::Base
   }}
   set_table_name "rollcall_school_district_daily_infos"
 
+  # Method will update school district daily info
+  #
+  # Method updates school district daily info
   def update_stats date, district_id
     schools        = Rollcall::School.find_all_by_district_id district_id
     total_enrolled = 0

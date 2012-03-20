@@ -34,6 +34,23 @@ describe Rollcall::SchoolDistrict do
     end
   end
 
+  desribe "has_many" do
+    before(:each) do
+      @school_district=Factory(:rollcall_school_district)
+      @school=Factory(:rollcall_school, :district_id => @school_district.id)
+      @daily_info=Factory(:rollcall_school_district_daily_info, :school_district_id => @school_district.id)
+    end
+    context "schools" do
+      it "returns a list of schools for this school district" do
+        @school_district.schools.should include(@school)
+      end
+    end
+    context "daily_infos" do
+      it "returns a list of daily info for this school district" do
+        @school_district.daily_infos.should include(@daily_info)
+      end
+    end
+  end
   describe "average_absence_rate" do
     before(:each) do
       @school_district_daily_info = Factory(:rollcall_school_district_daily_info)

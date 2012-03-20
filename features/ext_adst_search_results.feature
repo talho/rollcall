@@ -138,4 +138,3 @@ Scenario: User pins a graph result
   And I press "Submit"
   And delayed jobs are processed
   Then I should see "Anderson Elementary,Yates High School" within the results
-  #Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results

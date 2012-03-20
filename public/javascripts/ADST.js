@@ -1,7 +1,15 @@
 Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
+Ext.sequence(Ext.form.SliderField.prototype, 'setValue', function() {
+	this.fireEvent('change', this, this.getValue());
+});
+
 Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
+  /*
+  Constructor method for ADST.  Instantiates main ADST panel along with sub panels that make up the border layout
+  @param config config object used to build out ADST panel
+   */
   constructor: function(config)
   {
     this.providers      = new Array();
@@ -169,6 +177,11 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     });
     Talho.Rollcall.ADST.superclass.constructor.call(this, config);
   },
+
+  /*
+  Method builds out param object by gathering up all form values in search form
+  @param form_values object container all form fields and their values
+   */
   _buildParams: function(form_values)
   {
     var params = new Object;
@@ -186,18 +199,29 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     else params['type'] = 'simple'
     return params;
   },
+  /*
+  Method calls on the showAlarmQueryConsole, attached to the ADSTResultPanel, to show the alarm query console, Listener
+  function for the "Create Alarm from Result Set" button
+  @param buttonEl  the ext button element pressed
+  @param eventObj  the event object kicked off
+   */
   _saveResultSet: function(buttonEl, eventObj)
   {
     this.getResultPanel()._showAlarmQueryConsole(null);
     return true;
   },
+  /*
+  Method opens up a google maps windows and plots the result set, listener function for "Map Result Set" button
+  @param buttonEl the ext button element pressed
+  @param eventObj the event object
+   */
   _mapResultSet: function(buttonEl, eventObj)
   {
     var form_panel  = this.find('id', 'ADSTFormPanel')[0];
     var form_values = form_panel.getForm().getValues();
     var params      = this._buildParams(form_values);
     params["limit"] = this.getResultPanel()._getResultStore().getTotalCount();
-    this._grabListViewFormValues(params, this);
+    this._grabListViewFormValues(params);
     Ext.Ajax.request({
       url:      '/rollcall/schools',
       method:   'GET',
@@ -248,10 +272,15 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       failure: function(){}
     });
   },
+  /*
+  Method makes ajax call to start exporting process, responds with Ext.MessageBox, listener function for "Export Result Set" button
+  @param buttonEl the ext button element
+  @param eventObj the event object
+   */
   _exportResultSet: function(buttonEl, eventObj)
   {
     var params = this._buildParams(buttonEl.findParentByType("form").getForm().getValues());
-    this._grabListViewFormValues(params, this);
+    this._grabListViewFormValues(params);
     Ext.Ajax.request({
       url:    '/rollcall/export',
       method: 'GET',
@@ -269,6 +298,9 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
       failure: function(){}
     });  
   },
+  /*
+  Method resets both the simple and advanced search forms
+   */
   _resetForm: function()
   {
     this.find('id', 'ADSTFormPanel')[0].getForm().reset();
@@ -280,25 +312,35 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     this.find('id', 'symptoms_adv')[0].clearSelections();
     this.find('id', 'school_district_adv')[0].clearSelections();
   },
-  _grabListViewFormValues: function(params, topEl)
+  /*
+  Method populates params with selected items from an ext multi-select input field, grouping the selected items into a
+  multi-dimensional array data-set for the backend to process properly.
+  @param params param object
+   */
+  _grabListViewFormValues: function(params)
   {
     var list_fields  = ["school", "school_district", "school_type", "zip", "age", "grade", "symptoms"];
     for (var i=0; i < list_fields.length; i++) {
-      var selected_records = topEl.find('id', list_fields[i]+'_adv')[0].getSelectedRecords();
+      var selected_records = this.find('id', list_fields[i]+'_adv')[0].getSelectedRecords();
       var vals             = jQuery.map(selected_records, function(e,i){ return e.get('value'); });
       if (vals.length > 0) params[list_fields[i]+'[]'] = vals;
     }
   },
+  /*
+  Method build up params from either the simple or advance search form, facilitates submission of search params, as well
+  as showing and hiding a load mask - listener function for the "Submit" button
+  @param buttonEl the ext button element
+  @param eventObj the event object
+   */
   _submitQuery: function(buttonEl, eventObj)
   {
-    //this.getResultPanel()._clearProviders();
     var form_panel   = this.find('id', 'ADSTFormPanel')[0];
     var form_values  = form_panel.getForm().getValues();
     var result_store = this.getResultPanel()._getResultStore();
     form_panel.findParentByType('panel').getBottomToolbar().bindStore(result_store);
     result_store.baseParams = {}; // clear previous search values
     var params              = this._buildParams(form_values);
-    this._grabListViewFormValues(params, this);
+    this._grabListViewFormValues(params);
     for(key in params){
       if(params[key].indexOf('...') == -1 && key.indexOf("[]") == -1 && key != 'authenticity_token'){
         result_store.setBaseParam(key, params[key].replace(/\+/g, " "));
@@ -318,6 +360,12 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     result_store.load();
     return true;
   },
+  /*
+  Method sets page parameter to be passed backed to the server, event listener function for beforechange tied to the Ext
+  Paging Toolbar on ADST object attribute bbar
+  @param this_toolbar the paging toolbar
+  @param params       default param object attached to paging bar
+   */
   _setNextPage: function(this_toolbar, params)
   {
     var result_store   = this_toolbar.ownerCt.ownerCt.ownerCt.getResultPanel()._getResultStore();
@@ -327,10 +375,10 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     result_store.on('load', function(){ container_mask.hide(); });
     return true;
   },
-  _loadInitMask: function()
-  {
-    new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(),{msg:"Please wait...", store: this.init_store});
-  },
+  /*
+  Method pulls in data to populate drop downs, lists - listener function to beforerender for ADST.
+  @param form_panel the ext form panel
+   */
   _initFormComponent: function(form_panel)
   {
     this.init_store = new Ext.data.JsonStore({
@@ -347,7 +395,6 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
           this.buttons[0].show();
           this.buttons[1].show();
           this.doLayout();
-          //Ext4.supports.init();
         },
         exception: function(misc){
           Ext.Msg.alert('Access', 'You are not authorized to access this feature.  Please contact TX PHIN.', function(){
@@ -356,9 +403,14 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
         }
       }
     });
-    this._loadInitMask();
+    new Ext.LoadMask(this.getComponent('adst_container').getComponent('ADST_panel').getEl(),{msg:"Please wait...", store: this.init_store});
     this.init_store.load();
   },
+  /*
+   Method creates an Ext menu and shows it next an ext element
+    @param element an ext element
+    @param school_id  the school
+   */
   _showReportMenu: function(element, school_id)
   {
     var scrollMenu = new Ext.menu.Menu();
@@ -366,6 +418,11 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
     scrollMenu.add({school_id: school_id, recipe: 'Report::IliAllRecipe',        text: 'ILI Report',        handler: this._showReportMessage});
     scrollMenu.show(element);
   },
+  /*
+  Method is called from Report Menu (above), sends back end request to start report
+  @param buttonObj the ext button element
+  @param eventObj  the event object
+   */
   _showReportMessage: function(buttonObj, eventObj)
   {
     Ext.Ajax.request({

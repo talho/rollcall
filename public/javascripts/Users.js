@@ -1,6 +1,12 @@
 Ext.ns('Talho.Rollcall');
 
 Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
+  /*
+  Method builds the Rollcall User interface, creates Ext templates for roles, districts and school data for user results
+   as well as the different panels for start screen, no results and server error responses.  Creates primary_panel and
+   adds searchResultsContainer to the items
+  @param config
+   */
   constructor: function(config)
   {
     Talho.Rollcall.Users.superclass.constructor.call(this, config);
@@ -230,7 +236,13 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
       return this.primary_panel;
     };
   },
-  handleSchoolResults: function(store){
+  /*
+  Method populates a menu of schools and school districts, attaches handler events, listener function for load event
+  for JSONStores schoolStore and schoolDistrictStore
+  @param store the ext json store
+   */
+  handleSchoolResults: function(store)
+  {
     var records  = store.getRange();
     var tbar     = this.searchResults.getTopToolbar();
     var btn_name = '';
@@ -256,17 +268,36 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
       tbar.find("name",btn_name)[0].menu.doLayout(false, true);
     }
   },
-  handleResults: function(store){
+  /*
+  Method determines which panel to show, no result or results panel based on store count - listener function for load
+  event attached to resultsStore
+  @param store the ext store
+   */
+  handleResults: function(store)
+  {
     if (store.getCount() < 1){
       this.searchResultsContainer.layout.setActiveItem(2); // no_results
     } else {
       this.searchResultsContainer.layout.setActiveItem(1); // show_results
     }
   },
+  /*
+  Method handles error results, listener function for exception for all stores
+   @param proxy
+   @param type
+   @param action
+   @param options
+   @param response
+   @param arg
+   */
   handleError: function(proxy, type, action, options, response, arg){
     this.show_err_message(Ext.decode(response.responseText));
     this.searchResultsContainer.layout.setActiveItem(3); // search_error
   },
+  /*
+  Method sets selected row to be assigned either a school or a school district
+  @param selModel the selected rowSelectedModel
+   */
   set_edit_state: function(selModel){
     var selected_records = selModel.getSelections();
     var tbar = this.searchResults.getTopToolbar();
@@ -275,6 +306,12 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
     if(selected_records.length > 0)
       this.c_u_id = selected_records[0].get('user_id');
   },
+  /*
+  Method makes an ext ajax request with userid and params to update user with, handler function for school and school
+  district menu
+  @param menu_item the ext menu item that was selected
+  @param event     the click event
+   */
   update_user: function(menu_item,event){
     menu_item.parentMenu.hide();
     var params = {};
@@ -292,6 +329,23 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
       }
     });
     this.searchingLoadMask.show();
+  },
+  /*
+  Method displays the error message return back from the server in an ext msg box
+  @param json the json object containing the server response text
+   */
+  show_err_message: function(json) {
+    var w = 300;
+    var msg = '<b>Server Error:</b> ' + json.error + '<br>';
+    if (json.exception != null) {
+      w = 900;
+      msg += '<b>Exception:</b> ' + json.exception + '<br><br>';
+      msg += '<div style="height:400px;overflow:scroll;">';
+      for (var i = 0; i < json.backtrace.length; i++)
+        msg += '&nbsp;&nbsp;' + json.backtrace[i] + '<br>';
+      msg += '<\div>';
+    }
+    Ext.Msg.show({title: 'Error', msg: msg, minWidth: w, maxWidth: w, buttons: Ext.Msg.OK, icon: Ext.Msg.ERROR});
   }
 });
 

@@ -1,13 +1,10 @@
+=begin
+AttendanceAllRecipe produces report detailing current total absent data for each school
+=end
 class Report::AttendanceAllRecipe < Report::Recipe
   include Report::Select::UnSelectable  # do not display in recipe selection list
 
   class << self
-    # create_table :report, :force => true do |t|
-    #   t.string    :type
-    #   t.integer   :author_id
-    #
-    #   t.timestamps
-    # end
     def description
       "Report of Attendance for all schools"
     end

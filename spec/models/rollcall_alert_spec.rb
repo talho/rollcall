@@ -33,6 +33,12 @@ describe RollcallAlert do
     end
   end
 
+  describe "app" do
+    it "returns the app associated with this Alert" do
+      @rollcall_alert.app.should == "rollcall"
+    end
+  end
+
   describe "default_alert" do
     it "sets and returns a default alert" do
       RollcallAlert.all.length.should == 1

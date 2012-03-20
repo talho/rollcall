@@ -14,7 +14,7 @@ require File.dirname(__FILE__) + "/../factories.rb"
 describe Rollcall::UserSchoolDistrict do
   before(:each) do
     @user                 = Factory(:user)
-    @school_distrcit      = Factory(:rollcall_school)
+    @school_district      = Factory(:rollcall_school_district)
     @user_school_district = Factory(:rollcall_user_school_district, :user => @user, :school_district => @school_district)
   end
   describe "validations" do
@@ -29,7 +29,7 @@ describe Rollcall::UserSchoolDistrict do
         @user_school_district.user.should == @user
       end
     end
-    context "district" do
+    context "school_district" do
       it "returns the school district associated with the record" do
         @user_school_district.school_district.should == @school_district
       end

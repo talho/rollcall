@@ -1,6 +1,10 @@
 Ext.namespace('Talho.Rollcall');
 
 Talho.Rollcall.Schools = Ext.extend(function(){}, {
+  /*
+  Method builds the School border layout panel, and creates the corresponding panels and stores
+  @param config the config object
+   */
   constructor: function(config)
   {
     this.gmap_panel     = null;
@@ -262,7 +266,13 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
     this.school_list_grid    = function(){return school_list_grid;};
 
   },
-
+  /*
+  Method displays the school information by updating the sch_tpl_cnt template, also displays the google map marker for
+  the school, listener function for rowclick attached to school_list_grid
+  @param grid_panel the grid panel clicked
+  @param row_index  the row clicked
+  @param event_obj  the click event
+   */
   _showSchoolProfile: function(grid_panel, row_index, event_obj)
   {
     this.grid_mask = new Ext.LoadMask(grid_panel.getEl(), {msg:"Please wait...", removeMask: true});
@@ -306,7 +316,13 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
     this._getSchoolData(1, this.school_grid_panel(), 'school', school.get('id'));
     this._getSchoolData(1, this.student_grid_panel(), 'student', school.get('id'));
   },
-
+  /*
+  Method retrieves school data for the last number of months given and reloads the store with newly received data
+  @param month      the number of months to retrieve
+  @param grid_panel the grid_panel that will be updated
+  @param type       type of data to retrieve, school or student
+  @param school_id  the school id for the school we will be getting data for
+   */
   _getSchoolData: function(month, grid_panel, type, school_id)
   {
     var grid_mask  = new Ext.LoadMask(grid_panel.getEl(), {msg:"Please wait...", removeMask: true});
@@ -333,7 +349,11 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
       }
     });
   },
-
+  /*
+  Method displays a reports menu
+  @param element   the ext element to show the menu next to
+  @param school_id the school id
+   */
   _showReportMenu: function(element, school_id)
   {
     var scrollMenu = new Ext.menu.Menu();
@@ -341,7 +361,11 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
     scrollMenu.add({school_id: school_id, recipe: 'Report::IliAllRecipe',        text: 'ILI Report',        handler: this._showReportMessage});
     scrollMenu.show(element);
   },
-
+  /*
+  Method makes an ajax request, initiating selected report, displays as callback message
+  @param buttonObj the ext button pressed
+  @param eventObj  the click event
+   */
   _showReportMessage: function(buttonObj, eventObj)
   {
     Ext.Ajax.request({
@@ -372,8 +396,3 @@ Talho.Rollcall.Schools.initialize = function(config)
 }
 
 Talho.ScriptManager.reg('Talho.Rollcall.Schools', Talho.Rollcall.Schools, Talho.Rollcall.Schools.initialize);
-
-var some_var = {
-  value1: 'some_value',
-  schools: ['sddssd','dsdsds','dsdsdsd']
-}

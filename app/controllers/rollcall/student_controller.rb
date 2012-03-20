@@ -2,7 +2,6 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
   before_filter :rollcall_student_required
   # GET rollcall/students
   def index
-    #default_options = get_default_options({:simple => true})
     students        = Rollcall::Student.find_all_by_school_id(params[:school_id])
     unless params[:start].blank?
       per_page = params[:limit].to_i
@@ -46,7 +45,6 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
   # POST rollcall/students
   def create
     report_date     =  Date.today.to_datetime.to_time
-    #default_options = get_default_options({:simple => true})
     student_obj     = Rollcall::Student.find_by_id(params[:student_id]) unless params[:student_id].blank?
     if student_obj.blank?
       student_obj = Rollcall::Student.create(
@@ -97,7 +95,6 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
 
   # PUT rollcall/students/:id
   def update
-    #default_options = get_default_options({:simple => true})
     student_record  = Rollcall::Student.find_by_id params[:id]
     student_success = student_record.update_attributes(
       :first_name         => params[:first_name],

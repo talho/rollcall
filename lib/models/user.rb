@@ -8,6 +8,7 @@ module Rollcall
       super # call ActiveRecord's own .included() method
     end
 
+    # Method maps school districts to user
     def school_districts
       if is_rollcall_admin? || is_super_admin?("rollcall")
         r = role_memberships.find(:all, :include => [:role, :jurisdiction], :conditions => {:role_id => [Role.admin('rollcall'), Role.superadmin('rollcall')]}).map(
@@ -20,6 +21,7 @@ module Rollcall
       r.sort{|a,b| a.name.downcase <=> b.name.downcase}
     end
 
+    # Method maps schools to user
     def schools
       s = self.school_districts.map(&:schools).flatten
       if !is_rollcall_admin? && !is_super_admin?('rollcall')
@@ -28,6 +30,9 @@ module Rollcall
       s.uniq.sort{|a,b| a.display_name <=> b.display_name}
     end
 
+    # Method returns alarm queries associated with user
+    #
+    # @param options an object of parameters
     def alarm_queries(options={})
       unless options[:alarm_query_id].blank?
         alarm_queries = []
@@ -47,6 +52,9 @@ module Rollcall
       alarm_queries
     end
 
+    # Method returns user json object
+    #
+    # @param for_admin boolean determines if role requests are included
     def to_json_results_rollcall(for_admin=false)
       rm = role_memberships.map{|rm| "#{rm.role.name} in #{rm.jurisdiction.name}"}
       rq = (for_admin) ? role_requests.unapproved.map{|rq| "#{rq.role.name} in #{rq.jurisdiction.name}"} : []     
@@ -64,26 +72,34 @@ module Rollcall
       }
     end
 
+    # Method checks if user is a rollcall admin
     def is_rollcall_admin?
       is_admin?('rollcall')
     end
 
+    # Method checks if user has rollcall application assigned to them
     def is_rollcall_user?
       has_application?(:rollcall)
     end
 
+    # Method checks if user has rollcall nurse role
     def is_rollcall_nurse?
       has_role?(:nurse, 'rollcall')
     end
 
+    # Method checks if user has epidemiologist role
     def is_rollcall_epi?
       has_role?(:epidemiologist, 'rollcall')
     end
 
+    # Method checks if user has health officer role
     def is_rollcall_health_officer?
       has_role?(:health_officer, 'rollcall')
     end
 
+    # Method performs simple or advanced search
+    #
+    # @param params search parameters
     def school_search(params)
       if params[:type] == "simple"
         results =  simple_school_search(params)
@@ -92,7 +108,16 @@ module Rollcall
       end
       return results
     end
-   
+
+    # Method returns students attached to user schools
+    def students
+      Rollcall::Student.find_all_by_school_id schools
+    end
+
+    private
+    # Method performs a simple search on schools and school data
+    #
+    # @param params simple search parameters
     def simple_school_search params
       options = {:count_limit => (params[:page].to_i || 1) * (params[:limit].to_i || 6), :count => 0}
       unless params[:school_district].blank?
@@ -116,10 +141,9 @@ module Rollcall
       end
     end
 
-    def compare a, b, options={}
-      options[:count] += 1 if (a == b || a.include?(b)) && options[:count] <= options[:count_limit]
-    end
-
+    # Method performs an advanced search on school
+    #
+    # @param params advanced search parameters
     def adv_school_search params
       r       = []
       options = {:count_limit => (params[:page].to_i || 1) * (params[:limit].to_i || 6), :count => 0}
@@ -164,10 +188,6 @@ module Rollcall
       end
       r.uniq!
       r
-    end
-
-    def students
-      Rollcall::Student.find_all_by_school_id schools
     end
   end
 

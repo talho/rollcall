@@ -1,3 +1,6 @@
+=begin
+Rollcall db rake tasks defined, example rake db:migrate:rollcall, db:seed:rollcall
+=end
 namespace :db do
   namespace :migrate do
     description = "Migrate the database through scripts in vendor/plugins/rollcall/db/migrate"

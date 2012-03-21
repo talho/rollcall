@@ -51,7 +51,9 @@ class Rollcall::AlarmQuery < Rollcall::Base
     !Rollcall::Alarm.find_all_by_alarm_query_id(id).blank?
   end
 
-  
+  # Method creates alarms for specific school
+  #
+  # Method creates an alarms for school
   def create_alarms_for_school(school, query)
     @data_set      = []
     test_data_date = DateTime.strptime("08/01/#{(Time.now.month >= 8) ? Time.now.year : (Time.now.year - 1)}", "%m/%d/%Y")
@@ -68,6 +70,10 @@ class Rollcall::AlarmQuery < Rollcall::Base
     @data_set.clear
   end
 
+  # Method creates an alarm based on a date
+  #
+  # Method is called from create_alarms_for_school, and gets passed in a school_id.  Method builds alarm for school
+  # based on the id.
   def create_alarm_for_date(school_id, report_date, lock_date, absent_func)
     school = Rollcall::School.find_by_id(school_id)
     if absent_func == "Gross"
@@ -129,6 +135,9 @@ class Rollcall::AlarmQuery < Rollcall::Base
     end
   end
 
+  # Method calculates the deviation
+  #
+  # Method calculates the deviation of a data set
   def calculate_deviation(data_set)
     deviation            = 0
     mean_avg             = 0
@@ -144,6 +153,9 @@ class Rollcall::AlarmQuery < Rollcall::Base
     return deviation
   end
 
+  # Method returns alarm severity
+  #
+  # Method returns severity as string
   def calc_alarm_severity(absentee_rate)
     if absentee_rate >= severity_max
       'extreme'

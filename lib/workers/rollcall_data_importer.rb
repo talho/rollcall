@@ -26,6 +26,9 @@ class RollcallDataImporter < BackgrounDRb::MetaWorker
     #logger.warn("Creating new daily information for Schools, School Districts, Students, and Student Reported Symptoms")
   end
 
+  # Method start the transformation and import sequence for Rollcall
+  #
+  # @param isd optional parameter to call method if only wanting to process a certain ISD
   def process_uploads(isd = nil)
     #logger.warn("Running TransformImportWorker")
     if RAILS_ENV == "production"
@@ -34,10 +37,16 @@ class RollcallDataImporter < BackgrounDRb::MetaWorker
       rollcall_data_path = File.join(File.dirname(__FILE__), "..", "..", "..", "vendor", "plugins", "rollcall", "tmp")
     end
     unless isd.blank?
-      SchoolDataTransformer.new(rollcall_data_path, "#{isd}").transform_and_import
+      begin
+        SchoolDataTransformer.new(rollcall_data_path, "#{isd}").transform_and_import
+      rescue
+      end
     else
-      Rollcall::SchoolDistrict.all.each do |district|
-        SchoolDataTransformer.new(rollcall_data_path, "#{district.name}").transform_and_import
+      begin
+        Rollcall::SchoolDistrict.all.each do |district|
+          SchoolDataTransformer.new(rollcall_data_path, "#{district.name}").transform_and_import
+        end
+      rescue
       end
     end
     Rollcall::AlarmQuery.find_all_by_alarm_set(true).each do |a|

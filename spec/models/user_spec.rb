@@ -45,7 +45,7 @@ describe User do
     @school              = Factory(:rollcall_school)
     @user_schools        = Factory(:rollcall_user_school, :user => @user, :school => @school)
     @user_school_district= Factory(:rollcall_user_school_district, :user => @user, :school_district => @school.district)
-    @role_membership     = Factory(:role_membership, :user => @user, :jurisdiction => @school.district.jurisdiction)
+    @role_membership     = Factory(:role_membership, :user => @user, :jurisdiction => @school.district.jurisdiction, :role => Role.admin('rollcall'))
   end
   describe "validations" do
     it "should be valid" do
@@ -69,6 +69,84 @@ describe User do
     it "returns all alarm queries associated with the user" do
       @alarm_query = Factory(:rollcall_alarm_query, :user => @user)
       @user.alarm_queries.should include(@alarm_query)
+    end
+  end
+
+  describe "to_json_results_rollcall" do
+    it "returns a user object with school and school district information to fit json document model" do
+      @user.to_json_results_rollcall[:schools].should include(@school)
+    end
+    end
+=begin
+Role.find_or_create_by_name_and_application("Rollcall",'rollcall'){|r| r.attributes = {:approval_required => false, :user_role => true,} }
+Role.find_or_create_by_name_and_application("Admin",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => false,} }
+Role.find_or_create_by_name_and_application("Epidemiologist",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => true,} }
+Role.find_or_create_by_name_and_application("Health Officer",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => true,} }
+Role.find_or_create_by_name_and_application("Nurse",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => true,} }
+=end
+  describe "is_rollcall_admin?" do
+    before(:each) do
+      @admin_role = Factory(:role, :name => "Admin", :application => "rollcall")
+      @user.role_memberships.create(:jurisdiction => @school.district.jurisdiction, :role => @admin_role)
+    end
+    it "returns a boolean indicating if user is a rollcall admin or not" do
+      @user.is_rollcall_admin?.should == true
+    end
+  end
+
+  describe "is_rollcall_user?" do
+    before(:each) do
+      @rollcall_role = Factory(:role, :name => "Rollcall", :application => "rollcall")
+      @user.role_memberships.create(:jurisdiction => @school.district.jurisdiction, :role => @rollcall_role)
+    end
+    it "returns a boolean indicating if user has access to rollcall application" do
+      @user.is_rollcall_user?.should == true
+    end
+  end
+
+  describe "is_rollcall_nurse?" do
+    before(:each) do
+      @nurse_role = Factory(:role, :name => "Nurse", :application => "rollcall")
+      @user.role_memberships.create(:jurisdiction => @school.district.jurisdiction, :role => @nurse_role)
+    end
+    it "returns a boolean indicating if user has the nurse role attached to them" do
+      @user.is_rollcall_nurse?.should == true
+    end
+  end
+
+  describe "is_rollcall_epi?" do
+    before(:each) do
+      @epi_role = Factory(:role, :name => "Epidemiologist", :application => "rollcall")
+      @user.role_memberships.create(:jurisdiction => @school.district.jurisdiction, :role => @epi_role)
+    end
+    it "returns a boolean indicating if user has the epidemiologist role attached to them" do
+      @user.is_rollcall_epi?.should == true
+    end
+  end
+
+  describe "is_rollcall_health_officer?" do
+    before(:each) do
+      @health_officer = Factory(:role, :name => "Health Officer", :application => "rollcall")
+      @user.role_memberships.create(:jurisdiction => @school.district.jurisdiction, :role => @health_officer)
+    end
+    it "returns a boolean indicating if user has the health officer role attached to them" do
+      @user.is_rollcall_health_officer?.should == true
+    end
+  end
+
+  describe "school_search" do
+    it "performs a search against schools attached to user" do
+      @user.school_search({:type => "simple"}).should include(@school)
+      @user.school_search({:type => "adv"}).should include(@school)
+    end
+  end
+
+  describe "students" do
+    before(:each) do
+      @student = Factory(:rollcall_student, :school => @school)
+    end
+    it "returns a list of students for the schools associated with user" do
+      @user.students.should include(@student)
     end
   end
 end

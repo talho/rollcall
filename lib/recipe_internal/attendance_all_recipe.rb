@@ -1,12 +1,9 @@
-class RecipeInternal::AttendanceAllRecipe < Recipe
+=begin
+AttendanceAllRecipe produces report detailing current total absent data for each school
+=end
+class RecipeInternal::AttendanceAllRecipe < RecipeInternal
 
   class << self
-    # create_table :report, :force => true do |t|
-    #   t.string    :type
-    #   t.integer   :author_id
-    #
-    #   t.timestamps
-    # end
     def description
       "Report of Attendance for all schools"
     end

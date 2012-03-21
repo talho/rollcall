@@ -1,6 +1,9 @@
 Ext.ns('Talho.Rollcall');
 
 Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
+  /*
+  Method builds out the nurse assistant layout, it creates the neccessary stores as well
+   */
   constructor: function(config)
   {
     if(window.Application.rails_environment == "cucumber"){
@@ -331,6 +334,9 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
       }
     });
   },
+  /*
+  The method is responsible for prompting the user to select a school, it then proceeds to load the necessary school data
+   */
   setup_app: function()
   {
     var init_window = new Ext.Window({
@@ -390,6 +396,9 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
     });
     init_window.show();
   },
+  /*
+  Method updates the student detail panel with a Loading Data message
+   */
   update_student_detail_panel_msg: function()
   {
     var html_string = '<div class="details"><div class="details-info"><span>Loading Data..</span></div></div>';
@@ -404,6 +413,11 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
       }
     }
   },
+  /*
+  Method reloads the main_panel_store, setting the search term to the search field value
+  @param button the ext button pressed
+  @param event  the click event
+   */
   search_student: function(button, event)
   {
     var field_value = button.ownerCt.getComponent('search_field').getValue();
@@ -419,6 +433,12 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
       });
     }  
   },
+  /*
+  Method displays student information within the details_template, method is listener function for rowclick
+  @param grid_panel the grid_panel that initiated the rowclick event
+  @param index      the index value of the row clicked
+  @param event      the click event
+   */
   show_details: function(grid_panel, index, event)
   {
     if(!this.window_open){
@@ -437,6 +457,9 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
       });
     }   
   },
+  /*
+  Method builds and returns Ext Template for details_template
+   */
   build_detail_template: function()
   {
     this.details_template = new Ext.XTemplate(
@@ -478,6 +501,11 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
 		);
 		this.details_template.compile();
   },
+  /*
+  Method displays the window used by the user to enter a new student visiting the Nurse.  Window attaches a list of pre-populated
+  students to allow for quick entry selection.  It uses the argv attribute attached to the function to determine what
+  arguments where sent and weather to display a student entry form, or display a list of students for selection.
+   */
   _student_entry_window: function()
   {
     this.window_open                          = true;
@@ -924,12 +952,22 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
     var some_win = new Ext.Window(this.student_window.window_config);
     some_win.show();
   },
+  /*
+  Method clears out filter search field and resets the store
+  @param button the ext button
+  @param event  the click event
+   */
   clear_filter: function(button, event)
   {
     if(button.ownerCt.getComponent('filter_student_number') == null) button.ownerCt.getComponent('list_filter_student_number').setValue('');
     else button.ownerCt.getComponent('filter_student_number').setValue('');
     button.ownerCt.ownerCt.store.filter();
   },
+  /*
+  Method filters student_list_store by student_number, listener function for keypress
+  @param this_field the ext text field
+  @param evt        the click event
+   */
   filter_by_student_number:function(this_field, evt)
   {
     var val = this_field.getValue();

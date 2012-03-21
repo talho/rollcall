@@ -2,6 +2,10 @@ Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
 Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
+  /*
+  Method is called from ADST.js, build out alarm panel
+  @param config
+   */
   constructor: function(config)
   {
     this.tip_array            = new Array();
@@ -135,17 +139,29 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
 
     Talho.Rollcall.ADSTAlarmsPanel.superclass.constructor.call(this, config);
   },
-
+  /*
+  Method destroys any Ext Tip
+   */
   _close_alarm_tip: function()
   {
     if(this.tip_array.length != 0) this.tip_array.pop().destroy();  
   },
-
+  /*
+  Method destroys any Ext Tip when a scroll event on the alarm panel is triggered, listener function for bodyscroll
+  @param scroll_left  the current left scroll placement
+  @param scroll_right the current right scroll placement
+   */
   _body_scroll: function(scroll_left, scroll_right)
   {
     if(this.tip_array.length != 0 && !this.setToScroll) this.tip_array.pop().destroy();
   },
-
+  /*
+  Method creates an empty Ext Tip when a grid row element is clicked within the ADSTAlarmPanel, it loads loading message
+  and makes an ext ajax request for alarm info, calls build_alarm_console on success
+  @param this_grid the current alarm panel ext grid
+  @param index     the index, or row number, clicked
+  @param event_obj the event_obj
+   */
   _row_click: function(this_grid, index, event_obj)
   {
     var row_record = this_grid.getStore().getAt(index);
@@ -190,7 +206,12 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
       }
     });
   },
-
+  /*
+  Method builds an alarm console, detailing alarm information data
+  @param row_record the record pertaining to the clicked row
+  @param template   the template used to build out the alarm console
+  @param btn_txt    the text to show, either "Ignore Alarm" or "Unignore Alarm"
+   */
   _build_alarm_console: function (row_record, template, btn_txt)
   {
     return new Ext.Tip({
@@ -199,7 +220,6 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
       cls:      'alarm-tip',
       scope:    this,
       layout:   'fit',
-      //bodyStyle: 'background:#fff;',
       items:    [template,new Ext.grid.GridPanel({
         row_record:  row_record,
         forceLayout: true,
@@ -256,7 +276,9 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
       })]
     });
   },
-
+  /*
+  Method returns an ext xtemplate for the alarm console
+   */
   _build_alarm_console_template: function()
   {
     return new Ext.XTemplate(
@@ -303,6 +325,12 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     );  
   },
 
+  /*
+  Method deletes selected alarm by removing record from store, which is tied to RESTful service on the back-end.  Handler
+  function for Delete Alarm button on alarm console
+   @param btn   the ext button pressed
+   @param event the event
+   */
   _delete_alarm: function(btn,event)
   {
     this.tip_array[0].hide();
@@ -326,7 +354,11 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
       }
     });
   },
-
+  /*
+  Method will set ignore_alarm attribute to true, change triggers update on back-end
+  @param btn   the ext btn pressed
+  @param event the event kicked off
+   */
   _ignore_alarm: function(btn,event)
   {
     if(btn.ownerCt.ownerCt.row_record.get('ignore_alarm')){
@@ -356,13 +388,20 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
       });
     }
   },
-
+  /*
+  Method creates the Ext Load Mask for the alarm panel, listener function for beforeload on the alarm store
+  @param this_store the alarm grouped store
+  @param options    the store config options
+   */
   _load_alarm_panel_mask: function(this_store, options)
   {
     this_store.container_mask = new Ext.LoadMask(this.getEl(), {msg:"Please wait..."});
     this_store.container_mask.show();
   },
-
+  /*
+  Method creates and shows an Ext.Window, it then uses an after render function to render the map markers based on
+  schools in an alarm state
+   */
   _load_alarm_gmap_window: function()
   {
     if(this.get_store().getTotalCount() != 0 ){
@@ -397,7 +436,10 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
       win.show();
     }
   },
-
+  /*
+  Method, called from above, will load the gmap markers for each school currently in an alarm state.
+  @param panel the current gmap panel
+   */
   _render_gmap_markers: function(panel)
   {
     var gmap_panel  = panel.get(0);
@@ -435,17 +477,24 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
       set_markers.call(this);
     }
   },
-
+  /*
+  Method enables the gis button, called after the gmap window is rendered
+   */
   _enable_gis_button: function()
   {
     Ext.getCmp('gis_button').enable();
   },
-
+  /*
+  Method disables the gis button
+   */
   _disable_gis_button: function()
   {
     Ext.getCmp('gis_button').disable();
   },
-
+  /*
+  Method returns associated alarm status color
+  @param alarm_status the alarm status, string
+   */
   _get_alarm_color_code: function(alarm_status)
   {
     var color = "";
@@ -462,7 +511,10 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     }
     return color;
   },
-
+  /*
+  Method is called withing the gmap window, the call to the method is built via the build_gmap_marker_info
+  @param store_index the index pointing to a record in the alarm store
+   */
   _remote_row_click: function(store_index)
   {
     var grid         = this.getComponent('alarm_grid_panel');
@@ -473,7 +525,11 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
     this.getEl().select("div[id='"+row_record.get('id')+"']").first().dom.scrollIntoView(this.getEl());
     this._row_click(grid,store_index,null);
   },
-
+  /*
+  Method builds out the html to populate the gmap marker rendered
+  @param record      the record that triggered alarm state
+  @param store_index the index pointing to said record
+   */
   _build_gmap_marker_info: function(record, store_index)
   {
     var addr_elems    = record.get("school_addr").split(",");

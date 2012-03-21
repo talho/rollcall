@@ -2,6 +2,10 @@ Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
 Talho.Rollcall.ADSTSimpleContainer = Ext.extend(Ext.Container, {
+  /*
+  Method builds out the ADST Simple search form container
+  @param config config object for populating comboboxes, lists, etc.
+   */
   constructor: function(config)
   {
     Ext.applyIf(config, {

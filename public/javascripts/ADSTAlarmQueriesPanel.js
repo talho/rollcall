@@ -30,7 +30,12 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Container, {
     });
     Talho.Rollcall.ADSTAlarmQueriesPanel.superclass.constructor.call(this, config);
   },
-
+  /*
+  Method loads up alarm query panels into the ADSTAlarmQueriesPanel after creating an empty container, listener
+  function for load attached to this saved_store
+   @param this_store    the ext store requesting the alarm queries
+   @param alarm_queries the alarm queries, Ext records
+   */
   _loadAlarmQueries: function(this_store, alarm_queries)
   {
     var result_obj = null;
@@ -123,7 +128,14 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Container, {
     this.doLayout();
     this.setSize('auto','auto');
   },
-
+  /*
+  Method runs a search query off a saved query, sets and configures form for submission, handler function for "Run This Query"
+  button tool item
+  @param e        the click event
+  @param targetEl the ext tool element pressed
+  @param panel    the panel the tool button is attached to
+  @param tc       the tool configuration object
+   */
   _runSavedQuery: function(e, targetEl, panel, tc)
   {
     var form      = panel.adst_panel.find('id', 'ADSTFormPanel')[0].getForm();
@@ -153,7 +165,13 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Container, {
     form.setValues(vals);
     panel.adst_panel._submitQuery();
   },
-  
+   /*
+   Method makes a call to the back-end to destroy selected alarm query
+   @param e        the click event
+   @param targetEl the ext tool element pressed
+   @param panel    the panel the tool button is attached to
+   @param tc       the tool configuration object
+    */
   _deleteAlarmQuery: function(e, targetEl, panel, tc)
   {
     Ext.MessageBox.show({
@@ -185,7 +203,11 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Container, {
       }
     });
   },
-
+  /*
+  Method is called after the deleteAlarmQuery function finishes making an AJAX request, method makes a call to the backend
+  to destroy alarms attached to alarm query
+  @param panel the original query alarm panel
+   */
   _destroyQueryAlarms: function(panel)
   {
     Ext.Ajax.request({
@@ -200,6 +222,14 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Container, {
     });
   },
 
+  /*
+  Method is called from alarm query panel tool icon, makes back end call to generate alarms, if any, for selected
+  alarm query
+  @param e        the click event
+  @param targetEl the ext tool element pressed
+  @param panel    the panel the tool button is attached to
+  @param tc       the tool configuration object
+   */
   _toggleAlarm: function(e, targetEl, panel, tc)
   {
     var panel_mask = new Ext.LoadMask(Ext.getCmp('adst_container').getEl(),{msg:"Please wait..."});
@@ -235,12 +265,19 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Container, {
       failure: function(){}
     });
   },
-
+  /*
+  Method reloads store data from URL with given options
+  @param options object container parameters with which to reload data from URL
+   */
   _updateAlarmQueries: function(options)
   {
     this.saved_store.load(options);
   },
-
+  /*
+  Method builds and shows an AlarmQueryWindow
+  @param panel       the query alarm panel
+  @param south_panel this panel (ADSTAlarmQueriesPanel)
+   */
   _showEditAlarmQueryConsole: function(panel,south_panel)
   {
     var params              = new Array();

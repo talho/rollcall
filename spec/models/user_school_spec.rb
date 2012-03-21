@@ -13,9 +13,9 @@ require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::UserSchool do
   before(:each) do
-    @user   = Factory(:user)
-    @school = Factory(:rollcall_school)
-    @user_school=Factory(:rollcall_user_school, :school => @school, :user => @user)
+    @user        = Factory(:user)
+    @school      = Factory(:rollcall_school)
+    @user_school = Factory(:rollcall_user_school, :school => @school, :user => @user)
   end
   describe "validations" do
     it "should be valid" do

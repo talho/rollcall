@@ -44,7 +44,14 @@ describe Rollcall::StudentDailyInfo do
       end
     end
   end
-  
+
+  describe "has_many" do
+    context "student_reported_symptoms" do
+      it "returns a list of student reported symptoms" do
+        @student_daily_info.student_reported_symptoms.should include(@student_reported_symptom)
+      end
+    end
+  end
   describe "belongs_to" do
     context "student" do
       it "returns the student associated with the student daily information record" do

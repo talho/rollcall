@@ -1,11 +1,11 @@
+=begin
+NurseAssitanceRecipe will gather up all schools attached to the author(user) and report how many ILI cases each school
+is reporting
+=end
 class Recipe::NurseAssistanceRecipe < Recipe
+
   class << self
-    # create_table :report, :force => true do |t|
-    #   t.string    :type
-    #   t.integer   :author_id
-    #
-    #   t.timestamps
-    # end
+
     def description
       "Report of Schools Sending ILI Data"
     end
@@ -27,13 +27,13 @@ class Recipe::NurseAssistanceRecipe < Recipe
     end
 
     def capture_to_db(report)
-      @current_user = report.author
-      dataset       = report.dataset
-      i             = 0
-      dataset.insert({:report=>{:created_at=>Time.now.utc}})
-      dataset.insert({:meta=>{:template_directives=>template_directives}}.as_json )
+      @current_user     = report.author
+      dataset           = report.dataset
+      i                 = 0
       school_set        = @current_user.schools
       report_school_set = []
+      dataset.insert({:report=>{:created_at=>Time.now.utc}})
+      dataset.insert({:meta=>{:template_directives=>template_directives}}.as_json )
       school_set.each do |s|
         unless s.students.blank?
           symp_list_count = 0

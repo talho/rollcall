@@ -40,6 +40,45 @@ describe Rollcall::School do
     end
   end
 
+  describe "has_many" do
+    before(:each) do
+      @school            = Factory(:rollcall_school)
+      @school_daily_info = Factory(:rollcall_school_daily_info, :school_id => @school.id)
+      @alarm             = Factory(:rollcall_alarm, :school_id => @school.id)
+      @alarm_query       = Factory(:rollcall_alarm_query, :school_id => @school.id)
+      @student           = Factory(:rollcall_student, :school_id => @school.id)
+    end
+    context "school_daily_infos" do
+      it "returns a list of school daily info" do
+        @school.school_daily_info.should include(@school_daily_info)
+      end
+    end
+    context "alarms" do
+      it "returns a list of alarms attached to this school" do
+        @school.alarms.should include(@alarm)
+      end
+    end
+    context "alarm_queries" do
+      it "returns a list of alarm queries attached this school" do
+        @school.alarm_queries.should inlcude(@alarm_query)
+      end
+    end
+    context "students" do
+      it "returns a list of students associated with this school" do
+        @school.students.should include(@student)
+      end
+    end
+  end
+
+  describe "before_create" do
+    before(:each) do
+      @school = Factory(:rollcall_school, :name => "School Name Number One", :display_name => '')
+    end
+    it "force set the display name" do
+      @school.display_name.should == "School Name Number One"
+    end
+  end
+
   describe "named scope" do    
     context "in_alert" do
       it "returns schools with an alert" do
@@ -88,22 +127,6 @@ describe Rollcall::School do
     it "calculates the average absence rate for a school on a specific date" do
       avg_rate = @school_daily_info.total_absent.to_f/@school_daily_info.total_enrolled.to_f
       @school_daily_info.school.average_absence_rate.should == avg_rate
-    end
-  end
-
-  describe "search" do
-    before(:each) do
-      @school               = Factory(:rollcall_school)
-      @user                 = Factory(:user)
-      @user_school          = Factory(:rollcall_user_school, :user => @user, :school => @school)
-      @user_school_district = Factory(:rollcall_user_school_district, :user => @user, :school_district => @school.district)
-      @role_membership      = Factory(:role_membership, :user => @user, :jurisdiction => @school.district.jurisdiction)
-    end
-    it "returns a set of schools based on simple search" do
-      Rollcall::School.search({:type => 'simple'}, @user).should_not be_blank
-    end
-    it "returns a set of schools based on advanced search" do
-      Rollcall::School.search({:type => 'adv'}, @user).should_not be_blank
     end
   end
 end

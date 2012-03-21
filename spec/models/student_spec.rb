@@ -38,4 +38,15 @@ describe Rollcall::Student do
       end
     end
   end
+
+  describe "has_many" do
+    context "student_daily_info" do
+      before(:each) do
+        @student_daily_info = Factory(:rollcall_student_daily_info)
+      end
+      it "returns a list of student daily info attached to the student" do
+        @student.student_daily_info.should include(@student_daily_info)
+      end
+    end
+  end
 end

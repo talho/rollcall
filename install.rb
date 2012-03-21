@@ -11,16 +11,9 @@ Dir.ensure_exists(File.join(Rails.root, "lib/workers/plugin_workers"))
 }
 
 ## Create sym links for specs
-rel_path = File.join("..", "vendor","plugins","rollcall","spec")
-target = File.join(Rails.root, "spec", "rollcall")
-File.symlink(rel_path, target) unless File.symlink?(target)
-
-# Create sym links for report internal recipes
-# rel_path = File.join(Rails.root, "vendor","plugins","rollcall","lib", "recipe_internal")
-# target = File.join(Rails.root,"app","models","recipe_internal")
-# Dir["#{rel_path}/*.rb"].each do |d|
-  # File.symlink(d, "#{target}/#{File.basename(d)}") unless File.symlink?("#{target}/#{File.basename(d)}")
-# end
+#rel_path = File.join("..", "vendor","plugins","rollcall","spec")
+#target = File.join(Rails.root, "spec", "rollcall")
+#File.symlink(rel_path, target) unless File.symlink?(target)
 
 # Create links in Rails.root/public so that the register_javascript_expansion()
 # and register_stylesheet_expansion() methods can see the plugin's files.

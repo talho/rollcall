@@ -2,6 +2,11 @@ Ext.namespace('Talho.Rollcall');
 Ext.namespace('Talho.Rollcall.ux');
 
 Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
+  /*
+  ADSTAdvancedContainer construct, config object contains data uses to populate drop downs, lists.  Constructor gets
+  called from ADST.js, initformComponent method
+  @param config object containing data to populate form with
+   */
   constructor: function(config)
   {
     Ext.applyIf(config, {

@@ -63,6 +63,9 @@ class Rollcall::RollcallAppController < ApplicationController
     render :json => "You are not authorized for access.", :status => :unauthorized
   end
 
+  # Method returns an object containing default options used to populate client-side list options.
+  #
+  # Method gathers up collections of options (race, grade, age, etc) based on collected data and static values
   def get_default_options(opt={})
     race = [
       {:id => 1, :value => "Native American/Alaskan"},

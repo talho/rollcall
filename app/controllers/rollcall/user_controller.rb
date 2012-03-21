@@ -4,6 +4,7 @@ class Rollcall::UserController < Rollcall::RollcallAppController
   skip_before_filter :rollcall_required, :only => [:new, :create]
   skip_before_filter :rollcall_admin_required, :only => [:new, :create]
 
+  # GET rollcall/users
   def index
     results  = []
     unless params[:with].blank?
@@ -58,6 +59,7 @@ class Rollcall::UserController < Rollcall::RollcallAppController
     @jurisdictions                   = Jurisdiction.all.sort_by{|j| j.name}
   end
 
+  #POST rollcall/users
   def create
     unless params[:user].blank?
       jurisdiction  = params[:user]["rollcall_jurisdiction_id"].blank? ? nil : Jurisdiction.find(params[:user]["rollcall_jurisdiction_id"])
@@ -139,6 +141,9 @@ class Rollcall::UserController < Rollcall::RollcallAppController
     end
   end
 
+  # Method returns school district
+  #
+  # Method returns school districts associated with current_user
   def get_user_school_districts
     results = current_user.school_districts
     respond_to do |format|
@@ -153,6 +158,9 @@ class Rollcall::UserController < Rollcall::RollcallAppController
   end
   protected
 
+  # Method builds up a list of options with regards to pagination
+  #
+  # Method returns an object of pagination options
   def build_options(params)
     #  map EXT params to Sphinx params
     params[:per_page]  =  params.delete(:limit) unless params[:limit].blank?

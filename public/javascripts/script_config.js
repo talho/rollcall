@@ -3,8 +3,9 @@ Talho.ScriptManager.addInitializer('Talho.Rollcall.NurseAssistant', {
 });
 Talho.ScriptManager.addInitializer('Talho.Rollcall.ADST', {
   js:'( $(ext_extensions)/Portal.js > $(js)/rollcall/ux/ComboBox.js > $(js)/rollcall/ux/AlarmQueryWindow.js > $(js)/rollcall/ADSTAlarmQueriesPanel.js ) \
+      ( $(js)/rollcall/d3/d3.v2.min.js ) \
       $(ext_extensions)/HBox.js ( $(js)/rollcall/ADST.js >  $(js)/rollcall/ADSTSimpleContainer.js ) \
-      $(js)/rollcall/ADSTReportsPanel.js $(js)/rollcall/ADSTAlarmsPanel.js $(js)/rollcall/ADSTAdvancedContainer.js \
+      $(js)/rollcall/ADSTAlarmsPanel.js $(js)/rollcall/ADSTAdvancedContainer.js \
       ( $(ext_extensions)/Portal.js > $(js)/rollcall/ADSTResultPanel.js GMap )'
 });
 Talho.ScriptManager.addInitializer('Talho.Rollcall.Schools', {
@@ -13,6 +14,3 @@ Talho.ScriptManager.addInitializer('Talho.Rollcall.Schools', {
 Talho.ScriptManager.addInitializer('Talho.Rollcall.Users', {
   js:'$(js)/rollcall/Users.js'
 });
-Ext.sequence(Ext.form.SliderField.prototype, 'setValue', function() {
-	this.fireEvent('change', this, this.getValue());
-}); 

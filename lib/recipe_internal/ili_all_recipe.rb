@@ -1,12 +1,10 @@
-class RecipeInternal::IliAllRecipe < Recipe
+=begin
+IliAllRecipe will produce report to detailing student ili information for a given school
+=end
+class RecipeInternal::IliAllRecipe < RecipeInternal
+
 
   class << self
-    # create_table :report, :force => true do |t|
-    #   t.string    :type
-    #   t.integer   :author_id
-    #
-    #   t.timestamps
-    # end
     def description
       "Report of ILI for all schools"
     end

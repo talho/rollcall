@@ -37,6 +37,9 @@ class Rollcall::School < Rollcall::Base
 
   set_table_name "rollcall_schools"
 
+  # Method returns the average absence rate of school
+  #
+  # Method returns the average absence rate of a school based on date
   def average_absence_rate(date=nil)
     date      = Date.today if date.nil?
     absentees = school_daily_infos.for_date(date).map do |report|
@@ -53,53 +56,10 @@ class Rollcall::School < Rollcall::Base
     end
   end
 
-  def self.search(params, user_obj)
-    if params[:type] == "simple"
-      results =  simple_search(params, user_obj)
-    else
-      results = adv_search(params, user_obj)
-    end
-    return results
-  end
-
   private
+
+  # Method sets display name for school
   def set_display_name
     self.display_name = self.name if self.display_name.nil? || self.display_name.strip.blank?
   end
-
-  def self.simple_search params, current_user
-    unless params[:school_district].blank?
-      district_id = Rollcall::SchoolDistrict.find_by_name(params[:school_district]).id
-      current_user.schools.find{|s| s.district_id == district_id }
-    else
-      r = current_user.schools.find_all{|s| s.school_type == params[:school_type] } unless params[:school_type].blank?
-      r = current_user.schools.find{|s| s.display_name == params[:school] } unless params[:school].blank?
-      r = current_user.schools if params[:school].blank? && params[:school_type].blank?
-      r = [r] unless r.kind_of?(Array)
-      r
-    end
-  end
-
-  def self.adv_search params, current_user
-    r = []
-    if !params[:school_type].blank? && !params[:zip].blank?
-      r = current_user.schools.find_all{|s| params[:school_type].include?(s.school_type) && params[:zip].include?(s.postal_code)}
-    elsif !params[:school_type].blank?
-      r = current_user.schools.find_all{|s| params[:school_type].include?(s.school_type)}
-    elsif !params[:zip].blank?
-      r = current_user.schools.find_all{|s| params[:zip].include?(s.postal_code)}
-    end
-    if r.blank?
-      r = []
-      unless params[:school].blank?
-        r.push(current_user.schools.find{|s| params[:school].include?(s.display_name)})
-      else
-        r = current_user.schools
-      end
-    else
-      r.push(current_user.schools.find{|s| params[:school].include?(s.display_name)}) unless params[:school].blank?
-    end
-    r
-  end
-
 end

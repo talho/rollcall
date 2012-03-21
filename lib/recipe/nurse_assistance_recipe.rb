@@ -2,7 +2,7 @@
 NurseAssitanceRecipe will gather up all schools attached to the author(user) and report how many ILI cases each school
 is reporting
 =end
-class Report::NurseAssistanceRecipe < Report::Recipe
+class Recipe::NurseAssistanceRecipe < Recipe
 
   class << self
 

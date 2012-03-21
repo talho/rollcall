@@ -1,8 +1,7 @@
 =begin
 AttendanceAllRecipe produces report detailing current total absent data for each school
 =end
-class Report::AttendanceAllRecipe < Report::Recipe
-  include Report::Select::UnSelectable  # do not display in recipe selection list
+class RecipeInternal::AttendanceAllRecipe < RecipeInternal
 
   class << self
     def description

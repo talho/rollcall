@@ -1,8 +1,8 @@
 =begin
 IliAllRecipe will produce report to detailing student ili information for a given school
 =end
-class Report::IliAllRecipe < Report::Recipe
-  include Report::Select::UnSelectable  # do not display in recipe selection list
+class RecipeInternal::IliAllRecipe < RecipeInternal
+
 
   class << self
     def description

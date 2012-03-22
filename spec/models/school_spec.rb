@@ -45,7 +45,6 @@ describe Rollcall::School do
       @school            = Factory(:rollcall_school)
       @school_daily_info = Factory(:rollcall_school_daily_info, :school_id => @school.id)
       @alarm             = Factory(:rollcall_alarm, :school_id => @school.id)
-      @alarm_query       = Factory(:rollcall_alarm_query, :school_id => @school.id)
       @student           = Factory(:rollcall_student, :school_id => @school.id)
     end
     context "school_daily_infos" do
@@ -56,11 +55,6 @@ describe Rollcall::School do
     context "alarms" do
       it "returns a list of alarms attached to this school" do
         @school.alarms.should include(@alarm)
-      end
-    end
-    context "alarm_queries" do
-      it "returns a list of alarm queries attached this school" do
-        @school.alarm_queries.should inlcude(@alarm_query)
       end
     end
     context "students" do

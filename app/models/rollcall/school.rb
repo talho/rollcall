@@ -19,7 +19,6 @@ class Rollcall::School < Rollcall::Base
   belongs_to :district, :class_name => "Rollcall::SchoolDistrict"
   has_many :school_daily_infos, :class_name => "Rollcall::SchoolDailyInfo"
   has_many :alarms, :class_name => "Rollcall::Alarm"
-  has_many :alarm_queries, :class_name => "Rollcall::AlarmQuery"
   has_many :students, :class_name => "Rollcall::Student"
   before_create :set_display_name
 

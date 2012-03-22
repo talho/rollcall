@@ -46,11 +46,12 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
 
   # POST rollcall/get_school_data
   def get_school_data
-    school    = Rollcall::School.find(params[:school_id])
-    time_span = params[:time_span].to_i * 30
-    unless school.school_daily_infos.blank?
-      last_report_date  = Time.parse("#{school.school_daily_infos.find(:all, :limit => 1, :order => 'report_date DESC').first.report_date}")
-      school_daily_info = school.school_daily_infos.find(:all, :conditions => ["report_date >= ?", last_report_date - time_span.days])
+    school     = Rollcall::School.find(params[:school_id])
+    time_span  = params[:time_span].to_i * 30
+    daily_info = school.school_daily_infos
+    unless daily_info.blank?
+      last_report_date  = Time.parse("#{daily_info.find(:all, :limit => 1, :order => 'report_date DESC').first.report_date}")
+      school_daily_info = daily_info.find(:all, :conditions => ["report_date >= ?", last_report_date - time_span.days])
     else
       school_daily_info = []
     end

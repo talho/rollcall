@@ -126,21 +126,3 @@ Scenario: User views a school in an alarm state within the GMap Panel
   And I should see "Houston, TX 77035-4399"
   And I press "Dismiss"
   Then I should not see "Schools in Alarm State!"
-
-Scenario: User views schools of search results within the GMap Panel
-  When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
-  And I wait for the panel to load
-  And I press "Submit"
-  And delayed jobs are processed
-  And "Anderson Elementary" graphs has done loading
-  And I press "Map Result Set"
-  And I should see "Google Map of Schools"
-  And I click the "result" marker for school "Anderson Elementary"
-  And I should see "5727 Ludington Dr"
-  And I click the "result" marker for school "Ashford Elementary"
-  And I should see "1815 Shannon Valley Dr"
-  And I click the "result" marker for school "Yates High School"
-  And I should see "3703 Sampson St"
-  And I press "Dismiss"
-  Then I should not see "Google Map of Schools"

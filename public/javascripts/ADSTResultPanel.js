@@ -190,7 +190,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         pinned:      false,
         tools: [{
           id:      'pin',
-          qtip:    'Pin This Graph',
+          qtip:    'Pin Graph',
           handler: this._pinGraph
         },{
           id:      'report',
@@ -202,12 +202,12 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
           }
         },{
           id:      'gis',
-          qtip:    'Show School Profile',
+          qtip:    'School Profile',
           handler: this._showSchoolProfile,
           hidden:  typeof school.gmap_lat == "undefined" ? true : false
         },{
           id:      'save',
-          qtip:    'Save As Alarm',
+          qtip:    'Create Alarm',
           scope:   this,
           handler: function(e, targetEl, panel, tc)
           {

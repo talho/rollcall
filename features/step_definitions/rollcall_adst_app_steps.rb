@@ -12,9 +12,7 @@ Then /^I should see dated graphs for schools "([^\"]*)" starting "([^\"]*)" days
   string_start_date = DateTime.strptime("#{start_date.month}/#{start_date.day}/#{start_date.year}", "%m/%d/%Y").strftime("%s")
   string_end_date   = DateTime.strptime("#{end_date.month}/#{end_date.day}/#{end_date.year}", "%m/%d/%Y").strftime("%s")
   schools.split(',').each do |value|
-    image_name = "DF-Raw_ED-#{string_end_date.to_i}_SD-#{string_start_date.to_i}_#{value}_c_absenteeism.png"
-    #page.should have_xpath(".//img[contains(concat(' ', @src, ' '), '#{image_name}')]")
-    page.should have_xpath(".//object")
+    page.body.should have_xpath(".//path[contains(concat(' ', @class, ' '), 'area')]")
   end
 end
 

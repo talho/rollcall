@@ -3,7 +3,7 @@ Ext.namespace('Talho.Rollcall.ux');
 
 Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
   /*
-  ADSTAdvancedContainer construct, config object contains data uses to populate drop downs, lists.  Constructor gets
+  ADSTAdvancedContainer construct, config object contains data used to populate drop downs, lists.  Constructor gets
   called from ADST.js, initformComponent method
   @param config object containing data to populate form with
    */
@@ -111,7 +111,7 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
           xtype:  'fieldset',
           layout: 'hbox',
           width:  328,
-          title:  'Data Filter',
+          title:  'ILI Data Filter',
           items:  [{
             xtype:    'container',
             layout:   'vbox',
@@ -277,6 +277,7 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
         }
       }]
     });
+
     Talho.Rollcall.ADSTAdvancedContainer.superclass.constructor.call(this, config);
   }
 });

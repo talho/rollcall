@@ -120,11 +120,6 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
                 scope:   this,
                 handler: this._exportResultSet
               },{
-                text:    "Map Result Set",
-                hidden:  true,
-                scope:   this,
-                handler: this._mapResultSet
-              },{
                 text:    "Create Alarm from Result Set",
                 hidden:  true,
                 scope:   this,
@@ -209,68 +204,6 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   {
     this.getResultPanel()._showAlarmQueryConsole(null);
     return true;
-  },
-  /*
-  Method opens up a google maps windows and plots the result set, listener function for "Map Result Set" button
-  @param buttonEl the ext button element pressed
-  @param eventObj the event object
-   */
-  _mapResultSet: function(buttonEl, eventObj)
-  {
-    var form_panel  = this.find('id', 'ADSTFormPanel')[0];
-    var form_values = form_panel.getForm().getValues();
-    var params      = this._buildParams(form_values);
-    params["limit"] = this.getResultPanel()._getResultStore().getTotalCount();
-    this._grabListViewFormValues(params);
-    Ext.Ajax.request({
-      url:      '/rollcall/schools',
-      method:   'GET',
-      params:   params,
-      scope:    this,
-      callback: function(options, success, response){
-        var gmapPanel = new Ext.ux.GMapPanel({zoomLevel: 9});
-        var win       = new Ext.Window({
-          title:      "Google Map of Schools",
-          id:         'gmap_result_window',
-          itemId:     'gmap_result_window',
-          layout:     'fit',
-          labelAlign: 'top',
-          padding:    '5',
-          width:      510,
-          height:     450,
-          items:      [gmapPanel]
-        });
-        win.schools = Ext.decode(response.responseText).results;
-        win.addButton({xtype: 'button', text: 'Dismiss', handler: function(){ win.close(); }, scope: this, width:'auto'});
-        gmapPanel.addListener("mapready", function(obj){
-          min_lat = Ext.min(win.schools, function(a,b){ return (a.gmap_lat<b.gmap_lat) ? -1 : (a.gmap_lat>b.gmap_lat) ? 1 : 0; });
-          max_lat = Ext.max(win.schools, function(a,b){ return (a.gmap_lat<b.gmap_lat) ? -1 : (a.gmap_lat>b.gmap_lat) ? 1 : 0; });
-          min_lng = Ext.min(win.schools, function(a,b){ return (a.gmap_lng<b.gmap_lng) ? -1 : (a.gmap_lng>b.gmap_lng) ? 1 : 0; });
-          max_lng = Ext.max(win.schools, function(a,b){ return (a.gmap_lng<b.gmap_lng) ? -1 : (a.gmap_lng>b.gmap_lng) ? 1 : 0; });
-          var center = new google.maps.LatLng((max_lat.gmap_lat+min_lat.gmap_lat)/2, (max_lng.gmap_lng+min_lng.gmap_lng)/2);
-          gmapPanel.gmap.setCenter(center);
-          for(var i = 0; i < win.schools.length; i++) {
-            var loc           = new google.maps.LatLng(win.schools[i].gmap_lat, win.schools[i].gmap_lng);
-            var marker        = gmapPanel.addMarker(loc, win.schools[i].display_name, {});
-            var addr_elems    = win.schools[i].gmap_addr.split(",");
-            marker.info       = "<b>" + win.schools[i].display_name + "</b><br>";
-            marker.info      += addr_elems[0] + "<br>" + addr_elems[1] + "<br>" + addr_elems.slice(2).join(",");
-            marker.info_popup = null;
-            google.maps.event.addListener(marker, 'click', function(){
-              if (this.info_popup) {
-                this.info_popup.close(gmapPanel.gmap, this);
-                this.info_popup = null;
-              } else {
-                this.info_popup = new google.maps.InfoWindow({content: this.info});
-                this.info_popup.open(gmapPanel.gmap, this);
-              }
-            });
-          }
-        });
-        win.show();
-      },
-      failure: function(){}
-    });
   },
   /*
   Method makes ajax call to start exporting process, responds with Ext.MessageBox, listener function for "Export Result Set" button

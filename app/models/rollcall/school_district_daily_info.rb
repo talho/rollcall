@@ -36,7 +36,7 @@ class Rollcall::SchoolDistrictDailyInfo < Rollcall::Base
   validates_presence_of :school_district
   validates_presence_of :report_date
 
-  named_scope :for_date, lambda{|date| {
+  scope :for_date, lambda{|date| {
       :conditions => ["report_date = ?", date]
   }}
   set_table_name "rollcall_school_district_daily_infos"

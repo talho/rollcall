@@ -30,7 +30,7 @@ class SchoolDataTransformer
     @ili_transform_fields        = nil
     @district                    = Rollcall::SchoolDistrict.find_by_name(district_name)
     # Load the interface fields yaml config file
-    if File.exist?(doc_yml = RAILS_ROOT+"/vendor/plugins/rollcall/config/interface_fields.yml")
+    if File.exist?(doc_yml = Rails.root.to_s + "/vendor/plugins/rollcall/config/interface_fields.yml")
       int_yml                  = YAML.load_file(doc_yml)
       @INTERFACE_FIELDS_CONFIG = int_yml
       @INTERFACE_FIELDS_CONFIG.freeze

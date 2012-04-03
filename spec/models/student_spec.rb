@@ -23,7 +23,7 @@ require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::Student do
   before(:each) do
-    @student=Factory(:rollcall_student)
+    @student=FactoryGirl.create(:rollcall_student)
   end
   describe "validations" do
     it "should be valid" do
@@ -42,7 +42,7 @@ describe Rollcall::Student do
   describe "has_many" do
     context "student_daily_info" do
       before(:each) do
-        @student_daily_info = Factory(:rollcall_student_daily_info)
+        @student_daily_info = FactoryGirl.create(:rollcall_student_daily_info)
       end
       it "returns a list of student daily info attached to the student" do
         @student.student_daily_info.should include(@student_daily_info)

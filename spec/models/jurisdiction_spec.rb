@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Jurisdiction do
   before(:each) do
-    @jurisdiction = Factory(:jurisdiction)
+    @jurisdiction = FactoryGirl.create(:jurisdiction)
   end
 
   describe "validations" do
@@ -15,7 +15,7 @@ describe Jurisdiction do
   describe "has_many" do
     context "school_districts" do
       before(:each) do
-        @school_district = Factory(:rollcall_school_district, :jurisdiction => @jurisdiction)
+        @school_district = FactoryGirl.create(:rollcall_school_district, :jurisdiction => @jurisdiction)
       end
       it "returns a list of school district within selected jurisdiction" do
         @jurisdiction.school_districts.should include(@school_district)

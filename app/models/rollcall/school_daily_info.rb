@@ -20,21 +20,21 @@ class Rollcall::SchoolDailyInfo < Rollcall::Base
   
   has_one :district, :through => :school
 
-  named_scope :for_date, lambda{|date|{
+  scope :for_date, lambda{|date|{
     :conditions => {:report_date => date}
   }}
-  named_scope :for_date_range, lambda{ |start, finish|{
+  scope :for_date_range, lambda{ |start, finish|{
     :conditions => ["report_date >= ? and report_date <= ?", start, finish],
     :order      => "report_date desc"
   }}
-  named_scope :recent, lambda{|limit| {
+  scope :recent, lambda{|limit| {
     :limit => limit,
     :order => "report_date DESC"
   }}
-  named_scope :absences, lambda{{
+  scope :absences, lambda{{
     :conditions => ['CAST(total_absent as FLOAT) / CAST(total_enrolled as FLOAT) >= .11']
   }}
-  named_scope :with_severity, lambda{|severity|
+  scope :with_severity, lambda{|severity|
     range = SEVERITY[severity]
     {:conditions => ["(CAST(total_absent as FLOAT) / CAST(total_enrolled as FLOAT)) >= ? and (CAST(total_absent as FLOAT) / CAST(total_enrolled as FLOAT)) < ?", range[:min], range[:max]]}
   }

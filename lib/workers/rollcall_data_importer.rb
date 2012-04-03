@@ -31,9 +31,9 @@ class RollcallDataImporter < BackgrounDRb::MetaWorker
   # @param isd optional parameter to call method if only wanting to process a certain ISD
   def process_uploads(isd = nil)
     #logger.warn("Running TransformImportWorker")
-    if RAILS_ENV == "production"
+    if Rails.env == "production"
       rollcall_data_path = File.join("/var/www/openphin/shared", "rollcall")
-    elsif RAILS_ENV == "test" || RAILS_ENV == "cucumber"
+    elsif Rails.env == "test" || Rails.env == "cucumber"
       rollcall_data_path = File.join(File.dirname(__FILE__), "..", "..", "..", "vendor", "plugins", "rollcall", "tmp")
     end
     unless isd.blank?

@@ -1,4 +1,4 @@
-require 'dispatcher'
+require 'action_controller/deprecated/dispatcher'
 
 module Rollcall
   module DocumentMailer
@@ -18,7 +18,7 @@ module Rollcall
 
   end
 
-  Dispatcher.to_prepare do
+  ActionController::Dispatcher.to_prepare do
     ::DocumentMailer.send(:include, Rollcall::DocumentMailer)
   end
 end

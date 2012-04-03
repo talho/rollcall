@@ -22,7 +22,7 @@ describe Rollcall::School do
 
   describe "validations" do
     before(:each) do
-      @school=Factory(:rollcall_school)
+      @school=FactoryGirl.create(:rollcall_school)
     end
     it "should be valid" do
       @school.should be_valid
@@ -31,7 +31,7 @@ describe Rollcall::School do
 
   describe "belongs_to" do
     before(:each) do
-      @school=Factory(:rollcall_school)
+      @school=FactoryGirl.create(:rollcall_school)
     end
     context "district" do
       it "returns the district the school belongs to" do
@@ -42,11 +42,11 @@ describe Rollcall::School do
 
   describe "has_many" do
     before(:each) do
-      @school            = Factory(:rollcall_school)
-      @school_daily_info = Factory(:rollcall_school_daily_info, :school_id => @school.id)
-      @alarm             = Factory(:rollcall_alarm, :school_id => @school.id)
-      @alarm_query       = Factory(:rollcall_alarm_query, :school_id => @school.id)
-      @student           = Factory(:rollcall_student, :school_id => @school.id)
+      @school            = FactoryGirl.create(:rollcall_school)
+      @school_daily_info = FactoryGirl.create(:rollcall_school_daily_info, :school_id => @school.id)
+      @alarm             = FactoryGirl.create(:rollcall_alarm, :school_id => @school.id)
+      @alarm_query       = FactoryGirl.create(:rollcall_alarm_query, :school_id => @school.id)
+      @student           = FactoryGirl.create(:rollcall_student, :school_id => @school.id)
     end
     context "school_daily_infos" do
       it "returns a list of school daily info" do
@@ -72,7 +72,7 @@ describe Rollcall::School do
 
   describe "before_create" do
     before(:each) do
-      @school = Factory(:rollcall_school, :name => "School Name Number One", :display_name => '')
+      @school = FactoryGirl.create(:rollcall_school, :name => "School Name Number One", :display_name => '')
     end
     it "force set the display name" do
       @school.display_name.should == "School Name Number One"
@@ -82,7 +82,7 @@ describe Rollcall::School do
   describe "named scope" do    
     context "in_alert" do
       it "returns schools with an alert" do
-        @school=Factory(:rollcall_school)
+        @school=FactoryGirl.create(:rollcall_school)
         @school.school_daily_infos.create(
           :school_id => @school,
           :total_absent => 50,
@@ -99,7 +99,7 @@ describe Rollcall::School do
         Rollcall::School.in_alert.size.should == 1
       end
       it "does not return schools that only have alerts older than 30 days" do
-        @school=Factory(:rollcall_school)
+        @school=FactoryGirl.create(:rollcall_school)
         @school.school_daily_infos.create(
           :school_id => @school,
           :total_absent => 50,
@@ -111,7 +111,7 @@ describe Rollcall::School do
     end
     context "with_alarms" do
       it "returns schools with alarms" do
-        @alarm = Factory(:rollcall_alarm)
+        @alarm = FactoryGirl.create(:rollcall_alarm)
         Rollcall::School.with_alarms.should include(@alarm.school)
       end
     end
@@ -119,7 +119,7 @@ describe Rollcall::School do
 
   describe "average_absence_rate" do
     before(:each) do
-      @school_daily_info = Factory(:rollcall_school_daily_info)
+      @school_daily_info = FactoryGirl.create(:rollcall_school_daily_info)
     end
     it "returns a floating integer" do
       @school_daily_info.school.average_absence_rate.should be_kind_of(Float)

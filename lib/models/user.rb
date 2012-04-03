@@ -1,4 +1,4 @@
-require 'dispatcher'
+require 'action_controller/deprecated/dispatcher'
 
 module Rollcall
   module User
@@ -191,7 +191,7 @@ module Rollcall
     end
   end
 
-  Dispatcher.to_prepare do
+  ActionController::Dispatcher.to_prepare do
     ::User.send(:include, Rollcall::User)
   end
 end

@@ -13,9 +13,9 @@ require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::UserSchoolDistrict do
   before(:each) do
-    @user                 = Factory(:user)
-    @school_district      = Factory(:rollcall_school_district)
-    @user_school_district = Factory(:rollcall_user_school_district, :user => @user, :school_district => @school_district)
+    @user                 = FactoryGirl.create(:user)
+    @school_district      = FactoryGirl.create(:rollcall_school_district)
+    @user_school_district = FactoryGirl.create(:rollcall_user_school_district, :user => @user, :school_district => @school_district)
   end
   describe "validations" do
     it "should be valid" do

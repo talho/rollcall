@@ -10,7 +10,7 @@ require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::Symptom do 
   before(:each) do
-    @symptom=Factory(:rollcall_symptom)
+    @symptom=FactoryGirl.create(:rollcall_symptom)
   end
   describe "validations" do
     it "should be valid" do

@@ -48,7 +48,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   #
   # GET /rollcall/export
   def export
-    if RAILS_ENV == "test"
+    if Rails.env == "test"
       filename = "rollcall_export.cucumber"
       Rollcall::Data.export_data(params, filename, current_user)
     else

@@ -44,7 +44,7 @@ class Rollcall::Data
       end
     end
     @csv_data          = build_csv_string update_ary
-    newfile            = File.join(Rails.root,'tmp',"#{filename}.csv")
+    newfile            = File.join(Rails.root.to_s,'tmp',"#{filename}.csv")
     file_result        = File.open(newfile, 'wb') {|f| f.write(@csv_data) }
     file               = File.new(newfile, "r")
     folder             = Folder.find_by_name_and_user_id("Rollcall Documents", user_obj.id)
@@ -56,7 +56,7 @@ class Rollcall::Data
     @document = user_obj.documents.build(:folder_id => folder.id, :file => file)
     @document.save!
     if !@document.folder.nil? && @document.folder.notify_of_document_addition
-      DocumentMailer.deliver_rollcall_document_addition(@document, user_obj)
+      DocumentMailer.rollcall_document_addition(@document, user_obj).deliver
     end
     return true
   end

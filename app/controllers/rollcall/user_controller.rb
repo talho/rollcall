@@ -70,7 +70,7 @@ class Rollcall::UserController < Rollcall::RollcallAppController
       @user.role_memberships.build(:role=>rollcall_role, :jurisdiction=>jurisdiction, :user=>@user)
       respond_to do |format|
         if @user.save
-          SignupMailer.deliver_confirmation(@user)
+          SignupMailer.confirmation(@user).deliver
           format.html { redirect_to sign_in_path }
           format.xml  { render :xml => @user, :status => :created, :location => @user }
           flash[:notice] = "Thanks for signing up! An email will be sent to #{@user.email} shortly to confirm your account." +

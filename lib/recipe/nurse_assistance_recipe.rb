@@ -2,7 +2,7 @@
 NurseAssitanceRecipe will gather up all schools attached to the author(user) and report how many ILI cases each school
 is reporting
 =end
-class Recipe::NurseAssistanceRecipe < Recipe
+class RecipeExternal::NurseAssistanceRecipe < RecipeExternal
 
   class << self
 
@@ -15,7 +15,7 @@ class Recipe::NurseAssistanceRecipe < Recipe
     end
 
     def template_path
-      File.join(Rails.root, 'vendor','plugins','rollcall','app','views', 'reports','nurse_assistance.html.erb')
+      File.join(Rails.root.to_s, 'vendor','plugins','rollcall','app','views', 'reports','nurse_assistance.html.erb')
     end
 
     def template_directives
@@ -23,7 +23,7 @@ class Recipe::NurseAssistanceRecipe < Recipe
     end
 
     def layout_path
-      File.join(Rails.root, 'vendor','plugins','rollcall','app','views', 'reports','layout.html.erb')
+      File.join(Rails.root.to_s, 'vendor','plugins','rollcall','app','views', 'reports','layout.html.erb')
     end
 
     def capture_to_db(report)

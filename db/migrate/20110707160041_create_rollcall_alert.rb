@@ -14,7 +14,7 @@ class CreateRollcallAlert < ActiveRecord::Migration
     remove_index :rollcall_alerts, :alarm_id
     remove_index :rollcall_alerts, :alert_id
 
-    DropMTIfor(RollcallAlert)
+    DropMTIFor(RollcallAlert)
     drop_table :rollcall_alerts
   end
 end

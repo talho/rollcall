@@ -10,6 +10,6 @@ end
 When /^the rollcall background worker processes for "([^\"]*)"$/ do |isd|
   require 'bdrb_server_helper'
   require 'meta_worker'
-  require 'lib/workers/plugin_workers/rollcall_data_importer.rb'
+  require "#{Rails.root}/lib/workers/plugin_workers/rollcall_data_importer.rb"
   RollcallDataImporter.new().process_uploads(isd)
 end

@@ -55,6 +55,7 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
         :conditions => ["student_id = rollcall_students.id"]
       )
     end
+    require 'will_paginate/array'
     students_paged = student_records.paginate(options)
     students_paged.each do |record|
       symptom_array  = []

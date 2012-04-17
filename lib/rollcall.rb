@@ -25,6 +25,11 @@ Dir[File.join(File.dirname(__FILE__), 'import', '*.rb')].each do |f|
   require f
 end
 
+Rails.configuration.after_initialize do
+  ::User.send(:include, Rollcall::User)
+  ::Jurisdiction.send(:include, Rollcall::Jurisdiction)
+end
+
 # Register the plugin expansion in the $expansion_list global variable
 $expansion_list = [] unless defined?($expansion_list)
 $expansion_list.push(:rollcall) unless $expansion_list.index(:rollcall)

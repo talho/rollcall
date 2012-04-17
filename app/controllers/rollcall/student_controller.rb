@@ -14,6 +14,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
     else
       options = {}
     end   
+    require 'will_paginate/array'
     students_paged = students.paginate(options)
     students_paged.each do |record|
       student_obj                 = record

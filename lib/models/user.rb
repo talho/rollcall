@@ -1,5 +1,3 @@
-require 'action_controller/deprecated/dispatcher'
-
 module Rollcall
   module User
     def self.included(base)
@@ -116,7 +114,7 @@ module Rollcall
 
     private
     # Method performs a simple search on schools and school data
-    #
+    # This method needs to be rewritten to use AREL
     # @param params simple search parameters
     def simple_school_search params
       options = {:count_limit => (params[:page].to_i || 1) * (params[:limit].to_i || 6), :count => 0}
@@ -142,7 +140,7 @@ module Rollcall
     end
 
     # Method performs an advanced search on school
-    #
+    # This method needs to be rewritten to use AREL
     # @param params advanced search parameters
     def adv_school_search params
       r       = []
@@ -189,9 +187,5 @@ module Rollcall
       r.uniq!
       r
     end
-  end
-
-  ActionController::Dispatcher.to_prepare do
-    ::User.send(:include, Rollcall::User)
   end
 end

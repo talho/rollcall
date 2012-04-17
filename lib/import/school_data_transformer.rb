@@ -320,10 +320,6 @@ class SchoolDataTransformer
             tea_id = "#{@district.district_id}#{tea_id}"
           end
           @tmp_tea_id.gsub!('"',"")
-          if tea_id.blank?
-            debugger
-            1==1
-          end
           tea_id.gsub!('"',"")
           @tmp_tea_id.gsub!("'","")
           tea_id.gsub!("'","")

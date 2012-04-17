@@ -1,5 +1,4 @@
 .idea
 tmp
 spec/spec_helper.rb
-config/*.yml
 .DS_Store

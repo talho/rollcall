@@ -43,7 +43,7 @@ Background:
     | 787.91    | Diarrhea                |
     | 0         | None                    |
   And the following users exist:
-    | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Harris |
+    | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Harris | rollcall |
   And rollcall user "nurse.betty@example.com" has the following school districts assigned:
     | Houston |
   And rollcall user "nurse.betty@example.com" has the following schools assigned:
@@ -114,7 +114,7 @@ Scenario: User exports result data
   And I navigate to "Documents"
   And I expand the folders ""
   And I select the "Rollcall Documents" grid row
-  Then I should see "rollcall_export.cucumber.csv" within ".document-file-icon-view"
+  Then my rollcall export should be visible
 
 Scenario: User saves result as alarm query
   When "Anderson Elementary" graphs has done loading

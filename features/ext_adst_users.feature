@@ -95,7 +95,7 @@ Background:
   
 Scenario: User creates Rollcall User
   Given I am logged in as "admin.joe@example.com"
-  And I navigate to the ext dashboard page
+  
   When I fill in the add user form with:
     | Email address     | rolly.cally@example.com |
     | First name        | Rolly                   |

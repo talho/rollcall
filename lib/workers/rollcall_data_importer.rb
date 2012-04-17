@@ -34,19 +34,21 @@ class RollcallDataImporter < BackgrounDRb::MetaWorker
     if Rails.env == "production"
       rollcall_data_path = File.join("/var/www/openphin/shared", "rollcall")
     elsif Rails.env == "test" || Rails.env == "cucumber"
-      rollcall_data_path = File.join(File.dirname(__FILE__), "..", "..", "..", "vendor", "plugins", "rollcall", "tmp")
+      rollcall_data_path = File.join(Rails.root.to_s, "vendor/plugins", "rollcall", "tmp")
     end
     unless isd.blank?
       begin
-        SchoolDataTransformer.new(rollcall_data_path, "#{isd}").transform_and_import
-      rescue
+        SchoolDataTransformer.new(rollcall_data_path, isd.to_s).transform_and_import
+      rescue Exception => e
+        raise e if Rails.env == "test" || Rails.env == "cucumber"
       end
     else
       begin
         Rollcall::SchoolDistrict.all.each do |district|
-          SchoolDataTransformer.new(rollcall_data_path, "#{district.name}").transform_and_import
+          SchoolDataTransformer.new(rollcall_data_path, district.name.to_s).transform_and_import
         end
-      rescue
+      rescue Exception => e
+        raise e if Rails.env == "test" || Rails.env == "cucumber"
       end
     end
     Rollcall::AlarmQuery.find_all_by_alarm_set(true).each do |a|

@@ -46,9 +46,9 @@ Background:
     | 787.91    | Diarrhea                |
     | 0         | None                    |
   And the following users exist:
-    | Nurse Betty  | nurse.betty@example.com  | Nurse          | Harris  |
-    | Epi Smith    | epi.smith@example.com    | Epidemiologist | Harris  |
-    | Health Offcr | heatlh.offcr@example.com | Health Officer | Harris  |
+    | Nurse Betty  | nurse.betty@example.com  | Nurse          | Harris  | rollcall |
+    | Epi Smith    | epi.smith@example.com    | Epidemiologist | Harris  | rollcall |
+    | Health Offcr | heatlh.offcr@example.com | Health Officer | Harris  | rollcall |
   And rollcall user "nurse.betty@example.com" has the following school districts assigned:
     | Houston |
   And rollcall user "nurse.betty@example.com" has the following schools assigned:

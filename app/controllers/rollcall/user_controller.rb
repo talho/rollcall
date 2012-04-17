@@ -6,41 +6,13 @@ class Rollcall::UserController < Rollcall::RollcallAppController
 
   # GET rollcall/users
   def index
-    results  = []
-    unless params[:with].blank?
-      begin
-        params[:with][:jurisdiction_ids] = []
-        params[:with][:role_ids]         = []
-        roles                            = current_user.roles.for_app("rollcall")
-        RoleMembership.find_all_by_user_id(current_user.id, :conditions => ["role_id IN (?)", roles]).each{ |r|
-          params[:with][:jurisdiction_ids].push(r.jurisdiction_id)
-        }
-        Role.find_all_by_application("rollcall").each{ |r|
-          if r.name != "Admin"
-            params[:with][:role_ids].push(r.id)
-          elsif current_user.is_super_admin?("rollcall")
-            params[:with][:role_ids].push(r.id)
-          end
-        }
-        options = build_options(params)       
-        if current_user.is_super_admin?("rollcall")
-          options[:with]            = {}
-          options[:with][:role_ids] = params[:with][:role_ids]
-          User.search(options).each{|u| results.push(u) unless u.id == current_user.id}
-        else
-          options[:with] = params[:with]
-          jurisdiction   = Jurisdiction.find_all_by_id(params[:with][:jurisdiction_ids])
-          User.search(options).each{|u|
-            jurisdiction.each{|j|
-              if u.jurisdictions.include? j
-                results.push(u) unless u.id == current_user.id
-              end
-            }
-          }
-        end
-      rescue
-      end
+    results = User.includes(:role_memberships).where("role_memberships.role_id" => Role.where(application: 'rollcall'))
+    
+    unless current_user.is_super_admin?("rollcall")
+      results = results.where("role_memberships.role_id != ? AND role_memberships.role_id != ?", Role.admin('rollcall').id, Role.superadmin('rollcall').id)
+      results = results.where("role_memberships.jurisdiction_id" => current_user.role_memberships.where(role_id: Role.where(application: 'rollcall')).map(&:jurisdiction_id))
     end
+    
     for_admin = current_user.is_admin?
     respond_to do |format|
       format.json do

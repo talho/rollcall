@@ -1,4 +1,3 @@
-require 'action_controller/deprecated/dispatcher'
 
 module Rollcall
   module DocumentMailer
@@ -16,9 +15,5 @@ module Rollcall
       body :share => document.folder, :document => document, :current_user => user
     end
 
-  end
-
-  ActionController::Dispatcher.to_prepare do
-    ::DocumentMailer.send(:include, Rollcall::DocumentMailer)
   end
 end

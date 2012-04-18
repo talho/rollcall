@@ -28,6 +28,7 @@ end
 Rails.configuration.after_initialize do
   ::User.send(:include, Rollcall::User)
   ::Jurisdiction.send(:include, Rollcall::Jurisdiction)
+  ::DocumentMailer.send(:include, Rollcall::DocumentMailer)
 end
 
 # Register the plugin expansion in the $expansion_list global variable

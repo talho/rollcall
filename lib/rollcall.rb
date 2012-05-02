@@ -1,40 +1,7 @@
-Dir[File.join(File.dirname(__FILE__), '../lib/*/')].each do |path|
-  $LOAD_PATH << path 
-end
 
-# Add rollcall vendor/plugins/*/lib to LOAD_PATH
-Dir[File.join(File.dirname(__FILE__), '../vendor/plugins/*/lib')].each do |path|
-  $LOAD_PATH << path
-end
-
-# Require rollcall models
-Dir[File.join(File.dirname(__FILE__), 'models', '*.rb')].each do |f|
-  require f
-end
-
-# Require rollcall rollcall recipes
-Dir[File.join(File.dirname(__FILE__), 'recipe', '*.rb')].each do |f|
-  require f
-end
-#Dir[File.join(File.dirname(__FILE__), 'recipe_internal', '*.rb')].each do |f|
-#  require f
-#end
-
-# Require rollcall import scripts
-Dir[File.join(File.dirname(__FILE__), 'import', '*.rb')].each do |f|
-  require f
-end
-
-Rails.configuration.after_initialize do
-  ::User.send(:include, Rollcall::User)
-  ::Jurisdiction.send(:include, Rollcall::Jurisdiction)
-  ::DocumentMailer.send(:include, Rollcall::DocumentMailer)
-end
-
-# Register the plugin expansion in the $expansion_list global variable
-$expansion_list = [] unless defined?($expansion_list)
-$expansion_list.push(:rollcall) unless $expansion_list.index(:rollcall)
-
+# Tell the main app that this extension exists
+$extensions = [] unless defined?($extensions)
+$extensions << :rollcall
 
 # Build the menu in the $menu_config global variable
 $menu_config = {} unless defined?($menu_config)
@@ -52,16 +19,19 @@ $menu_config[:rollcall] = <<EOF
   nav += "]}"
 EOF
 
-begin
-  $public_roles = [] unless defined?($public_roles)
-  r = Role.find_by_name_and_application('Rollcall', 'rollcall')
-  $public_roles << r.id unless r.nil?
-rescue
+$extensions_css = {} unless defined?($extensions_css)
+$extensions_css[:rollcall] = [ "rollcall/rollcall.css" ]
+$extensions_js = {} unless defined?($extensions_js)
+$extensions_js[:rollcall] = [ "rollcall/script_config.js" ]
+  
+module Rollcall
+  module Models
+    autoload :Jurisdiction, 'rollcall/models/jurisdiction'
+    autoload :User, 'rollcall/models/user'
+    autoload :DocumentMailer, 'rollcall/models/document_mailer'
+  end
 end
 
-# Register any required javascript or stylesheet files with the appropriate
-# rails expansion helper
-ActionView::Helpers::AssetTagHelper.register_javascript_expansion(
-  :rollcall => [ "rollcall/script_config" ])
-ActionView::Helpers::AssetTagHelper.register_stylesheet_expansion(
-  :rollcall => [ "rollcall/rollcall" ])
+require 'rollcall/engine'
+
+Dir[File.dirname(__FILE__) + '/import/*.rb'].each {|file| require file }

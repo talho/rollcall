@@ -30,7 +30,7 @@ class SchoolDataTransformer
     @ili_transform_fields        = nil
     @district                    = Rollcall::SchoolDistrict.find_by_name(district_name)
     # Load the interface fields yaml config file
-    if File.exist?(doc_yml = Rails.root.to_s + "/vendor/plugins/rollcall/config/interface_fields.yml")
+    if File.exist?(doc_yml = File.join(File.dirname(__FILE__),'..','..',"config","interface_fields.yml"))
       int_yml                  = YAML.load_file(doc_yml)
       @INTERFACE_FIELDS_CONFIG = int_yml
       @INTERFACE_FIELDS_CONFIG.freeze
@@ -44,7 +44,7 @@ class SchoolDataTransformer
         @delimiter                   = fields["delimiter"] unless fields["delimiter"].nil?
         @quote_value                 = fields["quote_value"] unless fields["quote_value"].blank?
         @no_headers                  = true if fields["no_headers"]
-        @six_digit_campus_id         = false if fields["six_digit_campus_id"]
+        @six_digit_campus_id         = false unless fields["six_digit_campus_id"]
         @has_8601_date               = true if fields["has_8601_date"]
         @attendance_transform_fields = fields["attendance_transform_fields"] if fields["attendance_transform_fields"]
         @enrollment_transform_fields = fields["enrollment_transform_fields"] if fields["enrollment_transform_fields"]
@@ -57,7 +57,7 @@ class SchoolDataTransformer
       @delimiter                   = default_fields["delimiter"] if @delimiter.nil?
       @quote_value                 = default_fields["quote_value"] if @quote_value.nil?
       @no_headers                  = false if @no_headers.blank?
-      @six_digit_campus_id         = true if @six_digit_campus_id.blank?
+      @six_digit_campus_id         = true if @six_digit_campus_id.nil?
       @has_8601_date               = false if @has_8601_date.blank?
       @attendance_transform_fields = [] if @attendance_transform_fields.blank?
       @enrollment_transform_fields = [] if @enrollment_transform_fields.blank?

@@ -25,7 +25,7 @@ class SchoolDataImporter
       @records.each { |rec |
         @linenum += 1
         @record   = rec
-        check_record(@record)
+        next unless check_record(@record)
         seed_record(@record)
         process_record(@record, rec2attrs(@record)) if rec2attrs(@record) != false
       }
@@ -162,10 +162,11 @@ private
     @mapping.each { |mapping|
       unless rec[mapping[:field_name]].blank?
         if mapping.has_key?(:format) && !mapping[:format].match(rec[mapping[:field_name]])
-          raise SyntaxError, "invalid value for field #{mapping[:name]} [#{rec[mapping[:field_name]]}]",
-          ["#{@filename}, line #{@linenumber}", "SchoolDataImporter"]
+          Rails.logger.error(["invalid value for field #{mapping[:name]} [#{rec[mapping[:field_name]]}]", "#{@filename}, line #{@linenumber}", "SchoolDataImporter"].join(" - "))
+          return false
         end
       end
     }
+    return true
   end
 end

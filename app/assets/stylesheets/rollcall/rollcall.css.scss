@@ -24,14 +24,14 @@
 }
 .ux-alarm-tn-container{
   cursor:pointer;
-  text-align:left;;
+  text-align:left;
 }
 .ux-ajax-loader{
   width:32px !important;
   height:32px !important;
 }
 .ux-empty-alarm-query-container{
-  background: url(/images/info_icon.png) no-repeat;
+  background: image-url('info_icon.png') no-repeat;
   height: 40px;
 }
 .ux-empty-alarm-query-container p{
@@ -63,7 +63,7 @@
   background-color: #cacaca;
 }
 .rollcall_alarm_icon {
-  background:url(/stylesheets/images/alert.gif) no-repeat;
+  background:image-url('images/alert.gif') no-repeat;
   height: 16px;
   padding-left: 20px;
   padding-top: 2px;
@@ -76,32 +76,32 @@
   /*left:6px;*/
 /*}*/
 .x-tool-alarm-on{
-  background:url(/stylesheets/rollcall/images/ext_alarm_sprite.gif) -15px 0px no-repeat !important;
+  background: image-url('/rollcall/ext_alarm_sprite.gif') -15px 0px no-repeat !important;
   width: 15px !important;
   height: 15px !important;
 }
 .x-tool-alarm-off{
-  background:url(/stylesheets/rollcall/images/ext_alarm_sprite.gif) 0px 0px no-repeat !important;
+  background:image-url('rollcall/ext_alarm_sprite.gif') 0px 0px no-repeat !important;
   width: 15px !important;
   height: 15px !important;
 }
 .x-tool-gis{
-  background:url(/stylesheets/rollcall/images/tool-globe.png) 0px 1px no-repeat !important;
+  background:image-url('rollcall/tool-globe.png') 0px 1px no-repeat !important;
   width: 12px !important;
   height: 12px !important;
 }
 .x-tool-gis-off{
-  background:url(/stylesheets/rollcall/images/globe1-off.png) 0px 0px no-repeat !important;
+  background:image-url('rollcall/globe1-off.png') 0px 0px no-repeat !important;
   width: 12px !important;
   height: 12px !important;
 }
 .x-tool-run-query{
-  background: url(/stylesheets/rollcall/images/run-query-icon.png) 0px 0px no-repeat !important;
+  background: image-url('rollcall/run-query-icon.png') 0px 0px no-repeat !important;
   width: 15px !important;
   height: 15px !important;
 }
 .x-tool-report{
-  background: url(/stylesheets/rollcall/images/run-report-icon.png) 0px 0px no-repeat !important;
+  background: image-url('rollcall/run-report-icon.png') 0px 0px no-repeat !important;
   width: 14px !important;
   height: 14px !important;
 }
@@ -124,7 +124,7 @@
   top: 4px;
 }
 .all-purpose-load-icon{
-  background: url(/images/Ajax-loader.gif) no-repeat;
+  background: image-url('/Ajax-loader.gif') no-repeat;
   height: 32px;
   width: 32px;
   margin:0px auto;
@@ -149,20 +149,20 @@
 }
 
 .x-tbar-gis{
- background: url(/stylesheets/rollcall/images/globe1.png) 0px 0px no-repeat;
+ background: image-url('rollcall/globe1.png') 0px 0px no-repeat;
  padding-left: 22px;
 }
 
 .x-panel-pinned .x-panel-tr,
 .x-panel-pinned{
-  background-image: url(/stylesheets/rollcall/images/pinned-corners-sprite.gif) !important;
+  background-image: image-url('rollcall/pinned-corners-sprite.gif') !important;
 }
 
 .x-panel-pinned .x-panel-tc{
-  background-image: url(/stylesheets/rollcall/images/pinned-top-bottom.gif) !important;
+  background-image: image-url('rollcall/pinned-top-bottom.gif') !important;
 }
 .x-add {
-  background: url(/images/add.png) no-repeat scroll 0 0 transparent !important;
+  background: image-url('/add.png') no-repeat scroll 0 0 transparent !important;
   padding-left: 20px !important;  
 }
 
@@ -186,7 +186,7 @@
 }
 
 .settings-btn{
-  background: url(/stylesheets/rollcall/images/tool-cog.png) no-repeat;
+  background: image-url('rollcall/tool-cog.png') no-repeat;
   width: 16px;
   height: 16px;
 }
@@ -212,7 +212,7 @@
 .x-tpl-circle-icon{
   width:16px;
   height: 16px;
-  background: url(/stylesheets/images/cross-circle.png);
+  background: image-url('images/cross-circle.png');
   clear:right;
   float:right;
   margin-top: -18px;
@@ -220,7 +220,7 @@
 }
 .add_school_btn,
 .add_school_district_btn{
-  background: url(/images/add.png);
+  background: image-url('images/add.png');
 }
 /*
  * Tables.less

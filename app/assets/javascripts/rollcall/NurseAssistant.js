@@ -8,7 +8,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
   {
     if(window.Application.rails_environment == "cucumber"){
       this.init_date = new Date();
-      this.init_date.setDate(this.init_date.getDate()- 7);
+      //this.init_date.setDate(this.init_date.getDate()- 7);
     }else this.init_date = new Date();
     this.build_detail_template();
     this.window_open    = false;
@@ -138,7 +138,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             {
               xtype:     'xactioncolumn',
               id:        'edit_student_entry',
-              items:     [{icon:'/stylesheets/images/pencil.png'}],
+              items:     [{icon:'/assets/images/pencil.png'}],
               listeners: {
                 scope: this,
                 click: function(this_column, this_grid, row_index, event_obj)
@@ -150,7 +150,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             },{
               xtype:     'xactioncolumn',
               id:        'delete_student_entry',
-              items:     [{icon:'/stylesheets/images/cross-circle.png'}],
+              items:     [{icon:'/assets/images/cross-circle.png'}],
               listeners: {
                 scope: this,
                 click: function(this_column, this_grid, row_index, event_obj)
@@ -253,7 +253,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             },{
               xtype:     'xactioncolumn',
               id:        'edit_student_entry',
-              items:     [{icon:'/stylesheets/images/pencil.png'}],
+              items:     [{icon:'/assets/images/pencil.png'}],
               listeners: {
                 scope: this,
                 click: function(this_column, this_grid, row_index, event_obj)
@@ -799,7 +799,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
               dataField: 'symptom'
             },{
               xtype: 'xactioncolumn',
-              icon:  '/stylesheets/images/cross-circle.png',
+              icon:  '/assets/images/cross-circle.png',
               listeners:{
                 scope: this,
                 click: function(this_column, this_grid, row_index, event_obj)

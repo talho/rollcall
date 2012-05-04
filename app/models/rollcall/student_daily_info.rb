@@ -44,8 +44,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 =end
-class Rollcall::StudentDailyInfo < Rollcall::Base
-  set_table_name "rollcall_student_daily_infos"
+class Rollcall::StudentDailyInfo < ActiveRecord::Base
+  self.table_name = "rollcall_student_daily_infos"
 
   has_many :student_reported_symptoms, :class_name => "Rollcall::StudentReportedSymptom"
   has_many :symptoms, :through => :student_reported_symptoms, :class_name=>"Rollcall::Symptom"

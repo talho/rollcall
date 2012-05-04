@@ -8,8 +8,8 @@
 #  created_at         :datetime
 #  updated_at         :datetime
 #
-class Rollcall::UserSchool < Rollcall::Base
+class Rollcall::UserSchool < ActiveRecord::Base
   belongs_to :user
   belongs_to :school, :class_name => "Rollcall::School", :foreign_key => "school_id"
-  set_table_name "rollcall_user_schools"
+  self.table_name = "rollcall_user_schools"
 end

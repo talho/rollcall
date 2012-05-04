@@ -15,9 +15,9 @@
 #  created_at          :datetime
 #  updated_at          :datetime
 
-class Rollcall::AlarmQuery < Rollcall::Base
+class Rollcall::AlarmQuery < ActiveRecord::Base
   belongs_to :user,   :class_name => "::User"
-  set_table_name "rollcall_alarm_queries"
+  self.table_name = "rollcall_alarm_queries"
 
   # Method calls create_alarm if alarm_set
   #

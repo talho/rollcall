@@ -9,13 +9,13 @@ end
 Then /^I delete the alarms for "([^\"]*)"$/ do |alarm_group_name|
   e_o_r  = false
   begin
-    And %{I click the last alarm within the "#{alarm_group_name}" alarm group}
-    And %{I wait for the panel to load}
-    And %{I should see "Delete Alarm"}
-    And %{I press "Delete Alarm"}
-    And %{I should see "Are you sure you want to delete this alarm?"}
-    And %{I press "Yes"}
-    And %{I wait for the panel to load}
+    step %{I click the last alarm within the "#{alarm_group_name}" alarm group}
+    step %{I wait for the panel to load}
+    step %{I should see "Delete Alarm"}
+    step %{I press "Delete Alarm"}
+    step %{I should see "Are you sure you want to delete this alarm?"}
+    step %{I press "Yes"}
+    step %{I wait for the panel to load}
   rescue
     e_o_r = true
   end while(e_o_r == false)

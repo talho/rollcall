@@ -30,7 +30,7 @@
 
 =end
 
-class Rollcall::SchoolDistrictDailyInfo < Rollcall::Base
+class Rollcall::SchoolDistrictDailyInfo < ActiveRecord::Base
   belongs_to :school_district, :class_name => "Rollcall::SchoolDistrict", :foreign_key => "school_district_id"
 
   validates_presence_of :school_district
@@ -39,7 +39,7 @@ class Rollcall::SchoolDistrictDailyInfo < Rollcall::Base
   scope :for_date, lambda{|date| {
       :conditions => ["report_date = ?", date]
   }}
-  set_table_name "rollcall_school_district_daily_infos"
+  self.table_name = "rollcall_school_district_daily_infos"
 
   # Method will update school district daily info
   #

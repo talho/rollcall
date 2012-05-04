@@ -15,7 +15,7 @@
 #  gmap_lng      :float
 #  gmap_addr     :string
 
-class Rollcall::School < Rollcall::Base
+class Rollcall::School < ActiveRecord::Base
   belongs_to :district, :class_name => "Rollcall::SchoolDistrict"
   has_many :school_daily_infos, :class_name => "Rollcall::SchoolDailyInfo"
   has_many :alarms, :class_name => "Rollcall::Alarm"
@@ -35,7 +35,7 @@ class Rollcall::School < Rollcall::Base
               :include    => :alarms,
               :conditions => ["rollcall_alarms.school_id = rollcall_schools.id"]
 
-  set_table_name "rollcall_schools"
+  self.table_name = "rollcall_schools"
 
   # Method returns the average absence rate of school
   #

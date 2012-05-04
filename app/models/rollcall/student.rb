@@ -19,9 +19,9 @@
 #  created_at         :datetime
 #  updated_at         :datetime
 
-class Rollcall::Student < Rollcall::Base
+class Rollcall::Student < ActiveRecord::Base
   belongs_to :school, :class_name => "Rollcall::School"
   has_many :student_daily_info, :class_name => "Rollcall::StudentDailyInfo"
 
-  set_table_name "rollcall_students"
+  self.table_name = "rollcall_students"
 end

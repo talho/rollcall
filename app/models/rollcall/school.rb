@@ -15,26 +15,26 @@
 #  gmap_lng      :float
 #  gmap_addr     :string
 
-class Rollcall::School < Rollcall::Base
+class Rollcall::School < ActiveRecord::Base
   belongs_to :district, :class_name => "Rollcall::SchoolDistrict"
   has_many :school_daily_infos, :class_name => "Rollcall::SchoolDailyInfo"
   has_many :alarms, :class_name => "Rollcall::Alarm"
   has_many :students, :class_name => "Rollcall::Student"
   before_create :set_display_name
 
-  named_scope :in_alert,
+  scope :in_alert,
               :select     => "distinct schools.*",
               :include    => :school_daily_infos,
               :conditions => ["(CAST(rollcall_school_daily_infos.total_absent as FLOAT)/CAST(rollcall_school_daily_infos.total_enrolled as FLOAT))
                               >= 0.10 AND rollcall_school_daily_infos.report_date >= ?", 30.days.ago],
               :order      => "(CAST(rollcall_school_daily_infos.total_absent as FLOAT)/CAST(rollcall_school_daily_infos.total_enrolled as FLOAT)) desc"
 
-  named_scope :with_alarms,
+  scope :with_alarms,
               :select     => "distinct schools.*",
               :include    => :alarms,
               :conditions => ["rollcall_alarms.school_id = rollcall_schools.id"]
 
-  set_table_name "rollcall_schools"
+  self.table_name = "rollcall_schools"
 
   # Method returns the average absence rate of school
   #

@@ -24,6 +24,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
         results = results.find_all{|r| params[:school_district].include?(r.name)}
       end
     end
+    require 'will_paginate/array'
     results_paged = results.paginate(options)
     results_paged.each do |r|
       res = Rollcall::Data.get_graph_data(params, r) if params[:return_individual_school]
@@ -48,13 +49,8 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   #
   # GET /rollcall/export
   def export
-    if RAILS_ENV == "test"
-      filename = "rollcall_export.cucumber"
-      Rollcall::Data.export_data(params, filename, current_user)
-    else
-      filename = "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}"
-      Rollcall::Data.delay.export_data(params, filename, current_user)
-    end
+    filename = "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}"
+    Rollcall::Data.delay.export_data(params, filename, current_user)
 
     respond_to do |format|
       format.json do

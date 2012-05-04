@@ -15,8 +15,8 @@ require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::SchoolDailyInfo do
   before(:each) do
-    @student           = Factory(:rollcall_student)
-    @school_daily_info = Factory(:rollcall_school_daily_info, :school => @student.school, :total_absent => 15)
+    @student           = FactoryGirl.create(:rollcall_student)
+    @school_daily_info = FactoryGirl.create(:rollcall_school_daily_info, :school => @student.school, :total_absent => 15)
   end
   describe "validations" do
     it "should be valid" do
@@ -71,14 +71,14 @@ describe Rollcall::SchoolDailyInfo do
 
   describe "severity" do
     it "returns a string specifying low severity" do
-      @school_daily_info = Factory(:rollcall_school_daily_info, :school => @student.school, :total_absent => 5)
+      @school_daily_info = FactoryGirl.create(:rollcall_school_daily_info, :school => @student.school, :total_absent => 5)
       @school_daily_info.severity.should == "low"
     end
     it "returns a string specifying medium severity" do
       @school_daily_info.severity.should == "medium"
     end
     it "returns a string specifying high severity" do
-      @school_daily_info = Factory(:rollcall_school_daily_info, :school => @student.school, :total_absent => 25)
+      @school_daily_info = FactoryGirl.create(:rollcall_school_daily_info, :school => @student.school, :total_absent => 25)
       @school_daily_info.severity.should == "high"
     end
   end

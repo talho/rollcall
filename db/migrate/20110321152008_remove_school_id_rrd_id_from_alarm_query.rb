@@ -3,7 +3,14 @@ class RemoveSchoolIdRrdIdFromAlarmQuery < ActiveRecord::Migration
     remove_index :rollcall_alarm_queries, :school_id
 
     # must use old table name as the index name is still "index_rollcall_saved_queries_on_rrd_id"
-    remove_index :rollcall_saved_queries, :rrd_id
+    begin 
+      remove_index :rollcall_saved_queries, :rrd_id
+    rescue
+    end
+    begin 
+      remove_index :rollcall_alarm_queries, :rrd_id
+    rescue
+    end
 
     remove_column :rollcall_alarm_queries, :school_id
     remove_column :rollcall_alarm_queries, :rrd_id

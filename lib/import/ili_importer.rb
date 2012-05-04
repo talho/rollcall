@@ -1,4 +1,5 @@
-require 'school_data_importer'
+require File.join(File.dirname(__FILE__), 'school_data_importer.rb')
+
 # Class is derived from SchoolDataImporter, imports ili data, defines MAPPING and process_record
 class IliImporter < SchoolDataImporter
   IliImporter::MAPPING = [

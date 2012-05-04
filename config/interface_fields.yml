@@ -1,0 +1,207 @@
+Default:
+  permitted_enrollment_field_names:
+    - EnrollDate
+    - CampusID
+    - SchoolName
+    - CurrentEnrollment
+  permitted_attendance_field_names:
+    - AbsenceDate
+    - CampusID
+    - SchoolName
+    - Absent
+  permitted_ili_field_names:
+    - CID
+    - HealthYear
+    - CampusID
+    - CampusName
+    - OrigDate
+    - DateOfOnset
+    - Temperature
+    - Symptoms
+    - Zip
+    - Grade
+    - InSchool
+    - Confirmed
+    - Released
+    - Diagnosis
+    - Treatment
+    - Name
+    - Contact
+    - Phone
+    - DOB
+    - Gender
+    - Race
+    - FollowUp
+    - Doctor
+    - DoctorAddress
+  delimiter: ","
+  quote_value: '"'
+Allen:
+  permitted_attendance_field_names:
+    - AbsenceDate
+    - CampusID
+    - Absent
+  permitted_enrollment_field_names:
+    - EnrollDate
+    - CampusID
+    - CurrentEnrollment
+  permitted_ili_field_names:
+    - CID
+    - CampusID
+    - OrigDate
+    - Symptoms
+    - Grade
+  no_headers: true
+Anthony:
+  no_headers: true
+  quote_value: "'"
+China:
+  no_headers: true
+  quote_value: "'"
+Ector:
+  no_headers: true
+  permitted_ili_field_names:
+    - CID
+    - HealthYear
+    - CampusID
+    - CampusName
+    - OrigDate
+    - Symptoms
+    - Zip
+    - Grade
+Fabens:
+  permitted_ili_field_names:
+    - CID
+    - HealthYear
+    - CampusID
+    - OrigDate
+    - DateOfOnset
+    - Temperature
+    - Symptoms
+    - Zip
+    - Grade
+    - InSchool
+    - Confirmed
+    - Released
+    - Diagnosis
+    - Treatment
+    - Name
+    - Contact
+    - Phone
+    - DOB
+    - Gender
+    - Race
+    - FollowUp
+    - Doctor
+    - DoctorAddress
+Frisco:
+  permitted_ili_field_names:
+    - CID
+    - HealthYear
+    - CampusID
+    - StudentID
+    - OrigDate
+    - Temperature
+    - Symptoms
+    - Zip
+    - Grade
+Houston:
+  delimiter: "\t"
+  quote_value: none
+  no_headers: true
+McKinney:                                               
+  permitted_ili_field_names:
+    - CID
+    - HealthYear
+    - CampusID
+    - OrigDate
+    - Symptoms
+    - Grade
+    - Temperature
+  has_8601_date: true
+  attendance_transform_fields:
+      - 1
+  enrollment_transform_fields:
+      - 1
+  ili_transform_fields:
+      - 4
+Midland:
+  permitted_ili_field_names:
+    - CID
+    - HealthYear
+    - CampusID
+    - CampusName
+    - OrigDate
+    - Temperature
+    - Symptoms
+    - Zip
+    - Grade
+  quote_value: none
+Plano:
+  permitted_ili_field_names:
+    - CID
+    - HealthYear
+    - CampusID
+    - CampusName
+    - OrigDate
+    - Temperature
+    - Symptoms
+    - Zip
+    - Grade
+  quote_value: none
+Robinson:
+  no_headers: true
+  quote_value: "'"
+Socorro:
+  permitted_ili_field_names:
+    - CampusID
+    - OrigDate
+    - Temperature
+    - Symptoms
+    - Zip
+    - Grade
+  quote_value: none
+Tyler:
+  permitted_ili_field_names:
+    - CID
+    - HealthYear
+    - CampusID
+    - CampusName
+    - OrigDate
+    - Temperature
+    - Symptoms
+    - Zip
+    - Grade
+    - Diagnosis
+    - Treatment
+    - DOB
+    - Gender
+    - Race
+  six_digit_campus_id: false
+  attendance_transform_fields:
+    - 2
+  enrollment_transform_fields:
+    - 2
+Waco:
+  permitted_ili_field_names:
+    - CID
+    - HealthYear
+    - CampusID
+    - OrigDate
+    - Temperature
+    - Symptoms
+    - Grade
+    - Gender
+    - Race
+  delimiter: "|"
+Wylie:
+  no_headers: true
+  permitted_ili_field_names:
+    - CID
+    - HealthYear
+    - CampusID
+    - OrigDate
+    - Temperature
+    - Symptoms
+    - Zip
+    - Grade

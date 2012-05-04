@@ -21,7 +21,7 @@ require File.dirname(__FILE__) + "/../factories.rb"
 describe Rollcall::Alarm do
   describe "validations" do
     before(:each) do
-      @alarm=Factory(:rollcall_alarm)
+      @alarm=FactoryGirl.create(:rollcall_alarm)
     end
     it "should be valid" do
       @alarm.should be_valid
@@ -30,7 +30,7 @@ describe Rollcall::Alarm do
 
   describe "belongs_to" do
     before(:each) do
-      @alarm=Factory(:rollcall_alarm)
+      @alarm=FactoryGirl.create(:rollcall_alarm)
     end
     context "school" do
       it "returns a school object" do

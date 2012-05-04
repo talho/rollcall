@@ -16,7 +16,7 @@ require File.dirname(__FILE__) + "/../factories.rb"
 describe Rollcall::SchoolDistrict do
   describe "validations" do
     before(:each) do
-      @school_district=Factory(:rollcall_school_district)
+      @school_district=FactoryGirl.create(:rollcall_school_district)
     end
     it "should be valid" do
       @school_district.should be_valid
@@ -25,7 +25,7 @@ describe Rollcall::SchoolDistrict do
 
   describe "belongs_to" do
     before(:each) do
-      @school_district=Factory(:rollcall_school_district)
+      @school_district=FactoryGirl.create(:rollcall_school_district)
     end
     context "jurisdiction" do
       it "returns a jurisdiction" do
@@ -36,9 +36,9 @@ describe Rollcall::SchoolDistrict do
 
   desribe "has_many" do
     before(:each) do
-      @school_district=Factory(:rollcall_school_district)
-      @school=Factory(:rollcall_school, :district_id => @school_district.id)
-      @daily_info=Factory(:rollcall_school_district_daily_info, :school_district_id => @school_district.id)
+      @school_district=FactoryGirl.create(:rollcall_school_district)
+      @school=FactoryGirl.create(:rollcall_school, :district_id => @school_district.id)
+      @daily_info=FactoryGirl.create(:rollcall_school_district_daily_info, :school_district_id => @school_district.id)
     end
     context "schools" do
       it "returns a list of schools for this school district" do
@@ -53,7 +53,7 @@ describe Rollcall::SchoolDistrict do
   end
   describe "average_absence_rate" do
     before(:each) do
-      @school_district_daily_info = Factory(:rollcall_school_district_daily_info)
+      @school_district_daily_info = FactoryGirl.create(:rollcall_school_district_daily_info)
     end
     it "returns a floating integer" do
       @school_district_daily_info.school_district.average_absence_rate.should be_kind_of(Float)
@@ -65,9 +65,9 @@ describe Rollcall::SchoolDistrict do
 
   describe "update_daily_info" do
     before(:each) do
-      @school                     = Factory(:rollcall_school)
-      @schoo_daily_info           = Factory(:rollcall_school_daily_info, :school => @school, :report_date => (Time.now - 2.days))
-      @school_district_daily_info = Factory(:rollcall_school_district_daily_info, :school_district => @school.district)
+      @school                     = FactoryGirl.create(:rollcall_school)
+      @schoo_daily_info           = FactoryGirl.create(:rollcall_school_daily_info, :school => @school, :report_date => (Time.now - 2.days))
+      @school_district_daily_info = FactoryGirl.create(:rollcall_school_district_daily_info, :school_district => @school.district)
     end
     it "returns school district daily info for specific date" do
       di = @school.district.update_daily_info Time.now
@@ -87,8 +87,8 @@ describe Rollcall::SchoolDistrict do
 
   describe "recent_absentee_rates" do
     before(:each) do
-      @school           = Factory(:rollcall_school)
-      @schoo_daily_info = Factory(:rollcall_school_daily_info, :school => @school)
+      @school           = FactoryGirl.create(:rollcall_school)
+      @schoo_daily_info = FactoryGirl.create(:rollcall_school_daily_info, :school => @school)
     end
     it "returns an array of absentee rates(average) for a specific number of days" do
       avg = @school.district.recent_absentee_rates 1
@@ -100,7 +100,7 @@ describe Rollcall::SchoolDistrict do
 
   describe "zipcodes" do
     before(:each) do
-      @school = Factory(:rollcall_school)
+      @school = FactoryGirl.create(:rollcall_school)
     end
     it "returns an array of unique zipcodes within a school district" do
       @school.district.zipcodes.should be_kind_of(Array)
@@ -111,7 +111,7 @@ describe Rollcall::SchoolDistrict do
 
   describe "school_types" do
     before(:each) do
-      @school = Factory(:rollcall_school)
+      @school = FactoryGirl.create(:rollcall_school)
     end
     it "returns an array of unique school types within a school district" do
       @school.district.school_types.should be_kind_of(Array)

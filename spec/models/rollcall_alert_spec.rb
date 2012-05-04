@@ -11,7 +11,7 @@ require File.dirname(__FILE__) + "/../factories.rb"
 
 describe RollcallAlert do
   before(:each) do
-    @rollcall_alert=Factory(:rollcall_alert)
+    @rollcall_alert=FactoryGirl.create(:rollcall_alert)
   end
   describe "validations" do
     it "should be valid" do
@@ -43,8 +43,8 @@ describe RollcallAlert do
     it "sets and returns a default alert" do
       RollcallAlert.all.length.should == 1
       ra = RollcallAlert.default_alert
-      #ra.author    = Factory(:user)
-      #ra.alarm_id  = Factory(:rollcall_alarm).id
+      #ra.author    = FactoryGirl.create(:user)
+      #ra.alarm_id  = FactoryGirl.create(:rollcall_alarm).id
       ra.save
       RollcallAlert.all.length.should == 2
       ra.title.should   == "Rollcall Alarm Alert"

@@ -1,6 +1,9 @@
 class RemoveColumnSchoolIdFromSchools < ActiveRecord::Migration
   def self.up
-    remove_index :schools, :school_id
+    begin
+      remove_index :schools, :school_id
+    rescue
+    end
     remove_column :rollcall_schools, :school_id
   end
 

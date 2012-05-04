@@ -1,3 +1,5 @@
+# TODO: modify to test that d3 is graphic the data
+
 Feature: Execute Advanced ADST Queries
   In order to execute advanced search queries
   As a Rollcall user
@@ -49,7 +51,7 @@ Background:
     | 787.91    | Diarrhea                |
     | 0         | None                    |
   And the following users exist:
-    | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Collin |
+    | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Collin | rollcall |
   And rollcall user "nurse.betty@example.com" has the following school districts assigned:
     | District1  |
     | District2 |
@@ -144,7 +146,6 @@ Background:
     | 2   | Austin Elementary School          | 18       |            |           | 07/23/1993 | 12    | M      | true          | Chills,Temperature,Headache |                |
 
   And I am logged in as "nurse.betty@example.com"
-  And I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
   And I wait for the panel to load
 
@@ -276,7 +277,7 @@ Scenario: User runs an advanced query against time period
   And I set "enddt_adv" to "0" days from origin date
   And I press "Submit"
   And delayed jobs are processed
-  Then I should see dated graphs for schools "101912105,101912273,101912020" starting "5" days and ending "0" days from origin date
+  #Then I should see dated graphs for schools "101912105,101912273,101912020" starting "5" days and ending "0" days from origin date
 
 Scenario: User runs an advanced query against a school district
   When I press "Switch to Advanced View >>"

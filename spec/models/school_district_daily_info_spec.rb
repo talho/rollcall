@@ -14,7 +14,7 @@ require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::SchoolDistrictDailyInfo do
   before(:each) do
-    @school_district_daily_info = Factory(:rollcall_school_district_daily_info)
+    @school_district_daily_info = FactoryGirl.create(:rollcall_school_district_daily_info)
   end
   describe "validations" do
     it "should be valid" do
@@ -65,9 +65,9 @@ describe Rollcall::SchoolDistrictDailyInfo do
 
   describe "update_stats" do
     it "updates total_enrollment, total_absent and absentee_rate by date and school district id" do
-      @school = Factory(:rollcall_school)
-      @school_daily_info = Factory(:rollcall_school_daily_info, :school => @school)
-      @school_district_daily_info = Factory(:rollcall_school_district_daily_info,
+      @school = FactoryGirl.create(:rollcall_school)
+      @school_daily_info = FactoryGirl.create(:rollcall_school_daily_info, :school => @school)
+      @school_district_daily_info = FactoryGirl.create(:rollcall_school_district_daily_info,
                                             :total_enrollment => nil,
                                             :total_absent => nil,
                                             :absentee_rate => nil,

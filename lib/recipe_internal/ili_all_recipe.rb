@@ -14,7 +14,7 @@ class RecipeInternal::IliAllRecipe < RecipeInternal
     end
 
     def template_path
-      File.join(Rails.root, 'vendor','plugins','rollcall','app','views', 'reports','ili_all.html.erb')
+      File.join(Rails.root.to_s, 'vendor','plugins','rollcall','app','views', 'reports','ili_all.html.erb')
     end
 
     def template_directives
@@ -23,7 +23,7 @@ class RecipeInternal::IliAllRecipe < RecipeInternal
     end
 
     def layout_path
-      File.join(Rails.root, 'vendor','plugins','rollcall','app','views', 'reports','layout.html.erb')
+      File.join(Rails.root.to_s, 'vendor','plugins','rollcall','app','views', 'reports','layout.html.erb')
     end
 
     def capture_to_db(report)

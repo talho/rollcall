@@ -11,8 +11,8 @@ Background:
   And Texas is the parent jurisdiction of:
     | Harris |
   And Harris has the following school districts:
-    | HoustonTest | 101912 |
-  And "HoustonTest" has the following schools:
+    | FakeHouston | 101912 |
+  And "FakeHouston" has the following schools:
     | name                | school_number | tea_id    | school_type       | postal_code | gmap_lat   | gmap_lng    | gmap_addr                                                                      |
     | Anderson Elementary | 105           | 101912105 | Elementary School | 77035       | 29.6496766 | -95.4879978 | "Anderson Elementary School, 5727 Ludington Dr, Houston, TX 77035-4399, USA"   |
     | Ashford Elementary  | 273           | 101912273 | Elementary School | 77077       | 29.7477296 | -95.5988336 | "Ashford Elementary School, 1815 Shannon Valley Dr, Houston, TX 77077, USA"    |
@@ -43,9 +43,9 @@ Background:
     | 787.91    | Diarrhea                |
     | 0         | None                    |
   And the following users exist:
-    | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Harris |
+    | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Harris | rollcall |
   And rollcall user "nurse.betty@example.com" has the following school districts assigned:
-    | HoustonTest |
+    | FakeHouston |
   And rollcall user "nurse.betty@example.com" has the following schools assigned:
     | Anderson Elementary |
     | Ashford Elementary  |
@@ -53,7 +53,7 @@ Background:
 
 Scenario: Uploading a file
   Given I am logged in as "nurse.betty@example.com"
-  When I drop the following "Attendance" file in the rollcall directory for "HoustonTest":
+  When I drop the following "Attendance" file in the rollcall directory for "FakeHouston":
   """
   "AbsenceDate","CampusID","SchoolName","Absent"
   "<%= (Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>","101912105","Anderson Elementary","2"
@@ -63,7 +63,7 @@ Scenario: Uploading a file
   "<%= (Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","101912273","Ashford Elementary","4"
   "<%= (Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","101912020","Yates High School","5"
   """
-  And I drop the following "Enrollment" file in the rollcall directory for "HoustonTest":
+  And I drop the following "Enrollment" file in the rollcall directory for "FakeHouston":
   """
   "EnrollDate","CampusID","SchoolName","CurrentEnrollment"
   "<%= (Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>","101912105","Anderson Elementary","100"
@@ -73,38 +73,37 @@ Scenario: Uploading a file
   "<%= (Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","101912273","Ashford Elementary","100"
   "<%= (Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","101912020","Yates High School","200"
   """
-  And I drop the following "ILI" file in the rollcall directory for "HoustonTest":
+  And I drop the following "ILI" file in the rollcall directory for "FakeHouston":
   """
-  "CID","HealthYear","CampusID","CampusName","OrigDate","DateOfOnset","Temperature","Symptoms","Zip","Grade","InSchool","Confirmed","Released","Diagnosis","Treatment","Name","Contact","Phone","DOB","Gender","Race","FollowUp","Doctor","DoctorAddress"
-  "1","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912105","Anderson Elementary","<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>","","","Cough,Temperature","","2","","true","","","","","","","02/13/2003","M","","","",""
-  "2","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912105","Anderson Elementary","<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>","","","","","1","","false","","","","","","","03/01/2004","F","","","",""
-  "3","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912105","Anderson Elementary","<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","","","Cough,Temperature,Chills","","2","","true","","","","Dorian, John","","","02/13/2003","M","","","",""
-  "4","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912105","Anderson Elementary","<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","","","","","1","","false","","","","","","","12/01/2005","F","","","",""
-  "5","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912105","Anderson Elementary","<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","","","","","1","","false","","","","","","","09/11/2005","F","","","",""
-  "6","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912105","Anderson Elementary","<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","","","Congestion,Cough,Headache","","2","","true","","","","","","","05/01/2003","M","","","",""
-  "7","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912105","Anderson Elementary","<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","","","","","1","","false","","","","","","","03/01/2004","F","","","",""
-  "8","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912273","Ashford Elementary","<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>","","","Influenza","","3","","true","","","","","","","05/12/2002","F","","","",""
-  "9","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912273","Ashford Elementary","<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","","","Temperature","","2","","true","","","","","","","01/02/2003","F","","","",""
-  "10","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912273","Ashford Elementary","<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","","","None","","2","","true","","","","","","","01/22/2004","M","","","",""
-  "11","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912273","Ashford Elementary","<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","","","Temperature","","2","","true","","","","Turk, Chris","","","08/27/2004","F","","","",""
-  "12","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912273","Ashford Elementary","<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","","","Temperature,Cough","","2","","true","","","","","","","02/12/2003","M","","","",""
-  "13","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912020","Yates High School","<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>","","","","","10","","false","","","","","","","06/16/1995","M","","","",""
-  "14","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912020","Yates High School","<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>","","","","","12","","false","","","","","","","04/26/1993","F","","","",""
-  "15","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912020","Yates High School","<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>","","","","","12","","false","","","","","","","02/19/1993","M","","","",""
-  "16","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912020","Yates High School","<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>","","","Lethargy,Headache","","09","","true","","","","","","","08/26/1996","M","","","",""
-  "17","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912020","Yates High School","<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>","","","","","09","","false","","","","","","","06/30/1996","F","","","",""
-  "18","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912020","Yates High School","<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>","","","","","09","","false","","","","","","","01/02/1997","M","","","",""
-  "19","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912020","Yates High School","<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>","","","Sore Throat,Cough","","10","","true","","","","","","","03/13/1995","M","","","",""
-  "20","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912020","Yates High School","<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>","","","Diarrhea,Vomiting","","10","","true","","","","Reid, Elliot","","","11/17/1995","M","","","",""
-  "21","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912020","Yates High School","<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>","","","","","10","","false","","","","","","","09/24/1994","M","","","",""
-  "22","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912020","Yates High School","<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>","","","None","","10","","true","","","","","","","02/08/1995","F","","","",""
-  "23","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912020","Yates High School","<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","","","","","09","","false","","","","","","","08/04/1996","F","","","",""
-  "24","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912020","Yates High School","<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","","","","","11","","false","","","","","","","12/13/1994","M","","","",""
-  "25","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912020","Yates High School","<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","","","","","10","","false","","","","","","","04/23/1994","F","","","",""
-  "26","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912020","Yates High School","<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","","","Chills,Cough,Headache","","12","","true","","","","","","","10/17/1993","M","","","",""
-  "27","<%=Date.today.last_year.year%>-<%=Date.today.year%>","101912020","Yates High School","<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>","","","Chills,Temperature,Headache","","12","","true","","","","","","","07/23/1993","M","","","",""
+  1,<%=1.year.ago.year%>-<%=Date.today.year%>,101912105,Anderson Elementary,<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>,,,"Cough,Temperature",,2,,true,,,,,,,02/13/2003,M,,,,
+  2,<%=1.year.ago.year%>-<%=Date.today.year%>,101912105,Anderson Elementary,<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>,,,,,1,,false,,,,,,,03/01/2004,F,,,,
+  3,<%=1.year.ago.year%>-<%=Date.today.year%>,101912105,Anderson Elementary,<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>,,,"Cough,Temperature,Chills",,2,,true,,,,"Dorian, John",,,02/13/2003,M,,,,
+  4,<%=1.year.ago.year%>-<%=Date.today.year%>,101912105,Anderson Elementary,<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>,,,,,1,,false,,,,,,,12/01/2005,F,,,,
+  5,<%=1.year.ago.year%>-<%=Date.today.year%>,101912105,Anderson Elementary,<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>,,,,,1,,false,,,,,,,09/11/2005,F,,,,
+  6,<%=1.year.ago.year%>-<%=Date.today.year%>,101912105,Anderson Elementary,<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>,,,"Congestion,Cough,Headache",,2,,true,,,,,,,05/01/2003,M,,,,
+  7,<%=1.year.ago.year%>-<%=Date.today.year%>,101912105,Anderson Elementary,<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>,,,,,1,,false,,,,,,,03/01/2004,F,,,,
+  8,<%=1.year.ago.year%>-<%=Date.today.year%>,101912273,Ashford Elementary,<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>,,,"Influenza",,3,,true,,,,,,,05/12/2002,F,,,,
+  9,<%=1.year.ago.year%>-<%=Date.today.year%>,101912273,Ashford Elementary,<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>,,,"Temperature",,2,,true,,,,,,,01/02/2003,F,,,,
+  10,<%=1.year.ago.year%>-<%=Date.today.year%>,101912273,Ashford Elementary,<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>,,,"None",,2,,true,,,,,,,01/22/2004,M,,,,
+  11,<%=1.year.ago.year%>-<%=Date.today.year%>,101912273,Ashford Elementary,<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>,,,"Temperature",,2,,true,,,,"Turk, Chris",,,08/27/2004,F,,,,
+  12,<%=1.year.ago.year%>-<%=Date.today.year%>,101912273,Ashford Elementary,<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>,,,"Temperature,Cough",,2,,true,,,,,,,02/12/2003,M,,,,
+  13,<%=1.year.ago.year%>-<%=Date.today.year%>,101912020,Yates High School,<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>,,,,,10,,false,,,,,,,06/16/1995,M,,,,
+  14,<%=1.year.ago.year%>-<%=Date.today.year%>,101912020,Yates High School,<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>,,,,,12,,false,,,,,,,04/26/1993,F,,,,
+  15,<%=1.year.ago.year%>-<%=Date.today.year%>,101912020,Yates High School,<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>,,,,,12,,false,,,,,,,02/19/1993,M,,,,
+  16,<%=1.year.ago.year%>-<%=Date.today.year%>,101912020,Yates High School,<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>,,,"Lethargy,Headache",,09,,true,,,,,,,08/26/1996,M,,,,
+  17,<%=1.year.ago.year%>-<%=Date.today.year%>,101912020,Yates High School,<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>,,,,,09,,false,,,,,,,06/30/1996,F,,,,
+  18,<%=1.year.ago.year%>-<%=Date.today.year%>,101912020,Yates High School,<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>,,,,,09,,false,,,,,,,01/02/1997,M,,,,
+  19,<%=1.year.ago.year%>-<%=Date.today.year%>,101912020,Yates High School,<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>,,,"Sore Throat,Cough",,10,,true,,,,,,,03/13/1995,M,,,,
+  20,<%=1.year.ago.year%>-<%=Date.today.year%>,101912020,Yates High School,<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>,,,"Diarrhea,Vomiting",,10,,true,,,,"Reid, Elliot",,,11/17/1995,M,,,,
+  21,<%=1.year.ago.year%>-<%=Date.today.year%>,101912020,Yates High School,<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>,,,,,10,,false,,,,,,,09/24/1994,M,,,,
+  22,<%=1.year.ago.year%>-<%=Date.today.year%>,101912020,Yates High School,<%=(Date.today.at_beginning_of_week - 1.week + 1.day).strftime("%Y-%m-%d 00:00:00")%>,,,"None",,10,,true,,,,,,,02/08/1995,F,,,,
+  23,<%=1.year.ago.year%>-<%=Date.today.year%>,101912020,Yates High School,<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>,,,,,09,,false,,,,,,,08/04/1996,F,,,,
+  24,<%=1.year.ago.year%>-<%=Date.today.year%>,101912020,Yates High School,<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>,,,,,11,,false,,,,,,,12/13/1994,M,,,,
+  25,<%=1.year.ago.year%>-<%=Date.today.year%>,101912020,Yates High School,<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>,,,,,10,,false,,,,,,,04/23/1994,F,,,,
+  26,<%=1.year.ago.year%>-<%=Date.today.year%>,101912020,Yates High School,<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>,,,"Chills,Cough,Headache",,12,,true,,,,,,,10/17/1993,M,,,,
+  27,<%=1.year.ago.year%>-<%=Date.today.year%>,101912020,Yates High School,<%=(Date.today.at_beginning_of_week - 1.week + 2.day).strftime("%Y-%m-%d 00:00:00")%>,,,"Chills,Temperature,Headache",,12,,true,,,,,,,07/23/1993,M,,,,
   """
-  And the rollcall background worker processes for "HoustonTest"
+  And the rollcall background worker processes for "FakeHouston"
 
   And I am logged in as "nurse.betty@example.com"
   And I navigate to the ext dashboard page

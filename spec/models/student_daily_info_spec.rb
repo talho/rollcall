@@ -27,8 +27,8 @@ require File.dirname(__FILE__) + "/../factories.rb"
 
 describe Rollcall::StudentDailyInfo do
   before(:each) do
-    @student_daily_info       = Factory(:rollcall_student_daily_info)
-    @student_reported_symptom = Factory(:rollcall_student_reported_symptoms, :student_daily_info => @student_daily_info)
+    @student_daily_info       = FactoryGirl.create(:rollcall_student_daily_info)
+    @student_reported_symptom = FactoryGirl.create(:rollcall_student_reported_symptoms, :student_daily_info => @student_daily_info)
   end
   
   describe "validations" do

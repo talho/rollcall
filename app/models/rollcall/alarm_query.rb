@@ -15,9 +15,9 @@
 #  created_at          :datetime
 #  updated_at          :datetime
 
-class Rollcall::AlarmQuery < Rollcall::Base
-  belongs_to :user,   :class_name => "User"
-  set_table_name "rollcall_alarm_queries"
+class Rollcall::AlarmQuery < ActiveRecord::Base
+  belongs_to :user,   :class_name => "::User"
+  self.table_name = "rollcall_alarm_queries"
 
   # Method calls create_alarm if alarm_set
   #
@@ -125,9 +125,9 @@ class Rollcall::AlarmQuery < Rollcall::Base
             :title   => "New Alarm for #{school.display_name}[#{alarm.alarm_severity}]",
             :message => "A new alarm of #{alarm.alarm_severity} severity has been created for #{school.display_name} on #{report_date}.",
             :author  => user,
-            :alarm   => alarm
+            #:alarm   => alarm,
+            :audiences => [Audience.new(:users => [user])]
           )
-          ra.audiences << (Audience.new :users => [user])
           return ra.save
         end
       end

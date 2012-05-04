@@ -31,22 +31,24 @@ class RollcallDataImporter < BackgrounDRb::MetaWorker
   # @param isd optional parameter to call method if only wanting to process a certain ISD
   def process_uploads(isd = nil)
     #logger.warn("Running TransformImportWorker")
-    if RAILS_ENV == "production"
+    if Rails.env == "production"
       rollcall_data_path = File.join("/var/www/openphin/shared", "rollcall")
-    elsif RAILS_ENV == "test" || RAILS_ENV == "cucumber"
-      rollcall_data_path = File.join(File.dirname(__FILE__), "..", "..", "..", "vendor", "plugins", "rollcall", "tmp")
+    elsif Rails.env == "test" || Rails.env == "cucumber"
+      rollcall_data_path = File.join(Rails.root.to_s, "vendor/extensions", "rollcall", "tmp")
     end
     unless isd.blank?
       begin
-        SchoolDataTransformer.new(rollcall_data_path, "#{isd}").transform_and_import
-      rescue
+        SchoolDataTransformer.new(rollcall_data_path, isd.to_s).transform_and_import
+      rescue Exception => e
+        raise e if Rails.env == "test" || Rails.env == "cucumber"
       end
     else
-      begin
-        Rollcall::SchoolDistrict.all.each do |district|
-          SchoolDataTransformer.new(rollcall_data_path, "#{district.name}").transform_and_import
+      Rollcall::SchoolDistrict.all.each do |district|
+        begin
+          SchoolDataTransformer.new(rollcall_data_path, district.name.to_s).transform_and_import
+        rescue Exception => e
+          raise e if Rails.env == "test" || Rails.env == "cucumber"
         end
-      rescue
       end
     end
     Rollcall::AlarmQuery.find_all_by_alarm_set(true).each do |a|

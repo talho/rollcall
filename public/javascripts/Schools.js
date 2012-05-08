@@ -217,7 +217,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
             },{
               xtype:   'button',
               text:    'Generate Attendance Report',
-              recipe:  'Report::AttendanceAllRecipeInternal',
+              recipe:  'ReportInternal::AttendanceAllRecipe',
               scope:   this,
               handler: this._showReportMessage
             },{
@@ -226,7 +226,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
             },{
               xtype:   'button',
               text:    'Generate ILI Report',
-              recipe:  'Report::IliAllRecipeInternal',
+              recipe:  'ReportInternal::IliAllRecipe',
               scope:   this,
               handler: this._showReportMessage
             }]

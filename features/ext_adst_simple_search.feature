@@ -49,7 +49,7 @@ Background:
     | 787.91    | Diarrhea                |
     | 0         | None                    |
   And the following users exist:
-    | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Collin |
+    | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Collin | rollcall |
   And rollcall user "nurse.betty@example.com" has the following school districts assigned:
     | District1  |
     | District2 |

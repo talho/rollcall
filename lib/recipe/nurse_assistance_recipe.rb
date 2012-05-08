@@ -32,8 +32,9 @@ class Recipe::NurseAssistanceRecipe < Recipe
       i                 = 0
       school_set        = @current_user.schools
       report_school_set = []
-      dataset.insert({:report=>{:created_at=>Time.now.utc}})
-      dataset.insert({:meta=>{:template_directives=>template_directives}}.as_json )
+      id                = {:report_id => report.id}
+      dataset.insert( id.merge( {:report=>{:created_at=>Time.now.utc}} ))
+      dataset.insert( id.merge( {:meta=>{:template_directives=>template_directives}}.as_json ))
       school_set.each do |s|
         unless s.students.blank?
           symp_list_count = 0
@@ -46,8 +47,8 @@ class Recipe::NurseAssistanceRecipe < Recipe
         end
       end
       report_school_set.each do |r|
-        doc = Hash["i",i,"display_name",r[0],"tea_id",r[1],"total_students",r[2],"total_symptoms",r[3]]
-        dataset.insert(doc)
+        doc = {"i"=>i,"display_name"=>r[0],"tea_id"=>r[1],"total_students"=>r[2],"total_symptoms"=>r[3]}
+        dataset.insert(doc.merge(id))
         i += 1
       end
       dataset.create_index("i")

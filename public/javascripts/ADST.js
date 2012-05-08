@@ -347,8 +347,8 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   _showReportMenu: function(element, school_id)
   {
     var scrollMenu = new Ext.menu.Menu();
-    scrollMenu.add({school_id: school_id, recipe: 'Report::AttendanceAllRecipeInternal', text: 'Attendance Report', handler: this._showReportMessage});
-    scrollMenu.add({school_id: school_id, recipe: 'Report::IliAllRecipeInternal',        text: 'ILI Report',        handler: this._showReportMessage});
+    scrollMenu.add({school_id: school_id, recipe: 'ReportInternal::AttendanceAllRecipe', text: 'Attendance Report', handler: this._showReportMessage});
+    scrollMenu.add({school_id: school_id, recipe: 'ReportInternal::IliAllRecipe',        text: 'ILI Report',        handler: this._showReportMessage});
     scrollMenu.show(element);
   },
   /*

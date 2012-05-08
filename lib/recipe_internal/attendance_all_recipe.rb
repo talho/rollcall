@@ -29,8 +29,9 @@ class RecipeInternal::AttendanceAllRecipe < RecipeInternal
       @current_user = report.author
       dataset       = report.dataset
       i             = 0
-      dataset.insert({:report=>{:created_at=>Time.now.utc}})
-      dataset.insert({:meta=>{:template_directives=>template_directives}}.as_json )
+      id                = {:report_id => report.id}
+      dataset.insert( id.merge( {:report=>{:created_at=>Time.now.utc}} ))
+      dataset.insert( id.merge( {:meta=>{:template_directives=>template_directives}}.as_json ))
       unless report.criteria[:school_id].blank?
         school_set = Rollcall::School.find_all_by_id(report.criteria[:school_id])
       else
@@ -40,7 +41,7 @@ class RecipeInternal::AttendanceAllRecipe < RecipeInternal
         u.school_daily_infos.each do |sd|
           doc = Hash["i",i,"display_name",u.display_name,"tea_id",u.tea_id, "total_absent", sd.total_absent,
             "total_enrolled",sd.total_enrolled,"absentee_percentage",sd.absentee_percentage,"severity",sd.severity]
-          dataset.insert(doc)
+          dataset.insert(doc.merge(id))
           i += 1
         end
       end    

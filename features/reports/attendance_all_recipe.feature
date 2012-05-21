@@ -1,7 +1,7 @@
-Feature: Execute Advanced ADST Queries
-  In order to execute advanced search queries
+Feature: Generate a ILI report
+  In order to execute the attendance all report generation
   As a Rollcall user
-  I should be able to select from a list of advanced ADST options, construct and execute my query
+  I should be able to select from a list of advanced ADST options, construct and execute my query and then generate the report
 
   Background:
     Given the following entities exist:
@@ -148,22 +148,39 @@ Feature: Execute Advanced ADST Queries
   Scenario:
     Given I am logged in as "nurse.betty@example.com"
     And I navigate to the ext dashboard page
-    And I generate "Recipe::AttendanceAllRecipe" rollcall report on "Rollcall::School" named "Anderson Elementary"
+    And I generate "RecipeInternal::AttendanceAllRecipe" rollcall report on "Rollcall::School" named "Anderson Elementary"
+
+    When I inspect the generated rendering
+    Then I should see "Schools as of" in the rendering
+    And I should see "Name" in the rendering
+    And I should see "TeaID" in the rendering
+    And I should see "Attendance" in the rendering
+    And I should see "Enrollment" in the rendering
+    And I should see "AbsenteePercentage" in the rendering
+    And I should see "Severity" in the rendering
+    And I should see "Anderson Elementary" in the rendering
+    And I should see "101912105" in the rendering
+    And I should see "Ector Junior High School" in the rendering
 
     When I inspect the generated pdf
-    Then I should see "Dallas County Health Officer Group" in the pdf
-    And I should see "Health Officer2" in the pdf
-    And I should see "ho1@example.com" in the pdf
-    And I should see "Health Officer in Dallas County" in the pdf
+    Then I should see "Schools as of" in the pdf
+    And I should see "Anderson Elementary" in the pdf
+    And I should see "101912105" in the pdf
+    And I should see "Ector Junior High School" in the pdf
 
     When I inspect the generated csv
     Then I should see "display_name" in the csv
-    And I should see "Health Officer2" in the csv
+    And I should see "tea_id" in the csv
+    And I should see "total_absent" in the csv
+    And I should see "total_enrolled" in the csv
+    And I should see "absentee_percentage" in the csv
+    And I should see "severity" in the csv
+    And I should see "Anderson Elementary" in the csv
+    And I should see "101912105" in the csv
+    And I should see "Ector Junior High School" in the csv
+    And I should see "68901047" in the csv
+    And I should see "Gale Pond Alamo Elementary School" in the csv
+    And I should see "68901101" in the csv
 
-    And I should see "email" in the csv
-    And I should see "ho1@example.com" in the csv
-
-    And I should see "role_memberships" in the csv
-    And I should see "Health Officer in Dallas County" in the csv
 
 

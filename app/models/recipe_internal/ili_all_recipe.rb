@@ -14,7 +14,7 @@ class RecipeInternal::IliAllRecipe < RecipeInternal
     end
 
     def template_path
-      File.join(Rails.root.to_s, 'vendor','plugins','rollcall','app','views', 'reports','ili_all.html.erb')
+      File.join(File.dirname(__FILE__),'..','..','views', 'reports','ili_all.html.erb')
     end
 
     def template_directives
@@ -23,13 +23,12 @@ class RecipeInternal::IliAllRecipe < RecipeInternal
     end
 
     def layout_path
-      File.join(Rails.root.to_s, 'vendor','plugins','rollcall','app','views', 'reports','layout.html.erb')
+      File.join(File.dirname(__FILE__),'..','..','views', 'reports','layout.html.erb')
     end
 
     def capture_to_db(report)
       @current_user = report.author
       dataset       = report.dataset
-      i             = 0
       id            = {:report_id => report.id}
       dataset.insert( id.merge( {:report=>{:created_at=>Time.now.utc}}))
       dataset.insert( id.merge( {:meta=>{:template_directives=>template_directives}}.as_json ))
@@ -38,14 +37,24 @@ class RecipeInternal::IliAllRecipe < RecipeInternal
       else
         school_set = @current_user.schools
       end
+      index =0
       school_set.each do |u|
         u.students.each do |s|
           s.student_daily_info.each do |st|
             symptoms = st.student_reported_symptoms.map(&:symptom).map(&:name).join(",")
-            doc      = Hash["i",i, "display_name",u.display_name,"tea_id",u.tea_id,"student_first_name",s.first_name,
-              "student_last_name",s.last_name,"symptoms",symptoms,"report_date",st.report_date.to_time.utc]
-            dataset.insert(doc.merge(id))
-            i += 1
+            begin
+              doc = id.clone
+              doc[:display_name] = u.display_name
+              doc[:tea_id] = u.tea_id
+              doc[:student_first_name] = s.first_name
+              doc[:student_last_name] = s.last_name
+              doc[:symptoms] = symptoms
+              doc[:report_date] = st.report_date.to_time.utc
+              doc[:i] = index += 1
+              dataset.insert(doc)
+            rescue NoMethodError => error
+              # skip this illegitimate attempt
+            end
           end
         end
       end

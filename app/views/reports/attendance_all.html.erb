@@ -1,32 +1,62 @@
 <div class="rollcall_report">
   <h1>Attendance Report</h1>
-  <%- entries.map(){|a|a["tea_id"]}.uniq.each do |b| -%>
-    <%- filtered = filters.present? ? "(FILTERED)" : "" -%>
-    <%- content_tag(:table,:cellspacing=>"0", :class=>"zebra-striped") do -%>
-      <%= content_tag(:caption, "Schools #{filtered} as of #{Time.now}", :style=>"text-align:center")%>
-      <%- content_tag(:thead) do -%>
-        <%- content_tag(:tr) do -%>
-          <%=content_tag(:th,"Name")%>
-          <%=content_tag(:th,"TeaID")%>
-          <%=content_tag(:th,"Attendance")%>
-          <%=content_tag(:th,"Enrollment")%>
-          <%=content_tag(:th,"AbsenteePercentage")%>
-          <%=content_tag(:th,"Severity")%>
-        <%- end -%>
-      <%- end -%>
+  <%- filtered = filters.present? ? "(FILTERED)" : "" -%>
 
-      <%- entries.map(){|c| c if c["tea_id"] == b}.each_with_index do |d,i| -%>
-        <%- content_tag(:tr,:class=>"#{(i%2 > 0) ? "Odd" : "Even"}") do -%>
-          <%= content_tag(:td, d["display_name"]) %>
-          <%= content_tag(:td, d["tea_id"]) %>
-          <%= content_tag(:td, d["total_absent"]) %>
-          <%= content_tag(:td, d["total_enrollment"]) %>
-          <%= content_tag(:td, d["absentee_percentage"]) %>
-          <%= content_tag(:td, d["severity"]) %>
+  <% if entries %>
+
+    <%- entries.map(){|a|a["tea_id"]}.uniq.each do |b| -%>
+
+      <table cellpadding="0" class="zebra-striped">
+        <caption style="text-align:center">
+          <%= "Schools#{filtered} as of #{Time.now}" %>
+        </caption>
+        <thead>
+        <tr>
+          <th>
+            Name
+          </th>
+          <th>
+            TeaID
+          </th>
+          <th>
+            Attendance
+          </th>
+          <th>
+            Enrollment
+          </th>
+          <th>
+            AbsenteePercentage
+          </th>
+          <th>
+            Severity
+          </th>
+        </tr>
+        </thead>
+        <%- entries.map(){|c| c if c["tea_id"] == b}.compact.each_with_index do |d,i| -%>
+          <tr class="<%= (i%2 > 0) ? 'Odd' : 'Even' %>">
+            <td>
+              <%= d["display_name"] %>
+            </td>
+            <td>
+              <%= d["tea_id"] %>
+            </td>
+            <td>
+              <%= d["total_absent"] %>
+            </td>
+            <td>
+              <%= d["total_enrollment"] %>
+            </td>
+            <td>
+              <%= d["absentee_percentage"] %>
+            </td>
+            <td>
+              <%= d["severity"] %>
+            </td>
+          </tr>
         <%- end -%>
-      <%- end -%>
+      </table>
 
     <%- end -%>
-    
-  <%- end -%>
+
+  <% end %>
 </div>

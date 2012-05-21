@@ -1,14 +1,7 @@
-<<<<<<< HEAD
 Feature: Generate a ILI report
   In order to execute the attendance all report generation
   As a Rollcall user
   I should be able to select from a list of advanced ADST options, construct and execute my query and then generate the report
-=======
-Feature: Execute Advanced ADST Queries
-  In order to execute advanced search queries
-  As a Rollcall user
-  I should be able to select from a list of advanced ADST options, construct and execute my query
->>>>>>> 4ddac79d96de49953253cffa24d5fbd517261b0e
 
   Background:
     Given the following entities exist:

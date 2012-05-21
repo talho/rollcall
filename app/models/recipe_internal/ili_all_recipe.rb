@@ -29,10 +29,6 @@ class RecipeInternal::IliAllRecipe < RecipeInternal
     def capture_to_db(report)
       @current_user = report.author
       dataset       = report.dataset
-<<<<<<< HEAD:app/models/recipe_internal/ili_all_recipe.rb
-=======
-      i             = 0
->>>>>>> 4ddac79d96de49953253cffa24d5fbd517261b0e:lib/recipe_internal/ili_all_recipe.rb
       id            = {:report_id => report.id}
       dataset.insert( id.merge( {:report=>{:created_at=>Time.now.utc}}))
       dataset.insert( id.merge( {:meta=>{:template_directives=>template_directives}}.as_json ))
@@ -46,7 +42,6 @@ class RecipeInternal::IliAllRecipe < RecipeInternal
         u.students.each do |s|
           s.student_daily_info.each do |st|
             symptoms = st.student_reported_symptoms.map(&:symptom).map(&:name).join(",")
-<<<<<<< HEAD:app/models/recipe_internal/ili_all_recipe.rb
             begin
               doc = id.clone
               doc[:display_name] = u.display_name
@@ -60,12 +55,6 @@ class RecipeInternal::IliAllRecipe < RecipeInternal
             rescue NoMethodError => error
               # skip this illegitimate attempt
             end
-=======
-            doc      = Hash["i",i, "display_name",u.display_name,"tea_id",u.tea_id,"student_first_name",s.first_name,
-              "student_last_name",s.last_name,"symptoms",symptoms,"report_date",st.report_date.to_time.utc]
-            dataset.insert(doc.merge(id))
-            i += 1
->>>>>>> 4ddac79d96de49953253cffa24d5fbd517261b0e:lib/recipe_internal/ili_all_recipe.rb
           end
         end
       end

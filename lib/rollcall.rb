@@ -32,6 +32,10 @@ module Rollcall
   end
 end
 
+if defined? BDRB_CONFIG
+  $LOAD_PATH.unshift(File.join(File.dirname(__FILE__),"workers"))
+end
+
 require 'rollcall/engine'
 
 Dir[File.dirname(__FILE__) + '/import/*.rb'].each {|file| require file }

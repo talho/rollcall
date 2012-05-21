@@ -15,7 +15,7 @@ class RecipeExternal::NurseAssistanceRecipe < RecipeExternal
     end
 
     def template_path
-      File.join(Rails.root.to_s, 'vendor','plugins','rollcall','app','views', 'reports','nurse_assistance.html.erb')
+      File.join(File.dirname(__FILE__),'..','..','views', 'reports','nurse_assistance.html.erb')
     end
 
     def template_directives
@@ -23,17 +23,17 @@ class RecipeExternal::NurseAssistanceRecipe < RecipeExternal
     end
 
     def layout_path
-      File.join(Rails.root.to_s, 'vendor','plugins','rollcall','app','views', 'reports','layout.html.erb')
+      File.join(File.dirname(__FILE__),'..','..','views', 'reports','layout.html.erb')
     end
 
     def capture_to_db(report)
       @current_user     = report.author
       dataset           = report.dataset
-      i                 = 0
       school_set        = @current_user.schools
       report_school_set = []
-      dataset.insert({:report=>{:created_at=>Time.now.utc}})
-      dataset.insert({:meta=>{:template_directives=>template_directives}}.as_json )
+      id                = {:report_id => report.id}
+      dataset.insert( id.merge( {:report=>{:created_at=>Time.now.utc}} ))
+      dataset.insert( id.merge( {:meta=>{:template_directives=>template_directives}}.as_json ))
       school_set.each do |s|
         unless s.students.blank?
           symp_list_count = 0
@@ -45,10 +45,19 @@ class RecipeExternal::NurseAssistanceRecipe < RecipeExternal
           report_school_set.push([s.display_name, s.tea_id, s.students.length, symp_list_count])
         end
       end
+      index = 0
       report_school_set.each do |r|
-        doc = Hash["i",i,"display_name",r[0],"tea_id",r[1],"total_students",r[2],"total_symptoms",r[3]]
-        dataset.insert(doc)
-        i += 1
+        begin
+          doc = id.clone
+          doc[:display_name] = r[0]
+          doc[:tea_id] = r[1]
+          doc[:total_students] = r[2]
+          doc[:total_symptoms] = r[3]
+          doc[:i] = index += 1
+          dataset.insert(doc)
+        rescue NoMethodError => error
+          # skip this illegitimate attempt
+        end
       end
       dataset.create_index("i")
     end

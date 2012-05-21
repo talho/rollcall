@@ -47,6 +47,7 @@ class RecipeExternal::NurseAssistanceRecipe < RecipeExternal
       end
       index = 0
       report_school_set.each do |r|
+<<<<<<< HEAD:app/models/recipe_external/nurse_assistance_recipe.rb
         begin
           doc = id.clone
           doc[:display_name] = r[0]
@@ -58,6 +59,11 @@ class RecipeExternal::NurseAssistanceRecipe < RecipeExternal
         rescue NoMethodError => error
           # skip this illegitimate attempt
         end
+=======
+        doc = {"i"=>i,"display_name"=>r[0],"tea_id"=>r[1],"total_students"=>r[2],"total_symptoms"=>r[3]}
+        dataset.insert(doc.merge(id))
+        i += 1
+>>>>>>> 4ddac79d96de49953253cffa24d5fbd517261b0e:lib/recipe/nurse_assistance_recipe.rb
       end
       dataset.create_index("i")
     end

@@ -179,5 +179,3 @@ Feature: Use Nurse Assistant Panel
     And I should see "Gale Pond Alamo Elementary School" in the csv
     And I should see "68901101" in the csv
 
-
-

@@ -152,7 +152,7 @@ Scenario: User runs a simple query against absenteeism to view the raw data
   And I press "Submit"
   And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Yates High School,Ector Junior High School,Gale Pond Alamo Elementary School,Austin Elementary School" within the results
-  #Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
+#Then I should see graphs "DF-Raw_101912105_c_absenteeism.png,DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
 
 Scenario: User runs a simple query against a school to view the raw data
   When I navigate to the ext dashboard page
@@ -232,3 +232,28 @@ Scenario: User runs a simple query against a school district, requests school di
   And delayed jobs are processed
   Then I should see "District2" within the results
   #Then I should see graphs "DF-Raw_district_68901_c_absenteeism.png" within the results
+
+Scenario: User generates reports from a simple query
+  Given I navigate to the ext dashboard page
+  And I navigate to "Apps > Rollcall > ADST"
+  And I wait for the panel to load
+  And I press "Submit"
+  And delayed jobs are processed
+
+  When I press "Generate Report from Result Set"
+  And I click x-menu-item "ILI Report"
+  And delayed jobs are processed
+  Then I should see "Generating Report" within ".x-window"
+  And I press "OK" within ".x-window"
+
+  When I press "Generate Report from Result Set"
+  And I click x-menu-item "Attendance Report"
+  And delayed jobs are processed
+  Then I should see "Generating Report" within ".x-window"
+  And I press "OK" within ".x-window"
+
+  When I navigate to "Reports"
+  And I click x-tbar-loading ""
+  Then I should see "Ili-All-Recipe-1" in grid row 2
+  And I should see "Attendance-All-Recipe-2" in grid row 1
+

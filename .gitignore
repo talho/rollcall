@@ -2,3 +2,5 @@
 tmp
 spec/spec_helper.rb
 .DS_Store
+.project
+*~

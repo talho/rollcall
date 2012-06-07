@@ -3,26 +3,29 @@ class Rollcall::UserController < Rollcall::RollcallAppController
   skip_before_filter :authenticate, :only => [:new, :create]
   skip_before_filter :rollcall_required, :only => [:new, :create]
   skip_before_filter :rollcall_admin_required, :only => [:new, :create]
+  
+  respond_to :json
 
   # GET rollcall/users
   def index
-    results = User.includes(:role_memberships).where("role_memberships.role_id" => Role.where(application: 'rollcall'))
+    @results = User.includes(:role_memberships).where("role_memberships.role_id" => Role.where(application: 'rollcall'))
     
     unless current_user.is_super_admin?("rollcall")
-      results = results.where("role_memberships.role_id != ? AND role_memberships.role_id != ?", Role.admin('rollcall').id, Role.superadmin('rollcall').id)
-      results = results.where("role_memberships.jurisdiction_id" => current_user.role_memberships.where(role_id: Role.where(application: 'rollcall')).map(&:jurisdiction_id))
+      @results = results.where("role_memberships.role_id != ? AND role_memberships.role_id != ?", Role.admin('rollcall').id, Role.superadmin('rollcall').id)
+      @results = results.where("role_memberships.jurisdiction_id" => current_user.role_memberships.where(role_id: Role.where(application: 'rollcall')).map(&:jurisdiction_id))
     end
     
-    for_admin = current_user.is_admin?
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => true,
-          :results => results.collect {|u| u.to_json_results_rollcall(for_admin)},
-          :total   => results.length
-        }
-      end
-    end
+    # for_admin = current_user.is_admin?
+    # respond_to do |format|
+      # format.json do
+        # render :json => {
+          # :success => true,
+          # :results => results.collect {|u| u.to_json_results_rollcall(for_admin)},
+          # :total   => results.length
+        # }
+      # end
+    # end
+    respond_with(@results)
   end
 
   def new

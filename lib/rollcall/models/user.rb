@@ -7,26 +7,14 @@ module Rollcall
         super # call ActiveRecord's own .included() method
       end
   
-      # Method maps school districts to user
-      def school_districts
-        if is_rollcall_admin? || is_super_admin?("rollcall")
-          r = role_memberships.find(:all, :include => [:role, :jurisdiction], :conditions => {:role_id => [Role.admin('rollcall'), Role.superadmin('rollcall')]}).map(
-            &:jurisdiction).map(
-              &:self_and_descendants).flatten.uniq.map(
-                &:school_districts).flatten.uniq
-        else
-          r = self.school_districts_base.map(&:school_district)
-        end
-        r.sort{|a,b| a.name.downcase <=> b.name.downcase}
-      end
+      # Method maps school districts to user     
+      def school_districts      
+        return Rollcall::SchoolDistrict.for_user(self).order(:id) 
+      end      
   
-      # Method maps schools to user
+      # Method maps schools to user      
       def schools
-        s = self.school_districts.map(&:schools).flatten
-        if !is_rollcall_admin? && !is_super_admin?('rollcall')
-          s = s & self.schools_base.map(&:school).flatten
-        end
-        s.uniq.sort{|a,b| a.display_name <=> b.display_name}
+        return Rollcall::School.for_user(self).order(:id)                       
       end
   
       # Method returns alarm queries associated with user
@@ -49,26 +37,6 @@ module Rollcall
           end
         end
         alarm_queries
-      end
-  
-      # Method returns user json object
-      #
-      # @param for_admin boolean determines if role requests are included
-      def to_json_results_rollcall(for_admin=false)
-        rm = role_memberships.map{|rm| "#{rm.role.name} in #{rm.jurisdiction.name}"}
-        rq = (for_admin) ? role_requests.unapproved.map{|rq| "#{rq.role.name} in #{rq.jurisdiction.name}"} : []     
-        return {
-          :user_id          => id, 
-          :display_name     => display_name,
-          :first_name       => first_name,
-          :last_name        => last_name,
-          :email            => email,
-          :role_memberships => rm,
-          :role_requests    => rq,
-          :photo            => photo.url(:tiny),
-          :schools          => schools,
-          :school_districts => school_districts
-        }
       end
   
       # Method checks if user is a rollcall admin

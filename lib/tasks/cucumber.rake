@@ -8,10 +8,10 @@ begin
     Cucumber::Rake::Task.new(:rollcall, desc) do |t|
       t.cucumber_opts = "RAILS_ENV=cucumber -r features " +
                        # "-r vendor/extensions/rollcall/spec/factories.rb " +
-                        "-r vendor/extensions/rollcall/features/step_definitions " +
+                        "-r #{File.join(File.dirname(__FILE__), '..', '..')}/features/step_definitions " +
                         " #{ARGV[1..-1].join(" ") if ARGV[1..-1]}" +
                         # add all rollcall features if none are passed in
-                        (ARGV.grep(/vendor/).empty? ? "vendor/extensions/rollcall/features" : "")
+                        (ARGV.length <= 1 ? "#{File.join(File.dirname(__FILE__), '..', '..')}/features" : "")
       t.fork = true
       t.profile = 'default'
     end

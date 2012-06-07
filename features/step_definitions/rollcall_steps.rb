@@ -1,5 +1,5 @@
 When /^I drop the following "([^\"]*)" file in the rollcall directory for "([^\"]*)"\:$/ do |type, isd, erb_file_template|
-  rollcall_drop_dir = File.join(Rails.root.to_s, "vendor/extensions", "rollcall", "tmp", isd)
+  rollcall_drop_dir = File.join(File.dirname(__FILE__), "..", "..", "tmp", isd)
   Dir.ensure_exists(rollcall_drop_dir)
   file=ERB.new(erb_file_template).result
   f=File.open(File.join(rollcall_drop_dir, "#{type}_test.txt"), 'w')

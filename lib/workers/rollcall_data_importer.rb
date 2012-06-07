@@ -34,7 +34,7 @@ class RollcallDataImporter < BackgrounDRb::MetaWorker
     if Rails.env == "production"
       rollcall_data_path = File.join("/var/www/openphin/shared", "rollcall")
     elsif Rails.env == "test" || Rails.env == "cucumber"
-      rollcall_data_path = File.join(Rails.root.to_s, "vendor/extensions", "rollcall", "tmp")
+      rollcall_data_path = File.join(File.dirname(__FILE__), "..", "..", "tmp")
     end
     unless isd.blank?
       begin

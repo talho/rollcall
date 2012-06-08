@@ -18,7 +18,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     graph_info       = Array.new
     options          = {:page => params[:page] || 1, :per_page => params[:limit] || 6}
     results          = current_user.school_search params if params[:return_individual_school]
-    results          = current_user.school_districts if params[:return_individual_school].blank?
+    results          = current_user.school_districts.all if params[:return_individual_school].blank?
     if params[:return_individual_school].blank?
       if params[:school_district]
         results = results.find_all{|r| params[:school_district].include?(r.name)}

@@ -21,7 +21,7 @@ class Rollcall::AlarmQuery < ActiveRecord::Base
 
   # Method calls create_alarm if alarm_set
   #
-  def generate_alarm
+  def generate_alarm    
     if alarm_set
       create_alarm
     else
@@ -62,10 +62,14 @@ class Rollcall::AlarmQuery < ActiveRecord::Base
     lock_date      = end_date - 12.months
     days           = ((end_date - start_date) / 86400)
     alarm_count    = 0
+    begin       
     (0..days).each do |i|
       report_date = (end_date - i.days).strftime("%Y-%m-%d")
       alarm_count += 1 if create_alarm_for_date(school.id, report_date, lock_date, query[:absent])
       break if alarm_count == 4
+    end
+    rescue Exception=>e
+      pp e.backtrace
     end
     @data_set.clear
   end
@@ -127,7 +131,7 @@ class Rollcall::AlarmQuery < ActiveRecord::Base
             :author  => user,
             #:alarm   => alarm,
             :audiences => [Audience.new(:users => [user])]
-          )
+          )          
           return ra.save
         end
       end

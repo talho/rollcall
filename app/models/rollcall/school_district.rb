@@ -47,6 +47,20 @@ class Rollcall::SchoolDistrict < ActiveRecord::Base
     end
     avgs
   end
+  
+  def self.for_user(user)
+    user = user.class == User ? user : User.find(user)    
+    roles = Role.admin('rollcall').id.to_s + ',' + Role.superadmin('rollcall').id.to_s
+    districts = self
+      .joins("left join rollcall_user_school_districts U on U.school_district_id = rollcall_school_districts.id")
+      .joins("left join (Jurisdictions J2 " +
+        "inner join Jurisdictions J1 on J2.lft between J1.lft and J1.rgt " +
+        "inner join role_memberships RM on RM.jurisdiction_id = J1.id) on rollcall_school_districts.jurisdiction_id = J2.id")              
+      .where("(RM.user_id = #{user.id} and RM.role_id in (#{roles}) and J2.id is not null)" +
+        "or (U.id is not null and U.user_id = #{user.id})")
+      .uniq
+    districts
+  end
 
   # Method returns zipcode
   #

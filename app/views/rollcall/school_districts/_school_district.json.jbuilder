@@ -1,0 +1,1 @@
+json.(school_district, :id, :created_at, :district_id, :jurisdiction_id, :lock_version, :name, :updated_at)

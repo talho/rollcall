@@ -3,26 +3,20 @@ class Rollcall::UserController < Rollcall::RollcallAppController
   skip_before_filter :authorize, :only => [:new, :create]
   skip_before_filter :rollcall_required, :only => [:new, :create]
   skip_before_filter :rollcall_admin_required, :only => [:new, :create]
+  
+  respond_to :json
+  layout false
 
   # GET rollcall/users
-  def index
-    results = User.includes(:role_memberships).where("role_memberships.role_id" => Role.where(application: 'rollcall'))
+  def index    
+    @results = User.includes(:role_memberships).where("role_memberships.role_id" => Role.where(application: 'rollcall'))
     
-    unless current_user.is_super_admin?("rollcall")
-      results = results.where("role_memberships.role_id != ? AND role_memberships.role_id != ?", Role.admin('rollcall').id, Role.superadmin('rollcall').id)
-      results = results.where("role_memberships.jurisdiction_id" => current_user.role_memberships.where(role_id: Role.where(application: 'rollcall')).map(&:jurisdiction_id))
+    unless current_user.is_super_admin?("rollcall")      
+      @results = @results.where("role_memberships.role_id != ? AND role_memberships.role_id != ?", Role.admin('rollcall').id, Role.superadmin('rollcall').id)
+      @results = @results.where("role_memberships.jurisdiction_id" => current_user.role_memberships.where(role_id: Role.where(application: 'rollcall')).map(&:jurisdiction_id))
     end
-    
-    for_admin = current_user.is_admin?
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => true,
-          :results => results.collect {|u| u.to_json_results_rollcall(for_admin)},
-          :total   => results.length
-        }
-      end
-    end
+
+    respond_with(@results)
   end
 
   def new
@@ -61,11 +55,7 @@ class Rollcall::UserController < Rollcall::RollcallAppController
         p_u_s_d = params[:user_school_district]
         u_s     = Rollcall::UserSchool.find_or_create_by_user_id_and_school_id({:user_id => u.id, :school_id => params[:school_id]})
         u_s_d   = Rollcall::UserSchoolDistrict.find_or_create_by_user_id_and_school_district_id({:user_id => u.id, :school_district_id => params[:school_district_id]})
-        respond_to do |format|
-          format.json do
-            render :json => {:success => !u.blank?}
-          end
-        end
+        respond_with(@success = !u.blank?)        
       end
     end
   end
@@ -83,14 +73,8 @@ class Rollcall::UserController < Rollcall::RollcallAppController
         :user_id            => params[:id],
         :school_district_id => params[:school_district_id]
       })  
-    end
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => !result.blank?
-        }
-      end
-    end
+    end    
+    respond_with(@success = !result.blank?)
   end
 
   #DELETE /rollcall/users/:id
@@ -104,29 +88,15 @@ class Rollcall::UserController < Rollcall::RollcallAppController
         usd.destroy
       }
     end
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => true
-        }
-      end
-    end
+    respond_with(@success = true)    
   end
 
   # Method returns school district
   #
   # Method returns school districts associated with current_user
   def get_user_school_districts
-    results = current_user.school_districts
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success       => true,
-          :total_results => results.length,
-          :results       => results.as_json
-        }
-      end
-    end
+    @results = current_user.school_districts
+    respond_with(@results)
   end
   protected
 

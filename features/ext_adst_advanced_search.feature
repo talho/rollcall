@@ -197,8 +197,8 @@ Scenario: User runs an advanced query against multiple grades
 Scenario: User runs an advanced query against multiple symptoms
   When I press "Switch to Advanced View >>"
   And I click symptom-list-item "Chills"
-  And I click symptom-list-item "Influenza"
-  And I press "Submit"
+  And I click symptom-list-item "Influenza"  
+  And I Submit and wait
   #And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Yates High School" within the results
   #Then I should see graphs "DF-Raw_SYM-780.64-487.1_101912105_c_absenteeism.png,DF-Raw_SYM-780.64-487.1_101912273_c_absenteeism.png,DF-Raw_SYM-780.64-487.1_101912020_c_absenteeism.png" within the results

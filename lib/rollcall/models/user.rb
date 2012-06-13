@@ -7,53 +7,16 @@ module Rollcall
         super # call ActiveRecord's own .included() method
       end
   
-      # Method maps school districts to user
-      def school_districts
-        if is_rollcall_admin? || is_super_admin?("rollcall")
-          r = role_memberships.find(:all, :include => [:role, :jurisdiction], :conditions => {:role_id => [Role.admin('rollcall'), Role.superadmin('rollcall')]}).map(
-            &:jurisdiction).map(
-              &:self_and_descendants).flatten.uniq.map(
-                &:school_districts).flatten.uniq
-        else
-          r = self.school_districts_base.map(&:school_district)
-        end
-        r.sort{|a,b| a.name.downcase <=> b.name.downcase}
-      end
+      # Method maps school districts to user     
+      def school_districts      
+        Rollcall::SchoolDistrict.for_user(self).order(:id)
+      end      
   
-      # Method maps schools to user
+      # Method maps schools to user      
       def schools
-        s = self.school_districts.map(&:schools).flatten
-        if !is_rollcall_admin? && !is_super_admin?('rollcall')
-          s = s & self.schools_base.map(&:school).flatten
-        end
-        s.uniq.sort{|a,b| a.display_name <=> b.display_name}
+        Rollcall::School.for_user(self).order(:id)            
       end
-  
-      # Method returns alarm queries associated with user
-      #
-      # @param options an object of parameters
-      def alarm_queries(options={})
-        unless options[:alarm_query_id].blank?
-          alarm_queries = []
-          unless options[:clone].blank?
-            alarm_query = Rollcall::AlarmQuery.find(:all).last
-          else
-            alarm_query = Rollcall::AlarmQuery.find(options[:alarm_query_id])
-          end
-          alarm_queries.push(alarm_query)
-        else
-          unless options[:latest].blank?
-            alarm_queries = Rollcall::AlarmQuery.find_all_by_user_id(id, :order => "created_at DESC", :limit => 1)
-          else
-            alarm_queries = Rollcall::AlarmQuery.find_all_by_user_id(id, :order => "name")
-          end
-        end
-        alarm_queries
-      end
-  
-      # Method returns user json object
-      #
-      # @param for_admin boolean determines if role requests are included
+      
       def to_json_results_rollcall(for_admin=false)
         rm = role_memberships.map{|rm| "#{rm.role.name} in #{rm.jurisdiction.name}"}
         rq = (for_admin) ? role_requests.unapproved.map{|rq| "#{rq.role.name} in #{rq.jurisdiction.name}"} : []     
@@ -69,6 +32,30 @@ module Rollcall
           :schools          => schools,
           :school_districts => school_districts
         }
+      end
+  
+      # Method returns alarm queries associated with user
+      #
+      # @param options an object of parameters
+      def alarm_queries(options={})        
+        alarm = Rollcall::AlarmQuery
+        results = []
+        if options[:alarm_query_id].present?
+          if options[:latest].present?    
+            alarm = alarm.where(:user_id => self.id).last
+          else
+            alarm = alarm.where(:user_id => self.id).order(:name)
+          end
+        else          
+          if options[:clone].present?
+            alarm = alarm.where(:id => options[:alarm_query_id])
+          else            
+            alarm = alarm.last
+          end
+        end        
+        results = alarm.all if alarm.is_a? ActiveRecord::Relation
+        results = [alarm] if alarm.is_a? Rollcall::AlarmQuery
+        results
       end
   
       # Method checks if user is a rollcall admin
@@ -99,13 +86,26 @@ module Rollcall
       # Method performs simple or advanced search
       #
       # @param params search parameters
-      def school_search(params)
-        if params[:type] == "simple"
-          results =  simple_school_search(params)
+      def school_search(params)        
+        options = {:count_limit => (params[:page].present? ? params[:page].to_i : 1) * (params[:limit].present? ? params[:limit].to_i : 6), :count => 0}               
+        
+        district = params[:school_district].present? ? "sd.name in (:school_district)" : "(sd.name is not null or sd.name is null)"
+        zip = params[:zip].present? ? "rollcall_schools.postal_code in (:zip)" : "(rollcall_schools.postal_code is not null or rollcall_schools.postal_code is null)"
+        type = params[:school_type].present? ? "rollcall_schools.school_type in (:school_type)" : "(rollcall_schools.school_type is not null or rollcall_schools.school_type is null)"
+        name = params[:school].present? ? "rollcall_schools.display_name in (:school)" : "(rollcall_schools.display_name is not null or rollcall_schools.display_name is null)"
+        
+        if params[:zip].blank? && params[:school_district].blank? && params[:school_type].blank? && params[:school].present?
+          query = "#{name}"        
+        elsif (params[:zip].present? || params[:school_district].present? || params[:school_type].present?) && params[:school].blank?
+          query = "((#{district} or #{zip}) and #{type})"
+        elsif (params[:zip].present? || params[:school_district].present? || params[:school_type].present?) && params[:school].present?
+          query = "((#{district} or #{zip}) and #{type}) or #{name}"
         else
-          results = adv_school_search(params)
+          query = "rollcall_schools.id is not null"
         end
-        return results
+        
+        results = self.schools.where(query, params).reorder('rollcall_schools.display_name').all        
+        results
       end
   
       # Method returns students attached to user schools

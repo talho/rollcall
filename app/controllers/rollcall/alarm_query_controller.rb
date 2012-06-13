@@ -25,7 +25,7 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
   # POST rollcall/alarm_query
   def create
     alarm_exist_by_name = Rollcall::AlarmQuery.find_by_name(params[:alarm_query_name])
-    fs                  = ActiveSupport::JSON.decode(params[:alarm_query_params])
+    fs                  = ActiveSupport::JSON.decode(params[:alarm_query_params])    
     alarm_name          = alarm_exist_by_name.blank? ? params[:alarm_query_name] : "#{alarm_exist_by_name.name}_1"
     saved_result        = Rollcall::AlarmQuery.create(
       :name          => alarm_name,

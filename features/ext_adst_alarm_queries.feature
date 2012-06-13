@@ -136,7 +136,7 @@ Scenario: User creates an Alarm Query
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
   And I should see "Alarm Query for Anderson Elementary"
   And I fill in "Name" with "Example Query"
-  And I press "Submit" within ".x-window"
+  And I press "Submit" within ".x-window"  
   Then I should see "Example Query" within "#alarm_queries"
 
 Scenario: User creates an Alarm Query with specific threshold
@@ -162,8 +162,8 @@ Scenario: User creates a new Alarm Query off of an existing Alarm Query
   Then I should see "Example Query" within "#alarm_queries"
   And I click the "save" tool on the "Example Query" window
   And I select "Ashford Elementary" from ext combo "alarm_query_school"
-  And I press "Save As New" within ".x-window"
-  And I should see "Example Query_1" within "#alarm_queries"
+  And I press "Save As New" within ".x-window"    
+  And I should see "Example Query_1" within "#alarm_queries"  
   Then I should see "Ashford Elementary" within ".ux-alarm-thumbnails"
 
 Scenario: User deletes an existing Alarm Query
@@ -203,11 +203,11 @@ Scenario: User executes search query off of an existing Alarm Query
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
   And I should see "Alarm Query for Anderson Elementary"
   And I fill in "Name" with "Example Query"
-  And I press "Submit" within ".x-window"
+  And I press "Submit" within ".x-window"  
   Then I should see "Example Query" within "#alarm_queries"
   And I click the "run-query" tool on the "Example Query" window
   And delayed jobs are processed
-  And I wait for the panel to load   
+  And I wait for the panel to load
   #And I should not see graphs "DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
   #Then I should see graphs "DF-Raw_101912105_c_absenteeism.png" within the results
   And I should not see "Ashford Elementary, Yates High School" within the results

@@ -5,14 +5,15 @@ class Rollcall::UserController < Rollcall::RollcallAppController
   skip_before_filter :rollcall_admin_required, :only => [:new, :create]
   
   respond_to :json
+  layout false
 
   # GET rollcall/users
-  def index
+  def index    
     @results = User.includes(:role_memberships).where("role_memberships.role_id" => Role.where(application: 'rollcall'))
     
-    unless current_user.is_super_admin?("rollcall")
-      @results = results.where("role_memberships.role_id != ? AND role_memberships.role_id != ?", Role.admin('rollcall').id, Role.superadmin('rollcall').id)
-      @results = results.where("role_memberships.jurisdiction_id" => current_user.role_memberships.where(role_id: Role.where(application: 'rollcall')).map(&:jurisdiction_id))
+    unless current_user.is_super_admin?("rollcall")      
+      @results = @results.where("role_memberships.role_id != ? AND role_memberships.role_id != ?", Role.admin('rollcall').id, Role.superadmin('rollcall').id)
+      @results = @results.where("role_memberships.jurisdiction_id" => current_user.role_memberships.where(role_id: Role.where(application: 'rollcall')).map(&:jurisdiction_id))
     end
 
     respond_with(@results)

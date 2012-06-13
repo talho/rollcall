@@ -115,3 +115,10 @@ end
 Then /^my rollcall export should be visible$/ do
   step %Q{I should see "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}.csv" within ".document-file-icon-view"}
 end
+
+Then /^I Submit and wait$/ do
+  page.driver.options[:resynchronize] = false
+  click_button "Submit"
+  sleep 20  
+  page.driver.options[:resynchronize] = true
+end

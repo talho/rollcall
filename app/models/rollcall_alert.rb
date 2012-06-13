@@ -63,7 +63,7 @@ class RollcallAlert < Alert
     self[:alert_type] = "RollcallAlert"
   end
 
-  def create_email_alert_device_type
-    alert_device_types << AlertDeviceType.new(:alert_id => self.id, :device => "Device::EmailDevice") unless alert_device_types.map(&:device).include?("Device::EmailDevice")  
+  def create_email_alert_device_type      
+    alert_device_types << AlertDeviceType.new(:alert_id => self.id, :device => "Device::EmailDevice") unless alert_device_types.map(&:device).include?("Device::EmailDevice")     
   end  
 end

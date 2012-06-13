@@ -1,4 +1,5 @@
 Then /^"([^\"]*)" should( not)? receive an email(?: with)?(?: title "([^\"]*)")?(?: message "([^"]*)")?$/ do |user_email, neg, title, message|
+  debugger
   email = ActionMailer::Base.deliveries.detect do |email|
     status = false
     if(!email.bcc.blank?)

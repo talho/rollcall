@@ -42,7 +42,7 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
   end
 
   # POST rollcall/alarms
-  def create
+  def create    
     Rollcall::AlarmQuery.find(params[:alarm_query_id]).delay.generate_alarm
     respond_to do |format|
       format.json do

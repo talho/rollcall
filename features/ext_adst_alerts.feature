@@ -116,5 +116,5 @@ Scenario: User receives alarm alert
   And I should see "Your alarms have been activated"
   And I press "OK"
   And I press "Refresh" within "#alarms_c"
-  And I should see "Example Query" within "#alarm_grid_panel" 
+  And I should see "Example Query" within "#alarm_grid_panel"  
   Then "nurse.betty@example.com" should receive an email with title "New Alarm for Anderson Elementary[extreme]"

@@ -1,5 +1,8 @@
 class Rollcall::StudentController < Rollcall::RollcallAppController
   before_filter :rollcall_student_required
+  respond_to :json
+  layout false
+  
   # GET rollcall/students
   def index
     students        = Rollcall::Student.find_all_by_school_id(params[:school_id])
@@ -32,15 +35,9 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       record[:gender]             = student_obj.gender.blank? ? "Unknown" : student_obj.gender
       record[:race]               = get_default_options({:simple => true})[:race].each do |rec, index| rec[:value] == student_obj.race ? index : 0  end
     end
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success       => true,
-          :total_results => students.length,
-          :results       => students_paged
-        }
-      end
-    end
+    @length = students.length
+    @students_paged = students_paged
+    respond_with(@length, @students_paged)
   end
 
   # POST rollcall/students
@@ -85,13 +82,8 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
         student_symptom = Rollcall::StudentReportedSymptom.create :student_daily_info_id => daily_info.id, :symptom_id => symptom_id
       end
     end
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => !student_obj.blank?
-        }
-      end
-    end
+    @success = !student_obj.blank?
+    respond_with(@success)
   end
 
   # PUT rollcall/students/:id
@@ -153,13 +145,8 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
         )
       end
     end
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => student_success
-        }
-      end
-    end
+    @success = student_success
+    respond_with(@success)  
   end
   
    # POST rollcall/students/history
@@ -177,14 +164,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       daily_records = {}
     end
 
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success       => true,
-          :total_results => daily_records.length,
-          :results       => daily_records
-        }
-      end
-    end
+    @daily_records = daily_records
+    respond_with(@daily_records)
   end
 end

@@ -51,7 +51,8 @@ class Rollcall::StudentDailyInfo < ActiveRecord::Base
   has_many :symptoms, :through => :student_reported_symptoms, :class_name=>"Rollcall::Symptom"
   belongs_to :student, :class_name => "Rollcall::Student", :foreign_key => "student_id"
 
-  scope :for_date, lambda{|date|{
-    :conditions => {:report_date => date}
-  }}
+  #Scopes
+  def self.for_date(date)
+    where(:report_date => date)
+  end
 end

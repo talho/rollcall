@@ -19,27 +19,33 @@ class Rollcall::SchoolDailyInfo < ActiveRecord::Base
   belongs_to :school, :class_name => "Rollcall::School", :foreign_key => "school_id"
   
   has_one :district, :through => :school
-
-  scope :for_date, lambda{|date|{
-    :conditions => {:report_date => date}
-  }}
-  scope :for_date_range, lambda{ |start, finish|{
-    :conditions => ["report_date >= ? and report_date <= ?", start, finish],
-    :order      => "report_date desc"
-  }}
-  scope :recent, lambda{|limit| {
-    :limit => limit,
-    :order => "report_date DESC"
-  }}
-  scope :absences, lambda{{
-    :conditions => ['CAST(total_absent as FLOAT) / CAST(total_enrolled as FLOAT) >= .11']
-  }}
-  scope :with_severity, lambda{|severity|
-    range = SEVERITY[severity]
-    {:conditions => ["(CAST(total_absent as FLOAT) / CAST(total_enrolled as FLOAT)) >= ? and (CAST(total_absent as FLOAT) / CAST(total_enrolled as FLOAT)) < ?", range[:min], range[:max]]}
-  }
   
   self.table_name = "rollcall_school_daily_infos"
+
+  #Scopes
+  def self.for_date(date)
+    where(:report_date => date)
+  end
+  
+  def self.for_date_range(start, finish)
+    where(:report_date => start..finish)
+  end
+  
+  def self.recent(limit)
+    order('report_date desc').limit(limit)
+  end
+  
+  def self.absences
+    where('CAST(rollcall_school_daily_infos.total_absent as FLOAT) / CAST(rollcall_school_daily_infos.total_enrolled as FLOAT) >= .11')
+  end
+  
+  def self.with_severity(severity)
+    range = SEVERITY[severity]
+    where('(CAST(rollcall_school_daily_infos.total_absent as FLOAT) / CAST(rollcall_school_daily_infos.total_enrolled as FLOAT)) >= ?', range[:min])
+      .where('(CAST(rollcall_school_daily_infos.total_absent as FLOAT) / CAST(rollcall_school_daily_infos.total_enrolled as FLOAT)) < ?', range[:max])
+      .where("rollcall_school_daily_infos.total_enrolled is not null")
+      .where("rollcall_school_daily_infos.total_enrolled <> 0")
+  end
 
   # Method returns absentee percentage
   def absentee_percentage

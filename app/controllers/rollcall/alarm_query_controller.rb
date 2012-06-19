@@ -8,18 +8,14 @@
 
 class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
   before_filter :rollcall_isd_required
+  respond_to :json
+  layout false
+  
   # GET rollcall/alarm_query
   def index
     alarm_queries = current_user.alarm_queries(params)
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success       => true,
-          :total_results => alarm_queries.length,
-          :results       => alarm_queries
-        }
-      end
-    end
+    @alarm_queries = alarm_queries
+    respond_with(@alarm_queries)
   end
 
   # POST rollcall/alarm_query
@@ -37,13 +33,8 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
       :deviation_max => params[:deviation_max],
       :alarm_set     => false
     )
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => !saved_result.blank?
-        }
-      end
-    end
+    @success = !saved_result.blank?
+    respond_with(@success)
   end
 
   # PUT rollcall/alarm_query/:id
@@ -66,25 +57,14 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
         :alarm_set     => alarm_set)
     end   
     query.save if success
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => success  
-        }
-      end
-    end
+    @success = success
+    respond_with(@success)
   end
 
   # DELETE rollcall/alarm_query/:id
   def destroy
     alarm_query = Rollcall::AlarmQuery.find(params[:id])
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => alarm_query.destroy
-        }
-      end
-    end
+    @success = alarm_query.destroy
+    respond_with(@success)
   end
-
 end

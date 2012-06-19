@@ -21,38 +21,34 @@ class Rollcall::School < ActiveRecord::Base
   has_many :alarms, :class_name => "Rollcall::Alarm"
   has_many :students, :class_name => "Rollcall::Student"
   before_create :set_display_name
-
-  scope :in_alert,
-              :select     => "distinct schools.*",
-              :include    => :school_daily_infos,
-              :conditions => ["(CAST(rollcall_school_daily_infos.total_absent as FLOAT)/CAST(rollcall_school_daily_infos.total_enrolled as FLOAT))
-                              >= 0.10 AND rollcall_school_daily_infos.report_date >= ?", 30.days.ago],
-              :order      => "(CAST(rollcall_school_daily_infos.total_absent as FLOAT)/CAST(rollcall_school_daily_infos.total_enrolled as FLOAT)) desc"
-
-  scope :with_alarms,
-              :select     => "distinct schools.*",
-              :include    => :alarms,
-              :conditions => ["rollcall_alarms.school_id = rollcall_schools.id"]
-
+  
   self.table_name = "rollcall_schools"
+
+  def self.in_alert
+    include(:school_daily_infos)
+      .where("(CAST(rollcall_school_daily_infos.total_absent as FLOAT)/CAST(rollcall_school_daily_infos.total_enrolled as FLOAT)) >= 0.10 AND rollcall_school_daily_infos.report_date >= ?", 30.days.ago)
+      .order("(CAST(rollcall_school_daily_infos.total_absent as FLOAT)/CAST(rollcall_school_daily_infos.total_enrolled as FLOAT)) desc")
+      .uniq
+  end
+  
+  def self.with_alarms
+    include(:alarms)
+      .where("rollcall_alarms.school_id = rollcall_schools.id")
+      .uniq
+  end
 
   # Method returns the average absence rate of school
   #
   # Method returns the average absence rate of a school based on date
-  def average_absence_rate(date=nil)
-    date      = Date.today if date.nil?
-    absentees = school_daily_infos.for_date(date).map do |report|
-      unless report.total_enrolled.blank?
-        report.total_absent.to_f/report.total_enrolled.to_f
-      else
-        0.to_f
-      end
-    end
-    unless absentees.empty?
-      absentees.inject(&:+)/absentees.size
-    else
-      0.to_f
-    end
+  def average_absence_rate(date=nil)    
+    date = Date.today if date.nil?
+    school_daily_infos
+      .for_date(date)
+      .where("rollcall_school_daily_infos.total_enrolled is not null")
+      .where("rollcall_school_daily_infos.total_enrolled <> 0")
+      .average("(Cast(rollcall_school_daily_infos.total_absent as float) /" +
+        "Cast(rollcall_school_daily_infos.total_enrolled as float))")
+      .to_f
   end
   
   def self.for_user(user)

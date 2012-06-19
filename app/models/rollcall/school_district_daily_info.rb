@@ -36,30 +36,41 @@ class Rollcall::SchoolDistrictDailyInfo < ActiveRecord::Base
   validates_presence_of :school_district
   validates_presence_of :report_date
 
-  scope :for_date, lambda{|date| {
-      :conditions => ["report_date = ?", date]
-  }}
   self.table_name = "rollcall_school_district_daily_infos"
+
+  def self.for_date(date)
+    where(:report_date => date)
+  end
+  
 
   # Method will update school district daily info
   #
   # Method updates school district daily info
   def update_stats date, district_id
-    schools        = Rollcall::School.find_all_by_district_id district_id
-    total_enrolled = 0
-    total_absent   = 0
-    Rollcall::SchoolDailyInfo.find_all_by_report_date_and_school_id(date,schools).each do |rec|
-      total_enrolled += rec.total_enrolled
-    end
+    schools = Rollcall::School.where(:district_id => district_id).pluck(:id)
+    
+    base = Rollcall::SchoolDailyInfo
+      .for_date(date)
+      .where("school_id in (?)",schools)
+      
+    total_enrolled = base
+      .sum("total_enrolled")
+      .to_i
+      
     if total_enrolled > 0
-      write_attribute :total_enrollment, total_enrolled
-      Rollcall::SchoolDailyInfo.find_all_by_report_date_and_school_id(date,schools) do |rec|
-        total_absent += rec.total_absent
-      end
-      write_attribute :total_absent, total_absent
-      rate = Rollcall::SchoolDailyInfo.average("CAST(total_absent as FLOAT)/CAST(total_enrolled as FLOAT)",
-                                               :conditions => ["report_date = ? AND school_id = ?", date, schools])
+      total_absent = base
+        .sum("total_absent")
+        .to_i
+      
+      rate = base
+        .where("total_enrolled is not null")
+        .where("total_enrolled <> 0")
+        .average("CAST(total_absent as FLOAT)/CAST(total_enrolled as FLOAT)")
+        .to_f
+
       write_attribute :absentee_rate, rate.nil? || rate == 0  ? nil : rate.round(4)*100
+      write_attribute :total_enrollment, total_enrolled
+      write_attribute :total_absent, total_absent
     end
   end
 end

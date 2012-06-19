@@ -8,6 +8,8 @@
 
 class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
   before_filter :rollcall_student_required
+  respond_to :json
+  layout false
   
   # Method returns a set of student records and associated values. Method can be called with :search_term param
   # which will search against the student db object attributes.  Method can also be called with
@@ -77,15 +79,9 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       record[:student_id]         = student_obj.id
       record[:race]               = student_obj.race
     end
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success       => true,
-          :total_results => student_records.length,
-          :results       => students_paged
-        }
-      end
-    end
+    @length = student_records.length
+    @students_paged = students_paged
+    respond_with(@length, @students_paged)
   end
 
   # Method is responsible for destroying a StudentDailyInfo record.  Method is called from the
@@ -95,13 +91,8 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
   def destroy
     result = false
     result = Rollcall::StudentDailyInfo.find(params[:id]).destroy
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => result
-        }
-      end
-    end
+    @result = result
+    respond_with(@result)
   end
 
   # Method returns a set of option values that are used to built the drop down boxes for the
@@ -126,24 +117,14 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       app_init             = true
       total_enrolled_alpha = true
     end
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :options => [{
-            :race                 => default_options[:race],
-            :age                  => default_options[:age],
-            :gender               => default_options[:gender],
-            :grade                => default_options[:grade],
-            :symptoms             => default_options[:symptoms],
-            :zip                  => zipcodes,
-            :total_enrolled_alpha => total_enrolled_alpha,
-            :app_init             => app_init,
-            :school_id            => school_id,
-            :school_name          => Rollcall::School.find_by_id(school_id).display_name,
-            :schools              => schools
-          }]
-        }
-      end
-    end
+    @options = { 
+      :default_options => default_options, 
+      :zipcodes => zipcodes, 
+      :total_enrolled_alpha => total_enrolled_alpha,
+      :app_init => app_init,
+      :school_id => school_id,
+      :schools => schools
+    }
+    respond_with(@options)
   end
 end

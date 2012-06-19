@@ -1,47 +1,24 @@
 class Rollcall::SchoolController < Rollcall::RollcallAppController
   before_filter :rollcall_isd_required
+  respond_to :json
+  layout false
 
   # GET rollcall/schools
   def index
-    results = current_user.school_search params
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success       => true,
-          :total_results => results.length,
-          :results       => results.as_json
-        }
-      end
-    end
+    @results = current_user.school_search params
+    respond_with(@result)
   end
 
   # POST rollcall/schools
   def show
-    results = Rollcall::School.find_by_id(params[:school_id])
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => true,
-          :results => results.as_json
-        }
-      end
-    end
+    @results = Rollcall::School.find_by_id(params[:school_id])
+    respond_with(@results)    
   end
 
   # POST rollcall/get_schools
   def get_schools
-    schools = []
-    params[:school_ids].split(",").each do |id|
-      schools.push(Rollcall::School.find_by_id(id))
-    end
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => true,
-          :results => schools.as_json
-        }
-      end
-    end
+    @schools = Rollcall::School.where('id in (?)', params[:school_ids])
+    respond_with(@schools)
   end
 
   # POST rollcall/get_school_data
@@ -55,15 +32,8 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
     else
       school_daily_info = []
     end
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success       => true,
-          :results       => {:school_daily_infos  => school_daily_info},
-          :total_results => school_daily_info.length
-        }
-      end
-    end
+    @info = school_daily_info
+    respond_wtih(@info)
   end
 
   # POST rollcall/get_student_data
@@ -81,14 +51,7 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
     else
       student_daily_info = []
     end   
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success       => true,
-          :results       => {:student_daily_infos => student_daily_info},
-          :total_results => student_daily_info.length
-        }
-      end
-    end
+    @info = student_daily_info
+    respond_with(@info)
   end
 end

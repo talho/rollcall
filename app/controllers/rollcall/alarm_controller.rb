@@ -9,6 +9,9 @@
 
 class Rollcall::AlarmController < Rollcall::RollcallAppController
   before_filter :rollcall_isd_required
+  respond_to :json
+  layout false
+  
   # GET rollcall/alarms
   def index
     alarms        = []
@@ -30,27 +33,13 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
         alarms.push(result)
       end
     end
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success       => true,
-          :total_results => alarms.length,
-          :alarms        => alarms.flatten
-        }
-      end
-    end
+    @alarms = alarms
+    respond_with(@alarms)
   end
 
   # POST rollcall/alarms
   def create    
     Rollcall::AlarmQuery.find(params[:alarm_query_id]).delay.generate_alarm
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => true
-        }
-      end
-    end
   end
 
   # PUT rollcall/alarms/:id
@@ -59,13 +48,8 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
     ignore    = params[:alarms][:ignore_alarm].blank? ? false : params[:alarms][:ignore_alarm]
     success   = alarm.update_attributes :ignore_alarm => ignore
     alarm.save if success
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => success
-        }
-      end
-    end
+    @success = success
+    respond_with(@success)
   end
 
   # DELETE rollcall/alarms/:id
@@ -76,13 +60,8 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
     else
       result = Rollcall::Alarm.find(params[:id]).destroy
     end
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :success => result
-        }
-      end
-    end
+    @result = result
+    respond_with(@result)
   end
 
   # GET rollcall/get_info
@@ -107,22 +86,9 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
       school_info              = Rollcall::SchoolDailyInfo.find_by_school_id params[:school_id]
       school_info.total_absent = Rollcall::StudentDailyInfo.find_all_by_student_id_and_report_date(students,params[:report_date]).size
     end
-    respond_to do |format|
-      format.json do
-        render :json => {
-          :info => [
-            {
-              :total_absent           => school_info.total_absent,
-              :total_enrolled         => school_info.total_enrolled,
-              :total_confirmed_absent => confirmed_absents,
-              :alarm_severity         => alarm.alarm_severity,
-              :school_name            => school_info.school.display_name,
-              :school_type            => school_info.school.school_type,
-              :students               => {:student_info => student_info.as_json}
-            }
-          ]
-        }
-      end
-    end
+    @school_info = school_info
+    @severity = alarm.severity
+    @confirmed_absents = confirmed_absents
+    respond_with(@school_info, @severity, @confirmed_absents)
   end
 end

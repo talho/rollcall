@@ -1,0 +1,1 @@
+json.partial! 'application/success', success: true

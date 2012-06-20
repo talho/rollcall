@@ -86,7 +86,12 @@ module Rollcall
       # Method performs simple or advanced search
       #
       # @param params search parameters
-      def school_search(params)        
+      def school_search(params)                        
+        results = school_search_relation(params)
+        results.all 
+      end
+      
+      def school_search_relation(params)
         options = {:count_limit => (params[:page].present? ? params[:page].to_i : 1) * (params[:limit].present? ? params[:limit].to_i : 6), :count => 0}               
         
         district = params[:school_district].present? ? "sd.name in (:school_district)" : "(sd.name is not null or sd.name is null)"
@@ -105,14 +110,12 @@ module Rollcall
             query = "(#{district} and #{type})"
           end
           if params[:school].present?
-             query += "or #{name}"
+            query += "or #{name}"
           end
         else
           query = "rollcall_schools.id is not null"
         end
-        
-        results = self.schools.where(query, params).reorder('rollcall_schools.display_name').all        
-        results
+        results = self.schools.where(query, params).reorder('rollcall_schools.display_name')
       end
   
       # Method returns students attached to user schools

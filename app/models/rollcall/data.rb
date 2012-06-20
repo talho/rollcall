@@ -65,37 +65,22 @@ class Rollcall::Data
   def self.get_graph_data(params, obj, options={})
     conditions = set_conditions params
     update_ary = []
-    unless obj.is_a? Array
-      #throw exception?
-    end
-    
-    i = obj
-    
-    if params[:startdt].present?
-      conditions[:startdt] = params[:startdt]      
+    i          = obj
+    unless params[:startdt].blank?
+      conditions[:startdt] = params[:startdt]
     else
       conditions[:startdt] = "08/01/#{Time.now.month < 8 ? Time.now.year - 1 : Time.now.year}"
     end
-    
-    if params[:enddt].present?
-      conditions[:startdt] = params[:startdt]
+    unless params[:enddt].blank?
+      conditions[:enddt] = params[:enddt]
     else
       conditions[:enddt] = Time.now.strftime("%m/%d/%Y")
     end
-    
-    if i.first.is_a? Rollcall::SchoolDistrict
-      
-    elsif i.first.is_a? Rollcall::School
-    
-    else
-      #throw an exception
-    end 
-    
     if i[:tea_id].blank?
       sd = Rollcall::SchoolDistrict.find_by_district_id(i[:district_id])
       sd.daily_infos.each{|s|
         update_ary.push({:report_date => s[:report_date],:total => s[:total_absent],:name => sd[:name]})
-      }      
+      }
       if update_ary.length > 0
         data_func_ary = build_data_function_sets update_ary, params
         update_ary    = (update_ary + data_func_ary).group_by{|a| a[:report_date]}.map{|k,v| v.reduce(:merge)}
@@ -128,7 +113,7 @@ class Rollcall::Data
         update_ary.first[:gmap_lng]    = i.gmap_lng
         update_ary.first[:gmap_addr]   = i.gmap_addr
       end
-    end    
+    end
     update_ary
   end
 
@@ -250,24 +235,24 @@ class Rollcall::Data
     conditions = {}
     options.each { |key,value|
       case key
-        when "data_func"
-          conditions[:data_func] = value
-        when "absent"
-          conditions[:confirmed_illness] = true if value == "Confirmed Illness"
-        when "gender"
-          conditions[:gender]   = 'M' if value == "Male"
-          conditions[:gender]   = 'F' if value == "Female"
-        when "age"
-          conditions[:age]      = value.collect{|v| v.to_i}
-        when "grade"
-          conditions[:grade]    = value.collect{|v| v.to_i}
-        when "symptoms"
-          conditions[:symptoms] = value
-        when "startdt"
-          conditions[:startdt]  = value
-        when "enddt"
-          conditions[:enddt]    = value
-        else
+      when "data_func"
+        conditions[:data_func] = value
+      when "absent"
+        conditions[:confirmed_illness] = true if value == "Confirmed Illness"
+      when "gender"
+        conditions[:gender]   = 'M' if value == "Male"
+        conditions[:gender]   = 'F' if value == "Female"
+      when "age"
+        conditions[:age]      = value.collect{|v| v.to_i}
+      when "grade"
+        conditions[:grade]    = value.collect{|v| v.to_i}
+      when "symptoms"
+        conditions[:symptoms] = value
+      when "startdt"
+        conditions[:startdt]  = value
+      when "enddt"
+        conditions[:enddt]    = value
+      else
       end
     }
     return conditions

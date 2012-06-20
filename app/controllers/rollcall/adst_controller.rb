@@ -21,15 +21,28 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     graph_info = Array.new
     options = {:page => params[:page] || 1, :per_page => params[:limit] || 6}    
         
+    # if params[:return_individual_school].blank?
+      # results = current_user.school_districts
+      # if params[:school_district].present? || params[:school].present?
+        # results = results.where("rollcall_school_districts.name in (?)", params[:school_district])
+      # end     
+      # results.all
+    # else
+      # results = current_user.school_search params
+    # end
+    
+    #Think this is better than the above way to get school districts
     if params[:return_individual_school].blank?
-      results = current_user.school_districts
-      if params[:school_district]
-        results = results.where("rollcall_school_districts.name in (?)", params[:school_district])
-      end     
-      results.all
+      school_ids = current_user
+        .school_search_relation(params)
+        .where('rollcall_schools.district_id is not null')
+        .reorder('rollcall_schools.district_id')
+        .pluck('rollcall_schools.district_id')
+        .uniq
+      results = current_user.school_districts.where("rollcall_school_districts.id in (?)", school_ids)
     else
       results = current_user.school_search params
-    end    
+    end
     
     @length = results.length    
     
@@ -37,7 +50,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     results_paged = results.paginate(options)    
     results_paged.each do |r|      
       res = Rollcall::Data.get_graph_data(params, r) if params[:return_individual_school]
-      res = Rollcall::Data.get_graph_data(params, r, {:foo_bar => true}) if params[:return_individual_school].blank?
+      res = Rollcall::Data.get_graph_data(params, r) if params[:return_individual_school].blank?
       graph_info.push(res.flatten)      
     end
     

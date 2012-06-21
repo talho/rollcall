@@ -49,8 +49,8 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     require 'will_paginate/array'    
     results_paged = results.paginate(options)    
     results_paged.each do |r|      
-      res = Rollcall::Data.get_graph_data(params, r) if params[:return_individual_school]
-      res = Rollcall::Data.get_graph_data(params, r) if params[:return_individual_school].blank?
+      res = Rollcall::Data.get_graph_data(params, r)
+      new_res = Rollcall::NewData.get_graph_data(params, r) 
       graph_info.push(res.flatten)      
     end
     

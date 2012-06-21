@@ -20,8 +20,9 @@ class Rollcall::NewData
         
     results = join_to_infos results, conditions
     results = apply_date_filter results, conditions[:startdt], conditions[:enddt]
-    results = 
     results = apply_data_function results, conditions[:data_func]
+    
+    transform_to_graph_info_format results
   end
   
   def join_to_infos query, conditions
@@ -69,8 +70,9 @@ class Rollcall::NewData
       query = query
         .joins("inner join rollcall_student_reported_symptoms on rollcall_student_reported_symptoms.student_daily_info_id = rollcall_student_daily_infos.id")
         .joins("inner join rollcall_symptoms on rollcall_symptoms.id = rollcall_student_reported_symptoms.symptom_id")
-        .where("rollcall_symptoms.symptoms in (?)", conditions)
+        .where("rollcall_symptoms.icd9_code in (?)", conditions[:symptoms])
     end
+    
     query
   end
   
@@ -82,29 +84,66 @@ class Rollcall::NewData
     elsif end_date.present?
       query = query.where("report_date <= ?", end_date)
     end
+    
     query    
   end
   
-  def apply_data_function query, function, info_type
+  def apply_data_function query, function
+    info_type = get_info_type_class query
+    
+    #TODO: Fix when it's a student info type
+    
     case options[:data_func]
       when "Standard Deviation"
         query = query.select('stddev_pop(total_absent) as "deviation"')
       when "Average"
-        query = query.select('avg(total_absent) over (order by report date) as "average"')
+        query = query.select('avg(total_absent) over (order by report_date) as "average"')
       when "Average 30 Day"
-        query = query.select('avg(total_absent) over (order by report date rows between current row and 29 preceeding) as "average"')
+        query = query.select('avg(total_absent) over (order by report_date rows between current row and 29 preceeding) as "average"')
       when "Average 60 Day"
-        query = query.select('avg(total_absent) over (order by report date rows between current row and 59 preceeding) as "average"')
+        query = query.select('avg(total_absent) over (order by report_date rows between current row and 59 preceeding) as "average"')
       when "Cusum"
         avg = info_type.average('total_absent').to_f
-        query = query.select('greatest(greatest(sum((id - ?)) over (order by created_at rows between unbounded preceding and 1 preceding),0) + id - ?,0)', avg)
+        query = query.select('greatest(greatest(sum((total_absent - ?)) over (order by created_at rows between unbounded preceding and 1 preceding),0) + total_absent - ?,0)', avg)
     end
+    
+    query = query.select('total_absent as "total"')
+    query = query.select('report_date')
     query
   end
   
+  def get_info_type_class query
+    info_type = ""
+    
+    query.join_sources.each do |source|
+      source.left.scan(/ [\w|_]*_infos /) do |match|
+        info_type = match.strip
+      end
+      source.right.scan(/ [\w|_]*_infos /) do |match|
+        info_type = match.strip
+      end
+    end
+    
+    case info_type
+      when "rollcall_school_daily_infos"
+        info_type = Rollcall::SchoolDailyInfo
+      when "rollcall_school_district_daily infos"
+        info_type = Rollcall::SchoolDistrictDailyInfo
+      when "rollcall_student_daily_infos"
+        info_type = Rollcall::StudentDailyInfo
+    end
+    
+    info_type
+  end
+  
+  def transform_to_graph_info_format results
+    graph_info = ActiveRecord::Base.connection().execute(results.to_sql)        
+    graph_info graph_info.as_json      
+  end
+    
   def self.set_conditions options
     conditions = {}
-    options.each { |key,value|
+    options.each do |key,value|
       case key
         when "data_func"
           conditions[:data_func] = value
@@ -125,7 +164,8 @@ class Rollcall::NewData
           conditions[:enddt] = value
         else
       end
-    }
+    end
+    
     return conditions
   end    
   

@@ -115,6 +115,7 @@ module Rollcall
         else
           query = "rollcall_schools.id is not null"
         end
+
         results = self.schools.where(query, params).reorder('rollcall_schools.display_name')
       end
   

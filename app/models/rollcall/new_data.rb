@@ -6,8 +6,8 @@ class Rollcall::NewData
   def self.get_graph_data params, obj
     conditions = set_conditions params
     update_ary = []
-    i = obj    
-       
+    i = obj            
+    
     if i.is_a? Rollcall::SchoolDistrict      
       results = Rollcall::SchoolDistrict        
         .where('rollcall_school_districts.id = ?', i[:id])           
@@ -25,11 +25,11 @@ class Rollcall::NewData
     transform_to_graph_info_format results
   end
   
-  def join_to_infos query, conditions
+  def self.join_to_infos query, conditions
     if conditions[:age].present? || conditions[:gender].present? || conditions[:grade].present? || conditions[:confirmed_illness] == true || conditions[:symptoms].present?      
       query = apply_ili_filters query, conditions
     else
-      if results.table_name = "rollcall_school_districts"
+      if query.table_name == "rollcall_school_districts"
         query = query
           .joins("inner join rollcall_school_district_daily_infos on rollcall_school_district_daily_infos.school_district_id = rollcall_school_districts.id")
       else
@@ -40,8 +40,8 @@ class Rollcall::NewData
     query
   end
   
-  def apply_ili_filters query, conidtions       
-    if query.table_name = "rollcall_school_districts"
+  def self.apply_ili_filters query, conidtions       
+    if query.table_name == "rollcall_school_districts"
       query = query
         .joins("inner join rollcall_schools on rollcall_schools.district_id = rollcall_school_districts.id")          
     end
@@ -76,7 +76,7 @@ class Rollcall::NewData
     query
   end
   
-  def apply_date_filter query, start_date, end_date
+  def self.apply_date_filter query, start_date, end_date
     if start_date.present? and end_date.present?
       query = query.where("report_date between ? and ? ", start_date, end_date)
     elsif start_date.present?
@@ -88,12 +88,11 @@ class Rollcall::NewData
     query    
   end
   
-  def apply_data_function query, function
+  def self.apply_data_function query, function
     info_type = get_info_type_class query
     
-    #TODO: Fix when it's a student info type
-    
-    case options[:data_func]
+    #TODO: Fix when it's a student info type   
+    case function
       when "Standard Deviation"
         query = query.select('stddev_pop(total_absent) as "deviation"')
       when "Average"
@@ -104,22 +103,20 @@ class Rollcall::NewData
         query = query.select('avg(total_absent) over (order by report_date rows between current row and 59 preceeding) as "average"')
       when "Cusum"
         avg = info_type.average('total_absent').to_f
-        query = query.select('greatest(greatest(sum((total_absent - ?)) over (order by created_at rows between unbounded preceding and 1 preceding),0) + total_absent - ?,0)', avg)
+        query = query.select("greatest(greatest(sum((total_absent - #{avg})) over (order by report_date rows between unbounded preceding and 1 preceding),0) + total_absent - #{avg},0) as \"cusum\"")
     end
     
     query = query.select('total_absent as "total"')
     query = query.select('report_date')
+    p query.to_sql
     query
   end
   
-  def get_info_type_class query
+  def self.get_info_type_class query
     info_type = ""
     
-    query.join_sources.each do |source|
+    query.join_sources.each do |source|      
       source.left.scan(/ [\w|_]*_infos /) do |match|
-        info_type = match.strip
-      end
-      source.right.scan(/ [\w|_]*_infos /) do |match|
         info_type = match.strip
       end
     end
@@ -136,9 +133,9 @@ class Rollcall::NewData
     info_type
   end
   
-  def transform_to_graph_info_format results
+  def self.transform_to_graph_info_format results
     graph_info = ActiveRecord::Base.connection().execute(results.to_sql)        
-    graph_info graph_info.as_json      
+    graph_info = graph_info.as_json      
   end
     
   def self.set_conditions options

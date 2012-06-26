@@ -69,7 +69,7 @@ class Rollcall::Data
     unless params[:startdt].blank?
       conditions[:startdt] = params[:startdt]
     else
-      conditions[:startdt] = "08/01/#{Time.now.month < 8 ? Time.now.year - 1 : Time.now.year}"
+      conditions[:startdt] = "06/01/11"
     end
     unless params[:enddt].blank?
       conditions[:enddt] = params[:enddt]

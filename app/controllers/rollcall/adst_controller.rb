@@ -50,7 +50,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     results_paged = results.paginate(options)    
     results_paged.each do |r|      
       res = Rollcall::Data.get_graph_data(params, r)
-      new_res = Rollcall::NewData.get_graph_data(params, r)      
+      new_res = Rollcall::NewData.get_graph_data(params, r)     
       graph_info.push(res.flatten)      
     end
     

@@ -37,6 +37,7 @@ class Rollcall::NewData
           .joins("inner join rollcall_school_daily_infos on rollcall_school_daily_infos.school_id = rollcall_schools.id")
       end
     end
+    
     query
   end
   

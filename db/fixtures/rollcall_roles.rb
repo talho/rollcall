@@ -1,13 +1,15 @@
-Role.find_or_create_by_name_and_application("Rollcall",'rollcall'){|r| r.attributes = {:approval_required => false, :user_role => true,} }
-Role.find_or_create_by_name_and_application("Admin",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => false,} }
-Role.find_or_create_by_name_and_application("Epidemiologist",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => true,} }
-Role.find_or_create_by_name_and_application("Health Officer",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => true,} }
-Role.find_or_create_by_name_and_application("Nurse",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => true,} }
+app = App.find_by_name('rollcall')
+
+Role.find_or_create_by_name_and_app_id("Rollcall",app.id){|r| r.attributes = {:approval_required => false, :user_role => true, public: true} }
+Role.find_or_create_by_name_and_app_id("Admin",app.id){|r| r.attributes = {:approval_required => true, :user_role => false,} }
+Role.find_or_create_by_name_and_app_id("Epidemiologist",app.id){|r| r.attributes = {:approval_required => true, :user_role => true,} }
+Role.find_or_create_by_name_and_app_id("Health Officer",app.id){|r| r.attributes = {:approval_required => true, :user_role => true,} }
+Role.find_or_create_by_name_and_app_id("Nurse",app.id){|r| r.attributes = {:approval_required => true, :user_role => true,} }
 # TODO
 # Integrate school selection into roles and/or user
 
 # As part of the seed, set your dev user to as rollcall user, admin
-u = User.find_by_email("eddie@talho.org")
+u = User.find_by_email("cdubose@texashan.org")
 u.role_memberships.create(
   :jurisdiction_id => Jurisdiction.find_by_name('Harris').id,
   :role_id         => Role.admin("rollcall").id

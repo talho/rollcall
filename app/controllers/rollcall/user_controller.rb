@@ -19,47 +19,6 @@ class Rollcall::UserController < Rollcall::RollcallAppController
     respond_with(@results)
   end
 
-  def new
-    @user                            = User.new
-    @user[:rollcall_jurisdiction_id] = nil
-    @jurisdictions                   = Jurisdiction.all.sort_by{|j| j.name}
-  end
-
-  #POST rollcall/users
-  def create
-    unless params[:user].blank?
-      jurisdiction  = params[:user]["rollcall_jurisdiction_id"].blank? ? nil : Jurisdiction.find(params[:user]["rollcall_jurisdiction_id"])
-      rollcall_role = Role.find_by_name_and_application("Rollcall", 'rollcall')
-      @user         = User.new params[:user]
-      @user.email   = @user.email.downcase
-      params[:user].delete("rollcall_jurisdiction_id")
-      @user.role_memberships.build(:role=>rollcall_role, :jurisdiction=>jurisdiction, :user=>@user)
-      respond_to do |format|
-        if @user.save
-          SignupMailer.confirmation(@user).deliver
-          format.html { redirect_to sign_in_path }
-          format.xml  { render :xml => @user, :status => :created, :location => @user }
-          flash[:notice] = "Thanks for signing up! An email will be sent to #{@user.email} shortly to confirm your account." +
-            "Once you've confirmed you'll be able to login into the TALHO Rollcall Dashboard.\n\nIf you have any questions please email support@#{DOMAIN}."
-        else
-          @user[:rollcall_jurisdiction_id] = jurisdiction.blank? ? nil : jurisdiction.id
-          @jurisdictions                   = Jurisdiction.all.sort_by{|j| j.name}
-          format.html { render :action => "new" }
-          format.xml  { render :xml => @user.errors, :status => :unprocessable_entity }
-        end
-      end
-    else 
-      if rollcall_admin_required
-        u       = User.find_by_id({:user_id => params[:user_id]})
-        p_u_s   = params[:user_schools]
-        p_u_s_d = params[:user_school_district]
-        u_s     = Rollcall::UserSchool.find_or_create_by_user_id_and_school_id({:user_id => u.id, :school_id => params[:school_id]})
-        u_s_d   = Rollcall::UserSchoolDistrict.find_or_create_by_user_id_and_school_district_id({:user_id => u.id, :school_district_id => params[:school_district_id]})
-        respond_with(@success = !u.blank?)        
-      end
-    end
-  end
-
   # PUT rollcall/users/:id
   def update
     unless params[:school_id].blank?

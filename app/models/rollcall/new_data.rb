@@ -1,6 +1,29 @@
 class Rollcall::NewData
-  def self.export_data params, filename, user_obj
+  def self.export_data params, filename, user_obj, obj
+    update_array = []
     
+    obj.each do |row|
+      array = self.get_graph_data params, row
+      array = format_for_csv array
+      update_array += array
+    end
+    
+    @csv_data = build_csv_string update_array
+    newfile            = File.join(Rails.root.to_s,'tmp',"#{filename}.csv")
+    file_result        = File.open(newfile, 'wb') {|f| f.write(@csv_data) }
+    file               = File.new(newfile, "r")
+    folder             = Folder.find_by_name_and_user_id("Rollcall Documents", user_obj.id)
+    folder             = Folder.create(
+      :name => "Rollcall Documents",
+      :notify_of_document_addition => true,
+      :owner => user_obj) if folder.blank?
+    folder.audience.recipients(:force => true).length if folder.audience
+    @document = user_obj.documents.build(:folder_id => folder.id, :file => file)
+    @document.save!
+    if !@document.folder.nil? && @document.folder.notify_of_document_addition
+      DocumentMailer.rollcall_document_addition(@document, user_obj).deliver
+    end
+    return true
   end
   
   def self.get_graph_data params, obj
@@ -41,14 +64,14 @@ class Rollcall::NewData
     query
   end
   
-  def self.apply_ili_filters query, conidtions       
+  def self.apply_ili_filters query, conditions       
     if query.table_name == "rollcall_school_districts"
       query = query
         .joins("inner join rollcall_schools on rollcall_schools.district_id = rollcall_school_districts.id")          
     end
     
     query = query
-      .joins("inner join rollcall_students on rollcall_students.school_id on rollcall_schools.id")
+      .joins("inner join rollcall_students on rollcall_students.school_id = rollcall_schools.id")
       .joins("inner join rollcall_student_daily_infos on rollcall_student_daily_infos.student_id = rollcall_students.id")
     
     if conditions[:age].present?        
@@ -92,24 +115,29 @@ class Rollcall::NewData
   def self.apply_data_function query, function
     info_type = get_info_type_class query
     
-    #TODO: Fix when it's a student info type   
-    case function
-      when "Standard Deviation"
-        query = query.select('stddev_pop(total_absent) as "deviation"')
-      when "Average"
-        query = query.select('avg(total_absent) over (order by report_date) as "average"')
-      when "Average 30 Day"
-        query = query.select('avg(total_absent) over (order by report_date rows between current row and 29 preceeding) as "average"')
-      when "Average 60 Day"
-        query = query.select('avg(total_absent) over (order by report_date rows between current row and 59 preceeding) as "average"')
-      when "Cusum"
-        avg = info_type.average('total_absent').to_f
-        query = query.select("greatest(greatest(sum((total_absent - #{avg})) over (order by report_date rows between unbounded preceding and 1 preceding),0) + total_absent - #{avg},0) as \"cusum\"")
+    if info_type == Rollcall::SchoolDailyInfo || info_type == Rollcall::SchoolDistrictDailyInfo       
+      total_absent = "total_absent"      
+    else
+      total_absent = "count(*)"
+      query = query.group("report_date")
     end
     
-    query = query.select('total_absent as "total"')
+    case function
+      when "Standard Deviation"
+        query = query.select("stddev_pop(#{total_absent}) over (order by report_date asc rows between unbounded preceding and current row) as \"deviation\"")        
+      when "Average"
+        query = query.select("avg(#{total_absent}) over (order by report_date asc rows between unbounded preceding and current row) as \"average\"")
+      when "Average 30 Day"
+        query = query.select("avg(#{total_absent}) over (order by report_date asc rows between 29 preceding and current row) as \"average\"")
+      when "Average 60 Day"
+        query = query.select("avg(#{total_absent}) over (order by report_date asc rows between 59 preceding and current row) as \"average\"")
+      when "Cusum"
+        avg = info_type.average("#{total_absent}").to_f
+        query = query.select("greatest(greatest(sum((#{total_absent} - #{avg})) over (order by report_date rows between unbounded preceding and 1 preceding),0) + #{total_absent} - #{avg},0) as \"cusum\"")
+    end
+    
     query = query.select('report_date')
-    p query.to_sql
+      .select("#{total_absent} as \"total\"")  
     query
   end
   
@@ -124,18 +152,18 @@ class Rollcall::NewData
     
     case info_type
       when "rollcall_school_daily_infos"
-        info_type = Rollcall::SchoolDailyInfo
-      when "rollcall_school_district_daily infos"
-        info_type = Rollcall::SchoolDistrictDailyInfo
+        type = Rollcall::SchoolDailyInfo
+      when "rollcall_school_district_daily_infos"
+        type = Rollcall::SchoolDistrictDailyInfo
       when "rollcall_student_daily_infos"
-        info_type = Rollcall::StudentDailyInfo
+        type = Rollcall::StudentDailyInfo
     end
     
-    info_type
+    type
   end
   
-  def self.transform_to_graph_info_format results
-    graph_info = ActiveRecord::Base.connection().execute(results.to_sql)        
+  def self.transform_to_graph_info_format results    
+    graph_info = ActiveRecord::Base.connection().execute(results.order("report_date").to_sql)        
     graph_info = graph_info.as_json      
   end
     
@@ -168,6 +196,14 @@ class Rollcall::NewData
   end    
   
   def self.build_csv_string data_obj
+    csv_data = "Name,Identifier,Total Absent,Total Enrolled,Report Date\n"
     
+    data_obj.each do |row|
+      if row["total"].to_s != "0"
+        csv_data += "#{d[:school_name]},#{d[:tea_id]},#{d[:total]},#{d[:enrolled]},#{d[:report_date]}\n"
+      end
+    end
+    
+    csv_data
   end
 end

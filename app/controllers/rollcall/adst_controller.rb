@@ -32,26 +32,17 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     # end
     
     #Think this is better than the above way to get school districts
-    if params[:return_individual_school].blank?
-      school_ids = current_user
-        .school_search_relation(params)
-        .where('rollcall_schools.district_id is not null')
-        .reorder('rollcall_schools.district_id')
-        .pluck('rollcall_schools.district_id')
-        .uniq
-      results = current_user.school_districts.where("rollcall_school_districts.id in (?)", school_ids)
-    else
-      results = current_user.school_search params
-    end
+    
+    results = load_results params    
     
     @length = results.length    
     
     require 'will_paginate/array'    
     results_paged = results.paginate(options)    
     results_paged.each do |r|      
-      res = Rollcall::Data.get_graph_data(params, r)
+      #res = Rollcall::Data.get_graph_data(params, r)
       new_res = Rollcall::NewData.get_graph_data(params, r)     
-      graph_info.push(res.flatten)      
+      graph_info.push(new_res.flatten)      
     end
     
     @graph_info = graph_info    
@@ -66,7 +57,8 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   # GET /rollcall/export
   def export
     filename = "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}"
-    Rollcall::Data.delay.export_data(params, filename, current_user)    
+    results = load_results params
+    Rollcall::NewData.delay.export_data(params, filename, current_user, results)    
   end
 
   # GET /rollcall/report
@@ -122,5 +114,23 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       .pluck(:grade)
     
     @options = {:schools => schools, :school_districts => school_districts, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => grades}          
+  end
+  
+  protected
+  
+  def load_reults params
+    if params[:return_individual_school].blank?
+      school_ids = current_user
+        .school_search_relation(params)
+        .where('rollcall_schools.district_id is not null')
+        .reorder('rollcall_schools.district_id')
+        .pluck('rollcall_schools.district_id')
+        .uniq
+      results = current_user.school_districts.where("rollcall_school_districts.id in (?)", school_ids)
+    else
+      results = current_user.school_search params
+    end
+    
+    results
   end
 end

@@ -261,9 +261,9 @@ class Rollcall::Data
   # Method builds the data function set
   #
   # Method builds the data function set based on options, returns data function data set
-  def self.build_data_function_sets data, options
-    set = []
-    case options[:data_func]
+  def self.build_data_function_sets data, options    
+    set = []    
+    case options["data_func"]
       when "Standard Deviation"
         total_sum  = 0
         data_count = 1

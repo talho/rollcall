@@ -8,6 +8,6 @@ json.options [{
   :total_enrolled_alpha => @options[:total_enrolled_alpha],
   :app_init => @options[:app_init],
   :school_id => @options[:school_id],
-  :school_name => Rollcall::School.find(school_id).display_name,
+  :school_name => Rollcall::School.find(@options[:school_id]).display_name,
   :schools => @options[:schools]
 }]

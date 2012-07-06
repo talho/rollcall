@@ -133,7 +133,7 @@ Scenario: User enters a new student visit
 
 Scenario: User enters a new student visit off of a existing student
   When I press "New"
-  And I should see "New Visit"
+  And I should see "New Visit"  
   And I should see "Hugh" within grid "student_list" in column "First Name"
   And I select the "Hugh" grid row
   And I wait for the panel to load
@@ -171,7 +171,7 @@ Scenario: User enters a new student visit off of a existing student using a stud
 
 Scenario: User edits a student visit
   When I select the "None" grid row within "#nurse_assistant"
-  And I click x-grid3-col-edit_student_entry on the "None" grid row
+  And I click x-grid3-col-edit_student_entry on the "None" grid row  
   And I should see "Edit Visit"
   And I fill in "Student ID" with "00110011"
   And I fill in "Action Taken" with "sent back to class"
@@ -182,7 +182,7 @@ Scenario: User edits a student visit
 
 Scenario: User deletes a student visit
   When I select the "None" grid row within "#nurse_assistant"
-  And I click x-grid3-col-delete_student_entry on the "None" grid row
+  And I click x-grid3-col-delete_student_entry on the "None" grid row  
   And I should see "Are you sure you want to delete this recorded visitation?"
   And I press "Yes"
   And I wait for the panel to load
@@ -257,7 +257,7 @@ Scenario: User refreshes main panel
   And I should see "Elliot" within "#nurse_assistant"
   And I click x-tbar-loading "" within "#nurse_assistant"
   And I wait for the panel to load
-  And I should see "Unknown" within "#nurse_assistant"
+  And I should see "Unknown" within "#nurse_assistant"  
   Then I should see "Elliot" within "#nurse_assistant"
 
 Scenario: User changes schools

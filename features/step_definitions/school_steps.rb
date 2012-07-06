@@ -33,7 +33,11 @@ Given /^"([^\"]*)" has the following current school absenteeism data:$/ do |isd,
         school    = Rollcall::School.find_by_display_name(row['school_name'])
       end
     end
-    report_date    = current_time + row["day"].strip.to_i.days
+    if (true if Integer(row["day"]) rescue false)
+      report_date = current_time + row["day"].strip.to_i.days  
+    else      
+      report_date = Date.parse(row["day"])
+    end
     total_absent   = row['total_absent'].strip.to_i
     total_enrolled = row['total_enrolled'].strip.to_i
     result = Rollcall::SchoolDailyInfo.create(

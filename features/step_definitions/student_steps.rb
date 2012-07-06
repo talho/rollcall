@@ -1,7 +1,12 @@
 Given /^"([^\"]*)" has the following current student absenteeism data:$/ do |isd, table|
   table.hashes.each do |row|
-    current_time  = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_month 
-    report_date   = current_time + row["day"].strip.to_i.days
+    current_time  = Time.gm(Date.today.year, Date.today.month, Date.today.day,0,0).at_beginning_of_month     
+    if (true if Integer(row["day"]) rescue false)
+      report_date = current_time + row["day"].strip.to_i.days  
+    else
+      report_date = Date.parse row["day"]
+    end
+    
     student       = Rollcall::Student.create(
        :first_name        => row['first_name'].strip,
        :last_name         => row['last_name'].strip,

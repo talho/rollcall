@@ -107,7 +107,7 @@ Background:
   And I fill in "min_severity" with "1"
   And I fill in "max_severity" with "2"
   And I press "Submit" within ".x-window"
-  And I should see "Example Query" within "#alarm_queries"
+  And I should see "Example Query" within "#alarm_queries"  
   And I click the "alarm-off" tool on the "Example Query" window
   And delayed jobs are processed
   And I wait for the panel to load
@@ -117,7 +117,7 @@ Background:
   And I should see "Example Query" within "#alarm_grid_panel"
 
 Scenario: User views alarm information
-  When I click the alarm group "Example Query"
+  When I click the alarm group "Example Query"  
   And I click the last alarm within the "Example Query" alarm group
   And I should see "Alarm Information for Anderson Elementary" within ".alarm-tip"
   And I should see "Severity" within ".alarm-tip"

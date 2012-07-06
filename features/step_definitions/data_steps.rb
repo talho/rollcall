@@ -15,9 +15,9 @@ When /^I do get_data for "([^\"]*)" with:$/ do |lookup, table|
       when "symptoms"
         @params["symptoms"] = [row[1]]
       when "startdt"
-        @params["startdt"] = (Date.today - row[1].to_i.days).strftime("%Y-%m-%d")
+        @params["startdt"] = DateTime.parse(row[1]).strftime("%Y-%m-%d")
       when "enddt"
-        @params["enddt"] = (Date.today - row[1].to_i.days).strftime("%Y-%m-%d")
+        @params["enddt"] = DateTime.parse(row[1]).strftime("%Y-%m-%d")
     end
   end
   
@@ -79,7 +79,7 @@ def hashify table
     return_hash = Hash.new
     
     return_hash[:total] = row[0]
-    return_hash[:report_date] =  (Date.today - row[1].to_i.days).strftime("%Y-%m-%d")
+    return_hash[:report_date] =  Date.parse(row[1]).strftime("%Y-%m-%d")
     return_hash[:func] = row[2].to_f.round(3) if row.count > 2
                 
     return_array.push(return_hash)

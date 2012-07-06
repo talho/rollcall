@@ -87,8 +87,9 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
       school_info.total_absent = Rollcall::StudentDailyInfo.find_all_by_student_id_and_report_date(students,params[:report_date]).size
     end
     @school_info = school_info
-    @severity = alarm.severity
+    @severity = alarm.alarm_severity
     @confirmed_absents = confirmed_absents
-    respond_with(@school_info, @severity, @confirmed_absents)
+    @student_info = student_info
+    respond_with(@school_info, @severity, @confirmed_absents, @student_info)
   end
 end

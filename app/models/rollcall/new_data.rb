@@ -1,10 +1,8 @@
 class Rollcall::NewData
   def self.export_data params, filename, user_obj, obj
-    update_array = []
-    
+    update_array = []   
     obj.each do |row|
       array = self.get_graph_data params, row
-      array = format_for_csv array
       update_array += array
     end
     
@@ -24,6 +22,11 @@ class Rollcall::NewData
       DocumentMailer.rollcall_document_addition(@document, user_obj).deliver
     end
     return true
+  rescue => e
+    p e.message
+    e.backtrace.each do |msg|
+      p msg + '\n'
+    end
   end
   
   def self.get_graph_data params, obj
@@ -45,8 +48,10 @@ class Rollcall::NewData
     results = apply_date_filter results, conditions[:startdt], conditions[:enddt]
     results = apply_data_function results, conditions[:data_func]
     
-    transform_to_graph_info_format results
+    transform_to_graph_info_format results, i
   end
+    
+  protected
   
   def self.join_to_infos query, conditions
     if conditions[:age].present? || conditions[:gender].present? || conditions[:grade].present? || conditions[:confirmed_illness] == true || conditions[:symptoms].present?      
@@ -162,9 +167,35 @@ class Rollcall::NewData
     type
   end
   
-  def self.transform_to_graph_info_format results    
-    graph_info = ActiveRecord::Base.connection().execute(results.order("report_date").to_sql)        
-    graph_info = graph_info.as_json      
+  def self.transform_to_graph_info_format results, obj    
+    graph_info = ActiveRecord::Base.connection().execute(results.order("report_date").to_sql)
+    graph_info = graph_info.as_json
+    if obj.is_a? Rollcall::SchoolDistrict
+      if graph_info.first.present?
+        graph_info.first[:name] = obj.name
+      else
+        graph_info = [{:name => obj.name}]
+      end
+    else
+      if graph_info.first.present?      
+        graph_info.first[:tea_id] = obj.tea_id
+        graph_info.first[:school_name] = obj.display_name
+        graph_info.first[:school_id] = obj.id        
+        graph_info.first[:gmap_lat] = obj.gmap_lat
+        graph_info.first[:gmap_lng] = obj.gmap_lng
+        graph_info.first[:gmap_addr] = obj.gmap_addr
+      else
+        graph_info = [{
+          :school_name => obj.display_name,
+          :tea_id      => obj.tea_id,
+          :school_id   => obj.id,
+          :gmap_lat    => obj.gmap_lat,
+          :gmap_lng    => obj.gmap_lng,
+          :gmap_addr   => obj.gmap_addr
+        }]
+      end
+    end
+    graph_info
   end
     
   def self.set_conditions options
@@ -200,7 +231,7 @@ class Rollcall::NewData
     
     data_obj.each do |row|
       if row["total"].to_s != "0"
-        csv_data += "#{d[:school_name]},#{d[:tea_id]},#{d[:total]},#{d[:enrolled]},#{d[:report_date]}\n"
+        csv_data += "#{row[:school_name]},#{row[:tea_id]},#{row[:total]},#{row[:enrolled]},#{row[:report_date]}\n"
       end
     end
     

@@ -41,8 +41,8 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     results_paged = results.paginate(options)    
     results_paged.each do |r|      
       #res = Rollcall::Data.get_graph_data(params, r)
-      new_res = Rollcall::NewData.get_graph_data(params, r)     
-      graph_info.push(new_res.flatten)      
+      new_res = Rollcall::NewData.get_graph_data(params, r)
+      graph_info.push(new_res)      
     end
     
     @graph_info = graph_info    
@@ -118,7 +118,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   
   protected
   
-  def load_reults params
+  def load_results params
     if params[:return_individual_school].blank?
       school_ids = current_user
         .school_search_relation(params)

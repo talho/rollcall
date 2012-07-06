@@ -66,7 +66,7 @@ class Rollcall::SchoolDistrict < ActiveRecord::Base
   #
   # Method returns zipcodes for selected School District
   def zipcodes
-    schools.select("postal_code").uniq.order(:postal_code).pluck(:postal_code)
+    schools.select("postal_code").uniq.reorder(:postal_code).pluck(:postal_code)
   end
 
   # Method returns school types

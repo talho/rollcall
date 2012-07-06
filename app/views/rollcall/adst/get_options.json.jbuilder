@@ -2,7 +2,7 @@ json.options [{
   :absenteeism => @options[:default_options][:absenteeism],
   :age => @options[:default_options][:age],
   :data_functions => @options[:default_options][:data_functions],
-  :data_function_adv => @options[:default_options][:data_functions_adv],
+  :data_functions_adv => @options[:default_options][:data_functions_adv],
   :gender => @options[:default_options][:gender],
   :symptoms => @options[:default_options][:symptoms],  
   :zipcode => @options[:zipcodes].map{|z| {id: z, value: z}},

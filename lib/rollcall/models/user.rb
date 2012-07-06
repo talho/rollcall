@@ -9,12 +9,12 @@ module Rollcall
   
       # Method maps school districts to user     
       def school_districts      
-        Rollcall::SchoolDistrict.for_user(self).order(:id)
+        Rollcall::SchoolDistrict.for_user(self).order(:name)
       end      
   
       # Method maps schools to user      
       def schools
-        Rollcall::School.for_user(self).order(:id)            
+        Rollcall::School.for_user(self).order(:display_name)
       end
       
       def to_json_results_rollcall(for_admin=false)

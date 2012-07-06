@@ -29,33 +29,29 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
       options = {}
     end 
     if !params[:search_term].blank?
-      st          = "%" + CGI::unescape(params[:search_term]) + "%"
-      student_ids = []
-      students    = Rollcall::Student.find(
-        :all,
-        :conditions => ["student_number LIKE ? OR first_name LIKE ? OR last_name LIKE ? AND school_id = ?", st, st, st, params[:school_id]])
-      students.collect{|rec| student_ids.push(rec.id) }
-      unless student_ids.blank?
-        student_records = Rollcall::StudentDailyInfo.find_by_sql("SELECT * FROM rollcall_student_daily_infos WHERE student_id IN (#{student_ids.join(",")})")
+      st = "%" + CGI::unescape(params[:search_term]) + "%"      
+      student_ids = Rollcall::Student.where("student_number LIKE ? OR first_name LIKE ? OR last_name LIKE ? AND school_id = ?", st, st, st, params[:school_id]).pluck(:id)      
+      if student_ids.present?
+        student_records = Rollcall::StudentDailyInfo.where("student_id IN (?)", student_ids).all
       else
         student_records = []
       end
     elsif !params[:filter_report_date].blank?
-      students        = Rollcall::Student.find_all_by_school_id params[:school_id]
-      student_records = Rollcall::StudentDailyInfo.find_all_by_student_id(
-        students,
-        :include    => :student,
-        :conditions => ["student_id = rollcall_students.id AND report_date >= ? AND report_date <= ?",
-                        Time.parse(params[:filter_report_date]).beginning_of_month,
-                        Time.parse(params[:filter_report_date]).end_of_month]
-      )
+      students = Rollcall::Student.where("school_id = ?", params[:school_id]).pluck(:id)
+      student_records = Rollcall::StudentDailyInfo
+        .where("student_id in (?)", students)
+        .includes(:student)
+        .where("student_id = rollcall_students.id")
+        .where("report_date >= ?", Time.parse(params[:filter_report_date]).beginning_of_month)
+        .where("report_date <= ?", Time.parse(params[:filter_report_date]).end_of_month)
+        .all
     else
-      students        = Rollcall::Student.find_all_by_school_id params[:school_id]
-      student_records = Rollcall::StudentDailyInfo.find_all_by_student_id(
-        students,
-        :include    => :student,
-        :conditions => ["student_id = rollcall_students.id"]
-      )
+      students = Rollcall::Student.where("school_id = ?", params[:school_id]).pluck(:id)
+      student_records = Rollcall::StudentDailyInfo
+        .where("student_id in (?)", students)
+        .includes(:student)
+        .where("student_id = rollcall_students.id")
+        .all
     end
     require 'will_paginate/array'
     students_paged = student_records.paginate(options)
@@ -101,25 +97,28 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
   # their current school.
   #
   # GET rollcall/nurse_assistant_options
-  def get_options
-    zipcodes             = current_user.school_districts.map{|s| s.zipcodes.map{|i| {:id => i, :value => i}}}.flatten
-    schools              = current_user.schools
-    default_options      = get_default_options({:schools => schools, :nurse => true})
-    student_daily_info   = Rollcall::StudentDailyInfo.find(:all, :include => :student,
-      :conditions => ["student_id >= ? AND rollcall_students.school_id IN (?)", 1, current_user.school_districts.first.schools],
-      :order      => "rollcall_student_daily_infos.created_at DESC", :limit => 1)
-    unless student_daily_info.blank?
-      school_id            = student_daily_info.first.student.school_id
-      app_init             = false
+  def get_options    
+    zipcodes = current_user.school_districts.all.map{ |sd| sd.zipcodes }.flatten
+    schools = current_user.schools.all
+    default_options = get_default_options({:schools => schools, :nurse => true})
+    student_daily_info = Rollcall::StudentDailyInfo
+      .includes(:student)
+      .where("student_id >= 1")
+      .where("rollcall_students.school_id IN (?)", current_user.school_districts.all.first.schools.pluck(:id))
+      .order("rollcall_student_daily_infos.created_at DESC")
+      .limit(1)
+    if student_daily_info.present?
+      school_id = student_daily_info.first.student.school_id
+      app_init = false
       total_enrolled_alpha = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id).blank?
     else     
-      school_id            = current_user.school_districts.map(&:schools).flatten.first[:id]
-      app_init             = true
+      school_id = current_user.school_districts.all.map(&:schools).flatten.first[:id]
+      app_init = true
       total_enrolled_alpha = true
     end
     @options = { 
       :default_options => default_options, 
-      :zipcodes => zipcodes, 
+      :zipcodes => zipcodes.map{ |z| {:value => z, :id => z}}, 
       :total_enrolled_alpha => total_enrolled_alpha,
       :app_init => app_init,
       :school_id => school_id,

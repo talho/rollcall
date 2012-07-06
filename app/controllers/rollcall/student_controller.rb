@@ -5,7 +5,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
   
   # GET rollcall/students
   def index
-    students        = Rollcall::Student.find_all_by_school_id(params[:school_id])
+    students = Rollcall::Student.where("school_id = ?",params[:school_id]).order("last_name, first_name").all
     unless params[:start].blank?
       per_page = params[:limit].to_i
       if params[:start].to_i == 0
@@ -16,12 +16,12 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       options = {:page => page, :per_page => per_page}
     else
       options = {}
-    end   
+    end    
     require 'will_paginate/array'
     students_paged = students.paginate(options)
     students_paged.each do |record|
       student_obj                 = record
-      student_daily_info          = Rollcall::StudentDailyInfo.find_by_student_id(student_obj.id, :order => "created_at DESC")
+      student_daily_info          = Rollcall::StudentDailyInfo.where("student_id = ?", student_obj.id).order("created_at desc").limit(1).first
       record[:grade]              = student_daily_info.blank? ? nil : student_daily_info.grade
       record[:first_name]         = student_obj.first_name.blank? ? "Unknown" : student_obj.first_name
       record[:last_name]          = student_obj.last_name.blank? ? "Unknown" : student_obj.last_name
@@ -150,8 +150,8 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
   end
   
    # POST rollcall/students/history
-  def get_history
-    unless params[:id].blank?
+  def get_history    
+    if params[:id].present?
       daily_records = Rollcall::StudentDailyInfo.find_all_by_student_id(params[:id])
       daily_records.each do |rec|
         symptom_array  = []

@@ -19,7 +19,12 @@ end
 
 Given /^"([^\"]*)" has the following current district absenteeism data:$/ do |isd, table|
   table.hashes.each do |row|
-    date = Date.today - row["day"].to_i.days
+    if (true if Integer(row["day"]) rescue false)
+      date = Date.today - row["day"].to_i.days
+    else
+      date = Date.parse row["day"]
+    end
+    
     Rollcall::SchoolDistrictDailyInfo.create(
       :report_date        => date,
       :absentee_rate      => (row['total_absent'].to_f / row['total_enrolled'].to_f),

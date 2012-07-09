@@ -33,7 +33,7 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
       school_daily_info = []
     end
     @info = school_daily_info
-    respond_wtih(@info)
+    respond_with(@info)
   end
 
   # POST rollcall/get_student_data

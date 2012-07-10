@@ -1,10 +1,10 @@
 app = App.find_by_name('rollcall')
 
-Role.find_or_create_by_name_and_app_id("Rollcall",app.id){|r| r.attributes = {:approval_required => false, :user_role => true, public: true} }
-Role.find_or_create_by_name_and_app_id("Admin",app.id){|r| r.attributes = {:approval_required => true, :user_role => false,} }
-Role.find_or_create_by_name_and_app_id("Epidemiologist",app.id){|r| r.attributes = {:approval_required => true, :user_role => true,} }
-Role.find_or_create_by_name_and_app_id("Health Officer",app.id){|r| r.attributes = {:approval_required => true, :user_role => true,} }
-Role.find_or_create_by_name_and_app_id("Nurse",app.id){|r| r.attributes = {:approval_required => true, :user_role => true,} }
+Role.find_or_create_by_name_and_app_id("Rollcall",app.id){|r| r.attributes = {:user_role => true, public: true} }
+Role.find_or_create_by_name_and_app_id("Admin",app.id){|r| r.attributes = {:user_role => false} }
+Role.find_or_create_by_name_and_app_id("Epidemiologist",app.id){|r| r.attributes = {:user_role => true} }
+Role.find_or_create_by_name_and_app_id("Health Officer",app.id){|r| r.attributes = {:user_role => true} }
+Role.find_or_create_by_name_and_app_id("Nurse",app.id){|r| r.attributes = {:user_role => true} }
 # TODO
 # Integrate school selection into roles and/or user
 

@@ -17,35 +17,18 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   # the total result length and the paginated result set
   #
   # GET /rollcall/adst
-  def index
-    graph_info = Array.new
+  def index    
     options = {:page => params[:page] || 1, :per_page => params[:limit] || 6}    
         
-    # if params[:return_individual_school].blank?
-      # results = current_user.school_districts
-      # if params[:school_district].present? || params[:school].present?
-        # results = results.where("rollcall_school_districts.name in (?)", params[:school_district])
-      # end     
-      # results.all
-    # else
-      # results = current_user.school_search params
-    # end
-    
-    #Think this is better than the above way to get school districts
-    
-    results = load_results params    
-    
+    results = get_search_results params        
     @length = results.length    
-    
+        
     require 'will_paginate/array'    
     results_paged = results.paginate(options)    
-    results_paged.each do |r|      
-      #res = Rollcall::Data.get_graph_data(params, r)
-      new_res = Rollcall::NewData.get_graph_data(params, r)
-      graph_info.push(new_res)      
+    @graph_info = results_paged.map do |r|            
+      r.get_graph_data(params)         
     end
-    
-    @graph_info = graph_info    
+        
     respond_with(@length, @graph_info)    
   end
 
@@ -57,8 +40,8 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   # GET /rollcall/export
   def export
     filename = "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}"
-    results = load_results params
-    Rollcall::NewData.delay.export_data(params, filename, current_user, results)    
+    results = get_search_results params
+    Rollcall::Data.export_data(params, filename, current_user, results)    
   end
 
   # GET /rollcall/report
@@ -118,7 +101,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   
   protected
   
-  def load_results params
+  def get_search_results params
     if params[:return_individual_school].blank?
       school_ids = current_user
         .school_search_relation(params)

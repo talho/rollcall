@@ -21,6 +21,7 @@ class Rollcall::School < ActiveRecord::Base
   has_many :alarms, :class_name => "Rollcall::Alarm"
   has_many :students, :class_name => "Rollcall::Student"
   before_create :set_display_name
+  include Rollcall::Data
   
   self.table_name = "rollcall_schools"
 
@@ -64,7 +65,14 @@ class Rollcall::School < ActiveRecord::Base
       .uniq
     schools
   end
-
+  
+  def get_graph_data(params)    
+    graph_data = Rollcall::School        
+      .where('rollcall_schools.id' => id)
+  
+    build_graph_query graph_data, params  
+  end
+  
   private
 
   # Method sets display name for school

@@ -27,7 +27,8 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
           xtype:  'fieldset',
           layout: 'hbox',
           width:  262,
-          title:  'School Query',
+          //TODO: Let's conditionalize this for School District & School
+          title:  'School Filter',
           items:  [{
             xtype:    'container',
             layout:   'vbox',
@@ -159,7 +160,7 @@ Talho.Rollcall.ADSTAdvancedContainer = Ext.extend(Ext.Container, {
             defaults: {width:180},
             items:    [{
               xtype: 'label',
-              html:  'Symptoms:'
+              html:  'Symptoms:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ICD-9 Code'
             },{
               xtype:        'listview',
               id:           'symptoms_adv',

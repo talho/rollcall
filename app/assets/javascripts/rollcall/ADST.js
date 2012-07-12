@@ -78,7 +78,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
             }
           }]
         },{
-          title:       'ADST',
+          title:       'Advanced Disease Surveillance Tool',
           itemId:      'ADST_panel',
           id:          'ADST_panel',
           border:      false,

@@ -26,7 +26,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     require 'will_paginate/array'    
     results_paged = results.paginate(options)    
     @graph_info = results_paged.map do |r|            
-      r.get_graph_data(params)         
+      Rollcall::Data.transform_to_graph_info_format(r.get_graph_data(params), r)         
     end
         
     respond_with(@length, @graph_info)    
@@ -38,10 +38,10 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   # in the users documents folder and sending out message to users email when process is done.
   #
   # GET /rollcall/export
-  def export
+  def export    
     filename = "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}"
     results = get_search_results params
-    Rollcall::Data.export_data(params, filename, current_user, results)    
+    Rollcall::Data.delay.export_data(params, filename, current_user, results)    
   end
 
   # GET /rollcall/report

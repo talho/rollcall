@@ -37,5 +37,6 @@ if defined? BDRB_CONFIG
 end
 
 require 'rollcall/engine'
+require 'rollcall/data.rb'
 
 Dir[File.dirname(__FILE__) + '/import/*.rb'].each {|file| require file }

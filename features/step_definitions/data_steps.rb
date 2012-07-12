@@ -25,9 +25,9 @@ When /^I do get_data for "([^\"]*)" with:$/ do |lookup, table|
   if loc == nil
     loc = Rollcall::School.find_by_display_name(lookup)
   end    
-    
-  @result = Rollcall::NewData.get_graph_data(@params, loc)  
-  #@old_result = Rollcall::Data.get_graph_data(@params, loc)
+  
+  query = loc.get_graph_data(@params)    
+  @result = Rollcall::Data.transform_to_graph_info_format(query,loc)
 end
 
 Then /^get_data should return:$/ do |table|    

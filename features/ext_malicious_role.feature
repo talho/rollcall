@@ -68,9 +68,9 @@ Background:
     | Anderson Elementary |
     | Ashford Elementary  |
     | Yates High School   |
-  And "nurse.betty@example.com" is not public in "Texas"
-  And "epi.smith@example.com" is not public in "Texas"
-  And "heatlh.offcr@example.com" is not public in "Texas"
+  And "nurse.betty@example.com" is not public in app "phin"
+  And "epi.smith@example.com" is not public in app "phin"
+  And "heatlh.offcr@example.com" is not public in app "phin"
 
   And "Houston" has the following current district absenteeism data:
     | day | total_enrolled | total_absent |

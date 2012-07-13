@@ -9,55 +9,14 @@ class Rollcall::UserController < Rollcall::RollcallAppController
 
   # GET rollcall/users
   def index    
-    @results = User.includes(:role_memberships).where("role_memberships.role_id" => Role.where(application: 'rollcall'))
+    @results = User.includes(:role_memberships).where("role_memberships.role_id" => Role.joins(:app).where('apps.name' => 'rollcall'))
     
     unless current_user.is_super_admin?("rollcall")      
       @results = @results.where("role_memberships.role_id != ? AND role_memberships.role_id != ?", Role.admin('rollcall').id, Role.superadmin('rollcall').id)
-      @results = @results.where("role_memberships.jurisdiction_id" => current_user.role_memberships.where(role_id: Role.where(application: 'rollcall')).map(&:jurisdiction_id))
+      @results = @results.where("role_memberships.jurisdiction_id" => current_user.role_memberships.where(role_id: Role.joins(:app).where('apps.name' => 'rollcall')).map(&:jurisdiction_id))
     end
 
     respond_with(@results)
-  end
-
-  def new
-    @user                            = User.new
-    @user[:rollcall_jurisdiction_id] = nil
-    @jurisdictions                   = Jurisdiction.all.sort_by{|j| j.name}
-  end
-
-  #POST rollcall/users
-  def create
-    unless params[:user].blank?
-      jurisdiction  = params[:user]["rollcall_jurisdiction_id"].blank? ? nil : Jurisdiction.find(params[:user]["rollcall_jurisdiction_id"])
-      rollcall_role = Role.find_by_name_and_application("Rollcall", 'rollcall')
-      @user         = User.new params[:user]
-      @user.email   = @user.email.downcase
-      params[:user].delete("rollcall_jurisdiction_id")
-      @user.role_memberships.build(:role=>rollcall_role, :jurisdiction=>jurisdiction, :user=>@user)
-      respond_to do |format|
-        if @user.save
-          SignupMailer.confirmation(@user).deliver
-          format.html { redirect_to sign_in_path }
-          format.xml  { render :xml => @user, :status => :created, :location => @user }
-          flash[:notice] = "Thanks for signing up! An email will be sent to #{@user.email} shortly to confirm your account." +
-            "Once you've confirmed you'll be able to login into the TALHO Rollcall Dashboard.\n\nIf you have any questions please email support@#{DOMAIN}."
-        else
-          @user[:rollcall_jurisdiction_id] = jurisdiction.blank? ? nil : jurisdiction.id
-          @jurisdictions                   = Jurisdiction.all.sort_by{|j| j.name}
-          format.html { render :action => "new" }
-          format.xml  { render :xml => @user.errors, :status => :unprocessable_entity }
-        end
-      end
-    else 
-      if rollcall_admin_required
-        u       = User.find_by_id({:user_id => params[:user_id]})
-        p_u_s   = params[:user_schools]
-        p_u_s_d = params[:user_school_district]
-        u_s     = Rollcall::UserSchool.find_or_create_by_user_id_and_school_id({:user_id => u.id, :school_id => params[:school_id]})
-        u_s_d   = Rollcall::UserSchoolDistrict.find_or_create_by_user_id_and_school_district_id({:user_id => u.id, :school_district_id => params[:school_district_id]})
-        respond_with(@success = !u.blank?)        
-      end
-    end
   end
 
   # PUT rollcall/users/:id

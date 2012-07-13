@@ -77,13 +77,7 @@ describe User do
       @user.to_json_results_rollcall[:schools].should include(@school)
     end
     end
-=begin
-Role.find_or_create_by_name_and_application("Rollcall",'rollcall'){|r| r.attributes = {:approval_required => false, :user_role => true,} }
-Role.find_or_create_by_name_and_application("Admin",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => false,} }
-Role.find_or_create_by_name_and_application("Epidemiologist",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => true,} }
-Role.find_or_create_by_name_and_application("Health Officer",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => true,} }
-Role.find_or_create_by_name_and_application("Nurse",'rollcall'){|r| r.attributes = {:approval_required => true, :user_role => true,} }
-=end
+    
   describe "is_rollcall_admin?" do
     before(:each) do
       @admin_role = FactoryGirl.create(:role, :name => "Admin", :application => "rollcall")

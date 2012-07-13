@@ -29,7 +29,7 @@ namespace :db do
     description = "Add Rollcall seed data to the database"
     desc description
     task :rollcall => :environment do
-      Dir.glob(File.join(File.dirname(__FILE__),'..','..','db','fixtures','*.rb')).each do |file|
+      Dir.glob(File.join(File.dirname(__FILE__),'..','..','db','seeds.rb')).each do |file|
         require file
       end
     end

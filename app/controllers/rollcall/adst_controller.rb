@@ -26,7 +26,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     require 'will_paginate/array'    
     results_paged = results.paginate(options)    
     @graph_info = results_paged.map do |r|            
-      Rollcall::Data.transform_to_graph_info_format(r.get_graph_data(params), r)         
+      Rollcall::Models::Data.transform_to_graph_info_format(r.get_graph_data(params), r)         
     end
         
     respond_with(@length, @graph_info)    
@@ -41,7 +41,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   def export    
     filename = "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}"
     results = get_search_results params
-    Rollcall::Data.delay.export_data(params, filename, current_user, results)    
+    Rollcall::Models::Data.delay.export_data(params, filename, current_user, results)    
   end
 
   # GET /rollcall/report

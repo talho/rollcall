@@ -21,8 +21,8 @@ class Rollcall::School < ActiveRecord::Base
   has_many :alarms, :class_name => "Rollcall::Alarm"
   has_many :students, :class_name => "Rollcall::Student"
   before_create :set_display_name
-  include Rollcall::Data
-  
+  include Rollcall::Models::Data
+    
   self.table_name = "rollcall_schools"
 
   def self.in_alert

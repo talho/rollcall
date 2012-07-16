@@ -14,7 +14,7 @@ class Rollcall::SchoolDistrict < ActiveRecord::Base
   belongs_to  :jurisdiction
   has_many    :schools, :class_name => "Rollcall::School", :foreign_key => "district_id", :order => "display_name"
   has_many    :daily_infos, :class_name => "Rollcall::SchoolDistrictDailyInfo", :foreign_key => "school_district_id", :order => "report_date asc"
-  include Rollcall::Data
+  include Rollcall::Models::Data
 
   self.table_name = "rollcall_school_districts"
 

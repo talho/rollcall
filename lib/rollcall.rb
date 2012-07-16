@@ -29,6 +29,7 @@ module Rollcall
     autoload :Jurisdiction, 'rollcall/models/jurisdiction'
     autoload :User, 'rollcall/models/user'
     autoload :DocumentMailer, 'rollcall/models/document_mailer'
+    autoload :Data, 'rollcall/models/data.rb'
   end
 end
 
@@ -37,6 +38,5 @@ if defined? BDRB_CONFIG
 end
 
 require 'rollcall/engine'
-require 'rollcall/data.rb'
 
 Dir[File.dirname(__FILE__) + '/import/*.rb'].each {|file| require file }

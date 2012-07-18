@@ -6,17 +6,19 @@ $extensions << :rollcall
 # Build the menu in the $menu_config global variable
 $menu_config = {} unless defined?($menu_config)
 $menu_config[:rollcall] = <<EOF
-  nav = "{name: 'Rollcall', items:[
-    {name: 'ADST', tab:{id: 'rollcall_adst', title:'Rollcall ADST', url:'', initializer: 'Talho.Rollcall.ADST'}},
-    {name: 'Nurse Assistant', tab:{id: 'rollcall_nurse_assistant', title:'Nurse Assistant', url:'', initializer: 'Talho.Rollcall.NurseAssistant'}},
-    {name: 'Schools', tab:{id: 'rollcall_schools', title:'Rollcall Schools', url:'', initializer: 'Talho.Rollcall.Schools'}}"
-  if current_user.is_rollcall_admin?
-    nav += ",
-      {name: 'Admin', items:[
-        {name: 'Users', tab:{id: 'rollcall_users', title:'Rollcall Users', url:'', initializer: 'Talho.Rollcall.Users'}}
-      ]}"
+  if current_user.has_non_public_role?('rollcall')
+    nav = "{name: 'Rollcall', items:[
+      {name: 'ADST', tab:{id: 'rollcall_adst', title:'Rollcall ADST', url:'', initializer: 'Talho.Rollcall.ADST'}},
+      {name: 'Nurse Assistant', tab:{id: 'rollcall_nurse_assistant', title:'Nurse Assistant', url:'', initializer: 'Talho.Rollcall.NurseAssistant'}},
+      {name: 'Schools', tab:{id: 'rollcall_schools', title:'Rollcall Schools', url:'', initializer: 'Talho.Rollcall.Schools'}}"
+    if current_user.is_rollcall_admin?
+      nav += ",
+        {name: 'Admin', items:[
+          {name: 'Users', tab:{id: 'rollcall_users', title:'Rollcall Users', url:'', initializer: 'Talho.Rollcall.Users'}}
+        ]}"
+    end
+    nav += "]}"
   end
-  nav += "]}"
 EOF
 
 $extensions_css = {} unless defined?($extensions_css)

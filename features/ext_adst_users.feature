@@ -95,7 +95,6 @@ Background:
   
 Scenario: User creates Rollcall User
   Given I am logged in as "admin.joe@example.com"
-  
   When I fill in the add user form with:
     | Email address     | rolly.cally@example.com |
     | First name        | Rolly                   |

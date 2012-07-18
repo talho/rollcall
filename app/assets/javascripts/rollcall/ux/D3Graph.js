@@ -3,6 +3,7 @@ Ext.namespace('Talho.Rollcall.ux');
 Talho.Rollcall.ux.D3Graph = Ext.extend(Ext.Container,{
     
   constructor: function (config) {
+    //TODO: Switch to apply then apply if
     config.width = config.width- 40;    
     config.padding = [20,50];
     config.margin = [20,40];
@@ -14,45 +15,45 @@ Talho.Rollcall.ux.D3Graph = Ext.extend(Ext.Container,{
     }
     if (!("xScale" in config))
     {
-      config.xScale = d3.time.scale().range([0, config.w]);
+      config.xScale = d3.time.scale().range([0, config.width]);
     }
     if (!("yScale" in config))
     {
-      config.yScale = d3.scale.linear().range([config.h, 0]);
+      config.yScale = d3.scale.linear().range([config.height, 0]);
     }
         
-    Talho.Rollcall.ADSTResultPanel.superclass.constructor.call(this, config);
-  },
-  
-  initComponent: function () {
-    this.data = this._getD3GraphData();
-    this.lines = this._getLinesFromData();
-    
-    this.area = d3.svg.area.interpolate("monotone")
-      .x(function(d) { return x(d.x); })
-      .y0(this.height)
-      .y1(function(d) { return y(d.y); });
+    Talho.Rollcall.ux.D3Graph.superclass.constructor.apply(this, arguments);
+ 
+    this.on("afterrender", function () {
+      this._getD3GraphData();
+      this._getLinesFromData();
       
-    this.line = d3.svg.line()
-      .x(function(d) { return x(d.x); })
-      .y(function(d) { return y(d.y); });
-      
-    this.svg = d3.select(this.container.dom)
-      .append("svg:svg")
-        .attr("width", this.width + (this.padding[1] * 2))
-        .attr("height", this.height + (this.padding[0] * 2))
-      .append("svg:g")
-        .attr("transform", "translate(" + (this.padding[0] + 10) + "," +this.padding[0] - 15 + ")");
+      this.area = d3.svg.area().interpolate("monotone")
+        .x(function(d) { return this.xScale(d.x); })
+        .y0(this.height)
+        .y1(function(d) { return this.yScale(d.y); });
         
-    this._buildSVG();
-    this._addCircles();
-    this._formatLines();
+      this.line = d3.svg.line()
+        .x(function(d) { return this.xScale(d.x); })
+        .y(function(d) { return this.yScale(d.y); });
+        
+      this.svg = d3.select(this.container.dom)
+        .append("svg:svg")
+          .attr("width", this.width + (this.padding[1] * 2))
+          .attr("height", this.height + (this.padding[0] * 2))
+        .append("svg:g")
+          .attr("transform", "translate(" + (this.padding[0] + 10) + "," +this.padding[0] - 15 + ")");
+          
+      this._buildSVG();
+      this._addCircles();
+      this._formatLines();
+    });
   },
   
   _getD3GraphData: function () {
-    returnData = [];
+    var loopData = new Array();
     this.store.each( function (record) {
-      returnData.push({
+      loopData.push({
         x:  record.get('report_date'),
         y:  record.get('total'),
         e:  record.get('enrolled'),
@@ -63,72 +64,72 @@ Talho.Rollcall.ux.D3Graph = Ext.extend(Ext.Container,{
         c:  record.get('cusum')
       });
     });
-  
-    return returnData;  
+    this.data = loopData;
   },
   
   _getLinesFromData: function () {
-    returnLines = [];
+    this.lines = new Array();
     
     if (this.data[0].e > 0)
     {
-      returnLines.push([
+      this.lines.push([
         d3.svg.line()
-          .x(function(d) { return x(d.x); })
-          .y(function(d) { return y(d.e); }),
+          .x(function(d) { return this.xScale(d.x); })
+          .y(function(d) { return this.yScale(d.e); }),
         'e'
       ]);
     }
     if ("a" in this.data[0])
     {
-      returnLines.push([
+      this.lines.push([
         d3.svg.line()
-          .x(function(d) { return x(d.x); })
-          .y(function(d) { return y(d.a); }),
+          .x(function(d) { return this.xScale(d.x); })
+          .y(function(d) { return this.yScale(d.a); }),
         'a'
       ]);
     }
     if ("a3" in this.data[0])
     {
-      returnLines.push([
+      this.lines.push([
         d3.svg.line()
-          .x(function(d) { return x(d.x); })
-          .y(function(d) { return y(d.a3); }),
+          .x(function(d) { return this.xScale(d.x); })
+          .y(function(d) { return this.yScale(d.a3); }),
         'a3'
       ]);
     }
     if ("a6" in this.data[0])
     {
-      returnLines.push([
+      this.lines.push([
         d3.svg.line()
-          .x(function(d) { return x(d.x); })
-          .y(function(d) { return y(d.a6); }),
+          .x(function(d) { return this.xScale(d.x); })
+          .y(function(d) { return this.yScale(d.a6); }),
         'a6'
       ]);
     }
     if ("d" in this.data[0])
     {
-      returnLines.push([
+      this.lines.push([
         d3.svg.line()
-          .x(function(d) { return x(d.x); })
-          .y(function(d) { return y(d.d); }),
+          .x(function(d) { return this.xScale(d.x); })
+          .y(function(d) { return this.yScale(d.d); }),
         'd'
       ]);
     }
     if ("c" in this.data[0])
     {
-      returnLines.push([
+      this.lines.push([
         d3.svg.line()
-          .x(function(d) { return x(d.x); })
-          .y(function(d) { return y(d.c); }),
+          .x(function(d) { return this.xScale(d.x); })
+          .y(function(d) { return this.yScale(d.c); }),
         'c'
       ]);
     }
   },
   
   _buildSVG: function () {
+    var parser = this.dateFormatParse;
     this.data.forEach(function(d) {
-      d.x = this.dateFormatParse(d.x);
+      d.x = parser(d.x);
       d.y = +d.y;
     });
     
@@ -146,12 +147,12 @@ Talho.Rollcall.ux.D3Graph = Ext.extend(Ext.Container,{
       
     this.svg.append("svg:g")
       .attr("class", "x axis")
-      .call(this._getXAxis);
+      .call(this._getXAxis());
     
     this.svg.append("svg:g")
       .attr("class", "y axis")
       .attr("transform", "translate(-5,0)")
-      .call(this._getYAxis);
+      .call(this._getYAxis());
       
     this.svg.append("svg:path")
       .attr("class", "line")
@@ -162,33 +163,35 @@ Talho.Rollcall.ux.D3Graph = Ext.extend(Ext.Container,{
   },
   
   _getXAxis: function () {
+    min = this.data[0].x;
+    max = this.data[this.data.length - 1].x;
+    
     xAxis = d3.svg.axis()
-      .scale(this.xScale)
+      .scale(this.xScale.domain([min, max]))
       .tickSubdivide(true)
-      .orient("bottom")
-      .domain([this.data[0].x,  data[data.length - 1].x]);
+      .orient("bottom");      
     
     return xAxis;
   },
   
   _getYAxis: function () {
+    var max = d3.max(this.data, function(d) { return d.y; });
+    
     yAxis =  d3.svg.axis()
-      .scale(this.yScale)
+      .scale(this.yScale.domain([0, max]).nice())
       .ticks(4)
-      .orient("left")
-      .domain([0, d3.max(data, function(d) { return d.y; })])
-      .nice();
+      .orient("left");      
       
     return yAxis;
   },
   
   _addCircles: function () {
-    this.svg.selcAll(".line")
+    this.svg.selectAll(".line")
       .data(this.data).enter()
       .append("svg:circle")
         .attr("class", "line")
-        .attr("cx", function(d) { return x(d.x) })
-        .attr("cy", function(d) { return y(d.y) })
+        .attr("cx", function(d) { return this.xScale(d.x) })
+        .attr("cy", function(d) { return this.yScale(d.y) })
         .attr("ext:qtip", function(d) {
           return '<table><tr><td>Report Date:&nbsp;&nbsp;</td><td>'+d.x.format('M d, Y')+'&nbsp;&nbsp;</td></tr>'+
                  '<tr><td>Total Absent:&nbsp;&nbsp;</td><td>'+d.y+'&nbsp;&nbsp;</td></tr>'+
@@ -238,14 +241,14 @@ Talho.Rollcall.ux.D3Graph = Ext.extend(Ext.Container,{
           .data(this.data).enter()
           .append("svg:circle")
             .attr("class", line_class)
-            .attr("cx", function(d) { return x(d.x) })
+            .attr("cx", function(d) { return this.xScale(d.x) })
             .attr("cy", function(d) {
-              if(d_d == 'd.e') return y(d.e);
-              if(d_d == 'd.a') return y(d.a);
-              if(d_d == 'd.d') return y(d.d);
-              if(d_d == 'd.a3') return y(d.a3);
-              if(d_d == 'd.a6') return y(d.a6);
-              if(d_d == 'd.c') return y(d.c);
+              if(d_d == 'd.e') return this.yScale(d.e);
+              if(d_d == 'd.a') return this.yScale(d.a);
+              if(d_d == 'd.d') return this.yScale(d.d);
+              if(d_d == 'd.a3') return this.yScale(d.a3);
+              if(d_d == 'd.a6') return this.yScale(d.a6);
+              if(d_d == 'd.c') return this.yScale(d.c);
             })
             .attr("ext:qtip", function(d){
               if(d_d == 'd.e') d_d = d.e;
@@ -261,6 +264,5 @@ Talho.Rollcall.ux.D3Graph = Ext.extend(Ext.Container,{
       }
       catch(e){};
     }
-  }
-  
+  }  
 });

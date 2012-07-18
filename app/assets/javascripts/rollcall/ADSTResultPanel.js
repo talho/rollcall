@@ -260,9 +260,19 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
    */
   _createD3Graphs: function(this_container, width, height)
   {
+    //this._oldStyleD3Graphs(this_container, width, height);
+    this_container2 = new Talho.Rollcall.ux.D3Graph({
+      store: this_container.store,
+      width: width,
+      height: height
+    });
+    this_container;
+  },
+  
+  _oldStyleD3Graphs: function(this_container, width, height) {    
     var data    = this._getD3GraphData(this_container.store);
-    var lines   = [];
-    var circles = [];        
+    var circles = [];
+    var lines = [];
 
     var w      = width - 40,
         h      = 175,
@@ -275,8 +285,11 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         yAxis  = d3.svg.axis().scale(y).ticks(4).orient("left");
 
     // An area generator, for the light fill.
-    var area = d3.svg.area().interpolate("monotone").x(function(d) { return x(d.x); })
-        .y0(h).y1(function(d) { return y(d.y); });
+    var area = d3.svg.area().interpolate("monotone")
+        .x(function(d) { 
+          return x(d.x); })
+        .y0(h).y1(function(d) { 
+          return y(d.y); });
 
     // A line generator, for the dark stroke.
     var line = d3.svg.line().x(function(d) { return x(d.x); }).y(function(d) { return y(d.y); });

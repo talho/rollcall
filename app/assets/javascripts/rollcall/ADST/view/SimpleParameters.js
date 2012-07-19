@@ -2,7 +2,7 @@
 
 Ext.namespace("Talho.Rollcall.ADST");
 
-Talho.Rollcall.ADST.SimpleParameters = Ext.extend(Ext.Panel, {
+Talho.Rollcall.ADST.SimpleParameters = Ext.extend(Ext.Container, {
   title:    "Simple Query Select",
   id:       "simple_query_select",
   itemId:   "simple_query_select",

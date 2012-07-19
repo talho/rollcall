@@ -1,8 +1,5 @@
 class Rollcall::UserController < Rollcall::RollcallAppController
   before_filter :rollcall_admin_required
-  skip_before_filter :authorize, :only => [:new, :create]
-  skip_before_filter :rollcall_required, :only => [:new, :create]
-  skip_before_filter :rollcall_admin_required, :only => [:new, :create]
   
   respond_to :json
   layout false

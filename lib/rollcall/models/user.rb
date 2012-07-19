@@ -87,36 +87,24 @@ module Rollcall
       #
       # @param params search parameters
       def school_search(params)                        
-        results = school_search_relation(params)
-        results.all 
+        school_search_relation(params)
       end
       
       def school_search_relation(params)
-        options = {:count_limit => (params[:page].present? ? params[:page].to_i : 1) * (params[:limit].present? ? params[:limit].to_i : 6), :count => 0}               
+        district = params[:school_district].present? ? "sd.name in (:school_district)" : "false"
+        zip = params[:zip].present? ? "rollcall_schools.postal_code in (:zip)" : "false"
+        type = params[:school_type].present? ? "rollcall_schools.school_type in (:school_type)" : params[:zip].present? || params[:school_district].present? ? "true" : "false"
+        name = "rollcall_schools.display_name in (:school)"
+              
+        query = []                  
+        query << "#{name}" if params[:school].present?
         
-        district = params[:school_district].present? ? "sd.name in (:school_district)" : "(sd.name is not null or sd.name is null)"
-        zip = params[:zip].present? ? "rollcall_schools.postal_code in (:zip)" : "(rollcall_schools.postal_code is not null or rollcall_schools.postal_code is null)"
-        type = params[:school_type].present? ? "rollcall_schools.school_type in (:school_type)" : "(rollcall_schools.school_type is not null or rollcall_schools.school_type is null)"
-        name = params[:school].present? ? "rollcall_schools.display_name in (:school)" : "(rollcall_schools.display_name is not null or rollcall_schools.display_name is null)"
-                
-        if params[:zip].blank? && params[:school_district].blank? && params[:school_type].blank? && params[:school].present?
-          query = "#{name}"        
-        elsif (params[:zip].present? || params[:school_district].present? || params[:school_type].present?)
-          if (params[:zip].present? && params[:school_district].present?)
-            query = "((#{district} or #{zip}) and #{type})"
-          elsif params[:zip].present?
-            query = "(#{zip} and #{type})"
-          else
-            query = "(#{district} and #{type})"
-          end
-          if params[:school].present?
-            query += "or #{name}"
-          end
-        else
-          query = "rollcall_schools.id is not null"
-        end
+        inner = "("
+        inner += "(#{district} or #{zip}) and " if (params[:zip].present? || params[:school_district].present?)
+        inner += "#{type})"
+        query << inner if params[:zip].present? || params[:school_district].present? || params[:school_type].present?
 
-        results = self.schools.where(query, params).reorder('rollcall_schools.display_name')
+        self.schools.where(query.join(' or '), params).reorder('rollcall_schools.display_name')
       end
   
       # Method returns students attached to user schools

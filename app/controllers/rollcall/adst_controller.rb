@@ -19,13 +19,11 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   # GET /rollcall/adst
   def index    
     options = {:page => params[:page] || 1, :per_page => params[:limit] || 6}    
+    
+    results = get_search_results(params).paginate(options)
+    @length = results.total_entries
         
-    results = get_search_results params        
-    @length = results.length    
-        
-    require 'will_paginate/array'    
-    results_paged = results.paginate(options)    
-    @graph_info = results_paged.map do |r|            
+    @graph_info = results.map do |r|            
       Rollcall::Models::Data.transform_to_graph_info_format(r.get_graph_data(params), r)         
     end
         

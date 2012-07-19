@@ -90,19 +90,22 @@ module Rollcall
         school_search_relation(params)
       end
       
+      # Creates a query for searching out schools based on passed parameters
+      # Query will look something like:
+      # WHERE :name or ((:district or :zip) and :type)
       def school_search_relation(params)
-        district = params[:school_district].present? ? "sd.name in (:school_district)" : "false"
-        zip = params[:zip].present? ? "rollcall_schools.postal_code in (:zip)" : "false"
-        type = params[:school_type].present? ? "rollcall_schools.school_type in (:school_type)" : params[:zip].present? || params[:school_district].present? ? "true" : "false"
-        name = "rollcall_schools.display_name in (:school)"
-              
-        query = []                  
-        query << "#{name}" if params[:school].present?
+        query = []
+        query << "rollcall_schools.display_name in (:school)" if params[:school].present?
         
-        inner = "("
-        inner += "(#{district} or #{zip}) and " if (params[:zip].present? || params[:school_district].present?)
-        inner += "#{type})"
-        query << inner if params[:zip].present? || params[:school_district].present? || params[:school_type].present?
+        district_zip_query = [] # district and zip are non exclusive, included in the complete query via an or
+        district_zip_query << "sd.name in (:school_district)" if params[:school_district].present?
+        district_zip_query << "rollcall_schools.postal_code in (:zip)" if params[:zip].present?
+        
+        dz_school_type_query = []
+        dz_school_type_query << "(#{district_zip_query.join(' or ')})" unless district_zip_query.blank? # The or part of district and zip
+        dz_school_type_query << "rollcall_schools.school_type in (:school_type)" if params[:school_type].present? # School type modifies district and zip (or runs on its own)
+        
+        query << "(#{dz_school_type_query.join(' and ')})" unless dz_school_type_query.blank? # That entire sub-statement is anded together and added to the complete query
 
         self.schools.where(query.join(' or '), params).reorder('rollcall_schools.display_name')
       end

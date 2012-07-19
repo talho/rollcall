@@ -6,7 +6,7 @@ class Rollcall::UserController < Rollcall::RollcallAppController
 
   # GET rollcall/users
   def index    
-    @results = User.includes(:role_memberships).where("role_memberships.role_id" => Role.joins(:app).where('apps.name' => 'rollcall'))
+    @results = User.includes(:role_memberships => {:role => :app}).where("apps.name" => 'rollcall').paginate(:page => (params[:start].to_i/params[:limit].to_i + 1), :per_page => params[:limit])
     
     unless current_user.is_super_admin?("rollcall")      
       @results = @results.where("role_memberships.role_id != ? AND role_memberships.role_id != ?", Role.admin('rollcall').id, Role.superadmin('rollcall').id)

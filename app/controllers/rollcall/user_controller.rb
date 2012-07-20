@@ -10,7 +10,7 @@ class Rollcall::UserController < Rollcall::RollcallAppController
     
     unless current_user.is_super_admin?("rollcall")      
       @results = @results.where("role_memberships.role_id != ? AND role_memberships.role_id != ?", Role.admin('rollcall').id, Role.superadmin('rollcall').id)
-      @results = @results.where("role_memberships.jurisdiction_id" => current_user.role_memberships.where(role_id: Role.joins(:app).where('apps.name' => 'rollcall')).map(&:jurisdiction_id))
+      @results = @results.joins("JOIN role_memberships rm ON rm.jurisdiction_id = role_memberships.jurisdiction_id").joins("JOIN roles r on rm.role_id = r.id").joins("JOIN apps a on r.app_id = a.id").where("apps.name" => 'rollcall', "rm.user_id" => current_user.id)
     end
 
     respond_with(@results)

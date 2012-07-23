@@ -1,8 +1,8 @@
 //TODO: Require files
 
-Ext.namespace("Talho.Rollcall.ADST");
+Ext.namespace("Talho.Rollcall.ADST.view");
 
-Talho.Rollcall.ADST.Layout = Ext.extend(Ext.Panel, {
+Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
   id: 'ADSTPanel',
   closable: true,
   initComponent: function () {
@@ -16,7 +16,6 @@ Talho.Rollcall.ADST.Layout = Ext.extend(Ext.Panel, {
         {itemId: 'searchResultsPanel'}
       ]},
       {itemId: 'Alarm Queries'}
-    ];
-    
+    ];    
   }
 });

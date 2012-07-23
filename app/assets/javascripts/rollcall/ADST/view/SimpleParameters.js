@@ -1,8 +1,8 @@
 //TODO: Require Files
 
-Ext.namespace("Talho.Rollcall.ADST");
+Ext.namespace("Talho.Rollcall.ADST.view");
 
-Talho.Rollcall.ADST.SimpleParameters = Ext.extend(Ext.Container, {
+Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
   title:    "Simple Query Select",
   id:       "simple_query_select",
   itemId:   "simple_query_select",
@@ -85,6 +85,6 @@ Talho.Rollcall.ADST.SimpleParameters = Ext.extend(Ext.Container, {
       }
     ];
     
-    Talho.Rollcall.ADST.SimpleParameters.superclass.constructor.apply(this, config);
+    Talho.Rollcall.ADST.view.SimpleParameters.superclass.constructor.apply(this, config);
   }
 });

@@ -1,8 +1,8 @@
 //TODO: Require Files
 
-Ext.namespace("Talho.Rollcall.ADST");
+Ext.namespace("Talho.Rollcall.ADST.view");
 
-Talho.Rollcall.ADST.AdvancedParameters = Ext.extend(Ext.Container, {
+Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
   title: "Advanced Query Select",
   id: "advanced_query_select",
   itemId: "advanced_query_select",

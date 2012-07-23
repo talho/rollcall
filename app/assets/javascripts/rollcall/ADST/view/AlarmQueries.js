@@ -1,8 +1,8 @@
 //TODO: Require Files
 
-Ext.namespace("Talho.Rollcall.ADST");
+Ext.namespace("Talho.Rollcall.ADST.view");
 
-Talho.Rollcall.ADST.AlarmQueries = Ext.extend(Ext.Panel, {
+Talho.Rollcall.ADST.view.AlarmQueries = Ext.extend(Ext.Panel, {
   title:      'Alarm Queries',
   itemId:     'alarm_queries',
   id:         'alarm_queries',

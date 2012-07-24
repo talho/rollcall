@@ -1,4 +1,4 @@
-//TODO: Require Files
+//= require rollcall/ADST/view/ADSTAlarmsPanel
 
 Ext.namespace("Talho.Rollcall.ADST.view");
 
@@ -19,7 +19,7 @@ Talho.Rollcall.ADST.view.Alarms = Ext.extend(Ext.Panel, {
     
     this.items = [
       //TODO: Fill with ADSTAlarmsPanel
-      new Talho.Rollcall.ADSTAlarmsPanel({}),
+      new Talho.Rollcall.ADST.view.ADSTAlarmsPanel({}),
     ];
     
     this.bbar = [

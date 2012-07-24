@@ -18,7 +18,7 @@ Talho.Rollcall.ADST.view.AlarmQueries = Ext.extend(Ext.Panel, {
     
     this.items = [
       //TODO: Fill with ADSTAlarmsPanel
-      new Talho.Rollcall.ADSTAlarmsPanel({}),
+      new Talho.Rollcall.ADST.view.ADSTAlarmsPanel({}),
     ];
   }
 });

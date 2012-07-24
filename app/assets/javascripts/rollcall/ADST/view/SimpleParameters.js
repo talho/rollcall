@@ -30,7 +30,7 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
         displayField: 'name', editable: false,
         store: new Ext.data.JsonStore({fields: ['id', 'name'], data: config.options.school_districts}),
         listeners: {
-          select: function(comboBox, record, index){
+          select: function(comboBox, record, index) {
             Ext.getCmp('school_simple').clearValue();
             Ext.getCmp('school_type_simple').clearValue(); 
           }

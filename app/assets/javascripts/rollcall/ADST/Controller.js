@@ -1,13 +1,12 @@
- //TODO: Get file dependencies
+//= require rollcall/ADST/view/Layout
 
 Ext.namespace('Talho.Rollcall.ADST');
 
 Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
-  contstructor: function (config) {
+  constructor: function (config) {
  
-    var layout = new Talho.Rollcall.view.Layout({
+    var layout = new Talho.Rollcall.ADST.view.Layout({
       title: "Advanced Disease Surveillance Tool",
-      items: [this.index]
     });
     
     this.getPanel = function () {
@@ -15,10 +14,11 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     }
     
     //TODO: Set up index events
+    Talho.Rollcall.ADST.Controller.superclass.constructor.apply(this, config);
   }
 });
 
-Talho.ScriptManger.reg("Talho.Rollcall.ADST", Talho.Rollcall.ADST.Controller, function (config) {
+Talho.ScriptManager.reg("Talho.Rollcall.ADST", Talho.Rollcall.ADST.Controller, function (config) {
   var cont = new Talho.Rollcall.ADST.Controller(config);
   return cont.getPanel();
 });

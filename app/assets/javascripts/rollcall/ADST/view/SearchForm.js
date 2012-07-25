@@ -25,8 +25,8 @@ Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
     this.bbar = new Ext.PagingToolbar(
       {scope: this, displayInfo: true, prependButtons: true, pageSize: 6,
         listeners: {
-          //TODO bubble this to controller
-          'beforechange': this._setNextPage
+          //TODO bubble next page up to controller
+          'beforechange': function () {  }
         }
       }
     )

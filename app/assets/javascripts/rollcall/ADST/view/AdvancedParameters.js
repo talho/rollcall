@@ -129,8 +129,8 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
         scope: this,
         handler: function(buttonEl, eventObj) {
           this.hide();
-          Ext.getCmp('rollcall_adst')._resetForm();
-          Ext.getCmp('simple_query_select').show();
+          // Ext.getCmp('rollcall_adst')._resetForm();
+          // Ext.getCmp('simple_query_select').show();
         }
       }
     ];

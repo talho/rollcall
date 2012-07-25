@@ -77,9 +77,9 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
         {xtype: 'button', text: "Switch to Advanced View >>", style:{margin: '0px 0px 5px 5px'}, scope: this,
           handler: function(buttonEl, eventObj) {
             this.hide();
-            Ext.getCmp('rollcall_adst')._resetForm();
-            Ext.getCmp('advanced_query_select').show();
-            Ext.getCmp('advanced_query_select').doLayout();
+            // Ext.getCmp('rollcall_adst')._resetForm();
+            // Ext.getCmp('advanced_query_select').show();
+            // Ext.getCmp('advanced_query_select').doLayout();
           }
         }]
       }

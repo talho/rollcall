@@ -5,9 +5,7 @@ Ext.namespace('Talho.Rollcall.ADST');
 Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   constructor: function (config) {
  
-    var layout = new Talho.Rollcall.ADST.view.Layout({
-      title: "Advanced Disease Surveillance Tool",
-    });
+    var layout = new Talho.Rollcall.ADST.view.Layout();
     
     this.getPanel = function () {
       return layout;

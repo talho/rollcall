@@ -2,7 +2,7 @@ Talho.ScriptManager.addInitializer('Talho.Rollcall.NurseAssistant', {
   js:'$(ext_extensions)/xActionColumn.js $(js)/rollcall/NurseAssistant.js'
 });
 Talho.ScriptManager.addInitializer('Talho.Rollcall.ADST', {
-  js: '$(ext_extensions)/Portal.js $(js)/rollcall/ux/ComboBox.js $(js)/rollcall/d3/d3.v2.min.js $(js)/rollcall/ADST/Controller.js' 
+  js: '$(ext_extensions)/Portal.js > $(js)/rollcall/ux/ComboBox.js > $(js)/rollcall/d3/d3.v2.min.js > $(js)/rollcall/ADST/Controller.js' 
 });
 // Talho.ScriptManager.addInitializer('Talho.Rollcall.ADST', {
   // js:'( $(ext_extensions)/Portal.js > $(js)/rollcall/ux/ComboBox.js > $(js)/rollcall/ux/AlarmQueryWindow.js > $(js)/rollcall/ADSTAlarmQueriesPanel.js ) \

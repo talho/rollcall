@@ -24,13 +24,8 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       autoSave: true,   
       root: 'results',
       totalProperty: 'total_results',
-      fields: [
-        {name:'tea_id', type:'int'},
-        {name:'report_date', renderer: Ext.util.Format.dateRenderer('m-d-Y')},
-        {name:'enrolled', type:'int'},
-        {name:'total', type:'int'},
-        {name:'school_name', type:'string'}
-      ],
+      idProperty: 'school_id',
+      fields: ['tea_id', 'school_id', 'name', 'results'],
       writer: new Ext.data.JsonWriter({encode: false}),
       url: '/rollcall/adst',
       restful: true,
@@ -61,12 +56,11 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     var graph_series = _getGraphSeries();
     
     //TODO make graph image config
-    store.each(function (record) {
-      var school = record.json[0];
-      var id = school.school_id;
-      var name = typeof school.school_name == "undefined" ? school.name : school.school_name;
+    store.each(function (school) {
+      var id = school.id;
+      var name = typeof school.get('name');
       var field_array = _getFieldArray(school);
-      var school_store = new Ext.DataView.JsonStore({fields: field_array, data: record.json});
+      var school_store = new Ext.DataView.JsonStore({fields: field_array, data: school.get('results')});
       
       var graphImageConfig = {
         title: 'Query Result for ' + school_name,
@@ -119,25 +113,26 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     //TODO enable submit
   },
   
-  _getFieldArray: function (record) {
+  _getFieldArray: function (school) {
+    var results = school.get('results');
     var field_array = [
       {name: 'report_date', renderer: Ext.util.Format.dateRenderer('m-d-Y')},
       {name: 'total', type:'int'},
       {name: 'enrolled', type:'int'}
     ];
-    if (typeof school.average != "undefined") {
+    if (typeof results.average != "undefined") {
       field_array.push({name:'average', type: 'int'})
     }
-    if(typeof school.deviation != "undefined") {
+    if(typeof results.deviation != "undefined") {
       field_array.push({name:'deviation', type: 'int'})
     }
-    if(typeof school.average30 != "undefined") {
+    if(typeof results.average30 != "undefined") {
       field_array.push({name:'average30', type: 'int'})
     }
-    if(typeof school.average60 != "undefined") {
+    if(typeof results.average60 != "undefined") {
       field_array.push({name:'average60', type: 'int'})
     }
-    if(typeof school.cusum != "undefined") {
+    if(typeof results.cusum != "undefined") {
       field_array.push({name:'cusum', type: 'int'})
     }
     

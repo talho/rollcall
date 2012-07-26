@@ -31,7 +31,6 @@ module Rollcall
     autoload :Jurisdiction, 'rollcall/models/jurisdiction'
     autoload :User, 'rollcall/models/user'
     autoload :DocumentMailer, 'rollcall/models/document_mailer'
-    autoload :Data, 'rollcall/models/data.rb'
   end
 end
 

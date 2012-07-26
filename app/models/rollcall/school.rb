@@ -21,7 +21,7 @@ class Rollcall::School < ActiveRecord::Base
   has_many :alarms, :class_name => "Rollcall::Alarm"
   has_many :students, :class_name => "Rollcall::Student"
   before_create :set_display_name
-  include Rollcall::Models::Data
+  include Rollcall::DataModule
     
   self.table_name = "rollcall_schools"
 

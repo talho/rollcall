@@ -5,7 +5,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
   
   # GET rollcall/students
   def index
-    students = Rollcall::Student.where("school_id = ?",params[:school_id]).order("last_name, first_name").all
+    students = Rollcall::Student.where("school_id = ?",params[:school_id]).order("last_name, first_name")
     unless params[:start].blank?
       per_page = params[:limit].to_i
       if params[:start].to_i == 0
@@ -17,7 +17,6 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
     else
       options = {}
     end    
-    require 'will_paginate/array'
     students_paged = students.paginate(options)
     students_paged.each do |record|
       student_obj                 = record

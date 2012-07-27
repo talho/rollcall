@@ -23,35 +23,18 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
 
   # POST rollcall/get_school_data
   def get_school_data
-    school     = Rollcall::School.find(params[:school_id])
     time_span  = params[:time_span].to_i * 30
-    daily_info = school.school_daily_infos
-    unless daily_info.blank?
-      last_report_date  = Time.parse("#{daily_info.find(:all, :limit => 1, :order => 'report_date DESC').first.report_date}")
-      school_daily_info = daily_info.find(:all, :conditions => ["report_date >= ?", last_report_date - time_span.days])
-    else
-      school_daily_info = []
-    end
-    @info = school_daily_info
+    @info = Rollcall::SchoolDailyInfo.where('school_id = ? AND report_date >= ?', params[:school_id], time_span.days.ago).order('report_date DESC')
     respond_with(@info)
   end
 
   # POST rollcall/get_student_data
   def get_student_data
-    school    = Rollcall::School.find(params[:school_id])
     time_span = params[:time_span].to_i * 30
-    sdi_init  = Rollcall::StudentDailyInfo.find_by_student_id(school.students, :order => 'report_date DESC')
-    unless sdi_init.blank?
-      last_report_date   = Time.parse("#{Rollcall::StudentDailyInfo.find_all_by_student_id(school.students, :order => 'report_date DESC', :limit => 1).first.report_date}")
-      student_daily_info = Rollcall::StudentDailyInfo.find_all_by_student_id(school.students,:conditions => ["report_date >= ?",last_report_date-time_span.days])
-      student_daily_info.each do |r|
-        r[:age]    = r.student.dob.blank? ? "Unknown" : (r.report_date.year - r.student.dob.year)
-        r[:gender] = r.student.gender.blank? ? "Unknown" : r.student.gender
-      end
-    else
-      student_daily_info = []
-    end   
-    @info = student_daily_info
+    @info = Rollcall::StudentDailyInfo.select("rollcall_student_daily_infos.*, coalesce(cast(extract(year from age(rollcall_students.dob)) as text), 'Unkown') as age, coalesce(rollcall_students.gender, 'Unknown') as gender")
+                .joins('JOIN rollcall_students on rollcall_student_daily_infos.student_id = rollcall_students.id')
+                .where("rollcall_students.school_id = ? AND report_date >= ?", params[:school_id], time_span.days.ago)
+                .order('report_date DESC')
     respond_with(@info)
   end
 end

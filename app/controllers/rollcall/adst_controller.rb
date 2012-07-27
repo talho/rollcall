@@ -82,17 +82,8 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       .reorder("rollcall_schools.school_type")
       .uniq
       .pluck("rollcall_schools.school_type")                      
-    
-    grades = Rollcall::StudentDailyInfo
-      .joins("inner join rollcall_students S on rollcall_student_daily_infos.student_id = S.id")
-      .joins("inner join rollcall_schools SS on S.school_id = SS.id")
-      .where("grade between 0 and 12")
-      .where("grade is not null")
-      .order(:grade)
-      .uniq
-      .pluck(:grade)
-    
-    @options = {:schools => current_user.schools, :school_districts => current_user.school_districts, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => grades}          
+        
+    @options = {:schools => current_user.schools, :school_districts => current_user.school_districts, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => (0..12).to_a}          
   end
   
   protected

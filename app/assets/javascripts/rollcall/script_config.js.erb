@@ -1,8 +1,8 @@
 Talho.ScriptManager.addInitializer('Talho.Rollcall.NurseAssistant', {
-  js:'$(ext_extensions)/xActionColumn.js $(js)/rollcall/NurseAssistant.js'
+  js:'<%= javascript_dominoes_paths("rollcall/NurseAssistant") %>'
 });
 Talho.ScriptManager.addInitializer('Talho.Rollcall.ADST', {
-  js: '$(ext_extensions)/Portal.js > $(js)/rollcall/ux/ComboBox.js > $(js)/rollcall/d3/d3.v2.min.js > $(js)/rollcall/ADST/Controller.js' 
+  js: '<%= javascript_dominoes_paths("rollcall/ADST/Controller") %>' 
 });
 // Talho.ScriptManager.addInitializer('Talho.Rollcall.ADST', {
   // js:'( $(ext_extensions)/Portal.js > $(js)/rollcall/ux/ComboBox.js > $(js)/rollcall/ux/AlarmQueryWindow.js > $(js)/rollcall/ADSTAlarmQueriesPanel.js ) \
@@ -13,8 +13,8 @@ Talho.ScriptManager.addInitializer('Talho.Rollcall.ADST', {
       // $(js)/rollcall/ux/D3Graph.js'
 // });
 Talho.ScriptManager.addInitializer('Talho.Rollcall.Schools', {
-  js:'$(js)/rollcall/Schools.js  $(ext_extensions)/GMapPanel.js'
+  js:'<%= javascript_dominoes_paths("rollcall/Schools") %>'
 });
 Talho.ScriptManager.addInitializer('Talho.Rollcall.Users', {
-  js:'$(js)/rollcall/Users.js'
+  js:'<%= javascript_dominoes_paths("rollcall/Users") %>'
 });

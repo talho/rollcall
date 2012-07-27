@@ -1,3 +1,5 @@
+//= require ext_extensions/xActionColumn
+
 Ext.ns('Talho.Rollcall');
 
 Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {

@@ -1,3 +1,5 @@
+//= require ext_extensions/GMapPanel
+
 Ext.namespace('Talho.Rollcall');
 
 Talho.Rollcall.Schools = Ext.extend(function(){}, {

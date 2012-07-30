@@ -6,10 +6,13 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
   title: "Advanced Query Select",
   id: "advanced_query_select",
   itemId: "advanced_query_select",
-  hidden: true,
   layout: 'auto',
+  hidden: true,
 
-  constructor: function (config) {
+  //TODO split it out to take data and bind from not init
+  initComponent: function () {
+    var data = this.options[0]
+    
     //TODO: Let's conditionalize this for School District & School
     var schoolFilter = {xtype: 'fieldset', layout: 'hbox', width: 262, title: 'School Filter',
       items: [
@@ -18,13 +21,13 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
             {xtype: 'label', html: 'School Type:'},
             {xtype: 'listview', id: 'school_type_adv', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
               columns: [{dataIndex: 'value', cls:'school-type-list-item'}], hideHeaders: true, height: 90,
-              store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.school_type})
+              store: new Ext.data.JsonStore({fields: ['id', 'value'], data: data.school_type})
             },
             {xtype: 'spacer', height: 5},
             {xtype: 'label', html: 'Zipcode:'},
             {xtype: 'listview', id: 'zip_adv', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
               columns: [{dataIndex: 'value', cls:'zipcode-list-item'}], hideHeaders: true, height: 90,
-              store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.zipcode})
+              store: new Ext.data.JsonStore({fields: ['id', 'value'], data: data.zipcode})
             }            
           ]          
         },
@@ -34,13 +37,13 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
             {xtype: 'label', html: 'School District:'},
             {xtype: 'listview', id: 'school_district_adv', multiSelect: true, simpleSelect: true, cls: 'ux-query-form', 
               columns: [{dataIndex: 'value', cls:'school-district-list-item'}], hideHeaders: true, height: 90,
-              store: new Ext.data.JsonStore({fields: ['id', {name:'value', mapping:'name'}], data: config.options.school_districts})
+              store: new Ext.data.JsonStore({fields: ['id', {name:'value', mapping:'name'}], data: data.school_districts})
             },
             {xtype: 'spacer', height: 5},
             {xtype: 'label', html: 'School Name:'},
             {xtype: 'listview', id: 'school_adv', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
               columns: [{dataIndex: 'value', cls:'school-name-list-item'}], hideHeaders: true, height: 90,
-              store: new Ext.data.JsonStore({fields: ['id', {name:'value', mapping:'display_name'}], data: config.options.schools})
+              store: new Ext.data.JsonStore({fields: ['id', {name:'value', mapping:'display_name'}], data: data.schools})
             }
           ]
         }
@@ -54,13 +57,13 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
             {xtype: 'label', html: 'Age:'},
             {xtype: 'listview', id: 'age_adv', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
               columns: [{dataIndex: 'value', cls: 'age-list-item'}], hideHeaders: true, height: 90,
-              store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.age})
+              store: new Ext.data.JsonStore({fields: ['id', 'value'], data: data.age})
             },
             {xtype: 'spacer', height: 5},
             {xtype: 'label', html: 'Grade:'},
             {xtype: 'listview', id: 'grade_adv', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
               columns: [{dataIndex: 'value', cls: 'grade-list-item'}], hideHeaders: true, height: 90,
-              store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.grade})
+              store: new Ext.data.JsonStore({fields: ['id', 'value'], data: data.grade})
             }
           ]
         },
@@ -71,12 +74,12 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
             {xtype: 'listview', id: 'symptoms_adv', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
               columns: [{dataIndex: 'name', width: 0.70, cls:'symptom-list-item'}, {dataIndex: 'value'}],
               hideHeaders: true, height: 160,
-              store: new Ext.data.JsonStore({fields: ['id', 'name', {name:'value', mapping:'icd9_code'}], data: config.options.symptoms})
+              store: new Ext.data.JsonStore({fields: ['id', 'name', {name:'value', mapping:'icd9_code'}], data: data.symptoms})
             },
             {xtype: 'spacer', height: 5},
             {xtype: 'label', html: 'Gender:'},
             {xtype: 'combo', id: 'gender_adv', fieldLabel: 'Gender', editable: false, emptyText: 'Select Gender...',
-              store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.gender})
+              store: new Ext.data.JsonStore({fields: ['id', 'value'], data: data.gender})
             }
           ]
         }
@@ -89,7 +92,7 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
           items: [
             {xtype: 'label', html: 'Absenteeism:'},
             {xtype: 'combo', id: 'absent_adv', fieldLabel: 'Absenteeism', editable: false, value: 'Gross',
-              store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.absenteeism})
+              store: new Ext.data.JsonStore({fields: ['id', 'value'], data: data.absenteeism})
             },
             {xtype: 'spacer', height: 10},
             {xtype: 'label', html: 'Start Date:'},
@@ -103,7 +106,7 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
           items: [
             {xtype: 'label', html: 'Data Function:'},
             {xtype: 'combo', id: 'data_func_adv', editable: false, value: 'Raw',
-              store: new Ext.data.JsonStore({fields: ['id', 'value'], data: config.options.data_functions_adv})
+              store: new Ext.data.JsonStore({fields: ['id', 'value'], data: data.data_functions_adv})
             },
             {xtype: 'spacer', height: 10},
             {xtype: 'label', html: 'End Date:'},
@@ -127,6 +130,7 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
       {xtype: 'checkbox', id: 'return_individual_school_adv', cls: 'line-check', checked: true, boxLabel: "Return Individual School Results"},
       {xtype: 'button', cls: 'clear', text: 'Switch to Simple View >>', style: { margin: '6px 0px 5px 5px' },
         scope: this,
+        //TODO handle this on Parameters
         handler: function(buttonEl, eventObj) {
           this.hide();
           // Ext.getCmp('rollcall_adst')._resetForm();
@@ -135,6 +139,6 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
       }
     ];
     
-    Talho.Rollcall.ADST.view.AdvancedParameters.superclass.constructor.apply(this, config);    
+    Talho.Rollcall.ADST.view.AdvancedParameters.superclass.initComponent.apply(this, arguments);
   }
 });

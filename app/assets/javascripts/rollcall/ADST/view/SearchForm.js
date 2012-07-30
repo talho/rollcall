@@ -7,28 +7,18 @@ Ext.namespace("Talho.Rollcall.ADST.view");
 //TODO fix type
 Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
   itemId: 'ADSTFormPanel',
-  labelAlign: 'top',
   id: "ADSTFormPanel",
   url: '/rollcall/adst',
+  labelAlign: 'top',
   buttonAlign: 'left',
-  columnWidth: 1,
   
-  constructor: function (config) {
-    Talho.Rollcall.ADST.view.SearchForm.superclass.constructor.apply(this, config);
-    
-    this.items = [
-      new Talho.Rollcall.ADST.view.Parameters(),
-      new Talho.Rollcall.ADST.view.ResultsLegend(),
-      new Talho.Rollcall.ADST.view.Results()
+  initComponent: function (config) {
+    this.items = [      
+      new Talho.Rollcall.ADST.view.Parameters({getBubbleTarget: this.getBubbleTarget}),      
+      new Talho.Rollcall.ADST.view.ResultsLegend({getBubbleTarget: this.getBubbleTarget}),
+      new Talho.Rollcall.ADST.view.Results({getBubbleTarget: this.getBubbleTarget})
     ];
     
-    this.bbar = new Ext.PagingToolbar(
-      {scope: this, displayInfo: true, prependButtons: true, pageSize: 6,
-        listeners: {
-          //TODO bubble next page up to controller
-          'beforechange': function () {  }
-        }
-      }
-    )
+    Talho.Rollcall.ADST.view.SearchForm.superclass.initComponent.apply(this, config);       
   }
 });

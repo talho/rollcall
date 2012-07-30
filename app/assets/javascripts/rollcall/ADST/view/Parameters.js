@@ -6,23 +6,27 @@ Ext.namespace("Talho.Rollcall.ADST.view");
 //TODO fix type
 Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
   id: 'parameters',
+  borders: 'true',
+  collapsible: false,
+  layout: 'fit',
 
   initComponent: function (config) {    
     this.items = [];
     
+    //TODO if store fails no auth and keel everytin up on controller
+    //TODO switch to ajax request instead of store
     
-    //TODO if sotre fails no auth and keel everytin up on controller
-    this.store = new Ext.data.JsonStore({
-      root:     'options',
-      fields:   ['absenteeism', 'age', 'data_functions', 'data_functions_adv', 'gender', 'grade', 'school_districts','school_type', 'schools', 'symptoms', 'zipcode'],
-      url:      '/rollcall/query_options',
-      autoLoad: true,
-    });
-    
-    this.store.addListener('load', function (store, records) {
-      this.items.add(new Talho.Rollcall.ADST.view.SimpleParameters({options: records[0].data}));
-      this.items.add(new Talho.Rollcall.ADST.view.AdvancedParameters({options: records[0].data, hidden: true}));
-    }, this);
+    Ext.Ajax.request({
+      url: '/rollcall/query_options',
+      method: 'GET',
+      scope: this,
+      success: function (response) {
+        var data = Ext.decode(response.responseText);
+        this.items.add(new Talho.Rollcall.ADST.view.SimpleParameters({options: data.options, getBubbleTarget: this.getBubbleTarget}));
+        this.items.add(new Talho.Rollcall.ADST.view.AdvancedParameters({options: data.options, getBubbleTarget: this.getBubbleTarget}));
+        this.doLayout();
+      }
+    });        
     
     Talho.Rollcall.ADST.view.Parameters.superclass.initComponent.apply(this, config);        
   },

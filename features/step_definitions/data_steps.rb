@@ -27,7 +27,7 @@ When /^I do get_data for "([^\"]*)" with:$/ do |lookup, table|
   end    
   
   query = loc.get_graph_data(@params)    
-  @result = Rollcall::Models::Data.transform_to_graph_info_format(query,loc)
+  @result = Rollcall::DataModule.transform_to_graph_info_format(query,loc)
 end
 
 Then /^get_data should return:$/ do |table|    

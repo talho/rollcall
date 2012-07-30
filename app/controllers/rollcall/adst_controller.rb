@@ -19,15 +19,15 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   # GET /rollcall/adst
   def index    
     options = {:page => params[:page] || 1, :per_page => params[:limit] || 6}    
-    
-    results = get_search_results(params).paginate(options)
-    @length = results.total_entries
+
+    @results = get_search_results(params).paginate(options)
+    @length = @results.total_entries
         
-    @graph_info = results.map do |r|            
-      Rollcall::Models::Data.transform_to_graph_info_format(r.get_graph_data(params), r)         
+    @results.each do |r|
+      r.result = r.get_graph_data(params).as_json            
     end
         
-    respond_with(@length, @graph_info)    
+    respond_with(@length, @results)    
   end
 
   # Action is called by the ADST main panel method exportResultSet and the ADSTResultPanel method exportResult.
@@ -39,7 +39,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   def export    
     filename = "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}"
     results = get_search_results params
-    Rollcall::Models::Data.delay.export_data(params, filename, current_user, results)    
+    Rollcall::DataModule.delay.export_data(params, filename, current_user, results)    
   end
 
   # GET /rollcall/report
@@ -65,9 +65,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   #
   # POST /rollcall/query_options
   def get_options
-    schools          = current_user.schools.all
-    school_districts = current_user.school_districts.all
-    default_options  = get_default_options({:schools => schools})
+    default_options  = get_default_options
     
     zipcodes = current_user  
       .schools
@@ -84,17 +82,8 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       .reorder("rollcall_schools.school_type")
       .uniq
       .pluck("rollcall_schools.school_type")                      
-    
-    grades = Rollcall::StudentDailyInfo
-      .joins("inner join rollcall_students S on rollcall_student_daily_infos.student_id = S.id")
-      .joins("inner join rollcall_schools SS on S.school_id = SS.id")
-      .where("grade between 0 and 12")
-      .where("grade is not null")
-      .order(:grade)
-      .uniq
-      .pluck(:grade)
-    
-    @options = {:schools => schools, :school_districts => school_districts, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => grades}          
+        
+    @options = {:schools => current_user.schools, :school_districts => current_user.school_districts, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => (0..12).to_a}          
   end
   
   protected

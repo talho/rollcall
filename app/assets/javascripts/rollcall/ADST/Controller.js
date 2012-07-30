@@ -1,3 +1,6 @@
+//= require ext_extensions/Portal
+//= require rollcall/ux/ComboBox.js
+//= require rollcall/d3/d3.v2.min.js
 //= require rollcall/ADST/view/Layout
 
 Ext.namespace('Talho.Rollcall.ADST');

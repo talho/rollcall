@@ -42,13 +42,8 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       autoSave:       true,   
       root:          'results',
       totalProperty: 'total_results',
-      fields: [
-        {name:'tea_id',      type:'int'},
-        {name:'report_date', renderer: Ext.util.Format.dateRenderer('m-d-Y')},
-        {name:'enrolled',    type:'int'},
-        {name:'total',       type:'int'},
-        {name:'school_name', type:'string'}
-      ],
+      idProperty: 'school_id',
+      fields: ['tea_id', 'name', 'school_id', 'results'],
       writer:         new Ext.data.JsonWriter({encode: false}),
       url:            '/rollcall/adst',
       restful:        true,
@@ -108,10 +103,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       if(!item.pinned) leftColumn.remove(item.id, true);
     });
 
-    Ext.each(store.getRange(), function(school_record,i){
-      var school           = school_record.json[0]; // TODO
-      var school_id        = school.school_id;
-      var school_name      = typeof school.school_name == "undefined" ? school.name : school.school_name;
+    Ext.each(store.getRange(), function(school,i){
+      var school_id        = school.get('school_id');
+      var school_name      = school.get('name');
       var result_obj       = null;
       var field_array      = [
           {name: 'report_date', renderer: Ext.util.Format.dateRenderer('m-d-Y')},
@@ -227,7 +221,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         boxMinWidth: 320,
         items: {
           xtype: 'container',
-          store: new Ext.data.JsonStore({fields: field_array,data: school_record.json}),
+          store: new Ext.data.JsonStore({fields: field_array,data: school.get('results')}),
           drawn: false,
           listeners: {
             scope: this,

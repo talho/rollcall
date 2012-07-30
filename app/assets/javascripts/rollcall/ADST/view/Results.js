@@ -24,13 +24,8 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       autoSave: true,   
       root: 'results',
       totalProperty: 'total_results',
-      fields: [
-        {name:'tea_id', type:'int'},
-        {name:'report_date', renderer: Ext.util.Format.dateRenderer('m-d-Y')},
-        {name:'enrolled', type:'int'},
-        {name:'total', type:'int'},
-        {name:'school_name', type:'string'}
-      ],
+      idProperty: 'school_id',
+      fields: ['tea_id', 'school_id', 'name', 'results'],
       writer: new Ext.data.JsonWriter({encode: false}),
       url: '/rollcall/adst',
       restful: true,
@@ -57,22 +52,20 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     var rightColumn = this.getComponent('rightColumn');
     
     //TODO Keep pinned graphs
+    var graph_series = _getGraphSeries();
     
-    var graph_series = this._getGraphSeries();
-
-    store.each(function (record, i) {
-      var school = record.json[0];      
-      var school_id = school.school_id;
-      var school_name = typeof school.school_name == "undefined" ? school.name : school.school_name;
-      var field_array = this._getFieldArray(school);
-      var school_store = new Ext.data.JsonStore({fields: field_array, data: record.json});
-      
+    //TODO make graph image config
+    store.each(function (school, i) {
+      var id = school.id;
+      var name = typeof school.get('name');
+      var field_array = _getFieldArray(school);
+      var school_store = new Ext.DataView.JsonStore({fields: field_array, data: school.get('results')});      
       var graphImageConfig = {
-        title: 'Query Result for ' + school_name,
+        title: 'Query Result for ' + name,
         style: 'margin:5px',
         school: school,
-        school_name: school_name,
-        school_id: school_id,
+        school_name: name,
+        school_id: id,
         provider_id: 'image' + i + '-provider',
         collapsible: false,
         pinned: false,
@@ -93,7 +86,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
           //TODO up to controller
           {id: 'save', qtip: 'Create Alarm', scope: this,
             handler: function(e, targetEl, panel, tc) {
-              this._showAlarmQueryConsole(panel.school_name);
+              this._showAlarmQueryConsole(panel.name);
             }
           },
           //TODO export up to controller
@@ -105,7 +98,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
         boxMinWidth: 320,
         //TODO switch to dynamic width
         items: new Talho.ux.Graph({
-          store: new Ext.data.JsonStore({fields: field_array, data: record.json}),
+          store: new Ext.data.JsonStore({fields: field_array, data: school.json}),
           width: 500,
           series: graph_series
         })
@@ -123,12 +116,14 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     
   },
   
-  _getFieldArray: function (record) {
+  _getFieldArray: function (school) {
+    var results = school.get('results');
     var field_array = [
       {name: 'report_date', renderer: Ext.util.Format.dateRenderer('m-d-Y')},
       {name: 'total', type:'int'},
       {name: 'enrolled', type:'int'}
     ];
+<<<<<<< HEAD
     if (typeof record.average != "undefined") {
       field_array.push({name:'average', type: 'int'})
     }
@@ -142,6 +137,21 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       field_array.push({name:'average60', type: 'int'})
     }
     if(typeof record.cusum != "undefined") {
+=======
+    if (typeof results.average != "undefined") {
+      field_array.push({name:'average', type: 'int'})
+    }
+    if(typeof results.deviation != "undefined") {
+      field_array.push({name:'deviation', type: 'int'})
+    }
+    if(typeof results.average30 != "undefined") {
+      field_array.push({name:'average30', type: 'int'})
+    }
+    if(typeof results.average60 != "undefined") {
+      field_array.push({name:'average60', type: 'int'})
+    }
+    if(typeof results.cusum != "undefined") {
+>>>>>>> 8dbb9501a9f7c93528d1c2dc37608c763bc35758
       field_array.push({name:'cusum', type: 'int'})
     }
     

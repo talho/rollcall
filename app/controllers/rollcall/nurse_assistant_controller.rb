@@ -17,67 +17,25 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
   #
   # GET rollcall/nurse_assistant
   def index
-    unless params[:start].blank?
-      per_page = params[:limit].to_i
-      if params[:start].to_i == 0
-        page = 1
-      else
-        page = (params[:start].to_i / per_page) + 1
-      end
-      options = {:page => page, :per_page => per_page}
-    else
-      options = {}
-    end 
+    options = {:page => (params[:start].to_i / (params[:limit] || 25).to_i) + 1, :per_page => (params[:limit] || 25).to_i}
+    
     if !params[:search_term].blank?
-      st = "%" + CGI::unescape(params[:search_term]) + "%"      
-      student_ids = Rollcall::Student.where("student_number LIKE ? OR first_name LIKE ? OR last_name LIKE ? AND school_id = ?", st, st, st, params[:school_id]).pluck(:id)      
-      if student_ids.present?
-        student_records = Rollcall::StudentDailyInfo.where("student_id IN (?)", student_ids).all
-      else
-        student_records = []
-      end
-    elsif !params[:filter_report_date].blank?
-      students = Rollcall::Student.where("school_id = ?", params[:school_id]).pluck(:id)
+      st = "%" + CGI::unescape(params[:search_term]) + "%"
       student_records = Rollcall::StudentDailyInfo
-        .where("student_id in (?)", students)
-        .includes(:student)
-        .where("student_id = rollcall_students.id")
-        .where("report_date >= ?", Time.parse(params[:filter_report_date]).beginning_of_month)
-        .where("report_date <= ?", Time.parse(params[:filter_report_date]).end_of_month)
-        .all
+        .joins(:student).includes(:symptoms)
+        .where("student_number LIKE ? OR first_name LIKE ? OR last_name LIKE ? AND school_id = ?", st, st, st, params[:school_id])
     else
-      students = Rollcall::Student.where("school_id = ?", params[:school_id]).pluck(:id)
       student_records = Rollcall::StudentDailyInfo
-        .where("student_id in (?)", students)
-        .includes(:student)
-        .where("student_id = rollcall_students.id")
-        .all
-    end
-    require 'will_paginate/array'
-    students_paged = student_records.paginate(options)
-    students_paged.each do |record|
-      symptom_array  = []
-      student_obj    = record.student
-      record.symptoms.each do |symptom|
-        symptom_array.push(symptom.name)
+        .joins(:student).includes(:symptoms)
+        .where("school_id = ?", params[:school_id])
+                
+      unless params[:filter_report_date].blank?
+        student_records = student_records
+          .where("report_date >= ?", Time.parse(params[:filter_report_date]).beginning_of_month)
+          .where("report_date <= ?", Time.parse(params[:filter_report_date]).end_of_month)
       end
-      record[:symptom]            = symptom_array.join(",")
-      record[:first_name]         = student_obj.first_name.blank? ? "Unknown" : student_obj.first_name
-      record[:last_name]          = student_obj.last_name.blank? ? "Unknown" : student_obj.last_name
-      record[:contact_first_name] = student_obj.contact_first_name.blank? ? "Unknown" : student_obj.contact_first_name
-      record[:contact_last_name]  = student_obj.contact_last_name.blank? ? "Unknown" : student_obj.contact_last_name
-      record[:address]            = student_obj.address.blank? ? "Unknown" : student_obj.address
-      record[:zip]                = student_obj.zip.blank? ? "Unknown" : student_obj.zip
-      record[:dob]                = student_obj.dob.blank? ? "Unknown" : student_obj.dob
-      record[:student_number]     = student_obj.student_number.blank? ? "Unknown" : student_obj.student_number
-      record[:phone]              = student_obj.phone.blank? ? "Unknown" : student_obj.phone
-      record[:gender]             = student_obj.gender.blank? ? "Unknown" : student_obj.gender
-      record[:student_id]         = student_obj.id
-      record[:race]               = student_obj.race
     end
-    @length = student_records.length
-    @students_paged = students_paged
-    respond_with(@length, @students_paged)
+    respond_with(@student_infos = student_records.paginate(options))
   end
 
   # Method is responsible for destroying a StudentDailyInfo record.  Method is called from the
@@ -85,10 +43,7 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
   #
   # DELETE rollcall/nurse_assistant/:id
   def destroy
-    result = false
-    result = Rollcall::StudentDailyInfo.find(params[:id]).destroy
-    @result = result
-    respond_with(@result)
+    respond_with(@result = Rollcall::StudentDailyInfo.find(params[:id]).destroy)
   end
 
   # Method returns a set of option values that are used to built the drop down boxes for the

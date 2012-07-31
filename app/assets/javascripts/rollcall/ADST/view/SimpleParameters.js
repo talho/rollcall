@@ -21,7 +21,7 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Panel, {
   
   //TODO split it out to take data and bind from not init
   initComponent: function () {
-    var data = this.options[0];
+    var data = this.options;
     
     this.items = [
       {items:

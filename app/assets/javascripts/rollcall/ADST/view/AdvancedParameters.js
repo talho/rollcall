@@ -11,7 +11,7 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
 
   //TODO split it out to take data and bind from not init
   initComponent: function () {
-    var data = this.options[0]
+    var data = this.options
     
     //TODO: Let's conditionalize this for School District & School
     var schoolFilter = {xtype: 'fieldset', layout: 'hbox', width: 262, title: 'School Filter',

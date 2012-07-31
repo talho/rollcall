@@ -53,32 +53,19 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
   #
   # GET rollcall/nurse_assistant_options
   def get_options    
-    zipcodes = current_user.school_districts.all.map{ |sd| sd.zipcodes }.flatten
-    schools = current_user.schools.all
-    default_options = get_default_options({:schools => schools, :nurse => true})
-    student_daily_info = Rollcall::StudentDailyInfo
-      .includes(:student)
-      .where("student_id >= 1")
-      .where("rollcall_students.school_id IN (?)", current_user.school_districts.all.first.schools.pluck(:id))
+    @zipcodes = current_user.rollcall_zip_codes
+    @schools = current_user.schools
+    @default_options = get_default_options({:nurse => true})
+    @school = current_user.schools
+      .joins(:students => :student_daily_info)
       .order("rollcall_student_daily_infos.created_at DESC")
-      .limit(1)
-    if student_daily_info.present?
-      school_id = student_daily_info.first.student.school_id
-      app_init = false
-      total_enrolled_alpha = Rollcall::SchoolDailyInfo.find_all_by_school_id(school_id).blank?
+      .limit(1).except(:uniq).first
+    if @school.present?
+      @app_init = false
     else     
-      school_id = current_user.school_districts.all.map(&:schools).flatten.first[:id]
-      app_init = true
-      total_enrolled_alpha = true
+      @school = @schools.first
+      @app_init = true
     end
-    @options = { 
-      :default_options => default_options, 
-      :zipcodes => zipcodes.map{ |z| {:value => z, :id => z}}, 
-      :total_enrolled_alpha => total_enrolled_alpha,
-      :app_init => app_init,
-      :school_id => school_id,
-      :schools => schools
-    }
-    respond_with(@options)
+    respond_with(@zipcodes, @schools, @default_options, @school_id, @app_init)
   end
 end

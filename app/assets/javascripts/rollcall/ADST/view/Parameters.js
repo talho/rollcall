@@ -22,8 +22,8 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
       scope: this,
       success: function (response) {
         var data = Ext.decode(response.responseText);
-        this.items.add(new Talho.Rollcall.ADST.view.SimpleParameters({options: data.options, getBubbleTarget: this.getBubbleTarget}));
-        this.items.add(new Talho.Rollcall.ADST.view.AdvancedParameters({options: data.options, getBubbleTarget: this.getBubbleTarget}));
+        this.items.add(new Talho.Rollcall.ADST.view.SimpleParameters({options: data, getBubbleTarget: this.getBubbleTarget}));
+        this.items.add(new Talho.Rollcall.ADST.view.AdvancedParameters({options: data, getBubbleTarget: this.getBubbleTarget}));
         this.doLayout();
       }
     });        

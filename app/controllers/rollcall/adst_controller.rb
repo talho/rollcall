@@ -67,13 +67,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   def get_options
     default_options  = get_default_options
     
-    zipcodes = current_user  
-      .schools
-      .select("rollcall_schools.postal_code")
-      .where("rollcall_schools.postal_code is not null")
-      .reorder("rollcall_schools.postal_code")      
-      .uniq
-      .pluck("rollcall_schools.postal_code")                     
+    zipcodes = current_user.rollcall_zip_codes              
     
     school_types = current_user
       .schools
@@ -83,7 +77,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       .uniq
       .pluck("rollcall_schools.school_type")                      
         
-    @options = {:schools => current_user.schools, :school_districts => current_user.school_districts, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => (0..12).to_a}          
+    @options = {:schools => current_user.schools.all, :school_districts => current_user.school_districts.all, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => (0..12).to_a}          
   end
   
   protected

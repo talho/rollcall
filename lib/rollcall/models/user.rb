@@ -114,6 +114,15 @@ module Rollcall
       def students
         Rollcall::Student.find_all_by_school_id schools
       end
+      
+      def rollcall_zip_codes
+      self.schools
+        .select("rollcall_schools.postal_code")
+        .where("rollcall_schools.postal_code is not null")
+        .reorder("rollcall_schools.postal_code")      
+        .uniq
+        .pluck("rollcall_schools.postal_code") 
+      end
     end         
   end
 end

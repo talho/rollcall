@@ -52,14 +52,14 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     var rightColumn = this.getComponent('rightColumn');
     
     //TODO Keep pinned graphs
-    var graph_series = _getGraphSeries();
+    var graph_series = this._getGraphSeries();
     
     //TODO make graph image config
     store.each(function (school, i) {
       var id = school.id;
-      var name = typeof school.get('name');
-      var field_array = _getFieldArray(school);
-      var school_store = new Ext.DataView.JsonStore({fields: field_array, data: school.get('results')});      
+      var name = school.get('name');
+      var field_array = this._getFieldArray(school);
+      var school_store = new Ext.data.JsonStore({fields: field_array, data: school.get('results')});  
       var graphImageConfig = {
         title: 'Query Result for ' + name,
         style: 'margin:5px',
@@ -96,10 +96,10 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
         ],
         height: 230,
         boxMinWidth: 320,
-        //TODO switch to dynamic width
+        //TODO switch to dynamic width        
         items: new Talho.ux.Graph({
-          store: new Ext.data.JsonStore({fields: field_array, data: school.json}),
-          width: 500,
+          store: school_store,
+          width: 700,
           series: graph_series
         })
       }          

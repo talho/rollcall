@@ -132,10 +132,13 @@ module Rollcall::DataModule
     
     if info_type == Rollcall::SchoolDailyInfo
       total_enrolled = "total_enrolled"
+      query = query.order('rollcall_school_daily_infos.report_date asc')
     elsif info_type == Rollcall::SchoolDistrictDailyInfo
       total_enrolled = "total_enrollment"
+      query = query.order('rollcall_school_district_daily_infos.report_date asc')
     else
       total_enrolled = "count(*)"
+      query = query.order('rollcall_student_daily_infos.report_date asc')
     end
         
     case function

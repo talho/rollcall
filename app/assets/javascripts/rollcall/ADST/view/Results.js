@@ -51,7 +51,14 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     var leftColumn = this.getComponent('leftColumn');
     var rightColumn = this.getComponent('rightColumn');
     
-    //TODO Keep pinned graphs
+    rightColumn.items.each(function(item){
+      if(!item.pinned) rightColumn.remove(item.id, true);
+    });
+
+    leftColumn.items.each(function(item) {
+      if(!item.pinned) leftColumn.remove(item.id, true);
+    });
+    
     var graph_series = this._getGraphSeries();
     
     //TODO make graph image config

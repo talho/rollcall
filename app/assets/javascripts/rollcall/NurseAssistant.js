@@ -855,7 +855,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         border:       false,
         method:       this.student_window.form_method,
         baseParams:   {
-          authenticity_token: FORM_AUTH_TOKEN, school_id: this.user_school_id,
+          school_id: this.user_school_id,
           student_id: (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.get('id'),
           student_info_id: this.student_window.student_info_id
         },

@@ -19,6 +19,8 @@ class Rollcall::AlarmQuery < ActiveRecord::Base
   belongs_to :user,   :class_name => "::User"
   self.table_name = "rollcall_alarm_queries"
 
+  validates_uniqueness_of :name, :scope => [:user_id]
+  
   # Method calls create_alarm if alarm_set
   #
   def generate_alarm    

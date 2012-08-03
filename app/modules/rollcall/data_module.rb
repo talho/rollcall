@@ -3,32 +3,6 @@ module Rollcall::DataModule
   def self.included(base)
     base.send(:attr_accessor, :result)
   end
-
-  def export_data params, filename, user_obj, obj
-    update_array = obj.map do |row|
-      array = row.transform_to_graph_info_format(build_graph_query(params, row))
-    end
-    
-    @csv_data = build_csv_string update_array
-    newfile            = File.join(Rails.root.to_s,'tmp',"#{filename}.csv")
-    file_result        = File.open(newfile, 'wb') {|f| f.write(@csv_data) }
-    file               = File.new(newfile, "r")
-    folder             = Folder.find_by_name_and_user_id("Rollcall Documents", user_obj.id)
-    folder             = Folder.create(
-      :name => "Rollcall Documents",
-      :notify_of_document_addition => true,
-      :owner => user_obj) if folder.blank?
-    folder.audience.recipients(:force => true).length if folder.audience
-    @document = user_obj.documents.build(:folder_id => folder.id, :file => file)
-    @document.save!
-    if !@document.folder.nil? && @document.folder.notify_of_document_addition
-      DocumentMailer.rollcall_document_addition(@document, user_obj).deliver
-    end
-    return true
-  rescue => e
-    p e.message
-    pp e.backtrace
-  end
   
   def build_graph_query query, params
     params = param_setup params
@@ -183,7 +157,7 @@ module Rollcall::DataModule
     params = params.with_indifferent_access
     
     if params[:gender].present?
-      if params[:gender] == "Male"
+      if params[:genderdata_obj] == "Male"
         params[:gender] = 'M'
       else
         params[:gender] = 'F'
@@ -196,16 +170,5 @@ module Rollcall::DataModule
     
     return params
   end    
-  
-  def build_csv_string data_obj
-    csv_data = "Name,Identifier,Total Absent,Total Enrolled,Report Date\n"
-    
-    data_obj.each do |row|
-      if row["total"].to_s != "0"
-        csv_data += "#{row[:school_name]},#{row[:tea_id]},#{row[:total]},#{row[:enrolled]},#{row[:report_date]}\n"
-      end
-    end
-    
-    csv_data
-  end
+
 end

@@ -14,10 +14,12 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       return this.layout;
     }
     
-    this.layout.addEvents('reset', 'submitquery', 'export', 'saveasalarm');
+    this.layout.addEvents('reset', 'submitquery', 'export', 'saveasalarm', 'nextpage', 'showschoolprofile');
     this.layout.on({
       'reset': this._resetForm,
       'submitquery': this._submitQuery,
+      'nextpage': this._nextPage,
+      'showschoolprofile': this._showSchoolProfile,
       scope: this
     });
     
@@ -27,7 +29,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   _submitQuery: function () {
     var form_panel = Ext.getCmp('ADSTFormPanel');
     var form_values = form_panel.getForm().getValues();
-    var result_store = Ext.getCmp('ADSTResultPanel')._getResultStore();    
+    var result_store = Ext.getCmp('ADSTResultPanel')._getResultStore();
     var params = this._buildParams(form_values);
     result_store.baseParms = {};
     this._grabListViewFormValues(params);
@@ -84,13 +86,28 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     Ext.getCmp('school_district_adv').clearSelections();
   },
   
+  _nextPage: function (toolbar, params)
+  {
+    var result_store = Ext.getCmp('ADSTResultPanel')._getResultStore();       
+    params['page'] = Math.floor(params.start / params.limit) + 1;
+    return true;
+  },
+  
   _exportResultSet: function () {
     
   },
   
   _saveQueryAsAlarm: function () {
     
-  }  
+  },
+  
+  _showSchoolProfile: function () {
+    
+  },
+  
+  _pinGraph: function () {
+    
+  },
   
 });
 

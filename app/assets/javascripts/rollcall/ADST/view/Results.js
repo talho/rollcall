@@ -6,13 +6,10 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
   id:     'ADSTResultPanel',
   itemId: 'portalId',
   border: false,
+  hidden: true,
   
-  constructor: function (config) {
-    Ext.applyIf(config, {
-        hidden: true,
-        //TODO set up resize event
-      }
-    );
+  constructor: function (config) {        
+    //TODO set up resize event
     
     this.items = [
       {itemId: 'leftColumn', columnWidth: .50},
@@ -76,18 +73,21 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
         provider_id: 'image' + i + '-provider',
         collapsible: false,
         pinned: false,
+        height: 230,
+        cls: 'ux-portlet',
+        boxMinWidth: 320,
+        
         //TODO ping graph up to Controller
         tools: [
-          {id: 'pin', qtip: 'Pin Graph', handler: this._pinGraph },
+          {id: 'pin', qtip: 'Pin Graph', handler: function () { this.fireEvent('pingraph') }},
           {id: 'report', qtip: 'Generate Report', scope: this,
             handler: function(e, targetEl, panel, tc) {
               //TODO fix so it doesn't do all da ownerCts
               var adst_container = panel.ownerCt.ownerCt.ownerCt.ownerCt.ownerCt;
               adst_container._showReportMenu(targetEl, school_id);
             }
-          },
-          //TODO up to controller
-          {id: 'gis', qtip: 'School Profile', handler: this._showSchoolProfile,
+          },          
+          {id: 'gis', qtip: 'School Profile', handler: function () { this.fireEvent('showschoolprofile')},
             hidden: typeof school.gmap_lat == "undefined" ? true : false
           },
           //TODO up to controller
@@ -101,12 +101,11 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
           //TODO close result up to controller
           {id: 'close', qtip: "Close", handler: this._closeResult }
         ],
-        height: 230,
-        boxMinWidth: 320,
+        
         //TODO switch to dynamic width        
         items: new Talho.ux.Graph({
           store: school_store,
-          width: 700,
+          width: 'auto',
           series: graph_series
         })
       }          

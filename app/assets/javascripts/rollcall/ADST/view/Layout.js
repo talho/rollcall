@@ -12,6 +12,8 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
   title: "Rollcall ADST",
   
   initComponent: function () {        
+    this.addEvents('nextpage');
+    this.enableBubble('nextpage');
     
     var findBubble = function () {
       if (!this.Layout) {
@@ -56,10 +58,9 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
               new Talho.Rollcall.ADST.view.SearchForm({getBubbleTarget: findBubble})              
             ],
             bbar: [new Ext.PagingToolbar(
-              {scope: this, displayInfo: true, prependButtons: true, pageSize: 6,
+              {displayInfo: true, prependButtons: true, pageSize: 6, store:Ext.getCmp('ADSTResultPanel')._getResultStore(),
                 listeners: {
-                  //TODO bubble next page up to controller
-                  'beforechange': function () {  }
+                  'beforechange': function (toolbar, params) { this.fireEvent('nextpage',toolbar, params) }
                 }
               }
             )]          

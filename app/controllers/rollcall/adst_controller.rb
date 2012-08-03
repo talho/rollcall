@@ -18,7 +18,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   #
   # GET /rollcall/adst
   def index    
-    options = {:page => params[:page] || 1, :per_page => params[:limit] || 6}    
+    options = {:page => (params[:start] ? (params[:start].to_f / 6).floor + 1 : 1), :per_page => params[:limit] || 6}    
 
     @results = get_search_results(params).paginate(options)
     @length = @results.total_entries

@@ -95,6 +95,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     var resultLength = store.getRange().length;
     var leftColumn   = this.getComponent('leftColumn');
     var rightColumn  = this.getComponent('rightColumn');
+    
     rightColumn.items.each(function(item){
       if(!item.pinned) rightColumn.remove(item.id, true);
     });

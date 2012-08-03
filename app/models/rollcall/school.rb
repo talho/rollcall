@@ -70,7 +70,7 @@ class Rollcall::School < ActiveRecord::Base
     graph_data = Rollcall::School        
       .where('rollcall_schools.id' => id)
   
-    build_graph_query graph_data, params  
+    build_graph_query(graph_data, params) 
   end
   
   private

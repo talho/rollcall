@@ -53,7 +53,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       }
     });
 
-    this._getResultStore = function()
+    this.getResultStore = function()
     {
       return result_store;
     };
@@ -81,9 +81,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   /*
   Method returns the result store
    */
-  _getResultStore: function()
+  getResultStore: function()
   {
-    return this._getResultStore();
+    return this.getResultStore();
   },
   /*
   Method creates an Ext portlet for each returned result in result set, called from loadGraphResults function
@@ -886,10 +886,10 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       idIndex: 0
     });
 
-    baseParams = this._getResultStore().baseParams;
+    baseParams = this.getResultStore().baseParams;
     queryParams = {};
     for(key in baseParams){
-      if(baseParams[key].indexOf("...") == -1 && key != "authenticity_token") queryParams[key] = baseParams[key];
+      if(baseParams[key].indexOf("...") == -1) queryParams[key] = baseParams[key];
     }
     queryParams["type"] = (Ext.getCmp('advanced_query_select').isVisible()) ? "adv" : "simple";
     if (school_name){
@@ -907,7 +907,6 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       alarm_query_title: (school_name) ? 'Alarm Query for '+school_name : 'Alarm Query',
       form_id:           'alarmQueryForm',
       form_url:          '/rollcall/alarm_query',
-      auth_token:        FORM_AUTH_TOKEN,
       query_params:      Ext.encode(queryParams),
       deviation_min:     100,
       deviation_max:     100,

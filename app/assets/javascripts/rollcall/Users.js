@@ -17,7 +17,7 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
       fields:     ['user_id','display_name','first_name','last_name','email','role_memberships','role_requests','photo','school_districts','schools'],
       autoLoad:   false,
       remoteSort: true,
-      baseParams: {limit: this.RESULTS_PAGE_SIZE, authenticity_token: FORM_AUTH_TOKEN},
+      baseParams: {limit: this.RESULTS_PAGE_SIZE},
       listeners:  {
         scope:     this,
         load:      this.handleResults,
@@ -31,7 +31,6 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
       autoLoad:   false,
       remoteSort: true,
       storeId:    'school_district_store',
-      baseParams: {authenticity_token: FORM_AUTH_TOKEN},
       listeners:  {
         scope:     this,
         load:      this.handleSchoolResults,
@@ -45,7 +44,6 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
       autoLoad:   false,
       remoteSort: true,
       storeId:    'school_store',
-      baseParams: {authenticity_token: FORM_AUTH_TOKEN},
       listeners:  {
         scope:     this,
         load:      this.handleSchoolResults,

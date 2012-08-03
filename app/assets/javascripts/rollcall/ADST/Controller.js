@@ -1,7 +1,7 @@
 //= require ext_extensions/Portal
 //= require rollcall/ux/ComboBox.js
 //= require rollcall/d3/d3.v2.min.js
-//= require rollcall/ADST/view/Layout
+//= require_tree ./view
 
 Ext.namespace('Talho.Rollcall.ADST');
 
@@ -20,6 +20,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       'submitquery': this._submitQuery,
       'nextpage': this._nextPage,
       'showschoolprofile': this._showSchoolProfile,
+      'createalarmquery': this.showAlarmQueryWindow,
       scope: this
     });
     
@@ -27,27 +28,23 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   },
   
   _submitQuery: function () {
+    // TODO: I don't like that this refers to a component ID. I don't trust it to be unique through the app. consider modifying this. Pass params down to result panel to load.
     var form_panel = Ext.getCmp('ADSTFormPanel');
     var form_values = form_panel.getForm().getValues();
-    var result_store = Ext.getCmp('ADSTResultPanel')._getResultStore();
-    var params = this._buildParams(form_values);
-    result_store.baseParms = {};
-    this._grabListViewFormValues(params);
-        
-    for(key in params){
-      if(params[key].indexOf('...') == -1 && key.indexOf("[]") == -1 && key != 'authenticity_token'){
-        result_store.setBaseParam(key, params[key].replace(/\+/g, " "));
-      }else if(params[key].indexOf('...') == -1){
-        result_store.setBaseParam(key, params[key]);
-      }
+    if(!this.result_panel){
+      this.result_panel = Ext.getCmp('ADSTResultPanel');
     }
-    
-    result_store.load();
+    var result_store = this.result_panel.getResultStore();    
+    var params = this._buildParams(form_values);
+    this._grabListViewFormValues(params);
+            
+    result_store.load({params: params});
     return true;
   },
   
   _grabListViewFormValues: function(params)
   {
+    // TODO: Push this down along with buildParams
     var list_fields  = ["school", "school_district", "school_type", "zip", "age", "grade", "symptoms"];
     for (var i=0; i < list_fields.length; i++) {
       var selected_records = Ext.getCmp(list_fields[i]+'_adv').getSelectedRecords();
@@ -58,8 +55,8 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   
   _buildParams: function(form_values)
   {
+    // TODO: We should be calling get params on each advanced or simple view. I don't have a problem with having them be separate forms and calling the currently active one to ask for its params
     var params = new Object;
-    params['authenticity_token'] = FORM_AUTH_TOKEN;
     for (key in form_values){
       if (Ext.getCmp('advanced_query_select').isVisible()){
         if(key.indexOf('_adv') != -1 && form_values[key].indexOf('...') == -1)
@@ -76,6 +73,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   },
   
   _resetForm: function () {
+    // TODO: This should call reset on both search forum views, not on individual components
     Ext.getCmp('ADSTFormPanel').getForm().reset();
     Ext.getCmp('school_adv').clearSelections();
     Ext.getCmp('school_type_adv').clearSelections();
@@ -97,8 +95,21 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     
   },
   
-  _saveQueryAsAlarm: function () {
+  showAlarmQueryWindow: function(id, name){
+    // Get the params for the query
+    var params = this.result_panel.getSearchParams();
+    params['school[]'] = [name];
     
+    // Create the new alarm window
+    var win = new Talho.Rollcall.ADST.view.AlarmQueryWindow({
+      school_id: id, school_name: name, query_params: params, state: 'new', listeners: {
+        scope: this,
+        'savecomplete': function(){
+          this.layout.alarm_queries.refresh();
+        }
+      }
+    });
+    win.show();
   },
   
   _showSchoolProfile: function () {
@@ -108,7 +119,6 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   _pinGraph: function () {
     
   },
-  
 });
 
 

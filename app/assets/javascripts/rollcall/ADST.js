@@ -180,7 +180,6 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   _buildParams: function(form_values)
   {
     var params = new Object;
-    params['authenticity_token'] = FORM_AUTH_TOKEN;
     for (key in form_values){
       if (Ext.getCmp('advanced_query_select').isVisible()){
         if(key.indexOf('_adv') != -1 && form_values[key].indexOf('...') == -1)
@@ -269,13 +268,13 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
   {
     var form_panel   = this.find('id', 'ADSTFormPanel')[0];
     var form_values  = form_panel.getForm().getValues();
-    var result_store = this.getResultPanel()._getResultStore();
+    var result_store = this.getResultPanel().getResultStore();
     form_panel.findParentByType('panel').getBottomToolbar().bindStore(result_store);
     result_store.baseParams = {}; // clear previous search values
     var params              = this._buildParams(form_values);
     this._grabListViewFormValues(params);
     for(key in params){
-      if(params[key].indexOf('...') == -1 && key.indexOf("[]") == -1 && key != 'authenticity_token'){
+      if(params[key].indexOf('...') == -1 && key.indexOf("[]") == -1){
         result_store.setBaseParam(key, params[key].replace(/\+/g, " "));
       }else if(params[key].indexOf('...') == -1){
         result_store.setBaseParam(key, params[key]);
@@ -301,7 +300,7 @@ Talho.Rollcall.ADST = Ext.extend(Ext.Panel, {
    */
   _setNextPage: function(this_toolbar, params)
   {
-    var result_store   = this_toolbar.ownerCt.ownerCt.ownerCt.getResultPanel()._getResultStore();
+    var result_store   = this_toolbar.ownerCt.ownerCt.ownerCt.getResultPanel().getResultStore();
     var container_mask = new Ext.LoadMask(this_toolbar.ownerCt.ownerCt.ownerCt.getResultPanel().getEl(),{msg:"Please wait..."});
     params['page']     = Math.floor(params.start /  params.limit) + 1;
     container_mask.show();

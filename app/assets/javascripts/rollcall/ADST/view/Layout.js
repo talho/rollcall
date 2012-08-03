@@ -15,24 +15,21 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
     this.addEvents('nextpage');
     this.enableBubble('nextpage');
     
-    var findBubble = function () {
-      if (!this.Layout) {
-        this.Layout = Ext.getCmp('adst');
-      }
-      
-      return this.Layout;
+    var me = this,
+        findBubble = function () {
+          return me;
     }
     
+    this.alarm_queries = new Talho.Rollcall.ADST.view.AlarmQueries({
+      itemId: 'alarm_queries', getBubbleTarget: findBubble
+    });
     
     //TODO finish getBubbleTarget
     this.items = [
       {id: 'adst_layout', layout: 'border', autoScroll: true, scope: this, 
         defaults: {collapsible: false, split: true},
-        items: [          
-          {xtype: 'panel', itemId: 'alarm_queries', title: 'Alarm Queries', region: 'south', height: 120, minSize: 120,
-            maxSize: 120, autoScroll: true, layout: 'fit',
-            items: [new Talho.Rollcall.ADST.view.AlarmQueries({getBubbleTarget: findBubble})]
-          },
+        items: [   
+          {xtype: 'panel', region: 'south', height: 120, title: 'Alarm Queries', layout: 'fit', padding: '2px 2px 4px 2px', items: this.alarm_queries},
           // {xtype: 'panel', itemId: 'alarms', region: 'west', title: 'Alarms', layout: 'fit', bodyStyle: 'padding: 0px',
             // width: 140, minSize: 140, maxSize: 140, hideBorders: true,
             // items: [new Talho.Rollcall.ADST.view.Alarms({getBubbleTarget: findBubble})],

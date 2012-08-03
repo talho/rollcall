@@ -19,7 +19,7 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
     unless params[:alarm_query_id].blank?
       alarm_queries.push(Rollcall::AlarmQuery.find(params[:alarm_query_id]))
     else
-      alarm_queries = current_user.alarm_queries
+      alarm_queries = current_user.alarm_queries.order(:name)
     end
     alarm_queries.each do |query|
       if query.alarm_set

@@ -39,7 +39,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   def export    
     filename = "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}"
     results = get_search_results params
-    Rollcall::DataModule.delay.export_data(params, filename, current_user, results)    
+    self.delay.export_data(params, filename, current_user, results)    
   end
 
   # GET /rollcall/report
@@ -96,5 +96,34 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     end
     
     results
+  end
+  
+  def export_data params, filename, user_obj, results
+    results.each do |r|
+      r.result = r.get_graph_data(params).as_json            
+    end
+    
+    @csv_data = "Name,Identifier,Total Absent,Total Enrolled,Report Date\n"
+    results.each do |row|      
+      @csv_data += "#{row.school_name},#{row.tea_id},#{row.result["total"]},#{row.result["enrolled"]},#{row.result["report_date"]}\n" unless row.result["total"].to_s == "0"
+    end
+    
+    newfile            = File.join(Rails.root.to_s,'tmp',"#{filename}.csv")
+    file_result        = File.open(newfile, 'wb') {|f| f.write(@csv_data) }
+    file               = File.new(newfile, "r")
+    folder             = Folder.find_by_name_and_user_id("Rollcall Documents", user_obj.id)
+    folder             = Folder.create(
+      :name => "Rollcall Documents",
+      :notify_of_document_addition => true,
+      :owner => user_obj) if folder.blank?
+    @document = user_obj.documents.build(:folder_id => folder.id, :file => file)
+    @document.save!
+    if !@document.folder.nil? && @document.folder.notify_of_document_addition
+      DocumentMailer.rollcall_document_addition(@document, user_obj).deliver
+    end
+    true
+  rescue => e
+    p e.message
+    pp e.backtrace
   end
 end

@@ -72,11 +72,6 @@ describe User do
     end
   end
 
-  describe "to_json_results_rollcall" do
-    it "returns a user object with school and school district information to fit json document model" do
-      @user.to_json_results_rollcall[:schools].should include(@school)
-    end
-    end
     
   describe "is_rollcall_admin?" do
     before(:each) do

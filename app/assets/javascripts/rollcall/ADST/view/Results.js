@@ -8,9 +8,15 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
   border: false,
   hidden: true,
   
-  constructor: function (config) {        
+  constructor: function(config){
     //TODO set up resize event
+    Talho.Rollcall.ADST.view.Results.superclass.constructor.apply(this, arguments);
     
+    this.addEvents('createalarmquery');
+    this.enableBubble('createalarmquery');
+  },
+  
+  initComponent: function () {
     this.items = [
       {itemId: 'leftColumn', columnWidth: .50},
       {itemId: 'rightColumn', columnWidth: .50}
@@ -32,12 +38,12 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       }
     });
 
-    this._getResultStore = function ()
+    this.getResultStore = function ()
     {
       return result_store;
     };
     
-    Talho.Rollcall.ADST.view.Results.superclass.constructor.apply(this, config);
+    Talho.Rollcall.ADST.view.Results.superclass.initComponent.apply(this, arguments);
   },
   
   _loadGraphResults: function (store, records, options) {    
@@ -93,7 +99,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
           //TODO up to controller
           {id: 'save', qtip: 'Create Alarm', scope: this,
             handler: function(e, targetEl, panel, tc) {
-              this._showAlarmQueryConsole(panel.name);
+              this.fireEvent('createalarmquery', school.get('id'), school.get('name'));
             }
           },
           //TODO export up to controller
@@ -189,5 +195,9 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     ];
     
     return series;
+  },
+
+  getSearchParams: function(){
+    return this.getResultStore().lastOptions.params;
   }
 });

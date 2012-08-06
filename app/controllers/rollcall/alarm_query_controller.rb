@@ -19,7 +19,7 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
   # POST rollcall/alarm_query
   def create
     alarm_count = Rollcall::AlarmQuery.where("user_id = ? AND name LIKE ?", current_user.id, "#{params[:alarm_query][:name]}%").count  
-    params[:alarm_query][:name] = "#{alarm_exist_by_name.name}_#{alarm_count}" if alarm_count > 0
+    params[:alarm_query][:name] = "#{params[:alarm_query][:name]}_#{alarm_count}" if alarm_count > 0
     alarm_query = Rollcall::AlarmQuery.new(params[:alarm_query])
     alarm_query.attributes = {:user_id => current_user.id, :alarm_set => false}
     

@@ -14,7 +14,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       return this.layout;
     }
     
-    this.layout.addEvents('reset', 'submitquery', 'export', 'saveasalarm');
+    this.layout.addEvents('reset', 'submitquery', 'export', 'saveasalarm', 'nextpage', 'showschoolprofile');
     this.layout.on({
       'reset': this._resetForm,
       'submitquery': this._submitQuery,
@@ -23,6 +23,8 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       'editquery': this.showEditAlarmQueryWindow,
       'togglequery': this.toggleQueryState,
       'runquery': this.runQuery,
+      'nextpage': this._nextPage,
+      'showschoolprofile': this._showSchoolProfile,
       scope: this
     });
     
@@ -84,6 +86,13 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     Ext.getCmp('grade_adv').clearSelections();
     Ext.getCmp('symptoms_adv').clearSelections();
     Ext.getCmp('school_district_adv').clearSelections();
+  },
+  
+  _nextPage: function (toolbar, params)
+  {
+    var result_store = Ext.getCmp('ADSTResultPanel')._getResultStore();       
+    params['page'] = Math.floor(params.start / params.limit) + 1;
+    return true;
   },
   
   _exportResultSet: function () {
@@ -157,7 +166,15 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   
   runQuery: function(id, alarm_query){
     
-  }
+  },
+  
+  _showSchoolProfile: function () {
+    
+  },
+  
+  _pinGraph: function () {
+    
+  },
 });
 
   

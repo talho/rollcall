@@ -1,10 +1,8 @@
 //= require rollcall/ADST/view/Parameters
-//= require rollcall/ADST/view/ResultsLegend
 //= require rollcall/ADST/view/Results
 
 Ext.namespace("Talho.Rollcall.ADST.view");
 
-//TODO fix type
 Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
   itemId: 'ADSTFormPanel',
   id: "ADSTFormPanel",

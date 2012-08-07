@@ -1,5 +1,6 @@
 //= require rollcall/ADST/view/SimpleParameters
 //= require rollcall/ADST/view/AdvancedParameters
+//= require rollcall/ADST/view/ActionPanel
 
 Ext.namespace("Talho.Rollcall.ADST.view");
 
@@ -19,14 +20,14 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
     
     var simple = new Talho.Rollcall.ADST.view.SimpleParameters({getBubbleTarget: this.getBubbleTarget});
     var advanced = new Talho.Rollcall.ADST.view.AdvancedParameters({getBubbleTarget: this.getBubbleTarget});
-    var actionbuttons = new Talho.Rollcall.ADST.view.ActionButtons({getBubbleTarget: this.getBubbleTarget});
+    var actionpanel = new Talho.Rollcall.ADST.view.ActionPanel({getBubbleTarget: this.getBubbleTarget});
     
     this.getSimple = function () { return simple; };
     this.getAdvanced = function () { return advanced; };
-    this.getButtons = function () { return actionbuttons; };
+    this.getActions = function () { return actionpanel; };
     
     
-    this.items = [simple, actionbuttons];
+    this.items = [simple, actionpanel];
     
     //TODO if store fails no auth and keel everytin up on controller    
     
@@ -54,7 +55,7 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
     
   toggle: function () {
     this.simple = !this.simple
-    this.items = [(this.simple ? this.getSimple() : this.getAdvanced())];
+    this.items = [(this.simple ? this.getSimple() : this.getAdvanced()), this.getActions];
   },
   
   reset: function () {

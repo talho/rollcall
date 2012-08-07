@@ -8,34 +8,34 @@ Talho.Rollcall.ADST.view.AlarmQueryWindow = Ext.extend(Ext.Window, {
   height: 500,
   modal: true,
   initComponent: function () {
-    var param_aray = []
+    var param_aray = this.state == 'new' ? [] : this.alarm_query.get('query_param_array');
     for(var k in this.query_params){
       param_aray.push({key: k, value: this.query_params[k]});
     }
     
     this.items = {
       xtype: 'form', itemId: 'form', labelWidth: 65, padding: '3', method: this.state == 'new' ? 'POST' : 'PUT',
-      url: this.state == 'new' ? '/rollcall/alarm_query' : '/rollcall/alarm_query/' + this.alarm_query_id,
+      url: this.state == 'new' ? '/rollcall/alarm_query' : '/rollcall/alarm_query/' + this.alarm_query.get('id'),
       items: [
-        {xtype: 'textfield', fieldLabel: 'Name', itemId: 'name', name: 'alarm_query[name]', value: this.state == 'new' ? 'Alarm query for ' + this.school_name : '', anchor: '100%'},
+        {xtype: 'textfield', fieldLabel: 'Name', itemId: 'name', name: 'alarm_query[name]', value: this.state == 'new' ? 'Alarm query for ' + this.school_name : this.alarm_query.get('name'), anchor: '100%'},
         {xtype: 'fieldset', title: 'Absentee Rate Deviation', items: [
           {xtype: 'container', fieldLabel: 'Min', items: [
-            {xtype: 'numberfield', width: 30, style: 'float:left;', name: 'alarm_query[deviation_min]', value: 0, listeners: { keyup: this._changeSliderField }},
-            {xtype: 'slider', tipText: this._tipTextDisplay, style: 'margin-left: 40px', submitValue: false, value: 0, listeners: { change: this._changeTextField }}
+            {xtype: 'numberfield', width: 30, style: 'float:left;', name: 'alarm_query[deviation_min]', value: this.state == 'new' ? 0 : this.alarm_query.get('deviation_min'), listeners: { keyup: this._changeSliderField }},
+            {xtype: 'slider', tipText: this._tipTextDisplay, style: 'margin-left: 40px', submitValue: false, value: this.state == 'new' ? 0 : this.alarm_query.get('deviation_min'), listeners: { change: this._changeTextField }}
           ]},
           {xtype: 'container', fieldLabel: 'Max', items: [
-            {xtype: 'numberfield', width: 30, style: 'float:left;', name: 'alarm_query[deviation_max]', value: 0, listeners: { keyup: this._changeSliderField }},
-            {xtype: 'slider', tipText: this._tipTextDisplay, style: 'margin-left: 40px', submitValue: false, value: 0, listeners: { change: this._changeTextField }}
+            {xtype: 'numberfield', width: 30, style: 'float:left;', name: 'alarm_query[deviation_max]', value: this.state == 'new' ? 0 : this.alarm_query.get('deviation_max'), listeners: { keyup: this._changeSliderField }},
+            {xtype: 'slider', tipText: this._tipTextDisplay, style: 'margin-left: 40px', submitValue: false, value: this.state == 'new' ? 0 : this.alarm_query.get('deviation_max'), listeners: { change: this._changeTextField }}
           ]}
         ]},
         {xtype: 'fieldset', title: 'Absentee Rate Severity', items: [
           {xtype: 'container', fieldLabel: 'Min', items: [
-            {xtype: 'numberfield', width: 30, style: 'float:left;', name: 'alarm_query[severity_min]', value: 0, listeners: { keyup: this._changeSliderField }},
-            {xtype: 'slider', tipText: this._tipTextDisplay, style: 'margin-left: 40px', submitValue: false, value: 0, listeners: { change: this._changeTextField }}
+            {xtype: 'numberfield', width: 30, style: 'float:left;', name: 'alarm_query[severity_min]', value: this.state == 'new' ? 0 : this.alarm_query.get('severity_min'), listeners: { keyup: this._changeSliderField }},
+            {xtype: 'slider', tipText: this._tipTextDisplay, style: 'margin-left: 40px', submitValue: false, value: this.state == 'new' ? 0 : this.alarm_query.get('severity_min'), listeners: { change: this._changeTextField }}
           ]},
           {xtype: 'container', fieldLabel: 'Max', items: [
-            {xtype: 'numberfield', width: 30, style: 'float:left;', name: 'alarm_query[severity_max]', value: 0, listeners: { keyup: this._changeSliderField }},
-            {xtype: 'slider', tipText: this._tipTextDisplay, style: 'margin-left: 40px', submitValue: false, value: 0, listeners: { change: this._changeTextField }}
+            {xtype: 'numberfield', width: 30, style: 'float:left;', name: 'alarm_query[severity_max]', value: this.state == 'new' ? 0 : this.alarm_query.get('severity_max'), listeners: { keyup: this._changeSliderField }},
+            {xtype: 'slider', tipText: this._tipTextDisplay, style: 'margin-left: 40px', submitValue: false, value: this.state == 'new' ? 0 : this.alarm_query.get('severity_max'), listeners: { change: this._changeTextField }}
           ]}
         ]},
         {xtype: 'fieldset', title: 'Parameters', items: {
@@ -51,8 +51,13 @@ Talho.Rollcall.ADST.view.AlarmQueryWindow = Ext.extend(Ext.Window, {
     
     this.buttons = [
       {text: 'Save', scope: this, handler: function(){
+        var params = {};
+        if(this.query_params){
+          params['alarm_query[query_params]'] = Ext.encode(this.query_params);
+        }
+        
         this.getComponent('form').getForm().submit({
-          params: {'alarm_query[query_params]': Ext.encode(this.query_params)},
+          params: params,
           scope: this,
           success: function(form, action){
             this.fireEvent('savecomplete');

@@ -12,7 +12,7 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
   layout false
   
   # GET rollcall/alarm_query
-  def index
+  def index    
     respond_with(@alarm_queries = current_user.alarm_queries.order(:name))
   end
 

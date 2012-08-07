@@ -28,34 +28,31 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   },
   
   _submitQuery: function () {
-    // TODO: I don't like that this refers to a component ID. I don't trust it to be unique through the app. consider modifying this. Pass params down to result panel to load.
-    var form_panel = Ext.getCmp('ADSTFormPanel');
-    var form_values = form_panel.getForm().getValues();
-    if(!this.result_panel){
-      this.result_panel = Ext.getCmp('ADSTResultPanel');
-    }
-    var result_store = this.result_panel.getResultStore();    
-    var params = this._buildParams(form_values);
-    this._grabListViewFormValues(params);
-            
-    result_store.load({params: params});
+    var form = this.layout.getSearchForm();
+    var params = form.getParameters().getParams(form.getForm().getValues());
+    form.getResults().loadResultStore(params);
+    
     return true;
   },
   
   _grabListViewFormValues: function(params)
   {
+    //TODO Evaluate if I need this
     // TODO: Push this down along with buildParams
     var list_fields  = ["school", "school_district", "school_type", "zip", "age", "grade", "symptoms"];
     for (var i=0; i < list_fields.length; i++) {
       var selected_records = Ext.getCmp(list_fields[i]+'_adv').getSelectedRecords();
-      var vals             = jQuery.map(selected_records, function(e,i){ return e.get('value'); });
-      if (vals.length > 0) params[list_fields[i]+'[]'] = vals;
+      var vals = jQuery.map(selected_records, function(e,i){ return e.get('value'); });
+      if (vals.length > 0) {
+        params[list_fields[i]+'[]'] = vals;
+      }
     }
   },
   
   _buildParams: function(form_values)
   {
-    // TODO: We should be calling get params on each advanced or simple view. I don't have a problem with having them be separate forms and calling the currently active one to ask for its params
+    // TODO: We should be calling get params on each advanced or simple view. 
+    // I don't have a problem with having them be separate forms and calling the currently active one to ask for its params
     var params = new Object;
     for (key in form_values){
       if (Ext.getCmp('advanced_query_select').isVisible()){
@@ -73,20 +70,12 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   },
   
   _resetForm: function () {
-    // TODO: This should call reset on both search forum views, not on individual components
-    Ext.getCmp('ADSTFormPanel').getForm().reset();
-    Ext.getCmp('school_adv').clearSelections();
-    Ext.getCmp('school_type_adv').clearSelections();
-    Ext.getCmp('zip_adv').clearSelections();
-    Ext.getCmp('age_adv').clearSelections();
-    Ext.getCmp('grade_adv').clearSelections();
-    Ext.getCmp('symptoms_adv').clearSelections();
-    Ext.getCmp('school_district_adv').clearSelections();
+    this.layout.getSearchForm().reset();
   },
   
   _nextPage: function (toolbar, params)
   {
-    var result_store = Ext.getCmp('ADSTResultPanel')._getResultStore();       
+    var result_store = Ext.getCmp('ADSTResultPanel')._getResultsStore();       
     params['page'] = Math.floor(params.start / params.limit) + 1;
     return true;
   },

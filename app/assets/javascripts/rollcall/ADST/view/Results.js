@@ -22,6 +22,16 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       {itemId: 'rightColumn', columnWidth: .50}
     ];
     
+    this.html = '<div id="graph_legend" style="margin-top:4px;">' +
+      '<div style="float:left;margin-left:8px;margin-right:20px">Legend:&nbsp;</div>' +
+      '<div style="float:left;margin-right:20px"><span style="background-color:#99BBE8">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Raw&nbsp;</div>' +
+      '<div style="float:left;margin-right:20px"><span style="background-color:#FF6600">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Average&nbsp;</div>' +
+      '<div style="float:left;margin-right:20px"><span style="background-color:#0666FF">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Average 30 Day&nbsp;</div>' +
+      '<div style="float:left;margin-right:20px"><span style="background-color:#660066">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Average 60 Day&nbsp;</div>' +
+      '<div style="float:left;margin-right:20px"><span style="background-color:#006600">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Standard Deviation&nbsp;</div>' +
+      '<div style="float:left;margin-right:20px"><span style="background-color:#FF0066">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Cusum&nbsp;</div>' +
+      '</div></ br> </ hr>';
+    
     var result_store = new Ext.data.JsonStore({
       autoLoad: false,
       autoSave: true,   
@@ -38,12 +48,16 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       }
     });
 
-    this.getResultStore = function ()
+    this.getResultsStore = function ()
     {
       return result_store;
     };
     
     Talho.Rollcall.ADST.view.Results.superclass.initComponent.apply(this, arguments);
+  },
+  
+  loadResultStore: function (params) {
+    this.getResultsStore().load({params: params});
   },
   
   _loadGraphResults: function (store, records, options) {    
@@ -64,7 +78,6 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     
     var graph_series = this._getGraphSeries();
     
-    //TODO make graph image config
     store.each(function (school, i) {
       var id = school.id;
       var name = school.get('name');
@@ -198,6 +211,6 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
   },
 
   getSearchParams: function(){
-    return this.getResultStore().lastOptions.params;
+    return this.getResultsStore().lastOptions.params;
   }
 });

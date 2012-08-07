@@ -11,20 +11,22 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
   border: false,
   title: "Rollcall ADST",
   
-  initComponent: function () {        
-    this.addEvents('nextpage');
-    this.enableBubble('nextpage');
-    
+  initComponent: function () {            
     var me = this,
-        findBubble = function () {
-          return me;
+      findBubble = function () {
+        return me;
     }
     
     this.alarm_queries = new Talho.Rollcall.ADST.view.AlarmQueries({
       itemId: 'alarm_queries', getBubbleTarget: findBubble
     });
     
-    //TODO finish getBubbleTarget
+    var search_form = new Talho.Rollcall.ADST.view.SearchForm({getBubbleTarget: findBubble});
+    
+    this.getSearchForm = function () { return search_form };
+    
+    var results_store = this.getSearchForm().getResults().getResultsStore();
+    
     this.items = [
       {id: 'adst_layout', layout: 'border', autoScroll: true, scope: this, 
         defaults: {collapsible: false, split: true},
@@ -52,14 +54,10 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
           {xtype: 'panel', id: 'adst_panel', title: 'Advanced Disease Surveillance Tool', border: false, collapsible: false,
             region: 'center', autoScroll: true, scope: this,
             items: [
-              new Talho.Rollcall.ADST.view.SearchForm({getBubbleTarget: findBubble})              
+              search_form              
             ],
             bbar: [new Ext.PagingToolbar(
-              {displayInfo: true, prependButtons: true, pageSize: 6, store:Ext.getCmp('ADSTResultPanel')._getResultStore(),
-                listeners: {
-                  'beforechange': function (toolbar, params) { this.fireEvent('nextpage',toolbar, params) }
-                }
-              }
+              {displayInfo: true, prependButtons: true, pageSize: 6, store: results_store }
             )]          
           }
         ]

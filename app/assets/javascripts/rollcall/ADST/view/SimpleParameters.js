@@ -18,55 +18,60 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Panel, {
       width: 200
     }
   },
+  boxMinHeight: 125,
   
-  //TODO split it out to take data and bind from not init
-  initComponent: function () {
-    var data = this.options;
+  initComponent: function () {    
+    //TODO clean out getCmps
+    var absent = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'Absenteeism', emptyText:'Gross', id: 'absent_simple', editable: false});
+        
+    var district = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'School District', emptyText:'Select School District...',
+      allowBlank: true, id: 'school_district_simple', itemId: 'school_district_simple',
+      displayField: 'name', editable: false,      
+      listeners: {
+        scope: this,
+        select: function(comboBox, record, index){
+          this.clearOptions(comboBox.id);
+        }
+      }
+    });
+    
+    var school = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'School', emptyText:'Select School...', allowBlank: true, 
+      id: 'school_simple', itemId: 'school_simple', displayField: 'display_name', editable: false,      
+      listeners: {
+        scope: this,
+        select: function(comboBox, record, index){
+          this.clearOptions(comboBox.id);
+        }
+      }
+    });    
+    
+    var type = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'School Type', emptyText:'Select School Type...', allowBlank: true,
+      id: 'school_type_simple', itemId: 'school_type_simple', editable: false,      
+      listeners: {
+        scope: this,
+        select: function(comboBox, record, index){
+          this.clearOptions(comboBox.id);
+        }
+      }
+    });
+    
+    var func = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'Data Function', emptyText: 'Raw', id: 'data_func_simple', editable: false });
+    
+    this.loadable = [
+      {item: absent, fields: ['id', 'value'], key: 'absenteeism'},
+      {item: district, fields: ['id', 'name'], key: 'school_districts'},
+      {item: school, fields: ['id', 'display_name'], key: 'schools'},
+      {item: type, fields: ['id', 'value'], key: 'school_type'},
+      {item: func, fields: ['id', 'value'], key: 'data_functions'}
+    ];
+    
+    this.clearable = [school, district, type];
     
     this.items = [
-      {items:
-        {xtype: 'rollcall-combo', fieldLabel: 'Absenteeism', emptyText:'Gross', id: 'absent_simple', editable: false,
-          store: new Ext.data.JsonStore({fields: ['id', 'value'], data: data.absenteeism})
-        }
-      },
-      {items:
-        {xtype: 'rollcall-combo', fieldLabel: 'School District', emptyText:'Select School District...',
-          allowBlank: true, id: 'school_district_simple', itemId: 'school_district_simple',
-          displayField: 'name', editable: false,
-          store: new Ext.data.JsonStore({fields: ['id', 'name'], data: data.school_districts}),
-          listeners: {
-            select: function(comboBox, record, index) {
-              Ext.getCmp('school_simple').clearValue();
-              Ext.getCmp('school_type_simple').clearValue(); 
-            }
-          }
-        }
-      },
-      {items:
-        {xtype: 'rollcall-combo', fieldLabel: 'School', emptyText:'Select School...', allowBlank: true, 
-          id: 'school_simple', itemId: 'school_simple', displayField: 'display_name', editable: false,
-          store: new Ext.data.JsonStore({fields: ['id', 'display_name'], data: data.schools}),
-          listeners: {
-            select: function(comboBox, record, index){
-              Ext.getCmp('school_district_simple').clearValue();
-              Ext.getCmp('school_type_simple').clearValue();
-              Ext.getCmp('return_individual_school_simple').setValue(true);               
-            }
-          }
-        }
-      },
-      {items:
-        {xtype: 'rollcall-combo', fieldLabel: 'School Type', emptyText:'Select School Type...', allowBlank: true,
-          id: 'school_type_simple', itemId: 'school_type_simple', editable: false,
-          store: new Ext.data.JsonStore({fields: ['id', 'value'], data: data.school_type}),
-          listeners: {
-            select: function(comboBox, record, index){
-              Ext.getCmp('school_district_simple').clearValue();
-              Ext.getCmp('school_simple').clearValue();
-            }
-          }
-        }
-      },
+      {items: absent},
+      {items: district},
+      {items: school},
+      {items: type},
       {items:
         {xtype: 'datefield', fieldLabel: 'Start Date', name: 'startdt_simple', id: 'startdt_simple',
           endDateField: 'enddt_simple', emptyText:'Select Start Date...', allowBlank: true,
@@ -79,11 +84,7 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Panel, {
           selectOnFocus:true, ctCls: 'ux-combo-box-cls'
         }
       },
-      {items:
-        {xtype: 'rollcall-combo', fieldLabel: 'Data Function', emptyText: 'Raw', id: 'data_func_simple', editable: false,
-          store: new Ext.data.JsonStore({fields: ['id', 'value'], data: data.data_functions})
-        }
-      },
+      {items: func },
       {items:
         {xtype: 'container', cls: 'line-check-simple', items:[
           {xtype: 'checkbox', id: 'return_individual_school_simple', checked: true, 
@@ -106,5 +107,31 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Panel, {
     ];
     
     Talho.Rollcall.ADST.view.SimpleParameters.superclass.initComponent.apply(this, arguments);
+    this.doLayout();
   },
+  
+  getParams: function (form_values) {
+    var params = new Object;
+    for (key in form_values) {
+      if (form_values[key].indexOf('...') == -1) {
+        params[key.replace(/_simple/,'')] = form_values[key].replace(/\+/g, " ");
+      }
+    }    
+    
+    return params;
+  },
+  
+  loadOptions: function (data) {
+    Ext.each(this.loadable, function (d) {
+      d.item.store = new Ext.data.JsonStore({fields: d.fields, data: data[d.key] });
+    });
+  },
+  
+  clearOptions: function (id) {
+    Ext.each(this.clearable, function (item) {
+      if (id != item.id) {
+        item.clearValue();
+      }
+    });
+  }
 });

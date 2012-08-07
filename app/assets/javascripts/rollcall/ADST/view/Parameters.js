@@ -3,7 +3,6 @@
 
 Ext.namespace("Talho.Rollcall.ADST.view");
 
-//TODO fix type
 Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
   id: 'parameters',
   borders: 'true',
@@ -11,10 +10,25 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
   layout: 'fit',
 
   initComponent: function (config) {    
+    this.addEvents('notauthorized');
+    this.enableBubble('notauthorized');
+    
     this.items = [];
     
-    //TODO if store fails no auth and keel everytin up on controller
-    //TODO switch to ajax request instead of store
+    this.simple = false;
+    
+    var simple = new Talho.Rollcall.ADST.view.SimpleParameters({getBubbleTarget: this.getBubbleTarget});
+    var advanced = new Talho.Rollcall.ADST.view.AdvancedParameters({getBubbleTarget: this.getBubbleTarget});
+    var actionbuttons = new Talho.Rollcall.ADST.view.ActionButtons({getBubbleTarget: this.getBubbleTarget});
+    
+    this.getSimple = function () { return simple; };
+    this.getAdvanced = function () { return advanced; };
+    this.getButtons = function () { return actionbuttons; };
+    
+    
+    this.items = [simple, actionbuttons];
+    
+    //TODO if store fails no auth and keel everytin up on controller    
     
     Ext.Ajax.request({
       url: '/rollcall/query_options',
@@ -22,17 +36,28 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
       scope: this,
       success: function (response) {
         var data = Ext.decode(response.responseText);
-        this.items.add(new Talho.Rollcall.ADST.view.SimpleParameters({options: data, getBubbleTarget: this.getBubbleTarget}));
-        this.items.add(new Talho.Rollcall.ADST.view.AdvancedParameters({options: data, getBubbleTarget: this.getBubbleTarget}));
+        this.getSimple().loadOptions(data);
+        this.getAdvanced().loadOptions(data);
         this.doLayout();
+      },
+      failure: function (response) {
+        this.fireEvent('notauthorized');
       }
     });        
     
     Talho.Rollcall.ADST.view.Parameters.superclass.initComponent.apply(this, config);        
   },
   
-  //TODO make it toggle between simple and advanced
-  toggle: function () {
+  getParams: function () {
+    return (this.simple ? this.getSimple().getParams() : this.getAdvanced().getParams());
+  },
     
+  toggle: function () {
+    this.simple = !this.simple
+    this.items = [(this.simple ? this.getSimple() : this.getAdvanced())];
+  },
+  
+  reset: function () {
+    this.getAdvanced().reset();
   }
 });

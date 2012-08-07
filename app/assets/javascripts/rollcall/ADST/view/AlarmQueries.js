@@ -30,6 +30,22 @@ Talho.Rollcall.ADST.view.AlarmQueries = Ext.extend(Ext.DataView, {
           param_array.push({key: k, value: params[k]});
         }
         return param_array;
+      }}, {name: 'alarm_info_array', mapping: 'query_params', convert: function(v, rec){
+        var params,
+            param_array = [];
+        try{
+          params = Ext.decode(v);
+        }
+        catch(e){}
+        
+        param_array.push({key: 'deviation_min', value: rec.deviation_min});
+        param_array.push({key: 'deviation_max', value: rec.deviation_max});
+        param_array.push({key: 'severity_min', value: rec.severity_min});
+        param_array.push({key: 'severity_max', value: rec.severity_max});
+        for(var k in params){
+          param_array.push({key: k, value: params[k]});
+        }
+        return param_array;
       }}],
       autoLoad: true,
       autoDestroy: true
@@ -37,23 +53,23 @@ Talho.Rollcall.ADST.view.AlarmQueries = Ext.extend(Ext.DataView, {
     
     this.tpl = new Ext.XTemplate(
       '<tpl for=".">',
-        '<div class="rollcall-query-holder" style="float:left;height:100%;border:1px solid black;border-radius:3px;position:relative;margin:0px 8px;">',
-          '<div style="border-bottom:1px solid black;color:white;font-size:11px;font-weight:bold;background-color:#697B93;">',
-            '<div style="float:right;padding:2px">',
+        '<div class="rollcall-query-holder">',
+          '<div class="rollcall-query-header">',
+            '<div class="rollcall-tool-holder">',
               '<div class="x-tool x-tool-close" qtip="Delete Alarm Query"></div>',
               '<div class="x-tool x-tool-gear" qtip="Edit Alarm Query"></div>',
               '<div class="x-tool {[values.alarm_set ? "x-tool-alarm-on" : "x-tool-alarm-off"]}" qtip="Toggle Alarm State"></div>',
               '<div class="x-tool x-tool-run-query" qtip="Run Query"></div>',
             '</div>',
-            '<span class="rollcall-query-name" style="text-align:center;padding:2px;">{name}</span>',
+            '<span class="rollcall-query-name">{name}</span>',
           '</div>',
-          '<div style="overflow-y:scroll;padding:2px;position:absolute;bottom:0;right:0;top:19px;left:0px;">',
-            '<table style="width:100%;">',
+          '<div class="rollcall-query-detail-holder">',
+            '<table class="rollcall-query-detail-table">',
               '<tbody>',
-              '<tpl for="query_param_array">',
-                '<tr style="border-bottom:1px solid #ADADAD;">',
-                  '<td style="border-right: 1px solid #ADADAD;padding-right:2px;">{key}</td>',
-                  '<td style="padding:0 2px;">{value}</td>',
+              '<tpl for="alarm_info_array">',
+                '<tr class="rollcall-query-detail-row">',
+                  '<td class="rollcall-query-column-1">{key}</td>',
+                  '<td class="rollcall-query-column-2">{value}</td>',
                 '</tr>',
               '</tpl>',
               '</tbody>',

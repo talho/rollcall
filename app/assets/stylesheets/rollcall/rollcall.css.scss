@@ -518,3 +518,59 @@ circle.line-deviation{
 circle.line-cusum{
   fill: #ff0066;
 }
+
+/* --------- Alarm Queries Junk ---------------- */
+
+.rollcall-query-holder{
+  float:left;
+  height:100%;
+  border:1px solid black;
+  border-radius:3px;
+  position:relative;
+  margin:0px 8px;
+}
+
+.rollcall-query-header{
+  border-bottom:1px solid black;
+  color:white;
+  font-size:11px;
+  font-weight:bold;
+  background-color:#697B93;
+}
+
+.rollcall-tool-holder{
+  float:right;
+  padding:2px;
+}
+
+.rollcall-query-name{
+  text-align:center;
+  padding:2px;
+}
+
+.rollcall-query-detail-holder{
+  overflow-y:scroll;
+  padding:2px;
+  position:absolute;
+  bottom:0;
+  right:0;
+  top:19px;
+  left:0px;
+}
+
+.rollcall-query-detail-table{
+  width:100%;
+}
+
+.rollcall-query-detail-row{
+  border-bottom:1px solid #ADADAD;
+}
+
+.rollcall-query-column-1{
+  border-right: 1px solid #ADADAD;
+  padding-right:2px;
+}
+
+.rollcall-query-column-2{
+  padding:0 2px;
+}

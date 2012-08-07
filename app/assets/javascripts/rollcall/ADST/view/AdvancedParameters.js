@@ -69,7 +69,8 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
     this.clearable = [school, type, zip, age, grade, symptoms, district];    
     
     //TODO: Let's conditionalize this for School District & School
-    //TODO switch to form layout and fieldlabels
+    //TODO: Switch vbox to form layout and move those labels to fieldLabel
+
     var schoolFilter = {xtype: 'fieldset', layout: 'hbox', width: 262, title: 'School Filter',
       items: [
         {xtype: 'container', layout: 'vbox', width: 100, height: 230, defaults: { width:100 },

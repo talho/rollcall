@@ -30,6 +30,12 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     
     Talho.Rollcall.ADST.Controller.superclass.constructor.apply(this, arguments)
   },
+  
+  _submitQuery: function (params) {
+    var form = this.layout.getSearchForm();
+    var params = form.getParameters().getParams(form.getForm().getValues());
+    form.getResults().loadResultStore(params);
+  },
     
   _submitQuery: function (params) {
     this.layout.getResultsPanel().loadResultStore(params);
@@ -109,7 +115,9 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   },
   
   runQuery: function(id, alarm_query){
-    
+    var params = Ext.decode(alarm_query.get('query_params'));
+    var form = this.layout.getSearchForm();
+    form.getResults().loadResultStore(params);    
   },
   
   _showSchoolProfile: function () {

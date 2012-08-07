@@ -1,33 +1,44 @@
 //= require rollcall/ADST/view/SimpleParameters
 //= require rollcall/ADST/view/AdvancedParameters
-//= require rollcall/ADST/view/ActionPanel
 
 Ext.namespace("Talho.Rollcall.ADST.view");
 
 Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
   id: 'parameters',
-  borders: 'true',
   collapsible: false,
   layout: 'fit',
 
   initComponent: function (config) {    
-    this.addEvents('notauthorized');
+    this.addEvents('notauthorized', 'toggle');
     this.enableBubble('notauthorized');
-    
+
     this.items = [];
     
-    this.simple = false;
+    this.simple_mode = true;
+                
+    this.toggle_button = new Ext.Button({text: "Switch to Advanced View >>", style:{margin: '0px 0px 5px 5px'}, scope: this,
+      handler: function(buttonEl, eventObj) {
+        this.toggle();
+      }
+    });
     
-    var simple = new Talho.Rollcall.ADST.view.SimpleParameters({getBubbleTarget: this.getBubbleTarget});
-    var advanced = new Talho.Rollcall.ADST.view.AdvancedParameters({getBubbleTarget: this.getBubbleTarget});
-    var actionpanel = new Talho.Rollcall.ADST.view.ActionPanel({getBubbleTarget: this.getBubbleTarget});
+    this.getSimplePanel = function () {
+      if (!this.simple_panel) {
+        this.simple_panel = new Talho.Rollcall.ADST.view.SimpleParameters({getBubbleTarget: this.getBubbleTarget});
+      }
+      if (this.data) {this.simple_panel.loadOptions(this.data)}
+      return this.simple_panel;      
+    };
     
-    this.getSimple = function () { return simple; };
-    this.getAdvanced = function () { return advanced; };
-    this.getActions = function () { return actionpanel; };
+    this.getAdvancedPanel = function () {
+      if (!this.advanced_panel) {
+        this.advanced_panel = new Talho.Rollcall.ADST.view.AdvancedParameters({getBubbleTarget: this.getBubbleTarget});
+      }
+      if (this.data) {this.advanced_panel.loadOptions(this.data)}
+      return this.advanced_panel;
+    };
     
-    
-    this.items = [simple, actionpanel];
+    this.items = [this.getSimplePanel()];
     
     //TODO if store fails no auth and keel everytin up on controller    
     
@@ -36,9 +47,9 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
       method: 'GET',
       scope: this,
       success: function (response) {
-        var data = Ext.decode(response.responseText);
-        this.getSimple().loadOptions(data);
-        this.getAdvanced().loadOptions(data);
+        this.data = Ext.decode(response.responseText);
+        this.getSimplePanel().loadOptions(this.data);
+        this.getAdvancedPanel().loadOptions(this.data);
         this.doLayout();
       },
       failure: function (response) {
@@ -46,19 +57,33 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
       }
     });        
     
+    this.buttons = [this.toggle_button];
+    
     Talho.Rollcall.ADST.view.Parameters.superclass.initComponent.apply(this, config);        
   },
   
   getParams: function () {
-    return (this.simple ? this.getSimple().getParams() : this.getAdvanced().getParams());
+    return (this.simple_mode ? this.getSimplePanel().getParams() : this.getAdvancedPanel().getParams());
   },
     
   toggle: function () {
-    this.simple = !this.simple
-    this.items = [(this.simple ? this.getSimple() : this.getAdvanced()), this.getActions];
+    if (this.simple_mode) {
+      this.remove(this.getSimplePanel());
+      this.simple_panel = false   
+      this.add(this.getAdvancedPanel());
+      this.toggle_button.setText("Switch to Simple View >>");
+    }
+    else {
+      this.remove(this.getAdvancedPanel());
+      this.advanced_panel = false
+      this.add(this.getSimplePanel());      
+      this.toggle_button.setText("Switch to Advanced View >>");
+    }    
+    this.simple_mode = !this.simple_mode    
+    this.doLayout();
   },
   
   reset: function () {
-    this.getAdvanced().reset();
+    this.getAdvancedPanel().reset();
   }
 });

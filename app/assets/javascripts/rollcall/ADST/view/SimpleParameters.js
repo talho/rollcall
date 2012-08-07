@@ -2,7 +2,7 @@
 
 Ext.namespace("Talho.Rollcall.ADST.view");
 
-Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Panel, {
+Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
   id: "simple_query_select",
   itemId: "simple_query_select",
   layout: 'auto',
@@ -18,10 +18,10 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Panel, {
       width: 200
     }
   },
-  boxMinHeight: 125,
+  boxMinHeight: 100,
   
+  //TODO clean up _simple stuff
   initComponent: function () {    
-    //TODO clean out getCmps
     var absent = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'Absenteeism', emptyText:'Gross', id: 'absent_simple', editable: false});
         
     var district = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'School District', emptyText:'Select School District...',
@@ -92,18 +92,6 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Panel, {
           }]
         }
       },
-      {items:
-        {xtype: 'container', cls: 'clear', items: [
-          {xtype: 'button', text: "Switch to Advanced View >>", style:{margin: '0px 0px 5px 5px'}, scope: this,
-            handler: function(buttonEl, eventObj) {
-              this.hide();
-              // Ext.getCmp('rollcall_adst')._resetForm();
-              // Ext.getCmp('advanced_query_select').show();
-              // Ext.getCmp('advanced_query_select').doLayout();
-            }
-          }]
-        }
-      }
     ];
     
     Talho.Rollcall.ADST.view.SimpleParameters.superclass.initComponent.apply(this, arguments);

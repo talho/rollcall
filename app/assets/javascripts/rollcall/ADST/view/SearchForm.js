@@ -1,5 +1,5 @@
 //= require rollcall/ADST/view/Parameters
-//= require rollcall/ADST/view/Results
+
 
 Ext.namespace("Talho.Rollcall.ADST.view");
 
@@ -9,18 +9,29 @@ Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
   url: '/rollcall/adst',
   labelAlign: 'top',
   buttonAlign: 'left',
-  
     
-  initComponent: function (config) {
-    var parameters = new Talho.Rollcall.ADST.view.Parameters({getBubbleTarget: this.getBubbleTarget});    
-    var results = new Talho.Rollcall.ADST.view.Results({getBubbleTarget: this.getBubbleTarget});
+  initComponent: function (config) {    
+    this.addEvents('reset', 'submitquery');        
+    this.enableBubble('submitquery');
+    this.enableBubble('reset');
     
-    this.getParameters = function () { return parameters };    
-    this.getResults = function () { return results };
+    var parameters = new Talho.Rollcall.ADST.view.Parameters({getBubbleTarget: this.getBubbleTarget});        
+    
+    this.getParametersPanel = function () { return parameters }; 
         
-    this.items = [      
-      parameters,            
-      results
+    this.items = [parameters];
+    
+    this.buttons = [
+      //TODO move handlers up to controller
+      {text: "Submit", itemId: 'submit_ext4', scope: this, handler: function () { this.fireEvent('submitquery'); }, formBind: true},
+      {text: "Reset Form", scope: this, handler: function () { this.fireEvent('reset'); }},
+      {text: "Export Result Set", hidden: true, scope: this, handler: this._exportResultSet},
+      {text: "Create Alarm from Result Set", hidden: true, scope: this, handler: this.saveResultSet},
+      {text: "Generate Report from Result Set", hidden: true, scope: this,
+        handler: function (buttonObj, eventObj) {
+          this._showReportMenu(buttonObj.getEl(), null);
+        }
+      }
     ];
     
     Talho.Rollcall.ADST.view.SearchForm.superclass.initComponent.apply(this, config);       

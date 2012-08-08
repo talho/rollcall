@@ -19,13 +19,13 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
     }
   },
   boxMinHeight: 100,
-  
-  //TODO clean up _simple stuff
+  border: false,
+    
   initComponent: function () {    
-    var absent = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'Absenteeism', emptyText:'Gross', id: 'absent_simple', editable: false});
+    var absent = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'Absenteeism', emptyText:'Gross', id: 'absent', editable: false});
         
     var district = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'School District', emptyText:'Select School District...',
-      allowBlank: true, id: 'school_district_simple', itemId: 'school_district_simple',
+      allowBlank: true, id: 'school_district', itemId: 'school_district',
       displayField: 'name', editable: false,      
       listeners: {
         scope: this,
@@ -36,7 +36,7 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
     });
     
     var school = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'School', emptyText:'Select School...', allowBlank: true, 
-      id: 'school_simple', itemId: 'school_simple', displayField: 'display_name', editable: false,      
+      id: 'school', itemId: 'school_simple', displayField: 'display_name', editable: false,      
       listeners: {
         scope: this,
         select: function(comboBox, record, index){
@@ -46,7 +46,7 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
     });    
     
     var type = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'School Type', emptyText:'Select School Type...', allowBlank: true,
-      id: 'school_type_simple', itemId: 'school_type_simple', editable: false,      
+      id: 'school_type', itemId: 'school_type', editable: false,      
       listeners: {
         scope: this,
         select: function(comboBox, record, index){
@@ -55,7 +55,7 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
       }
     });
     
-    var func = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'Data Function', emptyText: 'Raw', id: 'data_func_simple', editable: false });
+    var func = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'Data Function', emptyText: 'Raw', id: 'data_func', editable: false });
     
     this.loadable = [
       {item: absent, fields: ['id', 'value'], key: 'absenteeism'},
@@ -73,25 +73,18 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
       {items: school},
       {items: type},
       {items:
-        {xtype: 'datefield', fieldLabel: 'Start Date', name: 'startdt_simple', id: 'startdt_simple',
+        {xtype: 'datefield', fieldLabel: 'Start Date', name: 'startdt', id: 'startdt',
           endDateField: 'enddt_simple', emptyText:'Select Start Date...', allowBlank: true,
           selectOnFocus:true, ctCls: 'ux-combo-box-cls'
         }
       },
       {items:
-        {xtype: 'datefield', fieldLabel: 'End Date', name: 'enddt_simple', id: 'enddt_simple',
+        {xtype: 'datefield', fieldLabel: 'End Date', name: 'enddt', id: 'enddt',
           startDateField: 'startdt_simple', emptyText:'Select End Date...', allowBlank: true,
           selectOnFocus:true, ctCls: 'ux-combo-box-cls'
         }
       },
-      {items: func },
-      {items:
-        {xtype: 'container', cls: 'line-check-simple', items:[
-          {xtype: 'checkbox', id: 'return_individual_school_simple', checked: true, 
-            boxLabel: "Return Individual School Results"
-          }]
-        }
-      },
+      {items: func },      
     ];
     
     Talho.Rollcall.ADST.view.SimpleParameters.superclass.initComponent.apply(this, arguments);

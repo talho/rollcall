@@ -6,7 +6,7 @@
 Ext.namespace('Talho.Rollcall.ADST');
 
 Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
-  
+  //TODO MAKSING ALL THE WAY DOWN
   constructor: function () {
          
     this.layout = new Talho.Rollcall.ADST.view.Layout();
@@ -15,7 +15,8 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       return this.layout;
     }
     
-    this.layout.addEvents('reset', 'submitquery', 'export', 'saveasalarm', 'nextpage', 'showschoolprofile');
+    this.layout.addEvents('reset', 'submitquery', 'exportresult', 
+      'saveasalarm', 'createreport', 'showschoolprofile');
     this.layout.on({
       'reset': this._resetForm,
       'submitquery': this._submitQuery,
@@ -31,12 +32,6 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     Talho.Rollcall.ADST.Controller.superclass.constructor.apply(this, arguments)
   },
   
-  _submitQuery: function (params) {
-    var form = this.layout.getSearchForm();
-    var params = form.getParameters().getParams(form.getForm().getValues());
-    form.getResults().loadResultStore(params);
-  },
-    
   _submitQuery: function (params) {
     this.layout.getResultsPanel().loadResultStore(params);
   },

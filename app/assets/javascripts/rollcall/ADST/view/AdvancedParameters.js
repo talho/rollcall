@@ -6,53 +6,54 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
   id: "advanced_query_select",
   itemId: "advanced_query_select",
   layout: 'auto',
+  border: false,
   
   //TODO clean out _adv  
   initComponent: function () {    
     var data = this.options
     
-    var type = new Ext.ListView({id: 'school_type_adv', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
+    var type = new Ext.ListView({id: 'school_type', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
         columns: [{dataIndex: 'value', cls:'school-type-list-item'}], hideHeaders: true, height: 90        
     });
     
-    var zip = new Ext.ListView({id: 'zip_adv', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
+    var zip = new Ext.ListView({id: 'zip', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
       columns: [{dataIndex: 'value', cls:'zipcode-list-item'}], hideHeaders: true, height: 90
     }); 
     
-    var district = new Ext.ListView({id: 'school_district_adv', multiSelect: true, simpleSelect: true, cls: 'ux-query-form', 
+    var district = new Ext.ListView({id: 'school_district', multiSelect: true, simpleSelect: true, cls: 'ux-query-form', 
       columns: [{dataIndex: 'value', cls:'school-district-list-item'}], hideHeaders: true, height: 90      
     });
     
-    var school = new Ext.ListView({id: 'school_adv', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
+    var school = new Ext.ListView({id: 'school', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
       columns: [{dataIndex: 'value', cls:'school-name-list-item'}], hideHeaders: true, height: 90      
     });
     
-    var age = new Ext.ListView({id: 'age_adv', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
+    var age = new Ext.ListView({id: 'age', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
       columns: [{dataIndex: 'value', cls: 'age-list-item'}], hideHeaders: true, height: 90      
     });
     
-    var grade = new Ext.ListView({id: 'grade_adv', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
+    var grade = new Ext.ListView({id: 'grade', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
       columns: [{dataIndex: 'value', cls: 'grade-list-item'}], hideHeaders: true, height: 90      
     });
     
-    var symptoms = new Ext.ListView({id: 'symptoms_adv', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
+    var symptoms = new Ext.ListView({id: 'symptoms', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
       columns: [{dataIndex: 'name', width: 0.70, cls:'symptom-list-item'}, {dataIndex: 'value'}],
       hideHeaders: true, height: 160 
     });
     
-    var gender = new Ext.form.ComboBox({id: 'gender_adv', fieldLabel: 'Gender', editable: false, emptyText: 'Select Gender...'});
+    var gender = new Talho.Rollcall.ux.ComboBox({id: 'gender', fieldLabel: 'Gender', editable: false, emptyText: 'Select Gender...'});
     
-    var absent = new Ext.form.ComboBox({id: 'absent_adv', fieldLabel: 'Absenteeism', editable: false, value: 'Gross'});
+    var absent = new Talho.Rollcall.ux.ComboBox({id: 'absent', fieldLabel: 'Absenteeism', editable: false, value: 'Gross'});
     
-    var start_date = new Ext.form.DateField({fieldLabel: 'Start Date Adv', name: 'startdt_adv', id: 'startdt_adv',
+    var start_date = new Ext.form.DateField({fieldLabel: 'Start Date Adv', name: 'startdt', id: 'startdt_adv',
       endDateField: 'enddt_adv', emptyText: 'Select Start Date...', allowBlank: true, ctCls: 'ux-combo-box-cls'
     });
     
-    var end_date = new Ext.form.DateField({fieldLabel: 'End Date Adv', name: 'enddt_adv', id: 'enddt_adv',              startDateField: 'startdt_adv',
+    var end_date = new Ext.form.DateField({fieldLabel: 'End Date Adv', name: 'enddt', id: 'enddt_adv',              startDateField: 'startdt_adv',
       emptyText: 'Select End Date...', allowBlank: true, ctCls: 'ux-combo-box-cls'
     });
     
-    var func = new Ext.form.ComboBox({id: 'data_func_adv', editable: false, value: 'Raw'});
+    var func = new Talho.Rollcall.ux.ComboBox({id: 'data_func', editable: false, value: 'Raw'});
     
     this.loadable = [
       {item: type, fields: ['id', 'value'], key: 'school_type'},
@@ -151,23 +152,13 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
         iliFilter,
         {xtype: 'spacer', width: 5},
         miscFilter        
-      ]},
-      {xtype: 'checkbox', id: 'return_individual_school_adv', cls: 'line-check', checked: true, boxLabel: "Return Individual School Results"}      
+      ]}
+           
     ];
     
     Talho.Rollcall.ADST.view.AdvancedParameters.superclass.initComponent.apply(this, arguments);
   },
-  
-  getParams: function (form_values) {
-    var params = new Object;
-    for (key in form_values) {
-      if (form_values[key].indexOf('...') == -1) {
-        params[key.replace(/_adv/,'')] = form_values[key].replace(/\+/g, " ");
-      }
-    }    
     
-    return params;
-  },
   
   reset: function () {
     Ext.each(this.clearable, function (item) {

@@ -57,8 +57,10 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
     Talho.Rollcall.ADST.view.Parameters.superclass.initComponent.apply(this, config);        
   },
   
-  getParams: function () {
-    return (this.simple_mode ? this.getSimplePanel().getParams() : this.getAdvancedPanel().getParams());
+  getParameters: function () {
+    if (!this.simple_mode) {
+      return this.getAdvancedPanel().getListBoxes();
+    }
   },
     
   toggle: function () {

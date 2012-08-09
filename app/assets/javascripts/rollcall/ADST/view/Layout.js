@@ -28,11 +28,7 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
     this.getSearchForm = function () { return search_form };
     this.getResultsPanel = function () { return results };
     
-    var results_store = this.getResultsPanel().getResultsStore();
-    
-    this.results_mode_check = new Ext.form.Checkbox({id: 'return_individual_school', checked: true, 
-      boxLabel: "Return Individual School Results"
-    });
+    var results_store = this.getResultsPanel().getResultsStore();       
 
     this.simple_button = new Ext.Button({text: 'Switch to Advanced', scope: this, 
       handler: function (button, eventObj) {

@@ -35,12 +35,20 @@ Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
   },
   
   getParams: function () {
+    params = new Object;
+    
     form_values = this.getForm().getValues();
     for (key in form_values) {
-      if (form_values[key].indexOf('...') != -1) { delete form_values[key] }
+      if (form_values[key].indexOf('...') == -1) { 
+        params[key] = form_values[key].replace(/\+/g, " ");
+      }
     }
+        
+    var lists_box_params = this.getParametersPanel().getParameters();
+        
+    Ext.apply(params, lists_box_params);
     
-    return form_values;
+    return params;
   },
   
   reset: function () {

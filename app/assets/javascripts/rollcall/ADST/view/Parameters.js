@@ -7,20 +7,13 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
   id: 'parameters',
   collapsible: false,
   layout: 'fit',
+  border: false,
 
   initComponent: function (config) {    
     this.addEvents('notauthorized', 'toggle');
     this.enableBubble('notauthorized');
-
-    this.items = [];
     
     this.simple_mode = true;
-                
-    this.toggle_button = new Ext.Button({text: "Switch to Advanced View >>", style:{margin: '0px 0px 5px 5px'}, scope: this,
-      handler: function(buttonEl, eventObj) {
-        this.toggle();
-      }
-    });
     
     this.getSimplePanel = function () {
       if (!this.simple_panel) {
@@ -38,7 +31,11 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
       return this.advanced_panel;
     };
     
-    this.items = [this.getSimplePanel()];
+    var school_check = new Ext.form.Checkbox({id: 'return_individual_school', checked: true, 
+      boxLabel: "Return Individual School Results"
+    });
+    
+    this.items = [this.getSimplePanel(), school_check];
     
     //TODO if store fails no auth and keel everytin up on controller    
     
@@ -55,29 +52,29 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
       failure: function (response) {
         this.fireEvent('notauthorized');
       }
-    });        
-    
-    this.buttons = [this.toggle_button];
+    });               
     
     Talho.Rollcall.ADST.view.Parameters.superclass.initComponent.apply(this, config);        
   },
   
-  getParams: function () {
-    return (this.simple_mode ? this.getSimplePanel().getParams() : this.getAdvancedPanel().getParams());
+  getParameters: function () {
+    if (!this.simple_mode) {
+      return this.getAdvancedPanel().getListBoxes();
+    }
   },
     
   toggle: function () {
     if (this.simple_mode) {
       this.remove(this.getSimplePanel());
       this.simple_panel = false   
-      this.add(this.getAdvancedPanel());
-      this.toggle_button.setText("Switch to Simple View >>");
+      this.add(this.getAdvancedPanel());      
+      var button_text = "Switch to Simple View";
     }
     else {
       this.remove(this.getAdvancedPanel());
       this.advanced_panel = false
-      this.add(this.getSimplePanel());      
-      this.toggle_button.setText("Switch to Advanced View >>");
+      this.add(this.getSimplePanel());            
+      var button_text = "Switch to Advanced View";
     }    
     this.simple_mode = !this.simple_mode    
     this.doLayout();

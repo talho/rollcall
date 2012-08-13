@@ -11,9 +11,8 @@ Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
   buttonAlign: 'left',
     
   initComponent: function (config) {    
-    this.addEvents('reset', 'submitquery');        
-    this.enableBubble('submitquery');
-    this.enableBubble('reset');
+    this.addEvents('reset', 'submitquery', 'exportresult', 'saveasalarm', 'createreport');        
+    this.enableBubble(['reset', 'submitquery', 'exportresult', 'saveasalarm', 'createreport']);
     
     var parameters = new Talho.Rollcall.ADST.view.Parameters({getBubbleTarget: this.getBubbleTarget});        
     
@@ -23,22 +22,47 @@ Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
     
     this.buttons = [
       //TODO move handlers up to controller
-      {text: "Submit", itemId: 'submit_ext4', scope: this, handler: function () { this.fireEvent('submitquery'); }, formBind: true},
+      {text: "Submit", itemId: 'submit_ext4', scope: this, handler: function () { this.fireEvent('submitquery', this.getParams());  this._showButtons() }, formBind: true},
       {text: "Reset Form", scope: this, handler: function () { this.fireEvent('reset'); }},
-      {text: "Export Result Set", hidden: true, scope: this, handler: this._exportResultSet},
-      {text: "Create Alarm from Result Set", hidden: true, scope: this, handler: this.saveResultSet},
+      {text: "Export Result Set", hidden: true, scope: this, handler: function () { this.fireEvent('exportresult') }},
+      {text: "Create Alarm from Result Set", hidden: true, scope: this, handler: function () { this.fireEvent('saveasalarm'); }},
       {text: "Generate Report from Result Set", hidden: true, scope: this,
-        handler: function (buttonObj, eventObj) {
-          this._showReportMenu(buttonObj.getEl(), null);
-        }
+        handler: function () { this.fireEvent('createreport'); }
       }
     ];
     
     Talho.Rollcall.ADST.view.SearchForm.superclass.initComponent.apply(this, config);       
   },
   
+  getParams: function () {
+    params = new Object;
+    
+    form_values = this.getForm().getValues();
+    for (key in form_values) {
+      if (form_values[key].indexOf('...') == -1) { 
+        params[key] = form_values[key].replace(/\+/g, " ");
+      }
+    }
+        
+    var lists_box_params = this.getParametersPanel().getParameters();
+        
+    Ext.apply(params, lists_box_params);
+    
+    return params;
+  },
+  
   reset: function () {
     this.getForm().reset();
     this.getParameters().reset();
+  },
+  
+  toggle: function () {
+    this.getParametersPanel().toggle();
+  },
+  
+  _showButtons: function () {
+    Ext.each(this.buttons, function (button) {
+      if (button.hidden) { button.show(); }
+    });
   }
 });

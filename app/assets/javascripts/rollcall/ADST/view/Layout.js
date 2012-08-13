@@ -28,7 +28,22 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
     this.getSearchForm = function () { return search_form };
     this.getResultsPanel = function () { return results };
     
-    var results_store = this.getResultsPanel().getResultsStore();
+    var results_store = this.getResultsPanel().getResultsStore();       
+
+    this.simple_button = new Ext.Button({text: 'Switch to Advanced', scope: this, 
+      handler: function (button, eventObj) {
+        this.getSearchForm().toggle();
+        this.simple_button.hide();
+        this.advanced_button.show();   
+      }
+    });
+    this.advanced_button = new Ext.Button({text: 'Switch to Simple', scope: this, hidden: true,
+      handler: function (button, eventObj) {
+        this.getSearchForm().toggle();
+        this.advanced_button.hide();
+        this.simple_button.show();
+      }
+    });
     
     //TODO flatten out the layout
     this.items = [
@@ -55,12 +70,19 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
               }
             ]
           },          
-          {xtype: 'panel', id: 'adst_panel', title: 'Advanced Disease Surveillance Tool', border: false, collapsible: false,
+          {xtype: 'panel', id: 'adst_panel', border: false, collapsible: false,
             region: 'center', autoScroll: true, scope: this, height: 200,
             items: [search_form, results],
             bbar: [new Ext.PagingToolbar(
               {displayInfo: true, prependButtons: true, pageSize: 6, store: results_store }
-            )]             
+            )],
+            tbar: [
+              {xtype: 'tbtext', text: 'Advanced Disease Surveillance Tool'},
+              '->',              
+              '-',
+              this.simple_button,
+              this.advanced_button
+            ]      
           }
         ]
       }

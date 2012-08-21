@@ -11,8 +11,8 @@ Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
   buttonAlign: 'left',
     
   initComponent: function (config) {    
-    this.addEvents('reset', 'submitquery', 'exportresult', 'saveasalarm', 'createreport');        
-    this.enableBubble(['reset', 'submitquery', 'exportresult', 'saveasalarm', 'createreport']);
+    this.addEvents('reset', 'submitquery', 'exportresult', 'saveasalarm', 'showreportmessage');        
+    this.enableBubble(['reset', 'submitquery', 'exportresult', 'saveasalarm', 'showreportmessage']);
     
     var parameters = new Talho.Rollcall.ADST.view.Parameters({getBubbleTarget: this.getBubbleTarget});        
     
@@ -22,12 +22,12 @@ Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
     
     this.buttons = [
       //TODO move handlers up to controller
-      {text: "Submit", itemId: 'submit_ext4', scope: this, handler: function () { this.fireEvent('submitquery', this.getParams());  this._showButtons() }, formBind: true},
-      {text: "Reset Form", scope: this, handler: function () { this.fireEvent('reset'); }},
+      {text: "Submit", scope: this, handler: function () { this.fireEvent('submitquery', this.getParams());  this._showButtons() }},
+      {text: "Clear Parameters", scope: this, handler: function () { this.fireEvent('reset'); }},
       {text: "Export Result Set", hidden: true, scope: this, handler: function () { this.fireEvent('exportresult') }},
       {text: "Create Alarm from Result Set", hidden: true, scope: this, handler: function () { this.fireEvent('saveasalarm'); }},
       {text: "Generate Report from Result Set", hidden: true, scope: this,
-        handler: function () { this.fireEvent('createreport'); }
+        handler: function (button, firedEvent) { this._showReportMenu(button.getEl(), null) }
       }
     ];
     
@@ -64,5 +64,16 @@ Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
     Ext.each(this.buttons, function (button) {
       if (button.hidden) { button.show(); }
     });
+  },           
+  
+  _showReportMenu: function(element, school_id) {
+    var scrollMenu = new Ext.menu.Menu();
+    scrollMenu.add({ text: 'Attendance Report', handler: function () {
+      this.fireEvent('showreportmessage', 'RecipeInternal::AttendanceAllRecipe', school_id); }, scope: this 
+    });
+    scrollMenu.add({school_id: school_id, recipe: 'RecipeInternal::IliAllRecipe', text: 'ILI Report', handler: function () {      
+      this.fireEvent('showreportmessage', 'RecipeInternal::IliAllRecipe', school_id); }, scope: this
+    });
+    scrollMenu.show(element);
   }
 });

@@ -1,3 +1,5 @@
+include Rollcall::DataModule
+
 When /^I do get_data for "([^\"]*)" with:$/ do |lookup, table|
   @params = Hash.new
   table.raw.each do |row|
@@ -25,9 +27,8 @@ When /^I do get_data for "([^\"]*)" with:$/ do |lookup, table|
   if loc == nil
     loc = Rollcall::School.find_by_display_name(lookup)
   end    
-  
-  query = loc.get_graph_data(@params)    
-  @result = Rollcall::DataModule.transform_to_graph_info_format(query,loc)
+     
+  @result = loc.get_graph_data(@params).order("report_date").as_json
 end
 
 Then /^get_data should return:$/ do |table|    
@@ -49,7 +50,6 @@ end
 
 def normalize array
   return_array = Array.new
-  
   array.each do |hash|
     return_hash = Hash.new
     hash.each do |key, value|           
@@ -57,7 +57,7 @@ def normalize array
         when "total"
           return_hash[:total] = value          
         when "report_date"
-          return_hash[:report_date] = DateTime.parse(value.to_s).strftime("%Y-%m-%d")
+          return_hash[:report_date] = value
         when "deviation"
           return_hash[:func] = value.to_f.round(3)
         when "average"
@@ -79,7 +79,7 @@ def hashify table
     return_hash = Hash.new
     
     return_hash[:total] = row[0]
-    return_hash[:report_date] =  Date.parse(row[1]).strftime("%Y-%m-%d")
+    return_hash[:report_date] =  Date.parse(row[1]).strftime("%m-%d-%y")
     return_hash[:func] = row[2].to_f.round(3) if row.count > 2
                 
     return_array.push(return_hash)

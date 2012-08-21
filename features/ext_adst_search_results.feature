@@ -106,7 +106,7 @@ Scenario: User closes a graph window
 
 Scenario: User exports result data
   When "Anderson Elementary" graphs has done loading
-  And I click the "down" tool on the "Query Result for Anderson Elementary" window
+  And I click the "down" tool on the "Query Result for Anderson Elementary" window  
   And I should see "Your CSV file will be placed in your documents folders"
   And delayed jobs are processed
   And I press "OK"
@@ -114,15 +114,16 @@ Scenario: User exports result data
   And I navigate to "Documents"
   And I expand the folders ""
   And I select the "Rollcall Documents" grid row
+  And I suspend cucumber
   Then my rollcall export should be visible
 
 Scenario: User saves result as alarm query
   When "Anderson Elementary" graphs has done loading
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "Alarm Query for Anderson Elementary"
+  And I should see "New Alarm Query"
   And I fill in "Name" with "Example Query"
-  And I press "Submit" within ".x-window"
-  Then I should see "Example Query" within "#alarm_queries"
+  And I press "Save" within ".x-window"
+  Then I should see "Example Query"
 
 Scenario: User views a results school profile
   When "Anderson Elementary" graphs has done loading
@@ -134,7 +135,7 @@ Scenario: User pins a graph result
   When "Anderson Elementary" graphs has done loading
   And I click the "pin" tool on the "Query Result for Anderson Elementary" window
   And the "Anderson Elementary" graph result is pinned
-  And I select "Yates High School" from ext combo "school_simple"
+  And I select "Yates High School" from ext combo "school"
   And I press "Submit"
   And delayed jobs are processed
   Then I should see "Anderson Elementary,Yates High School" within the results

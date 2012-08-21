@@ -37,6 +37,7 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
         this.advanced_button.show();   
       }
     });
+    
     this.advanced_button = new Ext.Button({text: 'Switch to Simple', scope: this, hidden: true,
       handler: function (button, eventObj) {
         this.getSearchForm().toggle();
@@ -45,45 +46,31 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
       }
     });
     
-    //TODO flatten out the layout
+    this.adst_panel = new Ext.Panel({id: 'adst_panel', border: false, collapsible: false,
+      region: 'center', autoScroll: true, scope: this, height: 200,
+      items: [search_form, results],
+      bbar: [new Ext.PagingToolbar(
+        {displayInfo: true, prependButtons: true, pageSize: 6, store: results_store }
+      )],
+      tbar: [
+        {xtype: 'tbtext', text: 'Advanced Disease Surveillance Tool'},
+        '->',              
+        '-',
+        this.simple_button,
+        this.advanced_button
+      ]      
+    });
+        
     this.items = [
       {id: 'adst_layout', layout: 'border', autoScroll: true, scope: this, 
         defaults: {collapsible: false, split: true},
         items: [   
           {xtype: 'panel', region: 'south', height: 120, title: 'Alarm Queries', layout: 'fit', padding: '2px 2px 4px 2px', items: this.alarm_queries},
-          {xtype: 'panel', itemId: 'alarms', region: 'west', title: 'Alarms', layout: 'fit', bodyStyle: 'padding: 0px',
+          {xtype: 'panel', id: 'alarms_c', itemId: 'alarms', region: 'west', title: 'Alarms', layout: 'fit', bodyStyle: 'padding: 0px',
             width: 140, minSize: 140, maxSize: 140, hideBorders: true,
-            // items: [new Talho.Rollcall.ADST.view.Alarms({getBubbleTarget: findBubble})],
-            bbar: [
-              {text: 'refresh', iconCls: 'x-tbar-loading',
-                handler: function (btn, event) {
-                  //TODO fix this so no ownerCt and move to Controller
-                  //this.ownerCt.ownerCt.getComponent('alarm_panel').alarms_store.load();
-                }
-              },
-              '->',
-              {text: 'GIS', id: 'gis_button', itemId: 'gis_button', iconCls: 'x-tbar-gis', disabled: true,
-                handler: function () {
-                  //TODO fix this so no ownerCt and move to Controller
-                  //this.ownerCt.ownerCt.getComponent('alarm_panel')._load_alarm_gmap_window();
-                }
-              }
-            ]
+            items: [new Talho.Rollcall.ADST.view.Alarms({getBubbleTarget: findBubble})],            
           },          
-          {xtype: 'panel', id: 'adst_panel', border: false, collapsible: false,
-            region: 'center', autoScroll: true, scope: this, height: 200,
-            items: [search_form, results],
-            bbar: [new Ext.PagingToolbar(
-              {displayInfo: true, prependButtons: true, pageSize: 6, store: results_store }
-            )],
-            tbar: [
-              {xtype: 'tbtext', text: 'Advanced Disease Surveillance Tool'},
-              '->',              
-              '-',
-              this.simple_button,
-              this.advanced_button
-            ]      
-          }
+          this.adst_panel
         ]
       }
     ];   

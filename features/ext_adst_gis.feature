@@ -102,19 +102,17 @@ Scenario: User views a school in an alarm state within the GMap Panel
   And delayed jobs are processed
   And "Anderson Elementary" graphs has done loading
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "Alarm Query for Anderson Elementary"
+  And I should see "New Alarm Query"
   And I fill in "Name" with "Example Query"
-  And I fill in "min_deviation" with "1"
-  And I fill in "max_deviation" with "2"
-  And I fill in "min_severity" with "1"
-  And I fill in "max_severity" with "2"
-  And I press "Submit" within ".x-window"
-  And I should see "Example Query" within "#alarm_queries"
+  And I fill in "alarm_query[deviation_min]" with "1"
+  And I fill in "alarm_query[deviation_max]" with "2"
+  And I fill in "alarm_query[severity_min]" with "1"
+  And I fill in "alarm_query[severity_max]" with "2"
+  And I press "Save" within ".x-window"
+  And I should see "Example Query"
   And I click the "alarm-off" tool on the "Example Query" window
   And delayed jobs are processed
   And I wait for the panel to load
-  And I should see "Your alarms have been activated"
-  And I press "OK"
   And I press "Refresh" within "#alarms_c"
   And I should see "Example Query" within "#alarm_grid_panel"
   And I should see "Schools in Alarm State!"

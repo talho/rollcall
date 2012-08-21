@@ -24,7 +24,7 @@ class Rollcall::AlarmQuery < ActiveRecord::Base
   # Method calls create_alarm if alarm_set
   #
   def generate_alarm    
-    if alarm_set
+    if self.alarm_set
       create_alarm
     else
       false
@@ -46,7 +46,7 @@ class Rollcall::AlarmQuery < ActiveRecord::Base
       elsif fs.is_a? Hash
         query = fs.symbolize_keys
       end
-    end
+    end    
     #schools = Rollcall::School.search(query, user)
     schools = user.school_search query
     schools.each { |school| create_alarms_for_school(school, query) }
@@ -56,7 +56,7 @@ class Rollcall::AlarmQuery < ActiveRecord::Base
   # Method creates alarms for specific school
   #
   # Method creates an alarms for school
-  def create_alarms_for_school(school, query)
+  def create_alarms_for_school(school, query)    
     @data_set      = []
     test_data_date = DateTime.strptime("08/01/#{(Time.now.month >= 8) ? Time.now.year : (Time.now.year - 1)}", "%m/%d/%Y")
     start_date     = query["startdt"].blank? ? test_data_date : DateTime.strptime(query["startdt"], "%m/%d/%Y")

@@ -125,5 +125,5 @@ Scenario: Uploading a file
   And I wait for the panel to load
   And I select "Yates High School" from ext combo "select_school"
   And I press "OK"
-  And I wait for the panel to load
-  And I should see "Elliot" within grid "student_grid" in column "First Name"
+  And I wait for the panel to load  
+  Then I should see "Elliot"

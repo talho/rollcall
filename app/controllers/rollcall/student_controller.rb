@@ -7,16 +7,16 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
   def index
     options = {:page => (params[:start].to_i / (params[:limit] || 25).to_i) + 1, :per_page => (params[:limit] || 25).to_i}
     students = Rollcall::Student.select("rollcall_students.id, rollcall_students.first_name, rollcall_students.last_name, 
-                                        rollcall_students.contact_first_name, rollcall_students.contact_last_name, rollcall_students.address, 
-                                        rollcall_students.zip, rollcall_students.dob, rollcall_students.student_number, rollcall_students.phone, 
-                                        rollcall_students.gender, rollcall_students.race, max(rollcall_student_daily_infos.grade) as grade")
-                                .joins(:student_daily_info)
-                                .where("school_id = ?",params[:school_id])
-                                .order("last_name, first_name")
-                                .group("rollcall_students.id, rollcall_students.first_name, rollcall_students.last_name, 
-                                        rollcall_students.contact_first_name, rollcall_students.contact_last_name, rollcall_students.address, 
-                                        rollcall_students.zip, rollcall_students.dob, rollcall_students.student_number, rollcall_students.phone, 
-                                        rollcall_students.gender, rollcall_students.race")
+      rollcall_students.contact_first_name, rollcall_students.contact_last_name, rollcall_students.address, 
+      rollcall_students.zip, rollcall_students.dob, rollcall_students.student_number, rollcall_students.phone, 
+      rollcall_students.gender, rollcall_students.race, max(rollcall_student_daily_infos.grade) as grade")
+    .joins('left join rollcall_student_daily_infos on rollcall_student_daily_infos.student_id = rollcall_students.id')
+    .where("school_id = ?", params[:school_id])
+    .order("last_name, first_name")
+    .group("rollcall_students.id, rollcall_students.first_name, rollcall_students.last_name, 
+      rollcall_students.contact_first_name, rollcall_students.contact_last_name, rollcall_students.address, 
+      rollcall_students.zip, rollcall_students.dob, rollcall_students.student_number, rollcall_students.phone, 
+      rollcall_students.gender, rollcall_students.race")
     @students = students.paginate(options)
     respond_with(@students = students.paginate(options), @race_array = get_default_options[:race])
   end

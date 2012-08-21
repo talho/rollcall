@@ -10,18 +10,18 @@ module Rollcall::DataModule
     query = join_to_infos query, params
     query = apply_date_filter query, params[:startdt], params[:enddt]
     query = apply_data_function query, params[:data_func]
-    
+        
     query
   end
   
   def transform_to_graph_info_format results
     graph_info = results.order("report_date").as_json
     Jbuilder.encode do |json|
-      json.results graph_info
+      json.results graph_info      
       if self.is_a? Rollcall::SchoolDistrict
         json.(self, :name)
       else
-        json.(self, :tea_id, :gmap_lat, :gmap_lng, :gmap_addr)
+        json.(self, :tea_id, :gmap_lat, :gmap_lng, :gmap_addr, :school_type)
         json.school_name = self.display_name
         json.school_id = self.id
       end
@@ -160,7 +160,7 @@ module Rollcall::DataModule
     params = params.with_indifferent_access
     
     if params[:gender].present?
-      if params[:genderdata_obj] == "Male"
+      if params[:gender] == "Male"
         params[:gender] = 'M'
       else
         params[:gender] = 'F'

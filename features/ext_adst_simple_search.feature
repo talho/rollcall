@@ -157,7 +157,7 @@ Scenario: User runs a simple query against absenteeism to view the raw data
 Scenario: User runs a simple query against a school to view the raw data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I select "Yates High School" from ext combo "school_simple"
+  And I select "Yates High School" from ext combo "school"
   And I press "Submit"
   And delayed jobs are processed
   Then I should see "Yates High School" within the results
@@ -166,7 +166,7 @@ Scenario: User runs a simple query against a school to view the raw data
 Scenario: User runs a simple query against a school type to view the raw data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I select "Elementary School" from ext combo "school_type_simple"
+  And I select "Elementary School" from ext combo "school_type"
   And I press "Submit"
   And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Gale Pond Alamo Elementary School,Austin Elementary School" within the results
@@ -175,8 +175,8 @@ Scenario: User runs a simple query against a school type to view the raw data
 Scenario: User runs a simple query against absenteeism and school type to view the raw data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I select "Confirmed Illness" from ext combo "absent_simple"
-  And I select "Elementary School" from ext combo "school_type_simple"
+  And I select "Confirmed Illness" from ext combo "absent"
+  And I select "Elementary School" from ext combo "school_type"
   And I press "Submit"
   And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Gale Pond Alamo Elementary School,Austin Elementary School" within the results
@@ -185,8 +185,8 @@ Scenario: User runs a simple query against absenteeism and school type to view t
 Scenario: User runs a simple query against absenteeism and school type to view the average data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I select "Confirmed Illness" from ext combo "absent_simple"
-  And I select "Elementary School" from ext combo "school_type_simple"
+  And I select "Confirmed Illness" from ext combo "absent"
+  And I select "Elementary School" from ext combo "school_type"
   And I select "Average" from ext combo "Data Function"
   And I press "Submit"
   And delayed jobs are processed
@@ -196,9 +196,9 @@ Scenario: User runs a simple query against absenteeism and school type to view t
 Scenario: User runs a simple search against absenteeism and school type to view the standard deviation
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I select "Confirmed Illness" from ext combo "absent_simple"
-  And I select "Elementary School" from ext combo "school_type_simple"
-  And I select "Standard Deviation" from ext combo "data_func_simple"
+  And I select "Confirmed Illness" from ext combo "absent"
+  And I select "Elementary School" from ext combo "school_type"
+  And I select "Standard Deviation" from ext combo "data_func"
   And I press "Submit"
   And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Gale Pond Alamo Elementary School,Austin Elementary School" within the results
@@ -207,9 +207,9 @@ Scenario: User runs a simple search against absenteeism and school type to view 
 Scenario: User runs a simple query using the start and end date to view the raw data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I set "startdt_simple" to "5" days from origin date
-  And I set "enddt_simple" to "0" days from origin date
-  And I select "District1" from ext combo "school_district_simple"
+  And I set "startdt" to "5" days from origin date
+  And I set "enddt" to "0" days from origin date
+  And I select "District1" from ext combo "school_district"
   And I press "Submit"
   And delayed jobs are processed
   #Then I should see dated graphs for schools "101912105,101912273,101912020" starting "5" days and ending "0" days from origin date
@@ -217,7 +217,7 @@ Scenario: User runs a simple query using the start and end date to view the raw 
 Scenario: User runs a simple query against a school district
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I select "District2" from ext combo "school_district_simple"
+  And I select "District2" from ext combo "school_district"
   And I press "Submit"
   And delayed jobs are processed
   Then I should see "Ector Junior High School,Gale Pond Alamo Elementary School,Austin Elementary School" within the results
@@ -226,8 +226,8 @@ Scenario: User runs a simple query against a school district
 Scenario: User runs a simple query against a school district, requests school district graph
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I select "District2" from ext combo "school_district_simple"
-  And I click "#return_individual_school_simple"
+  And I select "District2" from ext combo "school_district"
+  And I click "#return_individual_school"
   And I press "Submit"
   And delayed jobs are processed
   Then I should see "District2" within the results
@@ -240,7 +240,7 @@ Scenario: User generates reports from a simple query
   And I press "Submit"
   And delayed jobs are processed
 
-  When I press "Generate Report from Result Set"
+  When I press "Generate Report from Result Set"  
   And I click x-menu-item "ILI Report"
   And delayed jobs are processed
   Then I should see "Generating Report" within ".x-window"

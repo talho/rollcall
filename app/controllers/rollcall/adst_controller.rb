@@ -36,7 +36,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   # in the users documents folder and sending out message to users email when process is done.
   #
   # GET /rollcall/export
-  def export    
+  def export     
     filename = "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}"
     results = get_search_results params
     self.delay.export_data(params, filename, current_user, results)    
@@ -98,7 +98,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     results
   end
   
-  def export_data params, filename, user_obj, results
+  def export_data params, filename, user_obj, results    
     results.each do |r|
       r.result = r.get_graph_data(params).as_json            
     end

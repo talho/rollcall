@@ -114,9 +114,9 @@ Scenario: Nurse attempts to access ADST
   When I am logged in as "nurse.betty@example.com"
   And I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
-  And I wait for the panel to load
+  And I wait for the panel to load  
   And I should see "You are not authorized to access this feature"
-  And I press "OK"
+  And I press "OK"  
   Then I should not see "Rollcall ADST"
 
 Scenario: Nurse attempts to access School Panel

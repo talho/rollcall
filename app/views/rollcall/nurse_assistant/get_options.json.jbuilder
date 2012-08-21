@@ -3,7 +3,10 @@ json.age @default_options[:age]
 json.gender @default_options[:gender]
 json.grade @default_options[:grade]
 json.symptoms @default_options[:symptoms]
-json.zip @zipcodes
+json.zip @zipcodes do |json, zip|
+  json.id zip
+  json.value zip
+end
 json.app_init @app_init
 json.school_id @school.id
 json.school_name @school.display_name

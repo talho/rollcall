@@ -6,7 +6,6 @@
 Ext.namespace('Talho.Rollcall.ADST');
 
 Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
-  //TODO MAKSING ALL THE WAY DOWN
   constructor: function () {
          
     this.layout = new Talho.Rollcall.ADST.view.Layout();
@@ -15,8 +14,8 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       return this.layout;
     }
     
-    this.layout.addEvents('reset', 'submitquery', 'exportresult', 
-      'saveasalarm', 'createreport', 'showschoolprofile');
+    this.layout.addEvents('reset', 'submitquery', 'exportresult', 'notauthorized',
+      'saveasalarm', 'createreport', 'showschoolprofile', 'showreportmessage');
     this.layout.on({
       'reset': this._resetForm,
       'submitquery': this._submitQuery,
@@ -25,7 +24,9 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       'editquery': this.showEditAlarmQueryWindow,
       'togglequery': this.toggleQueryState,
       'runquery': this.runQuery,
-      'showschoolprofile': this._showSchoolProfile,
+      'showreportmessage': this._showReportMessage,
+      'notauthorized': this._notAuthorized,
+      'exportresult': this._exportResultSet,
       scope: this
     });
     
@@ -33,20 +34,73 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   },
   
   _submitQuery: function (params) {
-    this.layout.getResultsPanel().loadResultStore(params);
+    var mask = new Ext.LoadMask(this.layout.adst_panel.getEl(), {msg:"Please wait..."});
+    mask.show();
+    
+    var callback = function () { mask.hide(); }
+    this.layout.getResultsPanel().loadResultStore(params, callback);
   },
   
   _resetForm: function () {
     this.layout.getSearchForm().reset();
   },
   
+  _notAuthorized: function () {    
+    Ext.Msg.alert('Access', 'You are not authorized to access this feature.  Please contact TX PHIN.', function() {
+      this.layout.ownerCt.destroy();
+    }, this);
+  },
+  
   _exportResultSet: function () {
+    var params = this.layout.getSearchForm().getParams();
+    var param_string = '';
     
+    for (key in params) {
+      if (key != 'school_type[]' && key != 'zip[]') {
+        param_string += key + '=' + params[key] + '&';
+      }
+    }
+    
+    Ext.MessageBox.show({
+      title: 'Creating CSV Export File',
+      msg:   'Your CSV file will be placed in your documents folders when the system '+
+      'is done generating it. Please check your documents folder in a few minutes.',
+      buttons: Ext.MessageBox.OK,
+      icon:    Ext.MessageBox.INFO
+    });
+    
+    Ext.Ajax.request({
+      url:      '/rollcall/export?' + param_string,
+      method:   'GET',
+      scope:    this,
+      failure: function(){}
+    });
+  },
+  
+  _showReportMessage: function (recipe, school_id) {
+    Ext.Ajax.request({
+      url:      '/rollcall/report',
+      params:   {recipe_id: recipe, school_id: school_id},
+      method:   'GET',
+      callback: function(options, success, response)
+      {
+        var title = 'Generating Report';
+        var msg   = 'Your report will be placed in the report portal when the system '+
+                    'is done generating it. Please check the report portal in a few minutes.';
+        Ext.MessageBox.show({
+          title:   title,
+          msg:     msg,
+          buttons: Ext.MessageBox.OK,
+          icon:    Ext.MessageBox.INFO
+        });
+      },
+      failure: function(){ alert('Did not process'); }
+    });
   },
   
   showNewAlarmQueryWindow: function(id, name){
     // Get the params for the query
-    var params = this.result_panel.getSearchParams();
+    var params = this.layout.getSearchForm().getParams();
     params['school[]'] = [name];
     
     // Create the new alarm window
@@ -86,7 +140,14 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       },
       scope: this,
       callback: function(){
-        this.layout.alarm_queries.reload();
+        if (!alarm_query.get('alarm_set')) {
+          Ext.Ajax.request({
+            url:      '/rollcall/alarms/',
+            method:   'POST',
+            params:   {alarm_query_id: id}
+          });
+        }  
+        this.layout.alarm_queries.reload();              
       }
     });
   },
@@ -95,7 +156,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     Ext.Msg.confirm("Delete Alarm Query", "Are you sure you would like to delete this alarm query? This action cannot be undone", function(btn){
       if(btn == "yes"){
         Ext.Ajax.request({
-          url: '/rollcall/alarm_query/' + id + '.json',
+          url: '/rollcall/alarm_query/' + id,
           method: 'DELETE',
           scope: this,
           callback: function(options, success, response){
@@ -112,15 +173,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   runQuery: function(id, alarm_query){
     var params = Ext.decode(alarm_query.get('query_params'));
     var form = this.layout.getSearchForm();
-    form.getResults().loadResultStore(params);    
-  },
-  
-  _showSchoolProfile: function () {
-    
-  },
-  
-  _pinGraph: function () {
-    
+    this.layout.getResultsPanel().loadResultStore(params);    
   },
 });
 

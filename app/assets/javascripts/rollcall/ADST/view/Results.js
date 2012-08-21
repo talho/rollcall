@@ -1,5 +1,5 @@
 //= require ext_extensions/Graph
-
+//= require rollcall/ADST/view/SchoolProfile
 Ext.namespace("Talho.Rollcall.ADST.view");
 
 Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
@@ -12,8 +12,8 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     //TODO set up resize event
     Talho.Rollcall.ADST.view.Results.superclass.constructor.apply(this, arguments);
     
-    this.addEvents('createalarmquery');
-    this.enableBubble('createalarmquery');
+    this.addEvents('createalarmquery', 'showreportmessage', 'exportresult');
+    this.enableBubble(['createalarmquery', 'showreportmessage', 'exportresult']);
   },
   
   initComponent: function () {
@@ -56,8 +56,8 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     Talho.Rollcall.ADST.view.Results.superclass.initComponent.apply(this, arguments);
   },
   
-  loadResultStore: function (params) {
-    this.getResultsStore().load({params: params});
+  loadResultStore: function (params, callback) {
+    this.getResultsStore().load({params: params, callback: callback});
   },
   
   _loadGraphResults: function (store, records, options) {    
@@ -82,7 +82,8 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       var id = school.id;
       var name = school.get('name');
       var field_array = this._getFieldArray(school);
-      var school_store = new Ext.data.JsonStore({fields: field_array, data: school.get('results')});  
+      var school_store = new Ext.data.JsonStore({fields: field_array, data: school.get('results')});
+      var gis = typeof school.gmap_lat == "undefined" ? true : false;  
       var graphImageConfig = {
         title: 'Query Result for ' + name,
         style: 'margin:5px',
@@ -96,32 +97,42 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
         cls: 'ux-portlet',
         boxMinWidth: 320,
         
-        //TODO ping graph up to Controller
         tools: [
-          {id: 'pin', qtip: 'Pin Graph', handler: function () { this.fireEvent('pingraph') }},
+          {id: 'pin', qtip: 'Pin Graph', handler: function (e, targetEl, panel, tc) { 
+            targetEl.findParent('div.x-panel-tl', 50, true).toggleClass('x-panel-pinned');
+            targetEl.toggleClass('x-tool-pin');
+            targetEl.toggleClass('x-tool-unpin');
+            if(targetEl.hasClass('x-tool-unpin')) panel.pinned = true;
+            else panel.pinned = false;
+          }},
           {id: 'report', qtip: 'Generate Report', scope: this,
-            handler: function(e, targetEl, panel, tc) {
-              //TODO fix so it doesn't do all da ownerCts
-              var adst_container = panel.ownerCt.ownerCt.ownerCt.ownerCt.ownerCt;
-              adst_container._showReportMenu(targetEl, school_id);
+            handler: function(e, targetEl, panel, tc) {              
+              var scrollMenu = new Ext.menu.Menu();
+              scrollMenu.add({text: 'Attendance Report', handler: function () { 
+                this.fireEvent('showreportmessage', 'RecipeInternal::AttendanceAllRecipe', panel.school_id) }, scope: this
+              });
+              scrollMenu.add({text: 'ILI Report', handler: function () { 
+                this.fireEvent('showreportmessage', 'RecipeInternal::IliAllRecipe', panel.school_id) }, scope: this
+              });
+              scrollMenu.show(targetEl);
             }
           },          
-          {id: 'gis', qtip: 'School Profile', handler: function () { this.fireEvent('showschoolprofile')},
-            hidden: typeof school.gmap_lat == "undefined" ? true : false
-          },
-          //TODO up to controller
+          {id: 'gis', qtip: 'School Profile', handler: function (e, targetEl, panel, tc) {
+              var gmap = new Talho.Rollcall.ADST.view.SchoolProfile({school_name: panel.school_name, school: panel.school.json});
+              gmap.show();        
+            },
+            hidden: this.gis
+          },          
           {id: 'save', qtip: 'Create Alarm', scope: this,
             handler: function(e, targetEl, panel, tc) {
               this.fireEvent('createalarmquery', school.get('id'), school.get('name'));
             }
           },
           //TODO export up to controller
-          {id: 'down', qtip: 'Export Result', handler: this._exportResult },
-          //TODO close result up to controller
+          {id: 'down', qtip: 'Export Result', scope: this, handler: function () { this.fireEvent('exportresult') } },
           {id: 'close', qtip: "Close", handler: this._closeResult }
         ],
-        
-        //TODO switch to dynamic width        
+                 
         items: new Talho.ux.Graph({
           store: school_store,
           width: 'auto',
@@ -137,8 +148,6 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       }
       this.doLayout();
     }, this);        
-    
-    
   },
   
   _getFieldArray: function (school) {
@@ -208,6 +217,10 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     ];
     
     return series;
+  },
+  
+  _closeResult: function (e, target, panel) {
+    panel.ownerCt.remove(panel, true);
   },
 
   getSearchParams: function(){

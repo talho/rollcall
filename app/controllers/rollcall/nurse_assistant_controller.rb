@@ -52,7 +52,7 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
   # their current school.
   #
   # GET rollcall/nurse_assistant_options
-  def get_options    
+  def get_options
     @zipcodes = current_user.rollcall_zip_codes
     @schools = current_user.schools
     @default_options = get_default_options({:nurse => true})

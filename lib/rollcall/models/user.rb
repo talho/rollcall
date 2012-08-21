@@ -77,12 +77,12 @@ module Rollcall
       end
       
       def rollcall_zip_codes
-      self.schools
-        .select("rollcall_schools.postal_code")
-        .where("rollcall_schools.postal_code is not null")
-        .reorder("rollcall_schools.postal_code")      
-        .uniq
-        .pluck("rollcall_schools.postal_code") 
+        self.schools
+          .select("rollcall_schools.postal_code")
+          .where("rollcall_schools.postal_code is not null")
+          .reorder("rollcall_schools.postal_code")      
+          .uniq
+          .pluck("rollcall_schools.postal_code") 
       end
     end         
   end

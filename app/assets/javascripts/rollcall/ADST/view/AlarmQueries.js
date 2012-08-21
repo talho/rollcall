@@ -5,6 +5,7 @@ Talho.Rollcall.ADST.view.AlarmQueries = Ext.extend(Ext.DataView, {
   style: "x-overflow:auto;",
   loadingText: 'Loading...',
   itemSelector: 'div.rollcall-query-holder',
+  
   constructor: function(){
     Talho.Rollcall.ADST.view.AlarmQueries.superclass.constructor.apply(this, arguments);
     this.addEvents('deletequery', 'editquery', 'togglequery', 'runquery');
@@ -13,6 +14,7 @@ Talho.Rollcall.ADST.view.AlarmQueries = Ext.extend(Ext.DataView, {
     this.enableBubble('togglequery');
     this.enableBubble('runquery');
   },
+  
   initComponent: function () {
     // Build a store to get all of the 
     this.store = new Ext.data.JsonStore({
@@ -54,13 +56,11 @@ Talho.Rollcall.ADST.view.AlarmQueries = Ext.extend(Ext.DataView, {
     this.tpl = new Ext.XTemplate(
       '<tpl for=".">',
         '<div class="rollcall-query-holder">',
-          '<div class="rollcall-query-header">',
-            '<div class="rollcall-tool-holder">',
-              '<div class="x-tool x-tool-close" qtip="Delete Alarm Query"></div>',
-              '<div class="x-tool x-tool-gear" qtip="Edit Alarm Query"></div>',
-              '<div class="x-tool {[values.alarm_set ? "x-tool-alarm-on" : "x-tool-alarm-off"]}" qtip="Toggle Alarm State"></div>',
-              '<div class="x-tool x-tool-run-query" qtip="Run Query"></div>',
-            '</div>',
+          '<div class="rollcall-query-header">',            
+            '<div class="x-tool x-tool-close" qtip="Delete Alarm Query"></div>',
+            '<div class="x-tool x-tool-gear" qtip="Edit Alarm Query"></div>',
+            '<div class="x-tool {[values.alarm_set ? "x-tool-alarm-on" : "x-tool-alarm-off"]}" qtip="Toggle Alarm State"></div>',
+            '<div class="x-tool x-tool-run-query" qtip="Run Query"></div>',            
             '<span class="rollcall-query-name">{name}</span>',
           '</div>',
           '<div class="rollcall-query-detail-holder">',

@@ -162,7 +162,7 @@ Scenario: User removes school assigned to Rollcall User
 Scenario: User removes school district assigned to Rollcall User
   Given I am logged in as "admin.joe@example.com"
   And I navigate to "Apps > Rollcall > Admin > Users"
-  And I wait for the panel to load
+  And I wait for the panel to load  
   And I click x-grid3-cell "Roll User"
   And I press "Add School District"
   And I click x-menu-item "Houston"

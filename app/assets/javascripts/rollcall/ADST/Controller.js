@@ -19,7 +19,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     this.layout.on({
       'reset': this._resetForm,
       'submitquery': this._submitQuery,
-      'createalarmquery': this.showNewAlarmQueryWindow,
+      'createalarmquery': this.createAlarmFromGraph,
       'deletequery': this.deleteQuery,
       'editquery': this.showEditAlarmQueryWindow,
       'togglequery': this.toggleQueryState,
@@ -27,6 +27,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       'showreportmessage': this._showReportMessage,
       'notauthorized': this._notAuthorized,
       'exportresult': this._exportResultSet,
+      'saveasalarm': this.createAlarmFromResultSet,
       scope: this
     });
     
@@ -77,6 +78,25 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     });
   },
   
+  createAlarmFromGraph: function (id, name) {
+    var params = this.layout.getSearchForm().getParams();
+    if (params.school == undefined) {
+      params.school = name;
+    }
+    if (params['school[]'] != undefined) {
+      delete params['school[]'];
+    }    
+    
+    this.showNewAlarmQueryWindow(id, name, params)
+  },
+  
+  createAlarmFromResultSet: function () {
+    var params = this.layout.getSearchForm().getParams();
+    var name = 'Multiple Schools';
+    
+    this.showNewAlarmQueryWindow(null, name, params)
+  },
+  
   _showReportMessage: function (recipe, school_id) {
     Ext.Ajax.request({
       url:      '/rollcall/report',
@@ -98,11 +118,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     });
   },
   
-  showNewAlarmQueryWindow: function(id, name){
-    // Get the params for the query
-    var params = this.layout.getSearchForm().getParams();
-    params['school[]'] = [name];
-    
+  showNewAlarmQueryWindow: function(id, name, params){    
     // Create the new alarm window
     var win = new Talho.Rollcall.ADST.view.AlarmQueryWindow({
       school_id: id, school_name: name, query_params: params, state: 'new', listeners: {
@@ -171,7 +187,8 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   },
   
   runQuery: function(id, alarm_query){
-    var params = Ext.decode(alarm_query.get('query_params'));
+    var param_aray = alarm_query.get('query_params');
+    var params = Ext.decode(param_aray);
     var form = this.layout.getSearchForm();
     this.layout.getResultsPanel().loadResultStore(params);    
   },

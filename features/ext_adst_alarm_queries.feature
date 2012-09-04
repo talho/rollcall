@@ -155,16 +155,15 @@ Scenario: User creates an Alarm Query with specific threshold
 
 Scenario: User creates a new Alarm Query off of an existing Alarm Query
   When "Anderson Elementary" graphs has done loading
-  And I click the "save" tool on the "Query Result for Anderson Elementary" window
+  And I click the "save" tool on the "Query Result for Anderson Elementary" window  
   And I should see "New Alarm Query"
   And I fill in "Name" with "Example Query"
   And I press "Save" within ".x-window"
   Then I should see "Example Query" 
   And I click the "gear" tool on the "Example Query" window
-  And I select "Ashford Elementary" from ext combo "school"
+  And I select "Ashford Elementary" from ext combo "school_alarm"  
   And I press "Save As New"   
-  And I should see "Example Query_1"   
-  Then I should see "Ashford Elementary" within ".ux-alarm-thumbnails"
+  Then I should see "Ashford Elementary" within ".rollcall-query-column-2"
 
 Scenario: User deletes an existing Alarm Query
   When "Anderson Elementary" graphs has done loading

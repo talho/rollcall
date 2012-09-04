@@ -43,7 +43,9 @@ Talho.Rollcall.ADST.view.Alarms = Ext.extend(Ext.Panel, {
       listeners: {
         scope: this, beforeload: this._load_alarm_panel_mask,
         load: function() {
-          if(!this.alarm_gmap_displayed) this._load_alarm_gmap_window();
+          if(!this.alarm_gmap_displayed) { 
+            this._load_alarm_gmap_window();
+          }
           this.alarms_store.container_mask.hide();
         }
       }
@@ -117,11 +119,12 @@ Talho.Rollcall.ADST.view.Alarms = Ext.extend(Ext.Panel, {
   },
   
   _close_alarm_tip: function () {
-    
+    if(this.tip_array.length != 0) this.tip_array.pop().destroy();
   },
   
-  _body_scroll: function () {
-    
+  _body_scroll: function(scroll_left, scroll_right)
+  {
+    if(this.tip_array.length != 0 && !this.setToScroll) this.tip_array.pop().destroy();
   },
   
   _row_click: function (this_grid, index, event_obj) {
@@ -204,7 +207,9 @@ Talho.Rollcall.ADST.view.Alarms = Ext.extend(Ext.Panel, {
           beforerender: this._disable_gis_button,
           afterrender:  this._render_gmap_markers
         },
-        buttons: [{
+        
+      });
+      win.addButton({
           text:    'Dismiss',
           width:   'auto',
           scope:   this,
@@ -212,9 +217,46 @@ Talho.Rollcall.ADST.view.Alarms = Ext.extend(Ext.Panel, {
           {
             win.close();
           }
-        }]
       });
       win.show();
+    }
+  },
+  
+  _render_gmap_markers: function(panel)
+  {
+    var gmap_panel  = panel.get(0);
+    var school_ids  = new Array();
+    var store_index = 0;
+    var set_markers = function()
+    {
+      this.alarms_store.each(function(record)
+      {
+        if(school_ids[school_ids.length - 1] != record.get("school_id")){
+          school_ids.push(record.get("school_id"));
+          var color         = this._get_alarm_color_code(record.get("alarm_severity"));
+          var loc           = new google.maps.LatLng(record.get("school_lat"), record.get("school_lng"));
+          var marker        = gmap_panel.addStyledMarker(loc, record.get("school_name"), {color:color});
+          marker.info       = this._build_gmap_marker_info(record, store_index);                  
+          marker.info_popup = null;
+          google.maps.event.addListener(marker, 'click', function(){
+            if (this.info_popup) {
+              this.info_popup.close(gmap_panel.gmap, this);
+              this.info_popup = null;
+            } else {
+              this.info_popup = new google.maps.InfoWindow({content: this.info});
+              this.info_popup.open(gmap_panel.gmap, this);
+            }
+          });
+          gmap_panel.centerMap(loc);
+        }
+        store_index++;
+      }, this);
+    };
+
+    if(!gmap_panel.map_ready){
+      gmap_panel.on('mapready', set_markers, this);
+    }else{
+      set_markers.call(this);
     }
   },
   

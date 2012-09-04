@@ -114,7 +114,6 @@ Scenario: User exports result data
   And I navigate to "Documents"
   And I expand the folders ""
   And I select the "Rollcall Documents" grid row
-  And I suspend cucumber
   Then my rollcall export should be visible
 
 Scenario: User saves result as alarm query

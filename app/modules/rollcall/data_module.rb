@@ -1,10 +1,9 @@
 module Rollcall::DataModule
-
   def self.included(base)
     base.send(:attr_accessor, :result)
   end
   
-  def build_graph_query query, params
+  def build_graph_query query, params    
     params = param_setup params
     
     query = join_to_infos query, params

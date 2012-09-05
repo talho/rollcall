@@ -5,39 +5,21 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
   
   # GET rollcall/students
   def index
-    students = Rollcall::Student.where("school_id = ?",params[:school_id]).order("last_name, first_name").all
-    unless params[:start].blank?
-      per_page = params[:limit].to_i
-      if params[:start].to_i == 0
-        page = 1
-      else
-        page = (params[:start].to_i / per_page) + 1
-      end    
-      options = {:page => page, :per_page => per_page}
-    else
-      options = {}
-    end    
-    require 'will_paginate/array'
-    students_paged = students.paginate(options)
-    students_paged.each do |record|
-      student_obj                 = record
-      student_daily_info          = Rollcall::StudentDailyInfo.where("student_id = ?", student_obj.id).order("created_at desc").limit(1).first
-      record[:grade]              = student_daily_info.blank? ? nil : student_daily_info.grade
-      record[:first_name]         = student_obj.first_name.blank? ? "Unknown" : student_obj.first_name
-      record[:last_name]          = student_obj.last_name.blank? ? "Unknown" : student_obj.last_name
-      record[:contact_first_name] = student_obj.contact_first_name.blank? ? "Unknown" : student_obj.contact_first_name
-      record[:contact_last_name]  = student_obj.contact_last_name.blank? ? "Unknown" : student_obj.contact_last_name
-      record[:address]            = student_obj.address.blank? ? "Unknown" : student_obj.address
-      record[:zip]                = student_obj.zip.blank? ? "Unknown" : student_obj.zip
-      record[:dob]                = student_obj.dob.blank? ? "Unknown" : student_obj.dob
-      record[:student_number]     = student_obj.student_number.blank? ? "Unknown" : student_obj.student_number
-      record[:phone]              = student_obj.phone.blank? ? "Unknown" : student_obj.phone
-      record[:gender]             = student_obj.gender.blank? ? "Unknown" : student_obj.gender
-      record[:race]               = get_default_options({:simple => true})[:race].each do |rec, index| rec[:value] == student_obj.race ? index : 0  end
-    end
-    @length = students.length
-    @students_paged = students_paged
-    respond_with(@length, @students_paged)
+    options = {:page => (params[:start].to_i / (params[:limit] || 25).to_i) + 1, :per_page => (params[:limit] || 25).to_i}
+    students = Rollcall::Student.select("rollcall_students.id, rollcall_students.first_name, rollcall_students.last_name, 
+      rollcall_students.contact_first_name, rollcall_students.contact_last_name, rollcall_students.address, 
+      rollcall_students.zip, rollcall_students.dob, rollcall_students.student_number, rollcall_students.phone, 
+      rollcall_students.gender, rollcall_students.race, max(rollcall_student_daily_infos.grade) as grade")
+    .joins('left join rollcall_student_daily_infos on rollcall_student_daily_infos.student_id = rollcall_students.id')
+    .where("school_id = ?", params[:school_id])
+    .order("NULLIF(last_name, '') asc, NULLIF(first_name, '') asc")
+    .group("rollcall_students.id, rollcall_students.first_name, rollcall_students.last_name, 
+      rollcall_students.contact_first_name, rollcall_students.contact_last_name, rollcall_students.address, 
+      rollcall_students.zip, rollcall_students.dob, rollcall_students.student_number, rollcall_students.phone, 
+      rollcall_students.gender, rollcall_students.race")
+    @students = students.paginate(options)
+    @students.total_entries = students.length
+    respond_with(@students, @race_array = get_default_options[:race])
   end
 
   # POST rollcall/students
@@ -151,20 +133,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
   
    # POST rollcall/students/history
   def get_history    
-    if params[:id].present?
-      daily_records = Rollcall::StudentDailyInfo.find_all_by_student_id(params[:id])
-      daily_records.each do |rec|
-        symptom_array  = []
-        rec.symptoms.each do |symptom|
-          symptom_array.push(symptom.name)
-        end
-        rec[:symptom] = symptom_array.join(",")
-      end
-    else
-      daily_records = {}
-    end
-
-    @daily_records = daily_records
+    @daily_records = Rollcall::StudentDailyInfo.includes(:symptoms).where(student_id: params[:id])
     respond_with(@daily_records)
   end
 end

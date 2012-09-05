@@ -19,10 +19,10 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
     unless params[:alarm_query_id].blank?
       alarm_queries.push(Rollcall::AlarmQuery.find(params[:alarm_query_id]))
     else
-      alarm_queries = current_user.alarm_queries
+      alarm_queries = current_user.alarm_queries.order(:name)
     end
-    alarm_queries.each do |query|
-      if query.alarm_set
+    alarm_queries.each do |query|          
+      if query.alarm_set      
         result = Rollcall::Alarm.find_all_by_alarm_query_id(query.id).each do |alarm|
           alarm[:school_name] = alarm.school.display_name
           alarm[:school_lat]  = alarm.school.gmap_lat

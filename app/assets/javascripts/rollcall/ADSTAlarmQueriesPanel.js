@@ -304,7 +304,6 @@ Talho.Rollcall.ADSTAlarmQueriesPanel = Ext.extend(Ext.Container, {
       alarm_query_title: alarm_query_title,
       form_id:           'editAlarmQueryForm',
       form_url:          '/rollcall/alarm_query/'+alarm_query_id+'.json',
-      auth_token:        FORM_AUTH_TOKEN,
       query_params:      alarm_query_params,
       deviation_min:     deviation_min,
       deviation_max:     deviation_max,

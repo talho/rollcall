@@ -134,77 +134,74 @@ Background:
 Scenario: User creates an Alarm Query
   When "Anderson Elementary" graphs has done loading
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "Alarm Query for Anderson Elementary"
+  And I should see "New Alarm Query"
   And I fill in "Name" with "Example Query"
-  And I press "Submit" within ".x-window"  
-  Then I should see "Example Query" within "#alarm_queries"
+  And I press "Save" within ".x-window"  
+  Then I should see "Example Query"
 
 Scenario: User creates an Alarm Query with specific threshold
   When "Anderson Elementary" graphs has done loading
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "Alarm Query for Anderson Elementary"
-  And I fill in "Name" with "Example Query"
-  And I fill in "min_deviation" with "2"
-  And I fill in "min_severity" with "3"
-  And I press "Submit" within ".x-window"
-  And I should see "Example Query" within "#alarm_queries"
-  And I should see "severity_min" within ".x-grid3-td-settings"
-  And I should see "3" within ".x-grid3-td-values"
-  And I should see "deviation_min" within ".x-grid3-td-settings"
-  Then I should see "2" within ".x-grid3-td-values"
+  And I should see "New Alarm Query"
+  And I fill in "Name" with "Example Query"  
+  And I fill in "alarm_query[deviation_min]" with "2"
+  And I fill in "alarm_query[severity_min]" with "3"
+  And I press "Save" within ".x-window"
+  And I should see "Example Query"
+  And I should see "severity_min" within ".rollcall-query-column-1"
+  And I should see "3" within ".rollcall-query-column-2"
+  And I should see "deviation_min" within ".rollcall-query-column-1"
+  Then I should see "2" within ".rollcall-query-column-2"
 
 Scenario: User creates a new Alarm Query off of an existing Alarm Query
   When "Anderson Elementary" graphs has done loading
-  And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "Alarm Query for Anderson Elementary"
+  And I click the "save" tool on the "Query Result for Anderson Elementary" window  
+  And I should see "New Alarm Query"
   And I fill in "Name" with "Example Query"
-  And I press "Submit" within ".x-window"
-  Then I should see "Example Query" within "#alarm_queries"
-  And I click the "save" tool on the "Example Query" window
-  And I select "Ashford Elementary" from ext combo "alarm_query_school"
-  And I press "Save As New" within ".x-window"    
-  And I should see "Example Query_1" within "#alarm_queries"  
-  Then I should see "Ashford Elementary" within ".ux-alarm-thumbnails"
+  And I press "Save" within ".x-window"
+  Then I should see "Example Query" 
+  And I click the "gear" tool on the "Example Query" window
+  And I select "Ashford Elementary" from ext combo "school_alarm"  
+  And I press "Save As New"   
+  Then I should see "Ashford Elementary" within ".rollcall-query-column-2"
 
 Scenario: User deletes an existing Alarm Query
   When "Anderson Elementary" graphs has done loading
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "Alarm Query for Anderson Elementary"
+  And I should see "New Alarm Query"
   And I fill in "Name" with "Example Query"
-  And I press "Submit" within ".x-window"
-  Then I should see "Example Query" within "#alarm_queries"
+  And I press "Save" within ".x-window"
+  Then I should see "Example Query" 
   And I click the "close" tool on the "Example Query" window
-  And I should see "Are you sure you want to delete this alarm query?"
+  And I should see "Are you sure you would like to delete this alarm query? This action cannot be undone"
   And I press "Yes"
   And I wait for the panel to load
-  Then I should not see "Example Query" within "#alarm_queries"
+  Then I should not see "Example Query" 
 
 Scenario: User toggles Alarm
-  When "Anderson Elementary" graphs has done loading
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "Alarm Query for Anderson Elementary"
+  When "Anderson Elementary" graphs has done loading
+  And I should see "New Alarm Query"
   And I fill in "Name" with "Example Query"
-  And I fill in "min_deviation" with "1"
-  And I fill in "max_deviation" with "2"
-  And I fill in "min_severity" with "1"
-  And I fill in "max_severity" with "2"
-  And I press "Submit" within ".x-window"
-  Then I should see "Example Query" within "#alarm_queries"
+  And I fill in "alarm_query[deviation_min]" with "1"
+  And I fill in "alarm_query[deviation_max]" with "2"
+  And I fill in "alarm_query[severity_min]" with "1"
+  And I fill in "alarm_query[severity_max]" with "2"
+  And I press "Save" within ".x-window"
+  Then I should see "Example Query" 
   And I click the "alarm-off" tool on the "Example Query" window
   And delayed jobs are processed
   And I wait for the panel to load
-  And I should see "Your alarms have been activated"
-  And I press "OK"
   And I press "Refresh" within "#alarms_c"
   Then I should see "Example Query" within "#alarm_grid_panel"
 
 Scenario: User executes search query off of an existing Alarm Query
   When "Anderson Elementary" graphs has done loading
   And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "Alarm Query for Anderson Elementary"
+  And I should see "New Alarm Query"
   And I fill in "Name" with "Example Query"
-  And I press "Submit" within ".x-window"  
-  Then I should see "Example Query" within "#alarm_queries"
+  And I press "Save" within ".x-window"  
+  Then I should see "Example Query" 
   And I click the "run-query" tool on the "Example Query" window
   And delayed jobs are processed
   And I wait for the panel to load

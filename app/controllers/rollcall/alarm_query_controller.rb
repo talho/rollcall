@@ -12,53 +12,28 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
   layout false
   
   # GET rollcall/alarm_query
-  def index
-    alarm_queries = current_user.alarm_queries(params)
-    @alarm_queries = alarm_queries
-    respond_with(@alarm_queries)
+  def index    
+    respond_with(@alarm_queries = current_user.alarm_queries.order(:name))
   end
 
   # POST rollcall/alarm_query
   def create
-    alarm_exist_by_name = Rollcall::AlarmQuery.find_by_name(params[:alarm_query_name])
-    fs                  = ActiveSupport::JSON.decode(params[:alarm_query_params])    
-    alarm_name          = alarm_exist_by_name.blank? ? params[:alarm_query_name] : "#{alarm_exist_by_name.name}_1"
-    saved_result        = Rollcall::AlarmQuery.create(
-      :name          => alarm_name,
-      :user_id       => current_user.id,
-      :query_params  => (fs.is_a? String) ? fs : params[:alarm_query_params],
-      :severity_min  => params[:severity_min],
-      :severity_max  => params[:severity_max],
-      :deviation_min => params[:deviation_min],
-      :deviation_max => params[:deviation_max],
-      :alarm_set     => false
-    )
-    @success = !saved_result.blank?
-    respond_with(@success)
+    alarm_count = Rollcall::AlarmQuery.where("user_id = ? AND name LIKE ?", current_user.id, "#{params[:alarm_query][:name]}%").count  
+    params[:alarm_query][:name] = "#{params[:alarm_query][:name]}_#{alarm_count}" if alarm_count > 0
+    alarm_query = Rollcall::AlarmQuery.new(params[:alarm_query])
+    alarm_query.attributes = {:user_id => current_user.id, :alarm_set => false}
+    
+    respond_with(@success = alarm_query.save)
+  end
+
+  def edit
+    respond_with(@alarm_query = current_user.alarm_queries.find(params[:id]))
   end
 
   # PUT rollcall/alarm_query/:id
   def update
-    query     = Rollcall::AlarmQuery.find(params[:id])
-    alarm_set = params[:alarm_set].blank? ? query.alarm_set : params[:alarm_set]
-    unless params[:alarm_set].blank?
-      success = query.update_attributes :alarm_set => alarm_set
-    else
-      # Update the query params
-      updated_alarm_query_params           = ActiveSupport::JSON.decode(params[:alarm_query_params])
-      updated_alarm_query_params["school"] = params[:school]
-      success                              = query.update_attributes(
-        :name          => params[:alarm_query_name],
-        :query_params  => ActiveSupport::JSON.encode(updated_alarm_query_params),
-        :severity_min  => params[:severity_min],
-        :severity_max  => params[:severity_max],
-        :deviation_min => params[:deviation_min],
-        :deviation_max => params[:deviation_max],
-        :alarm_set     => alarm_set)
-    end   
-    query.save if success
-    @success = success
-    respond_with(@success)
+    query = Rollcall::AlarmQuery.find(params[:id])
+    respond_with(@success = query.update_attributes(params[:alarm_query]))
   end
 
   # DELETE rollcall/alarm_query/:id

@@ -11,3 +11,5 @@ Talho.Rollcall.ux.ComboBox = Ext.extend(Ext.form.ComboBox, {
   displayField:  'value',
   ctCls:         'ux-combo-box-cls'
 });
+
+Ext.reg('rollcall-combo', Talho.Rollcall.ux.ComboBox);

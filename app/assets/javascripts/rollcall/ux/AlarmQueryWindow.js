@@ -27,7 +27,7 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
         id:         config.form_id,
         url:        config.form_url,
         border:     false,
-        baseParams: {authenticity_token: config.auth_token, alarm_query_params: Ext.encode(config.query_params)},
+        baseParams: {alarm_query_params: Ext.encode(config.query_params)},
         items:[{
           xtype:         'textfield',
           labelStyle:    'margin: 10px 0px 0px 5px',

@@ -1,13 +1,23 @@
-json.options [{
-  :absenteeism => @options[:default_options][:absenteeism],
-  :age => @options[:default_options][:age],
-  :data_functions => @options[:default_options][:data_functions],
-  :data_functions_adv => @options[:default_options][:data_functions_adv],
-  :gender => @options[:default_options][:gender],
-  :symptoms => @options[:default_options][:symptoms],  
-  :zipcode => @options[:zipcodes].map{|z| {id: z, value: z}},
-  :school_type => @options[:school_types].map{|st| {id: st, value: st}},
-  :grade => @options[:grades].map.with_index{|g, i| {id: i+1, value: g} },
-  :school_districts => @options[:school_districts],
-  :schools => @options[:schools]
-}]
+json.absenteeism @options[:default_options][:absenteeism] 
+json.age @options[:default_options][:age] 
+json.data_functions @options[:default_options][:data_functions] 
+json.data_functions_adv @options[:default_options][:data_functions_adv] 
+json.gender @options[:default_options][:gender] 
+json.symptoms @options[:default_options][:symptoms]   
+json.zipcode @options[:zipcodes] do |json, zip|
+  json.id zip
+  json.value zip
+end
+json.school_type @options[:school_types] do |json, st|
+  json.id st
+  json.value st
+end
+i = 1
+json.grade @options[:grades] do |json, g|
+  json.id i
+  i += 1
+  json.value g
+end
+json.school_districts @options[:school_districts]
+json.schools @options[:schools]
+

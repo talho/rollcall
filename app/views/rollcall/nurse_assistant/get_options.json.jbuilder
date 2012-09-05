@@ -1,13 +1,15 @@
-json.options [{
-  :race => @options[:default_options][:race],
-  :age => @options[:default_options][:age],
-  :gender => @options[:default_options][:gender],
-  :grade => @options[:default_options][:grade],
-  :symptoms => @options[:default_options][:symptoms],
-  :zip => @options[:zipcodes],
-  :total_enrolled_alpha => @options[:total_enrolled_alpha],
-  :app_init => @options[:app_init],
-  :school_id => @options[:school_id],
-  :school_name => Rollcall::School.find(@options[:school_id]).display_name,
-  :schools => @options[:schools]
-}]
+json.race @default_options[:race]
+json.age @default_options[:age]
+json.gender @default_options[:gender]
+json.grade @default_options[:grade]
+json.symptoms @default_options[:symptoms]
+json.zip @zipcodes do |json, zip|
+  json.id zip
+  json.value zip
+end
+json.app_init @app_init
+json.school_id @school.id
+json.school_name @school.display_name
+json.schools @schools do |json, school|
+  json.(school, :id, :display_name)
+end

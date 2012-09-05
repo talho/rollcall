@@ -17,36 +17,17 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   # the total result length and the paginated result set
   #
   # GET /rollcall/adst
-  def index
-    graph_info = Array.new
-    options = {:page => params[:page] || 1, :per_page => params[:limit] || 6}    
+  def index    
+    options = {:page => (params[:start] ? (params[:start].to_f / 6).floor + 1 : 1), :per_page => params[:limit] || 6}    
+
+    @results = get_search_results(params).paginate(options)
+    @length = @results.total_entries
         
-    # if params[:return_individual_school].blank?
-      # results = current_user.school_districts
-      # if params[:school_district].present? || params[:school].present?
-        # results = results.where("rollcall_school_districts.name in (?)", params[:school_district])
-      # end     
-      # results.all
-    # else
-      # results = current_user.school_search params
-    # end
-    
-    #Think this is better than the above way to get school districts
-    
-    results = load_results params    
-    
-    @length = results.length    
-    
-    require 'will_paginate/array'    
-    results_paged = results.paginate(options)    
-    results_paged.each do |r|      
-      #res = Rollcall::Data.get_graph_data(params, r)
-      new_res = Rollcall::NewData.get_graph_data(params, r)
-      graph_info.push(new_res)      
+    @results.each do |r|
+      r.result = r.get_graph_data(params).as_json            
     end
-    
-    @graph_info = graph_info    
-    respond_with(@length, @graph_info)    
+        
+    respond_with(@length, @results)    
   end
 
   # Action is called by the ADST main panel method exportResultSet and the ADSTResultPanel method exportResult.
@@ -55,10 +36,11 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   # in the users documents folder and sending out message to users email when process is done.
   #
   # GET /rollcall/export
-  def export
-    filename = "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}"
-    results = load_results params
-    Rollcall::NewData.delay.export_data(params, filename, current_user, results)    
+  def export    
+    results = get_search_results params
+    export_hash = {:params => params, :user_id => current_user.id}
+    adst_results = Rollcall::AdstResults.new
+    adst_results.export_data(export_hash)    
   end
 
   # GET /rollcall/report
@@ -84,17 +66,9 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   #
   # POST /rollcall/query_options
   def get_options
-    schools          = current_user.schools.all
-    school_districts = current_user.school_districts.all
-    default_options  = get_default_options({:schools => schools})
+    default_options  = get_default_options
     
-    zipcodes = current_user  
-      .schools
-      .select("rollcall_schools.postal_code")
-      .where("rollcall_schools.postal_code is not null")
-      .reorder("rollcall_schools.postal_code")      
-      .uniq
-      .pluck("rollcall_schools.postal_code")                     
+    zipcodes = current_user.rollcall_zip_codes              
     
     school_types = current_user
       .schools
@@ -103,22 +77,13 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       .reorder("rollcall_schools.school_type")
       .uniq
       .pluck("rollcall_schools.school_type")                      
-    
-    grades = Rollcall::StudentDailyInfo
-      .joins("inner join rollcall_students S on rollcall_student_daily_infos.student_id = S.id")
-      .joins("inner join rollcall_schools SS on S.school_id = SS.id")
-      .where("grade between 0 and 12")
-      .where("grade is not null")
-      .order(:grade)
-      .uniq
-      .pluck(:grade)
-    
-    @options = {:schools => schools, :school_districts => school_districts, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => grades}          
+        
+    @options = {:schools => current_user.schools.all, :school_districts => current_user.school_districts.all, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => (0..12).to_a}          
   end
   
   protected
   
-  def load_results params
+  def get_search_results params
     if params[:return_individual_school].blank?
       school_ids = current_user
         .school_search_relation(params)
@@ -133,4 +98,5 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     
     results
   end
+  
 end

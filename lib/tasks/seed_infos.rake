@@ -1,13 +1,15 @@
 require 'rdoc/task' 
 
-namespace :seed do
+namespace :rollcall do
   description = "Seeds the info tables" 
+  desc description
   task :seed => [
-    'seed:school_info', 
-    'seed:student_info',  
-    'seed:school_district_info'   
+    'rollcall:school_info', 
+    'rollcall:student_info',  
+    'rollcall:school_district_info'   
   ]
   
+  desc description
   task :school_info => :environment do
     p "Warning this is going to take a loooooonnngg time"
     Rollcall::School.all.each do |school|
@@ -26,6 +28,7 @@ namespace :seed do
     end
   end
   
+  desc description
   task :student_info => :environment do
     if Rollcall::Student.all.length == 0
       Rollcall::School.all.each do |school|
@@ -74,6 +77,7 @@ namespace :seed do
     end
   end
   
+  desc description
   task :school_district_info => :environment do
     Rollcall::SchoolDistrict.all.each do |school_district|
       start = DateTime.now - 1.year

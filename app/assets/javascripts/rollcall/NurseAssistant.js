@@ -1,3 +1,5 @@
+//= require ext_extensions/xActionColumn
+
 Ext.ns('Talho.Rollcall');
 
 Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
@@ -13,30 +15,27 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
     this.build_detail_template();
     this.window_open    = false;
     this.user_school_id = null;
-    this.init_store     = new Ext.data.JsonStore({
-      root:      'options',
-      fields:    ['race','age','gender','grade','symptoms','zip','total_enrolled_alpha','app_init','school_id','schools','school_name'],
-      url:       '/rollcall/nurse_assistant_options',
-      autoLoad:  true,
-      listeners: {
-        scope: this,
-        load:  function(this_store, records)
-        {
-          if(this_store.getAt(0).get("app_init") == true) this.setup_app();
-          else{
-            this.main_panel.get(0).getBottomToolbar().getComponent('new-student-btn').enable();
-            this.main_panel.get(0).getBottomToolbar().getComponent('settings-btn').enable();
-            this.student_list_store.load();
-            this.user_school_id = this_store.getAt(0).get('school_id');
-            this.main_panel_store.load({params:{school_id: this.user_school_id}});
-            this.main_panel.get(0).setTitle('Current Student Visits for '+this_store.getAt(0).get('school_name'));
-          }
-        },
-        exception: function(misc){
-          Ext.Msg.alert('Access', 'You are not authorized to access this feature.  Please contact TX PHIN.', function(){
-            Ext.getCmp(config.id).destroy();
-          }, this);
+    Ext.Ajax.request({
+      url:       '/rollcall/nurse_assistant_options.json',
+      scope: this,
+      success:  function(resp, opts){
+        this.init_options = Ext.decode(resp.responseText);
+        if(this.init_options.app_init == true){
+          this.setup_app();
         }
+        else{
+          this.main_panel.get(0).getBottomToolbar().getComponent('new-student-btn').enable();
+          this.main_panel.get(0).getBottomToolbar().getComponent('settings-btn').enable();
+          this.student_list_store.load();
+          this.user_school_id = this.init_options.school_id;
+          this.main_panel_store.load({params:{school_id: this.user_school_id}});
+          this.main_panel.get(0).setTitle('Current Student Visits for '+ this.init_options.school_name);
+        }
+      },
+      failure: function(resp, opts){
+        Ext.Msg.alert('Access', 'You are not authorized to access this feature.  Please contact an admin.', function(){
+          this.main_panel.destroy();
+        }, this);
       }
     });
     this.student_list_store = new Ext.data.JsonStore({
@@ -52,7 +51,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         beforeload: function(this_store, options_obj)
         {
           if(this.user_school_id != null)this_store.setBaseParam('school_id', this.user_school_id);
-          else this_store.setBaseParam('school_id', this.init_store.getAt(0).get('school_id'));         
+          else this_store.setBaseParam('school_id', this.init_options.school_id);         
         }
       }
     });
@@ -109,7 +108,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         beforeload: function(this_store, options_obj)
         {
           if(this.user_school_id != null)this_store.setBaseParam('school_id', this.user_school_id);
-          else this_store.setBaseParam('school_id', this.init_store.getAt(0).get('school_id'));
+          else this_store.setBaseParam('school_id', this.init_options.school_id);
         }
       }
     });
@@ -355,7 +354,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         allowBlank:    false,
         editable:      false,
         id:            'select_school',
-        store:         new Ext.data.JsonStore({fields: ['id', 'display_name'], data: this.init_store.getAt(0).get('schools')}),
+        store:         new Ext.data.JsonStore({fields: ['id', 'display_name'], data: this.init_options.schools}),
         typeAhead:     true,
         triggerAction: 'all',
         mode:          'local',
@@ -372,11 +371,10 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         formBind: true,
         scope:    this,
         id:       'submit_school_slct_btn',
-        handler:  function(buttonEl, eventObj)
-        {
+        handler:  function(buttonEl, eventObj){
           if(buttonEl.ownerCt.ownerCt.getComponent('select_school').getValue() >= 1){
             var selected_index  = buttonEl.ownerCt.ownerCt.getComponent('select_school').selectedIndex;
-            var school_name     = this.init_store.getAt(0).get('schools')[selected_index].display_name;
+            var school_name     = this.init_options.schools[selected_index].display_name;
             this.user_school_id = buttonEl.ownerCt.ownerCt.getComponent('select_school').getValue();
             this.main_panel.get(0).getBottomToolbar().getComponent('new-student-btn').enable();
             this.main_panel.get(0).getBottomToolbar().getComponent('settings-btn').enable();
@@ -696,7 +694,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             allowBlank:    false,
             id:            'zip',
             itemId:        'zip',
-            store:         new Ext.data.JsonStore({fields: ['id', 'value'], data: this.init_store.getAt(0).data.zip}),
+            store:         new Ext.data.JsonStore({fields: ['id', 'value'], data: this.init_options.zip}),
             typeAhead:     true,
             triggerAction: 'all',
             mode:          'local',
@@ -731,7 +729,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             editable:      false,
             allowBlank:    false,
             id:            'gender',
-            store:         new Ext.data.JsonStore({fields: ['id', 'value'], data: this.init_store.getAt(0).data.gender}),
+            store:         new Ext.data.JsonStore({fields: ['id', 'value'], data: this.init_options.gender}),
             typeAhead:     true,
             triggerAction: 'all',
             mode:          'local',
@@ -749,7 +747,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
             allowBlank:    false,
             editable:      false,
             id:            'race',
-            store:         new Ext.data.JsonStore({fields: ['id', 'value'], data: this.init_store.getAt(0).data.race}),
+            store:         new Ext.data.JsonStore({fields: ['id', 'value'], data: this.init_options.race}),
             typeAhead:     true,
             triggerAction: 'all',
             mode:          'local',
@@ -816,7 +814,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
               allowBlank:    false,
               editable:      false,
               id:            'symptoms',
-              store:         new Ext.data.JsonStore({fields: ['id', 'name', 'icd9_code'], data: this.init_store.getAt(0).get('symptoms')}),
+              store:         new Ext.data.JsonStore({fields: ['id', 'name', 'icd9_code'], data: this.init_options.symptoms}),
               typeAhead:     true,
               triggerAction: 'all',
               mode:          'local',
@@ -857,7 +855,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
         border:       false,
         method:       this.student_window.form_method,
         baseParams:   {
-          authenticity_token: FORM_AUTH_TOKEN, school_id: this.user_school_id,
+          school_id: this.user_school_id,
           student_id: (typeof this.student_window.student_record.data == "undefined") ? null : this.student_window.student_record.get('id'),
           student_info_id: this.student_window.student_info_id
         },
@@ -929,7 +927,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
           allowBlank:    false,
           editable:      false,
           id:            'grade',
-          store:         new Ext.data.JsonStore({fields: ['id', 'value'], data: this.init_store.getAt(0).get('grade')}),
+          store:         new Ext.data.JsonStore({fields: ['id', 'value'], data: this.init_options.grade}),
           typeAhead:     true,
           triggerAction: 'all',
           mode:          'local',

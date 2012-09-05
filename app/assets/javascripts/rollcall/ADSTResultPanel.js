@@ -42,13 +42,8 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       autoSave:       true,   
       root:          'results',
       totalProperty: 'total_results',
-      fields: [
-        {name:'tea_id',      type:'int'},
-        {name:'report_date', renderer: Ext.util.Format.dateRenderer('m-d-Y')},
-        {name:'enrolled',    type:'int'},
-        {name:'total',       type:'int'},
-        {name:'school_name', type:'string'}
-      ],
+      idProperty: 'school_id',
+      fields: ['tea_id', 'name', 'school_id', 'results'],
       writer:         new Ext.data.JsonWriter({encode: false}),
       url:            '/rollcall/adst',
       restful:        true,
@@ -58,7 +53,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       }
     });
 
-    this._getResultStore = function()
+    this.getResultStore = function()
     {
       return result_store;
     };
@@ -75,19 +70,20 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
   _loadGraphResults: function(store, records, options)
   {
     this.show();
-    try{
+    //try{
       this._writeGraphs(store);
-    }catch(e){
-      this._writeFlashGraphs(store);
-    }
+    //}
+    // catch(e){
+      // this._writeFlashGraphs(store);
+    // }
 
   },
   /*
   Method returns the result store
    */
-  _getResultStore: function()
+  getResultStore: function()
   {
-    return this._getResultStore();
+    return this.getResultStore();
   },
   /*
   Method creates an Ext portlet for each returned result in result set, called from loadGraphResults function
@@ -99,6 +95,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     var resultLength = store.getRange().length;
     var leftColumn   = this.getComponent('leftColumn');
     var rightColumn  = this.getComponent('rightColumn');
+    
     rightColumn.items.each(function(item){
       if(!item.pinned) rightColumn.remove(item.id, true);
     });
@@ -107,10 +104,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       if(!item.pinned) leftColumn.remove(item.id, true);
     });
 
-    Ext.each(store.getRange(), function(school_record,i){
-      var school           = school_record.json[0]; // TODO
-      var school_id        = school.school_id;
-      var school_name      = typeof school.school_name == "undefined" ? school.name : school.school_name;
+    Ext.each(store.getRange(), function(school,i){
+      var school_id        = school.get('school_id');
+      var school_name      = school.get('name');
       var result_obj       = null;
       var field_array      = [
           {name: 'report_date', renderer: Ext.util.Format.dateRenderer('m-d-Y')},
@@ -226,7 +222,7 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
         boxMinWidth: 320,
         items: {
           xtype: 'container',
-          store: new Ext.data.JsonStore({fields: field_array,data: school_record.json}),
+          store: new Ext.data.JsonStore({fields: field_array,data: school.get('results')}),
           drawn: false,
           listeners: {
             scope: this,
@@ -259,37 +255,36 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
    */
   _createD3Graphs: function(this_container, width, height)
   {
-    var data    = [];
-    var lines   = [];
-    var circles = [];
-    d3.range(this_container.store.getTotalCount()).map(function(cnt){
-      var some_date = this_container.store.getAt(cnt).get('report_date');
-      data.push({
-        x:  some_date,
-        y:  this_container.store.getAt(cnt).get('total'),
-        e:  this_container.store.getAt(cnt).get('enrolled'),
-        a:  this_container.store.getAt(cnt).get("average"),
-        d:  this_container.store.getAt(cnt).get('deviation'),
-        a3: this_container.store.getAt(cnt).get('average30'),
-        a6: this_container.store.getAt(cnt).get('average60'),
-        c:  this_container.store.getAt(cnt).get('cusum')
-      });
+    //this._oldStyleD3Graphs(this_container, width, height);
+    this_container2 = new Talho.Rollcall.ux.D3Graph({
+      store: this_container.store,
+      width: width,
+      height: height
     });
+    this_container;
+  },
+  
+  _oldStyleD3Graphs: function(this_container, width, height) {    
+    var data    = this._getD3GraphData(this_container.store);
+    var circles = [];
+    var lines = [];
 
-    var w     = width - 40,
-        h     = 175,
-        p     = [20,50],
-        m     = [20,40],
-        parse = d3.time.format("%m-%d-%y").parse,
-        x     = d3.time.scale().range([0, w]),
-        y     = d3.scale.linear().range([h, 0]),
-        xAxis = d3.svg.axis().scale(x).tickSize(-h).tickSubdivide(true),
-        yAxis = d3.svg.axis().scale(y).ticks(4).orient("left");
-
+    var w      = width - 40,
+        h      = 175,
+        p      = [20,50],
+        m      = [20,40],
+        parse  = d3.time.format("%Y-%m-%d").parse,
+        x      = d3.time.scale().range([0, w]),
+        y      = d3.scale.linear().range([h, 0]),
+        xAxis  = d3.svg.axis().scale(x).tickSize(-h).tickSubdivide(true), 
+        yAxis  = d3.svg.axis().scale(y).ticks(4).orient("left");
 
     // An area generator, for the light fill.
-    var area = d3.svg.area().interpolate("monotone").x(function(d) { return x(d.x); })
-        .y0(h).y1(function(d) { return y(d.y); });
+    var area = d3.svg.area().interpolate("monotone")
+        .x(function(d) { 
+          return x(d.x); })
+        .y0(h).y1(function(d) { 
+          return y(d.y); });
 
     // A line generator, for the dark stroke.
     var line = d3.svg.line().x(function(d) { return x(d.x); }).y(function(d) { return y(d.y); });
@@ -314,8 +309,9 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     });
 
     // Compute the minimum and maximum date, and the maximum price.
+    yMax = d3.max(data, function(d) { return d.y; });
     x.domain([data[0].x, data[data.length - 1].x]);
-    y.domain([0, d3.max(data, function(d) { return d.y; })]).nice();
+    y.domain([0, yMax]).nice();       
 
     // Add an SVG element with the desired dimensions and margin.
     var svg = d3.select(this_container.container.dom).append("svg:svg").attr("width", w + p[1] * 2)
@@ -337,13 +333,32 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
     svg.append("svg:path").attr("class", "line").attr("clip-path", "url(#clip)").attr("d", line(data));
 
     svg.selectAll(".line").data(data).enter().append("svg:circle").attr("class", "line")
-            .attr("cx", function(d) { return x(d.x)})
-            .attr("cy", function(d) { return y(d.y)})
+            .attr("cx", function(d) { 
+              return x(d.x)})
+            .attr("cy", function(d) { 
+              return y(d.y)})
             .attr("ext:qtip", function(d){
               return '<table><tr><td>Report Date:&nbsp;&nbsp;</td><td>'+d.x.format('M d, Y')+'&nbsp;&nbsp;</td></tr>'+
                       '<tr><td>Total Absent:&nbsp;&nbsp;</td><td>'+d.y+'&nbsp;&nbsp;</td></tr>'+
                       '<tr><td>Total Enrolled:&nbsp;&nbsp;</td><td>'+d.e+'&nbsp;&nbsp;</td></tr></table>'
             }).attr("r", 3.5);
+            
+    // // Add an x-axis label.
+    // svg.append("text")
+      // .attr("class", "x label")
+      // .attr("text-anchor", "end")
+      // .attr("x", w)
+      // .attr("y", h - 6)
+      // .text("Date");
+// 
+    // // Add a y-axis label.
+    // svg.append("text")
+      // .attr("class", "y label")
+      // .attr("text-anchor", "end")
+      // .attr("y", 6)
+      // .attr("dy", ".75em")
+      // .attr("transform", "rotate(-90)")
+      // .text("Students Absent");
 
     for(c in lines){
       try{
@@ -395,6 +410,23 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
                       }).attr("r", 3.5);
       }catch(e){};
     }
+  },
+  _getD3GraphData: function (store) {
+    data = [];
+    store.each( function (record) {
+      data.push({
+        x:  record.get('report_date'),
+        y:  record.get('total'),
+        e:  record.get('enrolled'),
+        a:  record.get("average"),
+        d:  record.get('deviation'),
+        a3: record.get('average30'),
+        a6: record.get('average60'),
+        c:  record.get('cusum')
+      });
+    });
+  
+    return data;
   },
   _writeFlashGraphs: function(store)
   {
@@ -854,10 +886,10 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       idIndex: 0
     });
 
-    baseParams = this._getResultStore().baseParams;
+    baseParams = this.getResultStore().baseParams;
     queryParams = {};
     for(key in baseParams){
-      if(baseParams[key].indexOf("...") == -1 && key != "authenticity_token") queryParams[key] = baseParams[key];
+      if(baseParams[key].indexOf("...") == -1) queryParams[key] = baseParams[key];
     }
     queryParams["type"] = (Ext.getCmp('advanced_query_select').isVisible()) ? "adv" : "simple";
     if (school_name){
@@ -875,7 +907,6 @@ Talho.Rollcall.ADSTResultPanel = Ext.extend(Ext.ux.Portal, {
       alarm_query_title: (school_name) ? 'Alarm Query for '+school_name : 'Alarm Query',
       form_id:           'alarmQueryForm',
       form_url:          '/rollcall/alarm_query',
-      auth_token:        FORM_AUTH_TOKEN,
       query_params:      Ext.encode(queryParams),
       deviation_min:     100,
       deviation_max:     100,

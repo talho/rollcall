@@ -144,7 +144,7 @@ Talho.Rollcall.ADSTAlarmsPanel = Ext.extend(Ext.Container, {
    */
   _close_alarm_tip: function()
   {
-    if(this.tip_array.length != 0) this.tip_array.pop().destroy();  
+    if(this.tip_array.length != 0) this.tip_array.pop().destroy();
   },
   /*
   Method destroys any Ext Tip when a scroll event on the alarm panel is triggered, listener function for bodyscroll

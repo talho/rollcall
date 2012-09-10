@@ -9,6 +9,7 @@ Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
   url: '/rollcall/adst',
   labelAlign: 'top',
   buttonAlign: 'left',
+  border: false,
     
   initComponent: function (config) {    
     this.addEvents('reset', 'submitquery', 'exportresult', 'saveasalarm', 'showreportmessage');        
@@ -20,16 +21,17 @@ Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
         
     this.items = [parameters];
     
-    this.buttons = [
-      //TODO move handlers up to controller
-      {text: "Submit", scope: this, handler: function () { this.fireEvent('submitquery', this.getParams());  this._showButtons() }},
-      {text: "Clear Parameters", scope: this, handler: function () { this.fireEvent('reset'); }},
-      {text: "Export Result Set", hidden: true, scope: this, handler: function () { this.fireEvent('exportresult') }},
-      {text: "Create Alarm from Result Set", hidden: true, scope: this, handler: function () { this.fireEvent('saveasalarm'); }},
-      {text: "Generate Report from Result Set", hidden: true, scope: this,
-        handler: function (button, firedEvent) { this._showReportMenu(button.getEl(), null) }
-      }
-    ];
+    // this.buttons = [      
+      // {text: "Submit", scope: this, handler: function () { this.fireEvent('submitquery', this.getParams());  this._showButtons() }},
+      // {text: "Clear Parameters", scope: this, handler: function () { this.fireEvent('reset'); }},
+      // {text: "Export Result Set", hidden: true, scope: this, handler: function () { this.fireEvent('exportresult') }},
+      // {text: "Create Alarm from Result Set", hidden: true, scope: this, handler: function () { this.fireEvent('saveasalarm'); }},
+      // {text: "Generate Report from Result Set", hidden: true, scope: this,
+        // handler: function (button, firedEvent) { this._showReportMenu(button.getEl(), null) }
+      // }
+    // ];
+    
+    this.school_mode = true;
     
     Talho.Rollcall.ADST.view.SearchForm.superclass.initComponent.apply(this, config);       
   },
@@ -42,6 +44,10 @@ Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
       if (form_values[key].indexOf('...') == -1) { 
         params[key] = form_values[key].replace(/\+/g, " ");
       }
+    }
+    
+    if (this.school_mode) {
+      params['return_individual_school'] = 'on';
     }
         
     var lists_box_params = this.getParametersPanel().getParameters();
@@ -75,5 +81,9 @@ Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
       this.fireEvent('showreportmessage', 'RecipeInternal::IliAllRecipe', school_id); }, scope: this
     });
     scrollMenu.show(element);
+  },
+  
+  _setIndividualValue: function (value) {
+    this.school_mode = value;
   }
 });

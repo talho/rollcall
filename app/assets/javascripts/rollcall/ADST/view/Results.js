@@ -1,5 +1,7 @@
 //= require ext_extensions/Graph
 //= require rollcall/ADST/view/SchoolProfile
+//= require rollcall/ADST/view/GraphWindow
+
 Ext.namespace("Talho.Rollcall.ADST.view");
 
 Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
@@ -14,6 +16,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     
     this.addEvents('createalarmquery', 'showreportmessage', 'exportresult');
     this.enableBubble(['createalarmquery', 'showreportmessage', 'exportresult']);
+    
   },
   
   initComponent: function () {
@@ -30,7 +33,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       '<div style="float:left;margin-right:20px"><span style="background-color:#660066">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Average 60 Day&nbsp;</div>' +
       '<div style="float:left;margin-right:20px"><span style="background-color:#006600">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Standard Deviation&nbsp;</div>' +
       '<div style="float:left;margin-right:20px"><span style="background-color:#FF0066">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Cusum&nbsp;</div>' +
-      '</div></ br> </ hr>';
+      '</div><br /><hr /><br />';
     
     var result_store = new Ext.data.JsonStore({
       autoLoad: false,
@@ -83,7 +86,8 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       var name = school.get('name');
       var field_array = this._getFieldArray(school);
       var school_store = new Ext.data.JsonStore({fields: field_array, data: school.get('results')});
-      var gis = typeof school.gmap_lat == "undefined" ? true : false;  
+      var gis = typeof school.gmap_lat == "undefined" ? true : false; 
+      var getFA = this._getFieldArray;
       var graphImageConfig = {
         title: 'Query Result for ' + name,
         style: 'margin:5px',
@@ -128,15 +132,21 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
               this.fireEvent('createalarmquery', school.get('id'), school.get('name'));
             }
           },
-          //TODO export up to controller
           {id: 'down', qtip: 'Export Result', scope: this, handler: function () { this.fireEvent('exportresult') } },
           {id: 'close', qtip: "Close", handler: this._closeResult }
-        ],
+        ],               
                  
         items: new Talho.ux.Graph({
           store: school_store,
           width: 'auto',
-          series: graph_series
+          series: graph_series,          
+          listeners: {'render': function (c) {
+            c.getEl().on('click', function () {
+              var w = new Talho.Rollcall.ADST.view.GraphWindow({
+                store: store, graphNumber: i, _getFieldArray: getFA, graph_series: graph_series
+              }).show();
+            });
+          }}
         })
       }          
       

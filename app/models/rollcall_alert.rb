@@ -12,7 +12,7 @@ class RollcallAlert < Alert
   
   before_create :create_email_alert_device_type
 
-  has_many :recipients, :class_name => "User", :finder_sql => proc{"SELECT users.* FROM users, targets, targets_users WHERE targets.item_type='RollcallAlert' AND targets.item_id=#{id} AND targets_users.target_id=targets.id AND targets_users.user_id=users.id"}
+  #has_many :recipients, :class_name => "User", :finder_sql => proc{"SELECT users.* FROM users, targets, targets_users WHERE targets.item_type='RollcallAlert' AND targets.item_id=#{id} AND targets_users.target_id=targets.id AND targets_users.user_id=users.id"}
   belongs_to :alarm, :class_name => "Rollcall::Alarm", :foreign_key => "alarm_id"
   
   has_paper_trail :meta => { :item_desc  => Proc.new { |x| "#{x.to_s}" }, :app => Proc.new {|x| x.app} }

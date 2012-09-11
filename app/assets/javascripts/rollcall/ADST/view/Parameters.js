@@ -37,9 +37,7 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
     // });
     
     this.items = [this.getSimplePanel()];
-    
-    //TODO if store fails no auth and keel everytin up on controller    
-    
+
     Ext.Ajax.request({
       url: '/rollcall/query_options',
       method: 'GET',

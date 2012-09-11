@@ -5,22 +5,35 @@ Ext.namespace("Talho.Rollcall.ADST.view");
 Talho.Rollcall.ADST.view.GraphWindow = Ext.extend(Ext.Window, {
   modal: true,
   resizeable: false,
-  dragable: false,
+  draggable: false,
   layout: 'fit',
-  initComponent: function () {
-    this.addEvents('loadgraph');
-    this.enableBubble(['loadgraph']);
-    
+  initComponent: function () {    
     var windowSize = Ext.getBody().getViewSize();
     this.width = windowSize.width - 40;
-    this.height = windowSize.height - 40;    
+    this.height = windowSize.height - 40;
+    this.school_data = undefined; 
     
-    this.bbar = [
-      {xtype: 'combo', value: 'school'},
-      '->',      
-      {xtype: 'button', text: 'Previous'},
-      {xtype: 'button', text: 'Next'}
-    ];        
+    this.combo = new Ext.form.ComboBox({
+        valueField: 'id',
+        displayField: 'name',
+        store: new Ext.data.JsonStore({
+          root: 'results',
+          autoLoad: true, url: 'rollcall/search_results', fields: ['id', 'name'], 
+          baseParams: this.search_params
+      })
+    });
+    
+    //TODO SETUP School MODE
+    //TODO MASKING
+    
+    this.bbar = new Ext.Toolbar({
+      layout: 'hbox',
+      items: [
+        {xtype: 'container', flex: 1, items: [{xtype: 'button', text: 'Previous'}]},
+        {xtype: 'container', width: 'auto', items: [this.combo]},        
+        {xtype: 'container', flex: 1, items: [{xtype: 'button', style: {'float': 'right'}, text: 'Next'}]},
+      ]
+    });
     
     this._loadGraph();
     

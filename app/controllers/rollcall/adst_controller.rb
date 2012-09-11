@@ -81,6 +81,13 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     @options = {:schools => current_user.schools.all, :school_districts => current_user.school_districts.all, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => (0..12).to_a}          
   end
   
+  # GET /rollcall/search_results
+  def search_results
+    @results = get_search_results params    
+    
+    respond_with(@results)
+  end
+  
   protected
   
   def get_search_results params

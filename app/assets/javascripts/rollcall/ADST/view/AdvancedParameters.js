@@ -135,8 +135,7 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
         iliFilter,
         {xtype: 'spacer', width: 5},
         miscFilter        
-      ]}
-           
+      ]}           
     ];
     
     Talho.Rollcall.ADST.view.AdvancedParameters.superclass.initComponent.apply(this, arguments);

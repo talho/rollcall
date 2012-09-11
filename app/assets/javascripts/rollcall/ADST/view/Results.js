@@ -60,6 +60,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
   },
   
   loadResultStore: function (params, callback) {
+    this.params = params;
     this.getResultsStore().load({params: params, callback: callback});
   },
   
@@ -86,7 +87,8 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       var name = school.get('name');
       var field_array = this._getFieldArray(school);
       var school_store = new Ext.data.JsonStore({fields: field_array, data: school.get('results')});
-      var gis = typeof school.gmap_lat == "undefined" ? true : false; 
+      var gis = typeof school.gmap_lat == "undefined" ? true : false;
+      var height = 230;
       var getFA = this._getFieldArray;
       var graphImageConfig = {
         title: 'Query Result for ' + name,
@@ -97,7 +99,8 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
         provider_id: 'image' + i + '-provider',
         collapsible: false,
         pinned: false,
-        height: 230,
+        height: height,
+        layout: 'fit',
         cls: 'ux-portlet',
         boxMinWidth: 320,
         
@@ -139,11 +142,13 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
         items: new Talho.ux.Graph({
           store: school_store,
           width: 'auto',
-          series: graph_series,          
+          height: 193,
+          series: graph_series,
           listeners: {'render': function (c) {
             c.getEl().on('click', function () {
               var w = new Talho.Rollcall.ADST.view.GraphWindow({
-                store: store, graphNumber: i, _getFieldArray: getFA, graph_series: graph_series
+                store: store, graphNumber: i, _getFieldArray: getFA, graph_series: graph_series,
+                search_params: this.params
               }).show();
             });
           }}

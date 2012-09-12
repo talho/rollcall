@@ -10,63 +10,110 @@ Talho.Rollcall.ADST.view.GraphWindow = Ext.extend(Ext.Window, {
   initComponent: function () {    
     var windowSize = Ext.getBody().getViewSize();
     this.width = windowSize.width - 40;
-    this.height = windowSize.height - 40;
-    this.school_data = undefined; 
+    this.height = windowSize.height - 40;    
     
     this.combo = new Ext.form.ComboBox({
-        valueField: 'id',
-        displayField: 'name',
-        store: new Ext.data.JsonStore({
-          root: 'results',
-          autoLoad: true, url: 'rollcall/search_results', fields: ['id', 'name'], 
-          baseParams: this.search_params
-      })
+      valueField: 'id',
+      displayField: 'name',
+      triggerAction: 'all',
+      scope: this,
+      editable: false,
+      autoSelect: false,
+      allowBlank: false,
+      mode: 'local',
+      store: new Ext.data.JsonStore({
+        root: 'results',
+        autoLoad: true, url: 'rollcall/search_results', fields: ['id', 'name'], 
+        baseParams: this.search_params,
+        listeners: {
+          'load': function () { this.combo.setValue(this.graphNumber); this._loadGraph(); },
+          scope: this
+        }
+      }),
+      listeners: {
+        'select': function () { this._loadGraph(); },
+        scope: this
+      }       
     });
-    
-    //TODO SETUP School MODE
-    //TODO MASKING
-    
+
     this.bbar = new Ext.Toolbar({
       layout: 'hbox',
       items: [
-        {xtype: 'container', flex: 1, items: [{xtype: 'button', text: 'Previous'}]},
+        {xtype: 'container', flex: 1, items: [
+          {xtype: 'button', text: 'Previous', handler: this._previousGraph, scope: this}
+        ]},
         {xtype: 'container', width: 'auto', items: [this.combo]},        
-        {xtype: 'container', flex: 1, items: [{xtype: 'button', style: {'float': 'right'}, text: 'Next'}]},
+        {xtype: 'container', flex: 1, items: [
+          {xtype: 'button', style: {'float': 'right'}, text: 'Next', handler: this._nextGraph, scope: this}
+        ]},
       ]
-    });
-    
-    this._loadGraph();
+    });       
     
     Talho.Rollcall.ADST.view.GraphWindow.superclass.initComponent.apply(this, arguments)
   },
   
   _nextGraph: function () {
-    this.graphNumber += 1;
+    var store = this.combo.getStore();
+    var combo_value = this.combo.getValue();
+    var school_id = store.find('id', combo_value) + 1;
+    if (school_id >= store.getTotalCount()) { school_id = 0; }
+    this.school_name = store.getAt(school_id).data.name;
+    this.combo.setValue(store.getAt(school_id).data.id);
     this._loadGraph();
   },
   
   _previousGraph: function () {
-    this.graphNumber -= 1;
+    var store = this.combo.getStore();
+    var combo_value = this.combo.getValue();
+    var school_id = store.find('id', combo_value) - 1;
+    if (school_id < 0) { school_id = store.getTotalCount() - 1}
+    this.school_name = store.getAt(school_id).data.name;
+    this.combo.setValue(store.getAt(school_id).data.id);
     this._loadGraph();
   },
   
-  _loadGraph: function (graphNumber) {
-    //TODO Mask this
-    if (graphNumber) { this.graphNumber = graphNumber; }
+  _loadGraph: function () {
+    var store = this.combo.getStore();
+    var combo_value = this.combo.getValue();
+    var school_id = store.find('id', combo_value);
+    this.school_name = store.getAt(school_id).data.name;  
     
-    var school = this.store.getAt(this.graphNumber);
-    var field_array = this._getFieldArray(school);
-    var school_store = new Ext.data.JsonStore({fields: field_array, data: school.get('results')});
+    this.setTitle(this.school_name);
     
-    this.title = school.get('name');
+    var params = this.search_params    
     
-    this.items = new Talho.ux.Graph({
-      store: school_store,
-      width: this.width - 40,
-      height: this.height - 60,
-      series: this.graph_series
+    if ('return_individual_school' in this.search_params && this.search_params['return_individual_school'] == 'on') {
+      if ('school_district' in params) { delete params['school_district']; }
+      params['school'] = this.school_name;
+    }
+    else {
+      if ('school' in params) { delete params['school']; }
+      params['school_district'] = this.school_name;
+    }
+    
+    Ext.Ajax.request({
+      url:     '/rollcall/adst',
+      method:  'GET',    
+      scope:   this,
+      params:  params,
+      success: function (response) {
+        mask = new Ext.LoadMask(this.getEl(), {msg:"Please wait..."});
+        mask.show();
+        var school = Ext.decode(response.responseText)['results'][0];
+        var field_array = this._getFieldArray(school);
+        var school_store = new Ext.data.JsonStore({fields: field_array, data: school['results']});
+        
+        this.items.clear()
+        this.items.add(new Talho.ux.Graph({
+          store: school_store,
+          width: this.width - 40,
+          height: this.height - 60,
+          series: this.graph_series
+        }));
+        
+        this.doLayout(); 
+        mask.hide();   
+      }
     });
-    
-    this.doLayout();
   }
 });

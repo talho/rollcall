@@ -84,6 +84,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     
     store.each(function (school, i) {
       var id = school.id;
+      var search_params = this.params;
       var name = school.get('name');
       var field_array = this._getFieldArray(school);
       var school_store = new Ext.data.JsonStore({fields: field_array, data: school.get('results')});
@@ -147,8 +148,8 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
           listeners: {'render': function (c) {
             c.getEl().on('click', function () {
               var w = new Talho.Rollcall.ADST.view.GraphWindow({
-                store: store, graphNumber: i, _getFieldArray: getFA, graph_series: graph_series,
-                search_params: this.params
+                graphNumber: id, _getFieldArray: getFA, graph_series: graph_series,
+                search_params: search_params
               }).show();
             });
           }}
@@ -166,7 +167,9 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
   },
   
   _getFieldArray: function (school) {
-    var results = school.get('results');
+    var results;
+    if ('results' in school) { results = school['results']; }
+    else { results =  school.get('results'); }    
     var field_array = [
       {name: 'report_date', renderer: Ext.util.Format.dateRenderer('m-d-Y')},
       {name: 'total', type:'int'},

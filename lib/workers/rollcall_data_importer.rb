@@ -32,7 +32,7 @@ class RollcallDataImporter < BackgrounDRb::MetaWorker
   def process_uploads(isd = nil)
     #logger.warn("Running TransformImportWorker")
     if Rails.env == "production"
-      rollcall_data_path = File.join("/var/www/openphin/shared", "rollcall")
+      rollcall_data_path = File.join("$HOME/openphin/shared", "rollcall")
     elsif Rails.env == "test" || Rails.env == "cucumber"
       rollcall_data_path = File.join(File.dirname(__FILE__), "..", "..", "tmp")
     end

@@ -56,8 +56,6 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       return result_store;
     };
     
-    this.on('resize', function () { }, this);    
-    
     Talho.Rollcall.ADST.view.Results.superclass.initComponent.apply(this, arguments);
   },
   

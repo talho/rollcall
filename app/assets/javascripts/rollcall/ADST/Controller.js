@@ -27,6 +27,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       'notauthorized': this._notAuthorized,
       'exportresult': this._exportResultSet,
       'saveasalarm': this.createAlarmFromResultSet,
+      'resize': this._resizeResults,
       scope: this
     });
     
@@ -191,6 +192,16 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     var form = this.layout.getSearchForm();
     this.layout.getResultsPanel().loadResultStore(params);    
   },
+  
+  _resizeResults: function () {
+    var mask = new Ext.LoadMask(this.layout.adst_panel.getEl(), {msg:"Please wait..."});
+    mask.show();
+    
+    var callback = function () { mask.hide(); }
+    var results = this.layout.getResultsPanel();
+    var store = results.getResultsStore();
+    results.loadResultStore(store.lastOptions, callback);
+  }
 });
 
   

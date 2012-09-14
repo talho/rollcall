@@ -56,17 +56,17 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       return result_store;
     };
     
+    this.on('resize', function () { }, this);    
+    
     Talho.Rollcall.ADST.view.Results.superclass.initComponent.apply(this, arguments);
   },
   
   loadResultStore: function (params, callback) {
-    this.params = params;
     this.getResultsStore().load({params: params, callback: callback});
   },
   
   _loadGraphResults: function (store, records, options) {    
-    this.show();
-    //TODO disable submit
+    this.show();        
     
     var resultLength = store.getRange().length;
     var leftColumn = this.getComponent('leftColumn');
@@ -83,14 +83,16 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     var graph_series = this._getGraphSeries();
     
     store.each(function (school, i) {
-      var id = school.id;
-      var search_params = this.params;
+      var id = school.id;      
       var name = school.get('name');
       var field_array = this._getFieldArray(school);
       var school_store = new Ext.data.JsonStore({fields: field_array, data: school.get('results')});
       var gis = typeof school.gmap_lat == "undefined" ? true : false;
       var height = 230;
       var getFA = this._getFieldArray;
+      var local_params = new Object();
+      for (key in options.params) { local_params[key] = options.params[key]; }
+      
       var graphImageConfig = {
         title: 'Query Result for ' + name,
         style: 'margin:5px',
@@ -102,7 +104,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
         pinned: false,
         height: height,
         layout: 'fit',
-        cls: 'ux-portlet',
+        cls: 'ux-portlet ' + name.split(' ').join('-'),
         boxMinWidth: 320,
         
         tools: [
@@ -149,7 +151,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
             c.getEl().on('click', function () {
               var w = new Talho.Rollcall.ADST.view.GraphWindow({
                 graphNumber: id, _getFieldArray: getFA, graph_series: graph_series,
-                search_params: search_params
+                search_params: local_params
               }).show();
             });
           }}

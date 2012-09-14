@@ -3,30 +3,32 @@
 Ext.namespace("Talho.Rollcall.ADST.view");
 
 Talho.Rollcall.ADST.view.GraphWindow = Ext.extend(Ext.Window, {
-  modal: true,
-  resizeable: false,
-  draggable: false,
   layout: 'fit',
+  cls: 'graph-window',
   initComponent: function () {    
     var windowSize = Ext.getBody().getViewSize();
     this.width = windowSize.width - 40;
-    this.height = windowSize.height - 40;    
+    this.height = windowSize.height - 40;
+    this.origninal_params = this.search_params 
     
     this.combo = new Ext.form.ComboBox({
       valueField: 'id',
       displayField: 'name',
       triggerAction: 'all',
+      id: 'graph-window-school',
       scope: this,
       editable: false,
       autoSelect: false,
-      allowBlank: false,
+      allowBlank: false, 
       mode: 'local',
       store: new Ext.data.JsonStore({
         root: 'results',
-        autoLoad: true, url: 'rollcall/search_results', fields: ['id', 'name'], 
-        baseParams: this.search_params,
+        autoLoad: false, url: 'rollcall/search_results', fields: ['id', 'name'], 
+        params: this.search_params,
         listeners: {
-          'load': function () { this.combo.setValue(this.graphNumber); this._loadGraph(); },
+            'load': function () { this.combo.setValue(this.graphNumber); this._loadGraph();    
+            this.on('resize', function (win, width, height) { this.width = width; this.height = height; this._loadGraph(); }, this);        
+          },
           scope: this
         }
       }),
@@ -47,7 +49,9 @@ Talho.Rollcall.ADST.view.GraphWindow = Ext.extend(Ext.Window, {
           {xtype: 'button', style: {'float': 'right'}, text: 'Next', handler: this._nextGraph, scope: this}
         ]},
       ]
-    });       
+    });
+    
+    this.combo.getStore().load({params: this.search_params});       
     
     Talho.Rollcall.ADST.view.GraphWindow.superclass.initComponent.apply(this, arguments)
   },
@@ -103,7 +107,7 @@ Talho.Rollcall.ADST.view.GraphWindow = Ext.extend(Ext.Window, {
         var field_array = this._getFieldArray(school);
         var school_store = new Ext.data.JsonStore({fields: field_array, data: school['results']});
         
-        this.items.clear()
+        this.items.clear();
         this.items.add(new Talho.ux.Graph({
           store: school_store,
           width: this.width - 40,

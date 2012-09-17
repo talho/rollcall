@@ -26,8 +26,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       'showreportmessage': this._showReportMessage,
       'notauthorized': this._notAuthorized,
       'exportresult': this._exportResultSet,
-      'saveasalarm': this.createAlarmFromResultSet,
-      'resize': this._resizeResults,
+      'saveasalarm': this.createAlarmFromResultSet,      
       scope: this
     });
     

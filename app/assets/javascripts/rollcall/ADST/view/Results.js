@@ -157,10 +157,10 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       }          
       
       if(i % 2 == 0) {
-        rightColumn.add(graphImageConfig);
+        leftColumn.add(graphImageConfig);
       }
       else {
-        leftColumn.add(graphImageConfig);
+        rightColumn.add(graphImageConfig);
       }
       this.doLayout();
     }, this);        
@@ -175,19 +175,19 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       {name: 'total', type:'int'},
       {name: 'enrolled', type:'int'}
     ];
-    if (typeof results.average != "undefined") {
+    if ('average' in results[0]) {
       field_array.push({name:'average', type: 'int'})
     }
-    if(typeof results.deviation != "undefined") {
+    if ('deviation' in results[0]) {
       field_array.push({name:'deviation', type: 'int'})
     }
-    if(typeof results.average30 != "undefined") {
+    if('average30' in results[0]) {
       field_array.push({name:'average30', type: 'int'})
     }
-    if(typeof results.average60 != "undefined") {
+    if('average60' in results[0]) {
       field_array.push({name:'average60', type: 'int'})
     }
-    if(typeof results.cusum != "undefined") {
+    if('cusum' in results[0]) {
       field_array.push({name:'cusum', type: 'int'})
     }
     

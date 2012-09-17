@@ -15,7 +15,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     }
     
     this.layout.addEvents('reset', 'submitquery', 'exportresult', 'notauthorized',
-      'saveasalarm', 'createreport', 'showschoolprofile', 'showreportmessage');
+      'saveasalarm', 'createreport', 'showschoolprofile', 'showreportmessage', 'pagingparams');
     this.layout.on({
       'reset': this._resetForm,
       'submitquery': this._submitQuery,
@@ -28,6 +28,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       'notauthorized': this._notAuthorized,
       'exportresult': this._exportResultSet,
       'saveasalarm': this.createAlarmFromResultSet,
+      'pagingparams': this._loadPagingParams,
       scope: this
     });
     
@@ -38,8 +39,19 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     var mask = new Ext.LoadMask(this.layout.adst_panel.getEl(), {msg:"Please wait..."});
     mask.show();
     
+    params['start'] = 0;
+    params['limit'] = 6;
+    
     var callback = function () { mask.hide(); }
     this.layout.getResultsPanel().loadResultStore(params, callback);
+  },
+  
+  _loadPagingParams: function(paging, params) {    
+    var store = this.layout.getResultsPanel().getResultsStore();
+    var lastOptions = store.lastOptions;
+    lastOptions.params['start'] = params['start'];    
+    
+    store.load({params: lastOptions.params});
   },
   
   _resetForm: function () {

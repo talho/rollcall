@@ -26,9 +26,7 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
     var results = new Talho.Rollcall.ADST.view.Results({getBubbleTarget: this.getBubbleTarget});
     
     this.getSearchForm = function () { return search_form };
-    this.getResultsPanel = function () { return results };
-    
-    var results_store = this.getResultsPanel().getResultsStore();       
+    this.getResultsPanel = function () { return results };               
 
     this.simple_button = new Ext.Button({text: 'Switch to Advanced', scope: this, 
       handler: function (button, eventObj) {
@@ -50,7 +48,8 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
       region: 'center', autoScroll: true, scope: this, height: 200,
       items: [search_form, results],
       bbar: [new Ext.PagingToolbar(
-        {displayInfo: true, prependButtons: true, pageSize: 6, store: results_store }
+        {displayInfo: true, prependButtons: true, pageSize: 6, store: this.getResultsPanel().getResultsStore(),
+         listeners: {'beforechange': function (tb, params) { this.fireEvent ('pagingparams', tb, params); return false; }, scope: this} }
       )],
       tbar: [
         {xtype: 'tbtext', text: 'Advanced Disease Surveillance Tool'},

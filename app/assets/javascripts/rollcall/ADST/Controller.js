@@ -37,6 +37,8 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     var mask = new Ext.LoadMask(this.layout.adst_panel.getEl(), {msg:"Please wait..."});
     mask.show();
     
+    this._showButtons();
+    
     var callback = function () { mask.hide(); }
     this.layout.getResultsPanel().loadResultStore(params, callback);
   },
@@ -200,7 +202,16 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     var results = this.layout.getResultsPanel();
     var store = results.getResultsStore();
     results.loadResultStore(store.lastOptions, callback);
-  }
+  },
+  
+  _showButtons: function () {
+    Ext.each(this.layout.hidden_buttons, function (button) {
+      if (button.hidden) { 
+        button.show(); 
+      }
+    });
+    this.layout.adst_panel.getBottomToolbar().doLayout();
+  }, 
 });
 
   

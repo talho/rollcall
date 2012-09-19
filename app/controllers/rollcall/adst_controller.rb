@@ -24,9 +24,17 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     @length = @results.total_entries
         
     @results.each do |r|
-      r.result = r.get_graph_data(params).as_json            
+      r.result = r.get_graph_data(params).as_json
     end
         
+    if defined? REPORT_DB
+      collection = REPORT_DB.collection("adst_analytics")
+      
+      doc = {"params" => params, "home_jurisdiction_id" => current_user.home_jurisdiction_id }
+      
+      collection.insert(doc)
+    end 
+    
     respond_with(@length, @results)    
   end
 

@@ -45,12 +45,7 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
         this.simple_button.show();
       }
     });
-    
-    this.school_button = new Ext.Button({text: 'School', toggleGroup: 'individual',
-       pressed: true, scope: this, handler: function () { this.getSearchForm()._setIndividualValue(true); }});
-    
-    this.school_district_button = new Ext.Button({text: 'School District',
-      toggleGroup: 'individual', scope: this, handler: function () { this.getSearchForm()._setIndividualValue(false); }});
+        
       
     this.export_button = new Ext.Button({text: "Export Result Set", hidden: true, scope: this, handler: function () { this.fireEvent('exportresult') }});
     this.alarm_button = new Ext.Button({text: "Create Alarm from Result Set", hidden: true, scope: this, handler: function () { this.fireEvent('saveasalarm'); }});
@@ -66,8 +61,8 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
       bbar: [new Ext.PagingToolbar(
         {displayInfo: true, prependButtons: true, pageSize: 6, store: results_store }),
         '->',
-        {xtype: 'button', text: "Submit", scope: this, handler: function () { this.fireEvent('submitquery', this.getSearchForm().getParams());  this._showButtons() }},
-        {xtype: 'button', text: "Reset", scope: this, handler: function () { this.fireEvent('reset'); }},
+        // {xtype: 'button', text: "Submit", scope: this, handler: function () { this.fireEvent('submitquery', this.getSearchForm().getParams());  this._showButtons() }},
+        // {xtype: 'button', text: "Reset", scope: this, handler: function () { this.fireEvent('reset'); }},
         this.export_button,
         this.alarm_button,
         this.report_button
@@ -77,10 +72,7 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
         '->',              
         '-',
         this.simple_button,
-        this.advanced_button,
-        '-',
-        this.school_button,
-        this.school_district_button
+        this.advanced_button
       ]      
     });
         
@@ -98,14 +90,5 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
       }
     ];   
     Talho.Rollcall.ADST.view.Layout.superclass.initComponent.apply(this, arguments);
-  },
-  
-  _showButtons: function () {
-    Ext.each(this.hidden_buttons, function (button) {
-      if (button.hidden) { 
-        button.show(); 
-      }
-    });
-    this.adst_panel.getBottomToolbar().doLayout();
-  }, 
+  },    
 });

@@ -175,20 +175,23 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       {name: 'total', type:'int'},
       {name: 'enrolled', type:'int'}
     ];
-    if ('average' in results[0]) {
-      field_array.push({name:'average', type: 'int'})
-    }
-    if ('deviation' in results[0]) {
-      field_array.push({name:'deviation', type: 'int'})
-    }
-    if('average30' in results[0]) {
-      field_array.push({name:'average30', type: 'int'})
-    }
-    if('average60' in results[0]) {
-      field_array.push({name:'average60', type: 'int'})
-    }
-    if('cusum' in results[0]) {
-      field_array.push({name:'cusum', type: 'int'})
+    if (results.length > 0)
+    {
+      if ('average' in results[0]) {
+        field_array.push({name:'average', type: 'int'})
+      }
+      if ('deviation' in results[0]) {
+        field_array.push({name:'deviation', type: 'int'})
+      }
+      if('average30' in results[0]) {
+        field_array.push({name:'average30', type: 'int'})
+      }
+      if('average60' in results[0]) {
+        field_array.push({name:'average60', type: 'int'})
+      }
+      if('cusum' in results[0]) {
+        field_array.push({name:'cusum', type: 'int'})
+      }
     }
     
     return field_array;

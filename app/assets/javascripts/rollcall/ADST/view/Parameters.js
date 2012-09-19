@@ -8,6 +8,7 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
   collapsible: false,
   layout: 'fit',
   border: false,
+  cls: 'rollcall-top-padding',
 
   initComponent: function (config) {    
     this.addEvents('notauthorized', 'toggle');
@@ -31,14 +32,12 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
       return this.advanced_panel;
     };
     
-    var school_check = new Ext.form.Checkbox({id: 'return_individual_school', checked: true, 
-      boxLabel: "Return Individual School Results"
-    });
+    // var school_check = new Ext.form.Checkbox({id: 'return_individual_school', checked: true, 
+      // boxLabel: "Return Individual School Results"
+    // });
     
-    this.items = [this.getSimplePanel(), school_check];
-    
-    //TODO if store fails no auth and keel everytin up on controller    
-    
+    this.items = [this.getSimplePanel()];
+
     Ext.Ajax.request({
       url: '/rollcall/query_options',
       method: 'GET',

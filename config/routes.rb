@@ -11,6 +11,7 @@ Openphin::Application.routes.draw do
     match "students/history", :to => "student#get_history", :as => :student_history
     match "nurse_assistant_options", :to => "nurse_assistant#get_options", :as => :get_nurse_assistant_options
     match "query_options(.:format)", :to => "adst#get_options", :as => :get_query_options
+    match "search_results", :to => "adst#search_results", :as => :search_results
     match "export", :to => "adst#export", :as => :export
     match "report", :to => "adst#report", :as => :report
     match "alarm/:alarm_query_id", :to => "alarm#create", :as => :activate_alarm

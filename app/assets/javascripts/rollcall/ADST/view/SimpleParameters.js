@@ -18,7 +18,6 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
       width: 200
     }
   },
-  boxMinHeight: 100,
   border: false,
     
   initComponent: function () {    

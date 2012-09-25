@@ -24,9 +24,17 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     @length = @results.total_entries
         
     @results.each do |r|
-      r.result = r.get_graph_data(params).as_json            
+      r.result = r.get_graph_data(params).as_json
     end
         
+    if defined? REPORT_DB
+      collection = REPORT_DB.collection("adst_analytics")
+      
+      doc = {"params" => params, "home_jurisdiction_id" => current_user.home_jurisdiction_id }
+      
+      collection.insert(doc)
+    end 
+    
     respond_with(@length, @results)    
   end
 
@@ -79,6 +87,13 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
       .pluck("rollcall_schools.school_type")                      
         
     @options = {:schools => current_user.schools.all, :school_districts => current_user.school_districts.all, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => (0..12).to_a}          
+  end
+  
+  # GET /rollcall/search_results
+  def search_results
+    @results = get_search_results params    
+    
+    respond_with(@results)
   end
   
   protected

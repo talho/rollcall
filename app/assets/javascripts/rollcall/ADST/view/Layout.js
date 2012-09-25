@@ -26,9 +26,7 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
     var results = new Talho.Rollcall.ADST.view.Results({getBubbleTarget: this.getBubbleTarget});
     
     this.getSearchForm = function () { return search_form };
-    this.getResultsPanel = function () { return results };
-    
-    var results_store = this.getResultsPanel().getResultsStore();       
+    this.getResultsPanel = function () { return results };               
 
     this.simple_button = new Ext.Button({text: 'Switch to Advanced', scope: this, 
       handler: function (button, eventObj) {
@@ -45,13 +43,30 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
         this.simple_button.show();
       }
     });
+        
+      
+    this.export_button = new Ext.Button({text: "Export Result Set", hidden: true, scope: this, handler: function () { this.fireEvent('exportresult') }});
+    this.alarm_button = new Ext.Button({text: "Create Alarm from Result Set", hidden: true, scope: this, handler: function () { this.fireEvent('saveasalarm'); }});
+    this.report_button = new Ext.Button({text: "Generate Report from Result Set", hidden: true, scope: this,
+      handler: function (button, firedEvent) { this.getSearchForm()._showReportMenu(button.getEl(), null) }
+    });
+      
+    this.hidden_buttons = [this.export_button, this.alarm_button, this.report_button];
     
     this.adst_panel = new Ext.Panel({id: 'adst_panel', border: false, collapsible: false,
       region: 'center', autoScroll: true, scope: this, height: 200,
       items: [search_form, results],
       bbar: [new Ext.PagingToolbar(
-        {displayInfo: true, prependButtons: true, pageSize: 6, store: results_store }
-      )],
+        {displayInfo: true, prependButtons: true, pageSize: 6, store: this.getResultsPanel().getResultsStore(),
+         listeners: {'beforechange': function (tb, params) { this.fireEvent ('pagingparams', tb, params); return false; }, scope: this} }
+      ),        
+        '->',
+        // {xtype: 'button', text: "Submit", scope: this, handler: function () { this.fireEvent('submitquery', this.getSearchForm().getParams());  this._showButtons() }},
+        // {xtype: 'button', text: "Reset", scope: this, handler: function () { this.fireEvent('reset'); }},
+        this.export_button,
+        this.alarm_button,
+        this.report_button
+      ],
       tbar: [
         {xtype: 'tbtext', text: 'Advanced Disease Surveillance Tool'},
         '->',              
@@ -75,5 +90,5 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
       }
     ];   
     Talho.Rollcall.ADST.view.Layout.superclass.initComponent.apply(this, arguments);
-  }
+  },    
 });

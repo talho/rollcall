@@ -227,7 +227,7 @@ Scenario: User runs a simple query against a school district, requests school di
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > ADST"
   And I select "District2" from ext combo "school_district"
-  And I click "#return_individual_school"
+  And I press "School District"
   And I press "Submit"
   And delayed jobs are processed
   Then I should see "District2" within the results

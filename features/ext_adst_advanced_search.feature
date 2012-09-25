@@ -290,7 +290,7 @@ Scenario: User runs an advanced query against a school district
 Scenario: User runs a simple query against a school district, requests school district graph
   When I press "Switch to Advanced"
   And I click school-district-list-item "District2"
-  And I click "#return_individual_school"
+  And I press "School District"
   And I press "Submit"
   #And delayed jobs are processed
   Then I should see "District2" within the results

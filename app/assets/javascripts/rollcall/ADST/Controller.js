@@ -1,6 +1,5 @@
 //= require ext_extensions/Portal
 //= require rollcall/ux/ComboBox.js
-//= require rollcall/d3/d3.v2.min.js
 //= require_tree ./view
 
 Ext.namespace('Talho.Rollcall.ADST');
@@ -15,7 +14,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     }
     
     this.layout.addEvents('reset', 'submitquery', 'exportresult', 'notauthorized',
-      'saveasalarm', 'createreport', 'showschoolprofile', 'showreportmessage');
+      'saveasalarm', 'createreport', 'showschoolprofile', 'showreportmessage', 'pagingparams');
     this.layout.on({
       'reset': this._resetForm,
       'submitquery': this._submitQuery,
@@ -28,6 +27,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       'notauthorized': this._notAuthorized,
       'exportresult': this._exportResultSet,
       'saveasalarm': this.createAlarmFromResultSet,
+      'pagingparams': this._loadPagingParams,
       scope: this
     });
     
@@ -38,8 +38,20 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     var mask = new Ext.LoadMask(this.layout.adst_panel.getEl(), {msg:"Please wait..."});
     mask.show();
     
+    params['start'] = 0;
+    params['limit'] = 6;
+    this._showButtons();
+    
     var callback = function () { mask.hide(); }
     this.layout.getResultsPanel().loadResultStore(params, callback);
+  },
+  
+  _loadPagingParams: function(paging, params) {    
+    var store = this.layout.getResultsPanel().getResultsStore();
+    var lastOptions = store.lastOptions;
+    lastOptions.params['start'] = params['start'];    
+    
+    store.load({params: lastOptions.params});
   },
   
   _resetForm: function () {
@@ -192,6 +204,25 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     var form = this.layout.getSearchForm();
     this.layout.getResultsPanel().loadResultStore(params);    
   },
+  
+  _resizeResults: function () {
+    var mask = new Ext.LoadMask(this.layout.adst_panel.getEl(), {msg:"Please wait..."});
+    mask.show();
+    
+    var callback = function () { mask.hide(); }
+    var results = this.layout.getResultsPanel();
+    var store = results.getResultsStore();
+    results.loadResultStore(store.lastOptions, callback);
+  },
+  
+  _showButtons: function () {
+    Ext.each(this.layout.hidden_buttons, function (button) {
+      if (button.hidden) { 
+        button.show(); 
+      }
+    });
+    this.layout.adst_panel.getBottomToolbar().doLayout();
+  }, 
 });
 
   

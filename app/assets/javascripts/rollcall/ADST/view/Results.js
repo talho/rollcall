@@ -1,5 +1,7 @@
 //= require ext_extensions/Graph
 //= require rollcall/ADST/view/SchoolProfile
+//= require rollcall/ADST/view/GraphWindow
+
 Ext.namespace("Talho.Rollcall.ADST.view");
 
 Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
@@ -14,6 +16,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     
     this.addEvents('createalarmquery', 'showreportmessage', 'exportresult');
     this.enableBubble(['createalarmquery', 'showreportmessage', 'exportresult']);
+    
   },
   
   initComponent: function () {
@@ -30,7 +33,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       '<div style="float:left;margin-right:20px"><span style="background-color:#660066">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Average 60 Day&nbsp;</div>' +
       '<div style="float:left;margin-right:20px"><span style="background-color:#006600">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Standard Deviation&nbsp;</div>' +
       '<div style="float:left;margin-right:20px"><span style="background-color:#FF0066">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Cusum&nbsp;</div>' +
-      '</div></ br> </ hr>';
+      '</div><br /><hr /><br />';
     
     var result_store = new Ext.data.JsonStore({
       autoLoad: false,
@@ -61,8 +64,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
   },
   
   _loadGraphResults: function (store, records, options) {    
-    this.show();
-    //TODO disable submit
+    this.show();        
     
     var resultLength = store.getRange().length;
     var leftColumn = this.getComponent('leftColumn');
@@ -79,11 +81,16 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     var graph_series = this._getGraphSeries();
     
     store.each(function (school, i) {
-      var id = school.id;
+      var id = school.id;      
       var name = school.get('name');
       var field_array = this._getFieldArray(school);
       var school_store = new Ext.data.JsonStore({fields: field_array, data: school.get('results')});
-      var gis = typeof school.gmap_lat == "undefined" ? true : false;  
+      var gis = typeof school.gmap_lat == "undefined" ? true : false;
+      var height = 230;
+      var getFA = this._getFieldArray;
+      var local_params = new Object();
+      for (key in options.params) { local_params[key] = options.params[key]; }
+      
       var graphImageConfig = {
         title: 'Query Result for ' + name,
         style: 'margin:5px',
@@ -93,8 +100,9 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
         provider_id: 'image' + i + '-provider',
         collapsible: false,
         pinned: false,
-        height: 230,
-        cls: 'ux-portlet',
+        height: height,
+        layout: 'fit',
+        cls: 'ux-portlet ' + name.split(' ').join('-'),
         boxMinWidth: 320,
         
         tools: [
@@ -128,49 +136,62 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
               this.fireEvent('createalarmquery', school.get('id'), school.get('name'));
             }
           },
-          //TODO export up to controller
           {id: 'down', qtip: 'Export Result', scope: this, handler: function () { this.fireEvent('exportresult') } },
           {id: 'close', qtip: "Close", handler: this._closeResult }
-        ],
+        ],               
                  
         items: new Talho.ux.Graph({
           store: school_store,
           width: 'auto',
-          series: graph_series
+          height: 193,
+          series: graph_series,
+          listeners: {'render': function (c) {
+            c.getEl().on('click', function () {
+              var w = new Talho.Rollcall.ADST.view.GraphWindow({
+                graphNumber: id, _getFieldArray: getFA, graph_series: graph_series,
+                search_params: local_params
+              }).show();
+            });
+          }}
         })
       }          
       
       if(i % 2 == 0) {
-        rightColumn.add(graphImageConfig);
+        leftColumn.add(graphImageConfig);
       }
       else {
-        leftColumn.add(graphImageConfig);
+        rightColumn.add(graphImageConfig);
       }
       this.doLayout();
     }, this);        
   },
   
   _getFieldArray: function (school) {
-    var results = school.get('results');
+    var results;
+    if ('results' in school) { results = school['results']; }
+    else { results =  school.get('results'); }    
     var field_array = [
       {name: 'report_date', renderer: Ext.util.Format.dateRenderer('m-d-Y')},
       {name: 'total', type:'int'},
       {name: 'enrolled', type:'int'}
     ];
-    if (typeof results.average != "undefined") {
-      field_array.push({name:'average', type: 'int'})
-    }
-    if(typeof results.deviation != "undefined") {
-      field_array.push({name:'deviation', type: 'int'})
-    }
-    if(typeof results.average30 != "undefined") {
-      field_array.push({name:'average30', type: 'int'})
-    }
-    if(typeof results.average60 != "undefined") {
-      field_array.push({name:'average60', type: 'int'})
-    }
-    if(typeof results.cusum != "undefined") {
-      field_array.push({name:'cusum', type: 'int'})
+    if (results.length > 0)
+    {
+      if ('average' in results[0]) {
+        field_array.push({name:'average', type: 'int'})
+      }
+      if ('deviation' in results[0]) {
+        field_array.push({name:'deviation', type: 'int'})
+      }
+      if('average30' in results[0]) {
+        field_array.push({name:'average30', type: 'int'})
+      }
+      if('average60' in results[0]) {
+        field_array.push({name:'average60', type: 'int'})
+      }
+      if('cusum' in results[0]) {
+        field_array.push({name:'cusum', type: 'int'})
+      }
     }
     
     return field_array;

@@ -96,6 +96,34 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     respond_with(@results)
   end
   
+  def get_neighbors       
+    @school_district_array = Array.new
+    
+    if params.has_key?(:school_districts) 
+      params[:school_districts].map! do |sd|
+          sd.to_i
+        end 
+      if current_user.has_school_districts(params[:school_districts])      
+        #check to see if user has the school districts
+        params[:school_districts].each do |sd|
+          Rollcall::SchoolDistrict.get_neighbors(sd).each do |neighbor|
+            @school_district_array.push(neighbor)
+          end
+        end
+      else
+        return render :json => {:dashboard => {}, :success => false}
+      end
+    end
+
+    @school_district_array.each do |sd|      
+      sd.result = sd.get_graph_data(params).as_json
+    end
+    
+    @length = @school_district_array.count
+    
+    respond_with(@length, @school_district_array)
+  end
+  
   protected
   
   def get_search_results params

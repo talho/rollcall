@@ -11,8 +11,8 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
   cls: 'rollcall-top-padding',
 
   initComponent: function (config) {    
-    this.addEvents('notauthorized', 'toggle');
-    this.enableBubble('notauthorized');
+    this.addEvents('notauthorized', 'toggle', 'showadstmask');
+    this.enableBubble(['notauthorized', 'showadstmask']);
     
     this.simple_mode = true;
     
@@ -31,10 +31,7 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
       if (this.data) {this.advanced_panel.loadOptions(this.data)}
       return this.advanced_panel;
     };
-    
-    // var school_check = new Ext.form.Checkbox({id: 'return_individual_school', checked: true, 
-      // boxLabel: "Return Individual School Results"
-    // });
+
     
     this.items = [this.getSimplePanel()];
 
@@ -43,13 +40,14 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
       method: 'GET',
       scope: this,
       success: function (response) {
+        this.fireEvent('showadstmask');
         this.data = Ext.decode(response.responseText);
         this.getSimplePanel().loadOptions(this.data);
         this.getAdvancedPanel().loadOptions(this.data);
         this.doLayout();
       },
       failure: function (response) {
-        this.fireEvent('notauthorized');
+        this.fireEvent('notauthorized');        
       }
     });               
     

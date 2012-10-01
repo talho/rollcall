@@ -74,7 +74,7 @@ Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
     Ext.each(this.buttons, function (button) {
       if (button.hidden) { button.show(); }
     });
-  },           
+  },   
   
   _showReportMenu: function(element, school_id) {
     var scrollMenu = new Ext.menu.Menu();

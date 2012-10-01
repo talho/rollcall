@@ -28,6 +28,9 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       'exportresult': this._exportResultSet,
       'saveasalarm': this.createAlarmFromResultSet,
       'pagingparams': this._loadPagingParams,
+      'getneighbors': this._getNeighbors,
+      'showadstmask': this._showAdstMask,
+      'hideadstmask': this._hideAdstMask,      
       scope: this
     });
     
@@ -38,11 +41,28 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     var mask = new Ext.LoadMask(this.layout.adst_panel.getEl(), {msg:"Please wait..."});
     mask.show();
     
+    this.layout.on('resize', this._resizeResults, this);
+    
     params['start'] = 0;
     params['limit'] = 6;
     this._showButtons();
     
     var callback = function () { mask.hide(); }
+    this.layout.getResultsPanel().neighbor_mode = false;
+    this.layout.paging_toolbar.show();
+    this.layout.getResultsPanel().loadResultStore(params, callback);
+  },
+  
+  _getNeighbors: function (districts) {
+    var mask = new Ext.LoadMask(this.layout.adst_panel.getEl(), {msg:"Please wait..."});
+    mask.show();
+    
+    params['school_districts[]'] = districts;
+    
+    var callback = function () { mask.hide(); }
+    this._hideButtons();
+    this.layout.getResultsPanel().neighbor_mode = true;
+    this.layout.paging_toolbar.hide();
     this.layout.getResultsPanel().loadResultStore(params, callback);
   },
   
@@ -209,10 +229,10 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     var mask = new Ext.LoadMask(this.layout.adst_panel.getEl(), {msg:"Please wait..."});
     mask.show();
     
-    var callback = function () { mask.hide(); }
     var results = this.layout.getResultsPanel();
     var store = results.getResultsStore();
-    results.loadResultStore(store.lastOptions, callback);
+    results._loadGraphResults(store);
+    mask.hide();
   },
   
   _showButtons: function () {
@@ -222,7 +242,24 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       }
     });
     this.layout.adst_panel.getBottomToolbar().doLayout();
-  }, 
+  },
+  
+  _hideButtons: function () {
+    Ext.each(this.layout.hidden_buttons, function (button) {
+      button.hide();
+    });
+    this.layout.adst_panel.getBottomToolbar().doLayout();
+  },
+  
+  _showAdstMask: function () {
+    var mask = new Ext.LoadMask(this.layout.adst_panel.getEl(), {msg:"Please wait..."});
+    this.layout.adst_panel.container.mask = mask;
+    mask.show();
+  },
+  
+  _hideAdstMask: function () {
+    this.layout.adst_panel.container.mask.hide();
+  },
 });
 
   

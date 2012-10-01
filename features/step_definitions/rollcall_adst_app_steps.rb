@@ -122,3 +122,18 @@ Then /^I Submit and wait$/ do
   sleep 20  
   page.driver.options[:resynchronize] = true
 end
+
+Then /^I malicously try to call neighbors$/ do
+  page.execute_script("
+    Ext.Ajax.request({
+      url: 'rollcall/get_neighbors.json',
+      method: 'GET',
+      params: {
+        'school_districts[]': '[1,2]'
+      },
+      callback: function(o, s, r){
+        window.responseText = r.responseText;
+      }
+    });
+  ")
+end

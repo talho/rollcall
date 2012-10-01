@@ -84,6 +84,10 @@ module Rollcall
           .uniq
           .pluck("rollcall_schools.postal_code") 
       end
+      
+      def has_school_districts(school_districts)
+        return self.school_districts.where('rollcall_school_districts.id in (?)', school_districts).all.count == school_districts.count 
+      end
     end         
   end
 end

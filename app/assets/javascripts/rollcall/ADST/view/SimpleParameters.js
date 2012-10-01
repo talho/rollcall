@@ -20,7 +20,10 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
   },
   border: false,
     
-  initComponent: function () {    
+  initComponent: function () {
+    this.addEvents('hideadstmask');
+    this.enableBubble('hideadstmask');
+    
     var absent = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'Absenteeism', emptyText:'Gross', id: 'absent', editable: false});
         
     var district = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'School District', emptyText:'Select School District...',
@@ -105,6 +108,7 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
     Ext.each(this.loadable, function (d) {
       d.item.store = new Ext.data.JsonStore({fields: d.fields, data: data[d.key] });
     });
+    this.fireEvent('hideadstmask');
   },
   
   clearOptions: function (id) {

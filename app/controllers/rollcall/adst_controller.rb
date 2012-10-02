@@ -111,7 +111,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
           end
         end
       else
-        return render :json => {:dashboard => {}, :success => false}
+        return render :json => {:success => false}
       end
     end
 

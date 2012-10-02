@@ -124,16 +124,14 @@ Then /^I Submit and wait$/ do
 end
 
 Then /^I malicously try to call neighbors$/ do
-  page.execute_script("
-    Ext.Ajax.request({
-      url: 'rollcall/get_neighbors.json',
-      method: 'GET',
-      params: {
-        'school_districts[]': '[1,2]'
-      },
-      callback: function(o, s, r){
-        window.responseText = r.responseText;
-      }
-    });
-  ")
+  script = "window.xhr = new XMLHttpRequest(); " +
+    "window.xhr.open('GET','/rollcall/get_neighbors.json?school_districts[]=1&school_districts[]=2', true);" +
+    "window.xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');" +    
+    "window.xhr.send();"
+  page.execute_script(script)
+end
+
+Then /^the malicious neighbor call fails$/ do
+  resp = page.evaluate_script('window.xhr.responseText')
+  resp.should =~ Regexp.new(/\"success\":false/)
 end

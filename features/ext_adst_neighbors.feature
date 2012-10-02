@@ -9,11 +9,19 @@ Background:
     | Jurisdiction | Texas          |          |
     | Jurisdiction | Collin         |          |
     | Jurisdiction | Mystery        |          |
+    | Jurisdiction | Bonus          |          |
   And Texas is the parent jurisdiction of:
     | Collin  |
   And Collin has the following school districts:
     | District1 | 101912 |
     | District2 | 68901  |
+  And Bonus has the following school districts:
+    | District3 | 101913 |
+    | District4 | 68902  |
+    | District5 | 68903  |
+    | District6 | 68904  |
+    | District7 | 68905  |
+    | District8 | 68906  |
   And "District1" has the following schools:
     | name                | school_number | tea_id    | school_type       | postal_code | gmap_lat   | gmap_lng    | gmap_addr                                                                      |
     | Anderson Elementary | 105           | 101912105 | Elementary School | 77035       | 29.6496766 | -95.4879978 | "Anderson Elementary School, 5727 Ludington Dr, Houston, TX 77035-4399, USA"   |
@@ -52,6 +60,7 @@ Background:
   And the following users exist:
     | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Collin  | rollcall |
     | Steve Steve  | steve@example.com       | Epidemiologist    | Mystery | rollcall |
+    | Rick Rick    | rick@example.com        | Epidemiologist    | Bonus   | rollcall |
   And rollcall user "nurse.betty@example.com" has the following school districts assigned:
     | District1 |
     | District2 |
@@ -104,12 +113,27 @@ Scenario:  User views multiple school district neighbors
   And I should see "District1" within ".x-panel-header-text"
   And I should see "District1 Neighbor: District2" within ".x-panel-header-text"
   And I should see "District2" within ".x-panel-header-text"
-  And I should see "District2 Neighbor: District1" within ".x-panel-header-text"  
+  And I should see "District2 Neighbor: District1" within ".x-panel-header-text"
+  
+Scenario: User doesn't see neighbor button when there are 6 school districts
+  And I am logged in as "rick@example.com"
+  And I navigate to "Apps > Rollcall > ADST"
+  And I wait for the panel to load
+  And I press "Submit"
+  Then I should not see "View Neighboring School Districts"
+  
+Scenario: User doesn't see neighbor button for schools
+  And I am logged in as "nurse.betty@example.com"
+  And I navigate to "Apps > Rollcall > ADST"
+  And I wait for the panel to load
+  And I select "Yates High School" from ext combo "school"
+  And I press "Submit"
+  Then I should not see "View Neighboring School Districts"
   
 @malicious
 Scenario: Neighboring School District Maliciousness Test
   And I am logged in as "steve@example.com"
-  And I load ExtJs
   And I malicously try to call neighbors
-  Then The maliciousness response should contain /\"success\":false/
+  And I wait for 3 seconds
+  Then the malicious neighbor call fails
   

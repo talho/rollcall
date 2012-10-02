@@ -19,8 +19,8 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
     }
     
     this.alarm_queries = new Talho.Rollcall.ADST.view.AlarmQueries({
-    });
       itemId: 'alarm_queries', getBubbleTarget: findBubble
+    });
         
     var search_form = new Talho.Rollcall.ADST.view.SearchForm({getBubbleTarget: findBubble});
     var results = new Talho.Rollcall.ADST.view.Results({getBubbleTarget: this.getBubbleTarget});

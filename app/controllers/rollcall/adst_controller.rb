@@ -20,6 +20,9 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   def index    
     options = {:page => (params[:start] ? (params[:start].to_f / 6).floor + 1 : 1), :per_page => params[:limit] || 6}    
 
+    params[:startdt] ||= 3.months.ago.to_s # put a 3 month limit on start date to limit data points being returned
+    params[:enddt] ||= Date.today.to_s
+
     @results = get_search_results(params).paginate(options)
     @length = @results.total_entries
         

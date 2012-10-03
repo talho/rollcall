@@ -15,6 +15,7 @@ class Rollcall::SchoolDistrict < ActiveRecord::Base
   has_many    :schools, :class_name => "Rollcall::School", :foreign_key => "district_id", :order => "display_name"
   has_many    :daily_infos, :class_name => "Rollcall::SchoolDistrictDailyInfo", :foreign_key => "school_district_id", :order => "report_date asc"
   include Rollcall::DataModule
+  require 'will_paginate/array'
 
   self.table_name = "rollcall_school_districts"
 
@@ -82,5 +83,14 @@ class Rollcall::SchoolDistrict < ActiveRecord::Base
   # Method will return school types for selected school district
   def school_types    
     schools.select("school_type").uniq.order(:school_type).pluck(:school_type)
+  end
+  
+  def self.get_neighbors(school_district_id)    
+    neighbors = self
+      .select("*, case id when #{school_district_id} then name else concat((select name from rollcall_school_districts where id = #{school_district_id}), ' Neighbor: ', name) end as title")
+      .where("jurisdiction_id = (select jurisdiction_id from rollcall_school_districts where id = ?)", school_district_id)
+      .order("case id when #{school_district_id} then 1 else 7 end, name")
+    
+    neighbors
   end
 end

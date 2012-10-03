@@ -10,13 +10,11 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
   border: false,
   hidden: true,
   
-  constructor: function(config){
-    //TODO set up resize event
+  constructor: function(config){    
     Talho.Rollcall.ADST.view.Results.superclass.constructor.apply(this, arguments);
     
-    this.addEvents('createalarmquery', 'showreportmessage', 'exportresult');
-    this.enableBubble(['createalarmquery', 'showreportmessage', 'exportresult']);
-    
+    this.addEvents('createalarmquery', 'showreportmessage', 'exportresult', 'getneighbors');
+    this.enableBubble(['createalarmquery', 'showreportmessage', 'exportresult', 'getneighbors']);    
   },
   
   initComponent: function () {
@@ -24,6 +22,8 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       {itemId: 'leftColumn', columnWidth: .50},
       {itemId: 'rightColumn', columnWidth: .50}
     ];
+    
+    this.neighbor_mode = false;
     
     this.html = '<div id="graph_legend" style="margin-top:4px;">' +
       '<div style="float:left;margin-left:8px;margin-right:20px">Legend:&nbsp;</div>' +
@@ -41,7 +41,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       root: 'results',
       totalProperty: 'total_results',
       idProperty: 'school_id',
-      fields: ['tea_id', 'school_id', 'name', 'results'],
+      fields: ['tea_id', 'school_id', 'name', 'results', 'id' ],
       writer: new Ext.data.JsonWriter({encode: false}),
       url: '/rollcall/adst',
       restful: true,
@@ -50,10 +50,24 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
         load: this._loadGraphResults
       }
     });
+    
+    var neighbor_store = new Ext.data.JsonStore({
+      autoLoad: false,
+      root: 'results',
+      totalProperty: 'total_results',
+      idProperty: 'title',
+      fields: ['id', 'name', 'title', 'results', ],
+      writer: new Ext.data.JsonWriter({encode: false}),
+      url: '/rollcall/get_neighbors',
+      restful: true,
+      listeners: {
+        scope: this,
+        load: this._loadGraphResults
+      }
+    });
 
-    this.getResultsStore = function ()
-    {
-      return result_store;
+    this.getResultsStore = function () {
+      return (this.neighbor_mode ? neighbor_store : result_store);
     };
     
     Talho.Rollcall.ADST.view.Results.superclass.initComponent.apply(this, arguments);
@@ -64,11 +78,15 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
   },
   
   _loadGraphResults: function (store, records, options) {    
-    this.show();        
+    this.show();
+    
+    if (!options) { options = this.options }
+    else { this.options = options } 
     
     var resultLength = store.getRange().length;
     var leftColumn = this.getComponent('leftColumn');
     var rightColumn = this.getComponent('rightColumn');
+    var height = 230;
     
     rightColumn.items.each(function(item){
       if(!item.pinned) rightColumn.remove(item.id, true);
@@ -86,13 +104,13 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       var graph_series = this._getGraphSeries(field_array);
       var school_store = new Ext.data.JsonStore({fields: field_array, data: school.get('results')});
       var gis = typeof school.gmap_lat == "undefined" ? true : false;
-      var height = 230;
       var getFA = this._getFieldArray;
       var local_params = new Object();
       for (key in options.params) { local_params[key] = options.params[key]; }
+      var hideToolTip = (school.get('title') && school.get('title') != school.get('name')) 
       
       var graphImageConfig = {
-        title: 'Query Result for ' + name,
+        title: (school.get('title') ? school.get('title') : 'Query Result for ' + name),
         style: 'margin:5px',
         school: school,
         school_name: name,
@@ -102,7 +120,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
         pinned: false,
         height: height,
         layout: 'fit',
-        cls: 'ux-portlet ' + name.split(' ').join('-'),
+        cls: 'ux-portlet ' + name.replace(' ','-'),
         boxMinWidth: 320,
         
         tools: [
@@ -113,7 +131,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
             if(targetEl.hasClass('x-tool-unpin')) panel.pinned = true;
             else panel.pinned = false;
           }},
-          {id: 'report', qtip: 'Generate Report', scope: this,
+          {id: 'report', qtip: 'Generate Report', scope: this, hidden: hideToolTip,
             handler: function(e, targetEl, panel, tc) {              
               var scrollMenu = new Ext.menu.Menu();
               scrollMenu.add({text: 'Attendance Report', handler: function () { 
@@ -131,12 +149,12 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
             },
             hidden: this.gis
           },          
-          {id: 'save', qtip: 'Create Alarm', scope: this,
+          {id: 'save', qtip: 'Create Alarm', scope: this, hidden: hideToolTip,
             handler: function(e, targetEl, panel, tc) {
               this.fireEvent('createalarmquery', school.get('id'), school.get('name'));
             }
           },
-          {id: 'down', qtip: 'Export Result', scope: this, handler: function () { this.fireEvent('exportresult') } },
+          {id: 'down', qtip: 'Export Result', hidden: hideToolTip, scope: this, handler: function () { this.fireEvent('exportresult') } },
           {id: 'close', qtip: "Close", handler: this._closeResult }
         ],               
                  
@@ -163,8 +181,41 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       else {
         rightColumn.add(graphImageConfig);
       }
-      this.doLayout();
-    }, this);        
+      
+    }, this);
+    
+    //Checking to see if we should display the neighbors buttons
+    if (store.getCount() < 6 && store.getCount() > 0 && store.getAt(0).get('tea_id') == "" && store.getAt(0).get('title') == undefined) {
+      var districts = [];      
+      store.each(function (record, i) { districts.push(record.get('id')) });
+      
+      var neighbor = {
+        style: 'margin:5px',
+        collapsible: false,
+        pinned: false,
+        frame: false,
+        draggable: false,
+        border: false,
+        cls: '',
+        height: height,
+        scope: this,
+        items: [new Ext.Button({text: 'View Neighboring School Districts', height: 40,  width: 200,
+          style: 'margin: -20px -100px; position:relative; top:50%; left:50%;',
+          handler: function () {
+            this.fireEvent('getneighbors', districts);
+          }, 
+          scope: this })]
+      };
+      
+      if(store.getCount() % 2 == 0) {
+        leftColumn.add(neighbor);
+      }
+      else {
+        rightColumn.add(neighbor);
+      }
+    }
+    
+    this.doLayout();
   },
   
   _getFieldArray: function (school) {

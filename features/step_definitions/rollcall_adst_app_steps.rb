@@ -122,3 +122,16 @@ Then /^I Submit and wait$/ do
   sleep 20  
   page.driver.options[:resynchronize] = true
 end
+
+Then /^I malicously try to call neighbors$/ do
+  script = "window.xhr = new XMLHttpRequest(); " +
+    "window.xhr.open('GET','/rollcall/get_neighbors.json?school_districts[]=1&school_districts[]=2', true);" +
+    "window.xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');" +    
+    "window.xhr.send();"
+  page.execute_script(script)
+end
+
+Then /^the malicious neighbor call fails$/ do
+  resp = page.evaluate_script('window.xhr.responseText')
+  resp.should =~ Regexp.new(/\"success\":false/)
+end

@@ -44,8 +44,8 @@ Then /^get_data should return:$/ do |table|
      # p "Old Results: "
      # p old_data
    end   
-   
-   assert test == data 
+
+   test.should eq data 
 end
 
 def normalize array
@@ -78,9 +78,9 @@ def hashify table
   table.raw.each do |row|
     return_hash = Hash.new
     
-    return_hash[:total] = row[0]
-    return_hash[:report_date] =  Date.parse(row[1]).strftime("%m-%d-%y")
     return_hash[:func] = row[2].to_f.round(3) if row.count > 2
+    return_hash[:report_date] =  Date.parse(row[1]).strftime("%Y-%m-%d")
+    return_hash[:total] = row[0]
                 
     return_array.push(return_hash)
   end

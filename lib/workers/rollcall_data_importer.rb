@@ -23,16 +23,16 @@ class RollcallDataImporter < BackgrounDRb::MetaWorker
   set_worker_name :rollcall_data_importer
 
   def create(args = nil)
-    #logger.warn("Creating new daily information for Schools, School Districts, Students, and Student Reported Symptoms")
+    ROLLCALL_LOGGER.warn("#{Time.now} - Creating new daily information for Schools, School Districts, Students, and Student Reported Symptoms")
   end
 
   # Method start the transformation and import sequence for Rollcall
   #
   # @param isd optional parameter to call method if only wanting to process a certain ISD
   def process_uploads(isd = nil)
-    #logger.warn("Running TransformImportWorker")
+    ROLLCALL_LOGGER.warn("#{Time.now} - Running TransformImportWorker")
     if Rails.env == "production"
-      rollcall_data_path = File.join("$HOME/openphin/shared", "rollcall")
+      rollcall_data_path = File.join("/var/www/openphin/shared", "rollcall")
     elsif Rails.env == "test" || Rails.env == "cucumber"
       rollcall_data_path = File.join(File.dirname(__FILE__), "..", "..", "tmp")
     end
@@ -45,8 +45,10 @@ class RollcallDataImporter < BackgrounDRb::MetaWorker
     else
       Rollcall::SchoolDistrict.all.each do |district|
         begin
+          ROLLCALL_LOGGER.warn("#{Time.now} - Importing daily info for #{district.name.to_s}")
           SchoolDataTransformer.new(rollcall_data_path, district.name.to_s).transform_and_import
         rescue Exception => e
+          ROLLCALL_LOGGER.error("#{Time.now} - Exception: #{e.message}")
           raise e if Rails.env == "test" || Rails.env == "cucumber"
         end
       end

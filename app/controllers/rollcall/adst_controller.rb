@@ -24,8 +24,8 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     params[:enddt] ||= Date.today.to_s
 
     res = get_search_results(params)
-    @results = res.paginate(options)
     @length = res.count(distinct: true)
+    @results = res.paginate(options)
         
     @results.each do |r|
       r.result = r.get_graph_data(params).as_json

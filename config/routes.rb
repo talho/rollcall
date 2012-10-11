@@ -7,6 +7,7 @@ Openphin::Application.routes.draw do
     resources :nurse_assistant, :only => [:index,:destroy]
     resources :students, :controller => "student"
     resources :users, :controller => "user", :except => [:new, :create]
+    resources :status, :controller => "status", :only => [:index]
     
     match "students/history", :to => "student#get_history", :as => :student_history
     match "nurse_assistant_options", :to => "nurse_assistant#get_options", :as => :get_nurse_assistant_options

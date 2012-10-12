@@ -1,7 +1,8 @@
 Ext.namespace("Talho.Rollcall.status.view");
 
 Talho.Rollcall.status.view.Index = Ext.extend(Ext.Panel, {
-  layout: 'hbox',
+  layout: 'fit',
+  cls: 'status-index',
   
   initComponent: function () {
     //TODO Loading mask
@@ -21,14 +22,15 @@ Talho.Rollcall.status.view.Index = Ext.extend(Ext.Panel, {
         school_store.loadData(results.schools);
         district_store.loadData(results.school_districts);
       }
-    })
+    });  
     
     this.school_panel = new Ext.grid.GridPanel({
-      store: school_store,
-      flex: 1,
-      autoHeight: true,
+      store: school_store,      
+      flex: 1,         
       border: false,
+      autoScroll: true,
       padding: 5,
+      view: new Ext.grid.GridView({autoFill: true}),
       title: "Schools that haven't reported in 5 days",
       columns: [
         {id: 'school', dataIndex: 'School', header: 'School'},
@@ -39,9 +41,10 @@ Talho.Rollcall.status.view.Index = Ext.extend(Ext.Panel, {
     
     this.district_panel = new Ext.grid.GridPanel({
       store: district_store,
-      flex: 1,
-      autoHeight: true,
+      flex: 1,           
       padding: 5,
+      autoScroll: true,
+      view: new Ext.grid.GridView({autoFill: true}),
       border: false,
       title: "School Districts that haven't reported in 5 days",
       columns: [
@@ -51,8 +54,10 @@ Talho.Rollcall.status.view.Index = Ext.extend(Ext.Panel, {
     });
     
     this.items = [
-      this.district_panel,
-      this.school_panel
+      {xtype: 'container', cls: 'hboxr', layout: {type: 'hbox', align: 'stretch'}, items: [
+        this.district_panel,
+        this.school_panel
+      ]}
     ]
     
     Talho.Rollcall.status.view.Index.superclass.initComponent.apply(this, arguments);

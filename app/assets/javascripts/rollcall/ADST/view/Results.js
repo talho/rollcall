@@ -258,7 +258,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
           stroke:"#99BBE8"
         },
         qtip: function(d){
-          return '<div class="d3-tip-row"><span>Report Date:</span><span>' + d3.time.format('%m-%d-%y')(d.get('report_date')) + '</span></div>' +
+          return '<div class="d3-tip-row"><span>Report Date:</span><span>' + d3.time.format.utc('%m-%d-%y')(d.get('report_date')) + '</span></div>' +
                  '<div class="d3-tip-row"><span>Absent:</span><span>' + d.get('total') + '</span></div>' +
                  '<div class="d3-tip-row"><span>Enrolled:</span><span>' + d.get('enrolled') + '</span></div>';
         }

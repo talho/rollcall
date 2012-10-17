@@ -12,7 +12,7 @@ class RollcallStatusUpdater < BackgrounDRb::MetaWorker
     schools = Rollcall::Status.get_schools
     
     unless school_districts.count == 0 && schools.count == 0
-      RollcallStatusMailer.send_status(users, school_districts, schools)
+      RollcallStatusMailer.send_status(users, school_districts, schools).deliver
     end
   end
 end

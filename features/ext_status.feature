@@ -1,4 +1,4 @@
-Feature:  Status Report Page and Email Reporting
+Feature: Status Report Page and Email Reporting
   In order to see what schools are reporting
   As a rollcall SuperAdmin
   I should be able to see the status page and receive status reports via email
@@ -22,5 +22,5 @@ Feature:  Status Report Page and Email Reporting
     
   Scenario: Superadmin Receives a Status Report
     Given I am logged in as a rollcall superadmin
-    When the chron job fires or whatever
+    When backgroundrb has run the rollcall status update
     Then I receive an emailed status report

@@ -40,6 +40,7 @@ Talho.Rollcall.status.view.Index = Ext.extend(Ext.Panel, {
     });
     
     this.district_panel = new Ext.grid.GridPanel({
+      cls: 'school_district_grid',
       store: district_store,
       flex: 1,           
       padding: 5,

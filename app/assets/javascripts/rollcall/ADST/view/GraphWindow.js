@@ -110,6 +110,7 @@ Talho.Rollcall.ADST.view.GraphWindow = Ext.extend(Ext.Window, {
         this.items.clear();
         this.items.add(new Talho.ux.Graph({
           store: school_store,
+          xField: 'report_date',
           width: this.width - 40,
           height: this.height - 60,
           series: this.graph_series

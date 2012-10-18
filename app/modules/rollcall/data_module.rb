@@ -128,7 +128,7 @@ module Rollcall::DataModule
         query = query.select("greatest(greatest(sum((#{total_absent} - #{avg})) over (order by report_date rows between unbounded preceding and 1 preceding),0) + #{total_absent} - #{avg},0) as \"cusum\"")
     end
     
-    query = query.select("to_char(report_date, 'MM-DD-YY') as report_date")
+    query = query.select("report_date as report_date")
       .select(%{#{total_absent} as "total", #{total_enrolled} as "enrolled"})  
     query
   end

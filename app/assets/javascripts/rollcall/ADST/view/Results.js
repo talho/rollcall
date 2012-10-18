@@ -96,12 +96,12 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       if(!item.pinned) leftColumn.remove(item.id, true);
     });
     
-    var graph_series = this._getGraphSeries();
     
     store.each(function (school, i) {
       var id = school.id;      
       var name = school.get('name');
       var field_array = this._getFieldArray(school);
+      var graph_series = this._getGraphSeries(field_array);
       var school_store = new Ext.data.JsonStore({fields: field_array, data: school.get('results')});
       var gis = typeof school.gmap_lat == "undefined" ? true : false;
       var getFA = this._getFieldArray;
@@ -163,6 +163,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
           width: 'auto',
           height: 193,
           series: graph_series,
+          xField: 'report_date',
           listeners: {'render': function (c) {
             c.getEl().on('click', function () {
               var w = new Talho.Rollcall.ADST.view.GraphWindow({
@@ -222,7 +223,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     if ('results' in school) { results = school['results']; }
     else { results =  school.get('results'); }    
     var field_array = [
-      {name: 'report_date', renderer: Ext.util.Format.dateRenderer('m-d-Y')},
+      {name: 'report_date', type: 'date'},
       {name: 'total', type:'int'},
       {name: 'enrolled', type:'int'}
     ];
@@ -248,45 +249,64 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
     return field_array;
   },
   
-  _getGraphSeries: function () {
-    var series = [
-      {type: 'line', displayName: 'Absent', yField: 'total', 
+  _getGraphSeries: function (field_array) {
+    var possible = {
+      'total': {type: 'line', displayName: 'Absent', yField: 'total', 
         style: {
           mode: 'stretch',
-          color:0x99BBE8
+          color:0x99BBE8,
+          stroke:"#99BBE8"
+        },
+        qtip: function(d){
+          return '<div class="d3-tip-row"><span>Report Date:</span><span>' + d3.time.format.utc('%m-%d-%y')(d.get('report_date')) + '</span></div>' +
+                 '<div class="d3-tip-row"><span>Absent:</span><span>' + d.get('total') + '</span></div>' +
+                 '<div class="d3-tip-row"><span>Enrolled:</span><span>' + d.get('enrolled') + '</span></div>';
         }
       },
-      {type: 'line', displayName: 'Average', yField: 'average',
+      'average' : {type: 'line', displayName: 'Average', yField: 'average',
         style: {
           mode: 'stretch',
-          color:0xFF6600
+          color:0xFF6600,
+          stroke:"#FF6600"
+        }
+      },      
+      'deviation' : {type: 'line', displayName: 'Deviation', yField: 'deviation',
+        style: {
+          mode: 'stretch',
+          color:0x006600,
+          stroke:"#006600"
         }
       },
-      {type: 'line', displayName: 'Deviation', yField: 'deviation',
+      'average30' : {type: 'line', displayName: 'Average 30 Day', yField: 'average30',
         style: {
           mode: 'stretch',
-          color:0x006600
+          color:0x0666FF,
+          stroke:"#0666FF"
         }
       },
-      {type: 'line', displayName: 'Average 30 Day', yField: 'average30',
+      'average60' : {type: 'line', displayName: 'Average 60 Day', yField: 'average60',
         style: {
           mode: 'stretch',
-          color:0x0666FF
+          color:0x660066,
+          stroke:"#660066"
         }
       },
-      {type: 'line', displayName: 'Average 60 Day', yField: 'average60',
+      'cusum' : {type: 'line', displayName: 'Cusum', yField: 'cusum',
         style: {
           mode: 'stretch',
-          color:0x660066
-        }
-      },
-      {type: 'line', displayName: 'Cusum', yField: 'cusum',
-        style: {
-          mode: 'stretch',
-          color:0xFF0066
+          color:0xFF0066,
+          stroke:"#FF0066"
         }
       }
-    ];
+    };
+    
+    var series = []; 
+    
+    Ext.each(field_array, function(field){
+      if(possible[field.name]){
+        series.push(possible[field.name]);
+      }
+    });
     
     return series;
   },

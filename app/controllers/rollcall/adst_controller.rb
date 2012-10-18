@@ -20,20 +20,27 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   def index    
     options = {:page => (params[:start] ? (params[:start].to_f / 6).floor + 1 : 1), :per_page => params[:limit] || 6}    
 
-    @results = get_search_results(params).paginate(options)
-    @length = @results.total_entries
+    params[:startdt] ||= 3.months.ago.to_s # put a 3 month limit on start date to limit data points being returned
+    params[:enddt] ||= Date.today.to_s
+
+    res = get_search_results(params)
+    @length = res.count(distinct: true)
+    @results = res.paginate(options)
         
     @results.each do |r|
       r.result = r.get_graph_data(params).as_json
     end
+    
+    begin    
+      if defined? REPORT_DB
+        collection = REPORT_DB.collection("adst_analytics")
         
-    if defined? REPORT_DB
-      collection = REPORT_DB.collection("adst_analytics")
-      
-      doc = {"params" => params, "home_jurisdiction_id" => current_user.home_jurisdiction_id }
-      
-      collection.insert(doc)
-    end 
+        doc = {"params" => params, "home_jurisdiction_id" => current_user.home_jurisdiction_id }
+        
+        collection.insert(doc)
+      end
+    rescue #swallow analytics errors
+    end      
     
     respond_with(@length, @results)    
   end

@@ -1,0 +1,12 @@
+Please do not reply to this email.  Replies to this message will not be read or responded to.
+
+<h2>Schools that have not reported in 5 days</h2>
+<% @schools.each do |s| %>
+  <%= s['School'] %> - <%= s['Last Reported Date']%>
+<% end %>
+
+
+<h2>School Districts that have not reported in 5 days</h2>
+<% @school_districts.each do |s| %>
+  <%= s['School District'] %> - <%= s['Last Reported Date']%>
+<% end %>

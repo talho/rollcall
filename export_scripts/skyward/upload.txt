@@ -1,0 +1,9 @@
+# WinSCP upload script
+option batch on
+option confirm off
+option transfer binary
+open _____@s1.talho.org
+put "c:\rollcall\attendance.csv"
+put "c:\rollcall\symptoms.csv"
+close
+exit

@@ -15,7 +15,7 @@ namespace :rollcall do
     Rollcall::School.all.each do |school|
       start = DateTime.now - 1.year
       start.upto(DateTime.now) do |report_date|
-        total_absent = rand(100)
+        total_absent = rand(40)
         total_enrolled = 1 + total_absent + rand(500)
         Rollcall::SchoolDailyInfo.create(
           :school_id => school.id, 
@@ -54,7 +54,7 @@ namespace :rollcall do
       start.upto(DateTime.now) do |report_date|
         p "DATE: #{report_date}"
         odds = rand(100)
-        if (odds.to_i < 3)
+        if (odds.to_i < 2)
           info = Rollcall::StudentDailyInfo.new
           info.student_id = student.id
           info.report_date = report_date
@@ -82,7 +82,7 @@ namespace :rollcall do
     Rollcall::SchoolDistrict.all.each do |school_district|
       start = DateTime.now - 1.year
       start.upto(DateTime.now) do |report_date|
-        total_absent = rand(100)
+        total_absent = rand(70)
         total_enrolled = 1 + total_absent + rand(500)
         Rollcall::SchoolDistrictDailyInfo.create(
           :school_district_id => school_district.id, 

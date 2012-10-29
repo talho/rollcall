@@ -5,9 +5,9 @@ SET @district_nubmer = '';
 
 -- Pull ILI directly from Skyward into local SQL database
 insert into @symptoms(CID, HealthYear, CampusID, OrigDate, Temperature,
-					StudentID, Grade)
+		      Grade)
 SELECT HltOfficeVisitMst.[OFFICE-VISIT-REF-NO], StudentHealth.[school-year], HltOfficeVisitMst.[HLT-OVM-ENTITY-ID], StudentHealth.[HLT-DATE], convert(nvarchar(20),HltOfficeVisitMst.[HLT-OVM-TEMPERATURE]),
-       Student.[OTHER-ID], dbo.Student_Grade(Entity.[SCHOOL-YEAR], Student.[GRAD-YR])
+       dbo.Student_Grade(Entity.[SCHOOL-YEAR], Student.[GRAD-YR])
 FROM   StudentHealth 
 JOIN   HltOfficeVisitMst ON StudentHealth.[REF-NO] = HltOfficeVisitMst.[REF-NO] AND StudentHealth.[STUDENT-ID] = HltOfficeVisitMst.[STUDENT-ID] 
 JOIN   HltOfficeVisitDtl ON HltOfficeVisitMst.[OFFICE-VISIT-REF-NO] = HltOfficeVisitDtl.[OFFICE-VISIT-REF-NO]

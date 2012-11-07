@@ -16,8 +16,8 @@ $menu_config[:rollcall] = <<EOF
         {name: 'Admin', items:[
           {name: 'Users', tab:{id: 'rollcall_users', title:'Rollcall Users', url:'', initializer: 'Talho.Rollcall.Users'}}"      
       nav += ",{name: 'Status', tab:{id: 'rollcall_status', title:'Rollcall Status', url:'', initializer: 'Talho.Rollcall.Status'}}" if current_user.is_super_admin?("rollcall")      
-      nav += " ]}"
     end
+      nav += " ]}"
     nav += "]}"
   end
 EOF

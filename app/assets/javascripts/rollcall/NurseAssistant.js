@@ -4,7 +4,7 @@ Ext.ns('Talho.Rollcall');
 
 Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
   /*
-  Method builds out the nurse assistant layout, it creates the neccessary stores as well
+  Method builds out the Symptom Cases layout, it creates the neccessary stores as well
    */
   constructor: function(config)
   {
@@ -340,7 +340,7 @@ Talho.Rollcall.NurseAssistant = Ext.extend(function(){}, {
   {
     var init_window = new Ext.Window({
       layout:    'form',
-      title:     'Nurse Assistant School Setup',
+      title:     'Symptom Cases School Setup',
       renderTo:  'nurse_assistant',
       scope:     this,
       modal:     true,

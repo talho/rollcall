@@ -1,12 +1,12 @@
-//= require rollcall/ADST/view/Parameters
+//= require rollcall/Graphing/view/Parameters
 
 
-Ext.namespace("Talho.Rollcall.ADST.view");
+Ext.namespace("Talho.Rollcall.Graphing.view");
 
-Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
-  itemId: 'ADSTFormPanel',
-  id: "ADSTFormPanel",
-  url: '/rollcall/adst',
+Talho.Rollcall.Graphing.view.SearchForm = Ext.extend(Ext.FormPanel, {
+  itemId: 'GraphingFormPanel',
+  id: "GraphingFormPanel",
+  url: '/rollcall/graphing',
   labelAlign: 'top',
   buttonAlign: 'right',
   border: false,
@@ -15,7 +15,7 @@ Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
     this.addEvents('reset', 'submitquery', 'exportresult', 'saveasalarm', 'showreportmessage');        
     this.enableBubble(['reset', 'submitquery', 'exportresult', 'saveasalarm', 'showreportmessage']);
     
-    var parameters = new Talho.Rollcall.ADST.view.Parameters({getBubbleTarget: this.getBubbleTarget});
+    var parameters = new Talho.Rollcall.Graphing.view.Parameters({getBubbleTarget: this.getBubbleTarget});
     
     this.school_button = new Ext.Button({text: 'School', toggleGroup: 'individual',
        pressed: true, scope: this, handler: function () { this._setIndividualValue(true); }});
@@ -37,7 +37,7 @@ Talho.Rollcall.ADST.view.SearchForm = Ext.extend(Ext.FormPanel, {
     
     this.school_mode = true;
     
-    Talho.Rollcall.ADST.view.SearchForm.superclass.initComponent.apply(this, config);       
+    Talho.Rollcall.Graphing.view.SearchForm.superclass.initComponent.apply(this, config);       
   },
   
   getParams: function () {

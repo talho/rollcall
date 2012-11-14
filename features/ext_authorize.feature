@@ -67,10 +67,6 @@ Background:
     | Anderson Elementary |
     | Ashford Elementary  |
     | Yates High School   |
-  And "Houston" has the following current district absenteeism data:
-    | day | total_enrolled | total_absent |
-    | 1   | 400            | 13           |
-    | 2   | 400            | 14           |
   And "Houston" has the following current school absenteeism data:
     | day | school_name         | total_enrolled | total_absent |
     | 1   | Anderson Elementary | 100            | 2            |
@@ -110,14 +106,14 @@ Background:
     | 2   | Yates High School   | 18       |            |           | 07/23/1993 | 12    | M      | true          | Chills,Temperature,Headache |                |
 
 
-Scenario: Nurse attempts to access ADST
+Scenario: Nurse attempts to access Graphing
   When I am logged in as "nurse.betty@example.com"
   And I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I wait for the panel to load  
   And I should see "You are not authorized to access this feature"
   And I press "OK"  
-  Then I should not see "Rollcall ADST"
+  Then I should not see "Rollcall Graphing"
 
 Scenario: Nurse attempts to access School Panel
   When I am logged in as "nurse.betty@example.com"
@@ -128,19 +124,19 @@ Scenario: Nurse attempts to access School Panel
   And I press "OK"
   Then I should not see "Rollcall Schools"
 
-Scenario: Nurse attempts to access Nurse Assistant
+Scenario: Nurse attempts to access Symptom Cases
   When I am logged in as "nurse.betty@example.com"
   And I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > Nurse Assistant"
+  And I navigate to "Apps > Rollcall > Symptom Cases"
   And I wait for the panel to load
   And I should see "Current Student Visits"
   And I press "New"
   Then I should see "New Visit"
 
-Scenario: Epidemiologist attempts to access Nurse Assistant
+Scenario: Epidemiologist attempts to access Symptom Cases
   When I am logged in as "epi.smith@example.com"
   And I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > Nurse Assistant"
+  And I navigate to "Apps > Rollcall > Symptom Cases"
   And I wait for the panel to load
   And I should see "Current Student Visits"
   And I press "New"
@@ -153,17 +149,17 @@ Scenario: Epidemiologist attempts to access School Panel
   And I wait for the panel to load
   Then I should see "Rollcall Schools"
 
-Scenario: Epidemiologist attempts to access ADST
+Scenario: Epidemiologist attempts to access Graphing
   When I am logged in as "epi.smith@example.com"
   And I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I wait for the panel to load
-  Then I should see "Rollcall ADST"
+  Then I should see "Rollcall Graphing"
     
-Scenario: Health Officer attempts to access Nurse Assistant
+Scenario: Health Officer attempts to access Symptom Cases
   When I am logged in as "heatlh.offcr@example.com"
   And I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > Nurse Assistant"
+  And I navigate to "Apps > Rollcall > Symptom Cases"
   And I wait for the panel to load
   And I should see "Current Student Visits"
   And I press "New"
@@ -176,9 +172,9 @@ Scenario: Health Officer attempts to access School Panel
   And I wait for the panel to load
   Then I should see "Rollcall Schools"
 
-Scenario: Health Officer attempts to access ADST
+Scenario: Health Officer attempts to access Graphing
   When I am logged in as "heatlh.offcr@example.com"
   And I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I wait for the panel to load
-  Then I should see "Rollcall ADST"
+  Then I should see "Rollcall Graphing"

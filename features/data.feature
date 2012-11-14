@@ -51,15 +51,6 @@ Background:
     | Anderson Elementary               |
     | Ashford Elementary                |
     | Yates High School                 |
-  And "District1" has the following current district absenteeism data:
-    | day          | total_enrolled | total_absent |
-    | 2012-06-20   | 400            | 13           |
-    | 2012-06-21   | 400            | 14           |
-    | 2012-06-22   | 400            | 12           |
-    | 2012-06-23   | 400            | 11           |
-    | 2012-06-24   | 400            | 14           |
-    | 2012-06-25   | 400            | 12           |
-    | 2012-06-26   | 400            | 14           |
   And "District1" has the following current school absenteeism data:
     | day          | school_name         | total_enrolled | total_absent |
     | 2012-06-20   | Anderson Elementary | 100            | 2            |
@@ -182,61 +173,61 @@ Scenario: School District Data Function Standard Deviation
   When I do get_data for "District1" with:
     | data_func | Standard Deviation          |
   Then get_data should return:
-    | 13        | 2012-06-20   | 0.0          |
-    | 14        | 2012-06-21   | 0.5          |
-    | 12        | 2012-06-22   | 0.816        |
-    | 11        | 2012-06-23   | 1.118        |
-    | 14        | 2012-06-24   | 1.166        |
-    | 12        | 2012-06-25   | 1.106        |
-    | 14        | 2012-06-26   | 1.125        |
+    | 13        | 2012-06-20   | 0            |
+    | 13        | 2012-06-21   | 0            |
+    | 15        | 2012-06-22   | 0.943        |
+    | 21        | 2012-06-23   | 3.279        |
+    | 7         | 2012-06-24   | 4.49         |
+    | 17        | 2012-06-25   | 4.269        |
+    | 12        | 2012-06-26   | 4.036        |
   
 Scenario: School District Data Function Cusum
   When I do get_data for "District1" with:
     | data_func | Cusum        |
   Then get_data should return:
-    | 13        | 2012-06-20   | 0.143        |
-    | 14        | 2012-06-21   | 1.286        |
-    | 12        | 2012-06-22   | 0.429        |
-    | 11        | 2012-06-23   | 0            |
-    | 14        | 2012-06-24   | 1.143        |
-    | 12        | 2012-06-25   | 0            |
-    | 14        | 2012-06-26   | 1.143        |
+    | 13        | 2012-06-20   | 13           |
+    | 13        | 2012-06-21   | 13           |
+    | 15        | 2012-06-22   | 13.667       |
+    | 21        | 2012-06-23   | 15.5         |
+    | 7         | 2012-06-24   | 13.8         |
+    | 17        | 2012-06-25   | 14.333       |
+    | 12        | 2012-06-26   | 14           |
     
 Scenario: School District Data Function Average
   When I do get_data for "District1" with:
     | data_func | Average      |
   Then get_data should return:
     | 13        | 2012-06-20   | 13           |
-    | 14        | 2012-06-21   | 13.5         |
-    | 12        | 2012-06-22   | 13           |
-    | 11        | 2012-06-23   | 12.5         |
-    | 14        | 2012-06-24   | 12.8         |
-    | 12        | 2012-06-25   | 12.667       |
-    | 14        | 2012-06-26   | 12.857       |
+    | 13        | 2012-06-21   | 13           |
+    | 15        | 2012-06-22   | 13.667       |
+    | 21        | 2012-06-23   | 15.5         |
+    | 7         | 2012-06-24   | 13.8         |
+    | 17        | 2012-06-25   | 14.333       |
+    | 12        | 2012-06-26   | 14           |
     
 Scenario: School District Data Function Average 30
   When I do get_data for "District1" with:
     | data_func | Average 30 Day |
   Then get_data should return:
     | 13        | 2012-06-20   | 13           |
-    | 14        | 2012-06-21   | 13.5         |
-    | 12        | 2012-06-22   | 13           |
-    | 11        | 2012-06-23   | 12.5         |
-    | 14        | 2012-06-24   | 12.8         |
-    | 12        | 2012-06-25   | 12.667       |
-    | 14        | 2012-06-26   | 12.857       |
+    | 13        | 2012-06-21   | 13           |
+    | 15        | 2012-06-22   | 13.667       |
+    | 21        | 2012-06-23   | 15.5         |
+    | 7         | 2012-06-24   | 13.8         |
+    | 17        | 2012-06-25   | 14.333       |
+    | 12        | 2012-06-26   | 14           |
     
 Scenario: School District Data Function Average 60
   When I do get_data for "District1" with:
     | data_func | Average 60 Day |
   Then get_data should return:
     | 13        | 2012-06-20   | 13           |
-    | 14        | 2012-06-21   | 13.5         |
-    | 12        | 2012-06-22   | 13           |
-    | 11        | 2012-06-23   | 12.5         |
-    | 14        | 2012-06-24   | 12.8         |
-    | 12        | 2012-06-25   | 12.667       |
-    | 14        | 2012-06-26   | 12.857       |
+    | 13        | 2012-06-21   | 13           |
+    | 15        | 2012-06-22   | 13.667       |
+    | 21        | 2012-06-23   | 15.5         |
+    | 7         | 2012-06-24   | 13.8         |
+    | 17        | 2012-06-25   | 14.333       |
+    | 12        | 2012-06-26   | 14           |
     
 Scenario: School Data Function Standard Deviation
   When I do get_data for "Ashford Elementary" with:

@@ -1,7 +1,7 @@
-Feature: Execute Simple ADST Search
-  In order to execute a simple ADST search
+Feature: Execute Simple Graphing Search
+  In order to execute a simple Graphing search
   As a Rollcall user
-  I should be able to select from a list of simple ADST options, construct and execute my query
+  I should be able to select from a list of simple Graphing options, construct and execute my query
 
 Background:
   Given the following entities exist:
@@ -60,10 +60,6 @@ Background:
     | Ector Junior High School          |
     | Gale Pond Alamo Elementary School |
     | Austin Elementary School          |
-  And "District1" has the following current district absenteeism data:
-    | day | total_enrolled | total_absent |
-    | 1   | 400            | 13           |
-    | 2   | 400            | 14           |
   And "District1" has the following current school absenteeism data:
     | day | school_name         | total_enrolled | total_absent |
     | 1   | Anderson Elementary | 100            | 2            |
@@ -101,10 +97,6 @@ Background:
     | 2   | Yates High School   | 17       |            |           | 04/23/1994 | 10    | F      | false         |                             |                |
     | 2   | Yates High School   | 18       |            |           | 10/17/1993 | 12    | M      | true          | Chills,Cough,Headache       |                |
     | 2   | Yates High School   | 18       |            |           | 07/23/1993 | 12    | M      | true          | Chills,Temperature,Headache |                |
-  And "District2" has the following current district absenteeism data:
-    | day | total_enrolled | total_absent |
-    | 1   | 500            | 13           |
-    | 2   | 500            | 14           |
   And "District2" has the following current school absenteeism data:
     | day | school_name                       | total_enrolled | total_absent |
     | 1   | Ector Junior High School          | 150            | 2            |
@@ -147,7 +139,7 @@ Background:
   
 Scenario: User runs a simple query against absenteeism to view the raw data
   When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I wait for the panel to load
   And I press "Submit"
   And delayed jobs are processed
@@ -156,7 +148,7 @@ Scenario: User runs a simple query against absenteeism to view the raw data
 
 Scenario: User runs a simple query against a school to view the raw data
   When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I select "Yates High School" from ext combo "school"
   And I press "Submit"
   And delayed jobs are processed
@@ -165,7 +157,7 @@ Scenario: User runs a simple query against a school to view the raw data
 
 Scenario: User runs a simple query against a school type to view the raw data
   When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I select "Elementary School" from ext combo "school_type"
   And I press "Submit"
   And delayed jobs are processed
@@ -174,7 +166,7 @@ Scenario: User runs a simple query against a school type to view the raw data
 
 Scenario: User runs a simple query against absenteeism and school type to view the raw data
   When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I select "Confirmed Illness" from ext combo "absent"
   And I select "Elementary School" from ext combo "school_type"
   And I press "Submit"
@@ -184,7 +176,7 @@ Scenario: User runs a simple query against absenteeism and school type to view t
 
 Scenario: User runs a simple query against absenteeism and school type to view the average data
   When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I select "Confirmed Illness" from ext combo "absent"
   And I select "Elementary School" from ext combo "school_type"
   And I select "Average" from ext combo "Data Function"
@@ -195,7 +187,7 @@ Scenario: User runs a simple query against absenteeism and school type to view t
 
 Scenario: User runs a simple search against absenteeism and school type to view the standard deviation
   When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I select "Confirmed Illness" from ext combo "absent"
   And I select "Elementary School" from ext combo "school_type"
   And I select "Standard Deviation" from ext combo "data_func"
@@ -206,7 +198,7 @@ Scenario: User runs a simple search against absenteeism and school type to view 
 
 Scenario: User runs a simple query using the start and end date to view the raw data
   When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I set "startdt" to "5" days from origin date
   And I set "enddt" to "0" days from origin date
   And I select "District1" from ext combo "school_district"
@@ -216,7 +208,7 @@ Scenario: User runs a simple query using the start and end date to view the raw 
 
 Scenario: User runs a simple query against a school district
   When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I select "District2" from ext combo "school_district"
   And I press "Submit"
   And delayed jobs are processed
@@ -225,7 +217,7 @@ Scenario: User runs a simple query against a school district
 
 Scenario: User runs a simple query against a school district, requests school district graph
   When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I select "District2" from ext combo "school_district"
   And I press "School District"
   And I press "Submit"
@@ -235,7 +227,7 @@ Scenario: User runs a simple query against a school district, requests school di
 
 Scenario: User generates reports from a simple query
   Given I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I wait for the panel to load
   And I press "Submit"
   And delayed jobs are processed

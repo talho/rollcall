@@ -1,16 +1,16 @@
-//= require rollcall/ADST/view/AlarmQueries
-//= require rollcall/ADST/view/Alarms
-//= require rollcall/ADST/view/SearchForm
-//= require rollcall/ADST/view/Results
+//= require rollcall/Graphing/view/AlarmQueries
+//= require rollcall/Graphing/view/Alarms
+//= require rollcall/Graphing/view/SearchForm
+//= require rollcall/Graphing/view/Results
 
-Ext.namespace("Talho.Rollcall.ADST.view");
+Ext.namespace("Talho.Rollcall.Graphing.view");
 
-Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
-  id: 'adst',
+Talho.Rollcall.Graphing.view.Layout = Ext.extend(Ext.Panel, {
+  id: 'graphing',
   closable: true,
   layout: 'fit',
   border: false,
-  title: "Rollcall ADST",
+  title: "Rollcall Graphing",
   
   initComponent: function () {            
     var me = this,
@@ -18,12 +18,12 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
         return me;
     }
     
-    this.alarm_queries = new Talho.Rollcall.ADST.view.AlarmQueries({
+    this.alarm_queries = new Talho.Rollcall.Graphing.view.AlarmQueries({
       itemId: 'alarm_queries', getBubbleTarget: findBubble
     });
         
-    var search_form = new Talho.Rollcall.ADST.view.SearchForm({getBubbleTarget: findBubble});
-    var results = new Talho.Rollcall.ADST.view.Results({getBubbleTarget: this.getBubbleTarget});
+    var search_form = new Talho.Rollcall.Graphing.view.SearchForm({getBubbleTarget: findBubble});
+    var results = new Talho.Rollcall.Graphing.view.Results({getBubbleTarget: this.getBubbleTarget});
         
     this.getSearchForm = function () { return search_form };
     this.getResultsPanel = function () { return results };             
@@ -58,7 +58,7 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
       
     this.hidden_buttons = [this.export_button, this.alarm_button, this.report_button];
     
-    this.adst_panel = new Ext.Panel({id: 'adst_panel', border: false, collapsible: false,
+    this.graphing_panel = new Ext.Panel({id: 'graphing_panel', border: false, collapsible: false,
       region: 'center', autoScroll: true, scope: this, height: 200,
       items: [search_form, results],
       bbar: [this.paging_toolbar,        
@@ -78,18 +78,18 @@ Talho.Rollcall.ADST.view.Layout = Ext.extend(Ext.Panel, {
     });
         
     this.items = [
-      {id: 'adst_layout', layout: 'border', autoScroll: true, scope: this, 
+      {id: 'graphing_layout', layout: 'border', autoScroll: true, scope: this, 
         defaults: {collapsible: false, split: true},
         items: [   
           {xtype: 'panel', region: 'south', height: 120, title: 'Alarm Queries', layout: 'fit', padding: '2px 2px 4px 2px', items: this.alarm_queries},
           {xtype: 'panel', id: 'alarms_c', itemId: 'alarms', region: 'west', title: 'Alarms', layout: 'fit', bodyStyle: 'padding: 0px',
             width: 140, minSize: 140, maxSize: 140, hideBorders: true,
-            items: [new Talho.Rollcall.ADST.view.Alarms({getBubbleTarget: findBubble})],            
+            items: [new Talho.Rollcall.Graphing.view.Alarms({getBubbleTarget: findBubble})],            
           },          
-          this.adst_panel
+          this.graphing_panel
         ]
       }
     ];   
-    Talho.Rollcall.ADST.view.Layout.superclass.initComponent.apply(this, arguments);
+    Talho.Rollcall.Graphing.view.Layout.superclass.initComponent.apply(this, arguments);
   },    
 });

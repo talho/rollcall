@@ -71,10 +71,6 @@ Background:
     | Ector Junior High School          |
     | Gale Pond Alamo Elementary School |
     | Austin Elementary School          |
-  And "District1" has the following current district absenteeism data:
-    | day | total_enrolled | total_absent |
-    | 1   | 400            | 13           |
-    | 2   | 400            | 14           |
   And "District1" has the following current school absenteeism data:
     | day | school_name         | total_enrolled | total_absent |
     | 1   | Anderson Elementary | 100            | 2            |
@@ -83,10 +79,6 @@ Background:
     | 2   | Ashford Elementary  | 100            | 4            |
     | 1   | Yates High School   | 200            | 10           |
     | 2   | Yates High School   | 200            | 5            |
-  And "District2" has the following current district absenteeism data:
-    | day | total_enrolled | total_absent |
-    | 1   | 500            | 13           |
-    | 2   | 500            | 14           |
   And "District2" has the following current school absenteeism data:
     | day | school_name                       | total_enrolled | total_absent |
     | 1   | Ector Junior High School          | 150            | 2            |
@@ -98,7 +90,7 @@ Background:
   
 Scenario:  User views multiple school district neighbors
   And I am logged in as "nurse.betty@example.com"
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I wait for the panel to load
   When I press "Switch to Advanced"
   And I click school-district-list-item "District1"
@@ -117,14 +109,14 @@ Scenario:  User views multiple school district neighbors
   
 Scenario: User doesn't see neighbor button when there are 6 school districts
   And I am logged in as "rick@example.com"
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I wait for the panel to load
   And I press "Submit"
   Then I should not see "View Neighboring School Districts"
   
 Scenario: User doesn't see neighbor button for schools
   And I am logged in as "nurse.betty@example.com"
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I wait for the panel to load
   And I select "Yates High School" from ext combo "school"
   And I press "Submit"

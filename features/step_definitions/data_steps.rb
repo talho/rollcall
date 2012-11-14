@@ -34,18 +34,8 @@ end
 Then /^get_data should return:$/ do |table|    
    test = hashify(table) 
    data = normalize(@result)
-   #old_data = normalize(@old_result)
    
-   if test != data
-     p "Input: "
-     p test
-     p "Results: "
-     p data
-     # p "Old Results: "
-     # p old_data
-   end   
-
-   test.should eq data 
+   data.should eq test 
 end
 
 def normalize array

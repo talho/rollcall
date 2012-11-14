@@ -1,8 +1,8 @@
 //= require ext_extensions/Graph
 
-Ext.namespace("Talho.Rollcall.ADST.view");
+Ext.namespace("Talho.Rollcall.Graphing.view");
 
-Talho.Rollcall.ADST.view.GraphWindow = Ext.extend(Ext.Window, {
+Talho.Rollcall.Graphing.view.GraphWindow = Ext.extend(Ext.Window, {
   layout: 'fit',
   cls: 'graph-window',
   initComponent: function () {    
@@ -53,7 +53,7 @@ Talho.Rollcall.ADST.view.GraphWindow = Ext.extend(Ext.Window, {
     
     this.combo.getStore().load({params: this.search_params});       
     
-    Talho.Rollcall.ADST.view.GraphWindow.superclass.initComponent.apply(this, arguments)
+    Talho.Rollcall.Graphing.view.GraphWindow.superclass.initComponent.apply(this, arguments)
   },
   
   _nextGraph: function () {
@@ -96,7 +96,7 @@ Talho.Rollcall.ADST.view.GraphWindow = Ext.extend(Ext.Window, {
     }
     
     Ext.Ajax.request({
-      url:     '/rollcall/adst',
+      url:     '/rollcall/graphing',
       method:  'GET',    
       scope:   this,
       params:  params,

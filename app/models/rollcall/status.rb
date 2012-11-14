@@ -1,26 +1,19 @@
 class Rollcall::Status
   def self.get_school_districts
-    Rollcall::SchoolDistrict.joins("inner join (select max(report_date), school_district_id from rollcall_school_district_daily_infos group by school_district_id) as I on I.school_district_id = rollcall_school_districts.id")
-      .where("rollcall_school_districts.id not in (select T1.id from (select * from 
-        (select id from rollcall_school_districts) as SchoolDs
-          cross join 
-        (select generate_series::date as \"Date\" from generate_series(current_date - 7, current_date - 1, interval '1 day') where extract(dow from generate_series::date) not in (6,0)) as DatesTable) as T1
-        inner join rollcall_school_district_daily_infos I on I.report_date = T1.\"Date\" and T1.id = I.school_district_id
-        group by T1.id having count(*) = 5)")
-      .select('rollcall_school_districts.name as "School District", I.max as "Last Reported Date"')
-      .order("max, rollcall_school_districts.name")
+    Rollcall::SchoolDistrict.select('rollcall_school_districts.name as "School District", rollcall_school_districts.id as id, MAX(rsdi.report_date) as "Last Reported Date"')
+      .joins("JOIN rollcall_schools as rs ON rollcall_school_districts.id = rs.district_id")
+      .joins("JOIN rollcall_school_daily_infos rsdi ON rs.id = rsdi.school_id")
+      .order('MAX(rsdi.report_date) desc, rollcall_school_districts.name')
+      .group("rollcall_school_districts.name, rollcall_school_districts.id")      
   end
   
   def self.get_schools
-    Rollcall::School.joins("inner join (select max(report_date), school_id from rollcall_school_daily_infos group by school_id) as I on I.school_id = rollcall_schools.id")
-      .joins("inner join rollcall_school_districts SD on rollcall_schools.district_id = SD.id")
-      .where("rollcall_schools.id not in (select T1.id from (select * from 
-        (select id from rollcall_schools) as Schools
-          cross join 
-        (select generate_series::date as \"Date\" from generate_series(current_date - 7, current_date - 1, interval '1 day') where extract(dow from generate_series::date) not in (6,0)) as DatesTable) as T1
-        inner join rollcall_school_daily_infos I on I.report_date = T1.\"Date\" and T1.id = I.school_id
-        group by T1.id having count(*) = 5)")
-      .select('rollcall_schools.display_name as "School", SD.name as "School District", I.max as "Last Reported Date"')
-      .order("max, SD.name, rollcall_schools.display_name")
+    Rollcall::School.select('rollcall_schools.display_name as "School", sd."School District" as "School District", rsdi.report_date as "Last Reported Date"')
+      .joins("JOIN (#{self.get_school_districts.to_sql}) as sd on rollcall_schools.district_id = sd.id")
+      .joins("JOIN (SELECT school_id, MAX(report_date) as report_date
+                    FROM rollcall_school_daily_infos
+                    GROUP BY school_id) as rsdi on rsdi.school_id = rollcall_schools.id")
+      .where('rsdi.report_date != sd."Last Reported Date"')
+      .order('rollcall_schools.display_name, sd."School District", rsdi.report_date')
   end
 end

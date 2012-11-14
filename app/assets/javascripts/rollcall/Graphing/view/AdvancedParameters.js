@@ -1,7 +1,7 @@
 
-Ext.namespace("Talho.Rollcall.ADST.view");
+Ext.namespace("Talho.Rollcall.Graphing.view");
 
-Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
+Talho.Rollcall.Graphing.view.AdvancedParameters = Ext.extend(Ext.Container, {
   title: "Advanced Query Select",
   id: "advanced_query_select",
   itemId: "advanced_query_select",
@@ -138,7 +138,7 @@ Talho.Rollcall.ADST.view.AdvancedParameters = Ext.extend(Ext.Container, {
       ]}           
     ];
     
-    Talho.Rollcall.ADST.view.AdvancedParameters.superclass.initComponent.apply(this, arguments);
+    Talho.Rollcall.Graphing.view.AdvancedParameters.superclass.initComponent.apply(this, arguments);
   },
       
   reset: function () {

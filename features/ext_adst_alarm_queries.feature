@@ -50,14 +50,6 @@ Background:
     | Anderson Elementary |
     | Ashford Elementary  |
     | Yates High School   |
-  And "Houston" has the following current district absenteeism data:
-    | day | total_enrolled | total_absent |
-    | 1   | 400            | 13           |
-    | 2   | 400            | 14           |
-    | 3   | 400            | 13           |
-    | 4   | 400            | 10           |
-    | 5   | 400            | 7            |
-    | 6   | 400            | 8            |
   And "Houston" has the following current school absenteeism data:
     | day | school_name         | total_enrolled | total_absent |
     | 1   | Anderson Elementary | 100            | 5            |
@@ -127,7 +119,7 @@ Background:
 
   And I am logged in as "nurse.betty@example.com"
   And I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I wait for the panel to load
   And I press "Submit"
 

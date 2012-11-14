@@ -13,42 +13,13 @@
 class Rollcall::SchoolDistrict < ActiveRecord::Base
   belongs_to  :jurisdiction
   has_many    :schools, :class_name => "Rollcall::School", :foreign_key => "district_id", :order => "display_name"
-  has_many    :daily_infos, :class_name => "Rollcall::SchoolDistrictDailyInfo", :foreign_key => "school_district_id", :order => "report_date asc"
+  has_many :students, :through => :schools
+  has_many :student_daily_infos, :through => :students
+  has_many :school_daily_infos, :through => :schools
   include Rollcall::DataModule
   require 'will_paginate/array'
 
   self.table_name = "rollcall_school_districts"
-
-  # Method returns average absence rate
-  #
-  # Method returns the average absence rate of selected school district
-  def average_absence_rate(date=nil)
-    date = Date.today if date.nil?
-    di   = daily_infos.for_date(date).first
-    di   = update_daily_info(date) if di.nil? || di.absentee_rate.nil?
-    di.absentee_rate
-  end
-
-  # Method runs update on SchoolDistrictDailyInfo
-  #
-  # Method will force an update on SchoolDistrictDailyInfo if no data is found for date given
-  def update_daily_info(date)
-    di = daily_infos.find_by_report_date(date)
-    di = daily_infos.create(:report_date => date) if di.nil?
-    di.update_stats date, id
-    di
-  end
-
-  # Method returns absentee rates
-  #
-  # Method will return the latest absentee rates for the days given
-  def recent_absentee_rates(days)
-    avgs = Array.new
-    (Date.today-(days-1).days).upto Date.today do |date|
-      avgs.push(average_absence_rate(date))
-    end
-    avgs
-  end
   
   def self.for_user(user)
     user = user.class == User ? user : User.find(user)    

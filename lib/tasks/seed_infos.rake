@@ -5,8 +5,7 @@ namespace :rollcall do
   desc description
   task :seed => [
     'rollcall:school_info', 
-    'rollcall:student_info',  
-    'rollcall:school_district_info'   
+    'rollcall:student_info'
   ]
   
   desc description
@@ -61,6 +60,7 @@ namespace :rollcall do
           info.grade = 1 + rand(12)
           
           confirmed = rand(1)
+  
           if confirmed
             info.confirmed_illness = 1            
           end
@@ -77,22 +77,4 @@ namespace :rollcall do
     end
   end
   
-  desc description
-  task :school_district_info => :environment do
-    Rollcall::SchoolDistrict.all.each do |school_district|
-      start = DateTime.now - 1.year
-      start.upto(DateTime.now) do |report_date|
-        total_absent = rand(100)
-        total_enrolled = 1 + total_absent + rand(500)
-        Rollcall::SchoolDistrictDailyInfo.create(
-          :school_district_id => school_district.id, 
-          :total_absent => total_absent, 
-          :total_enrollment => total_enrolled,
-          :report_date => report_date,
-          :absentee_rate => total_absent.to_f / total_enrolled.to_f
-        )
-        p "Report Date: #{report_date} Absent: #{total_absent} Enrolled #{total_enrolled}"
-      end  
-    end
-  end
 end

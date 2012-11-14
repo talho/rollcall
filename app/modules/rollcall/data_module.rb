@@ -6,15 +6,18 @@ module Rollcall::DataModule
   def build_graph_query query, params    
     params = param_setup params
     
-    query = join_to_infos query, params
+    query = apply_joins query, params
+    query = apply_filters query, params
     query = apply_date_filter query, params[:startdt], params[:enddt]
-    query = apply_data_function query, params[:data_func]
+    query = apply_order query, params
+    query = apply_group query, params
+    query = apply_selects query, params[:data_func]
         
     query
   end
   
   def transform_to_graph_info_format results
-    graph_info = results.order("report_date").as_json
+    graph_info = results.as_json
     Jbuilder.encode do |json|
       json.results graph_info      
       if self.is_a? Rollcall::SchoolDistrict
@@ -29,31 +32,28 @@ module Rollcall::DataModule
     
   protected
   
-  def join_to_infos query, conditions      
-    if conditions[:age].present? || conditions[:gender].present? || conditions[:grade].present? || conditions[:confirmed_illness] == true || conditions[:symptoms].present?      
-      query = apply_ili_filters query, conditions
+  def apply_joins query, conditions    
+    if self.is_a? Rollcall::SchoolDistrict
+      query = query.joins("inner join rollcall_schools on rollcall_schools.district_id = rollcall_school_districts.id")   
+    end
+      
+    if @ili      
+      query = query.joins("inner join rollcall_students on rollcall_students.school_id = rollcall_schools.id")
+                   .joins("inner join rollcall_student_daily_infos on rollcall_student_daily_infos.student_id = rollcall_students.id")
+      query = query.joins("left join rollcall_school_daily_infos on rollcall_student_daily_infos.report_date = rollcall_school_daily_infos.report_date and rollcall_schools.id = rollcall_school_daily_infos.school_id") if self.is_a? Rollcall::School
+      query = query.joins("LEFT JOIN (SELECT SUM(total_enrolled) as total_enrolled, district_id, report_date 
+                                 FROM rollcall_schools rs 
+                                 JOIN rollcall_school_daily_infos rsdi ON rs.id = rsdi.school_id 
+                                 GROUP BY district_id, report_date) district_info on district_info.district_id = rollcall_school_districts.id and district_info.report_date = rollcall_student_daily_infos.report_date") if self.is_a? Rollcall::SchoolDistrict
     else
-      if query.table_name == "rollcall_school_districts"
-        query = query
-          .joins("inner join rollcall_school_district_daily_infos on rollcall_school_district_daily_infos.school_district_id = rollcall_school_districts.id")
-      else
-        query = query
-          .joins("inner join rollcall_school_daily_infos on rollcall_school_daily_infos.school_id = rollcall_schools.id")
-      end
+      query = query.joins("inner join rollcall_school_daily_infos on rollcall_school_daily_infos.school_id = rollcall_schools.id")
     end
     
     query
   end
   
-  def apply_ili_filters query, conditions       
-    if query.table_name == "rollcall_school_districts"
-      query = query
-        .joins("inner join rollcall_schools on rollcall_schools.district_id = rollcall_school_districts.id")          
-    end
-    
-    query = query
-      .joins("inner join rollcall_students on rollcall_students.school_id = rollcall_schools.id")
-      .joins("inner join rollcall_student_daily_infos on rollcall_student_daily_infos.student_id = rollcall_students.id")
+  def apply_filters query, conditions
+    return query unless @ili #short circuit this method
     
     if conditions[:age].present?        
       query = query.where("extract(year from age(rollcall_students.dob)) in (?)", conditions[:age])                    
@@ -82,78 +82,73 @@ module Rollcall::DataModule
   end
   
   def apply_date_filter query, start_date, end_date
+    if @ili           
+      report_date = "rollcall_student_daily_infos.report_date"
+    else
+      report_date = "rollcall_school_daily_infos.report_date"
+    end
+    
     if start_date.present? and end_date.present?
-      query = query.where("report_date between ? and ? ", start_date, end_date)
+      query = query.where("#{report_date} between ? and ? ", start_date, end_date)
     elsif start_date.present?
-      query = query.where("report_date >= ?", start_date)
+      query = query.where("#{report_date} >= ?", start_date)
     elsif end_date.present?
-      query = query.where("report_date <= ?", end_date)
+      query = query.where("#{report_date} <= ?", end_date)
     end
     
     query    
   end
   
-  def apply_data_function query, function
-    info_type = get_info_type_class query
-    
-    if info_type == Rollcall::SchoolDailyInfo || info_type == Rollcall::SchoolDistrictDailyInfo       
-      total_absent = "total_absent"      
-    else
-      total_absent = "count(*)"
-      query = query.group("report_date")
+  def apply_order query, conditions
+    if @ili
+      query = query.order("rollcall_student_daily_infos.report_date")
+    elsif self.is_a?(Rollcall::SchoolDistrict)
+      query = query.order("rollcall_school_daily_infos.report_date")
     end
     
-    if info_type == Rollcall::SchoolDailyInfo
-      total_enrolled = "total_enrolled"
-      query = query.order('rollcall_school_daily_infos.report_date asc')
-    elsif info_type == Rollcall::SchoolDistrictDailyInfo
-      total_enrolled = "total_enrollment"
-      query = query.order('rollcall_school_district_daily_infos.report_date asc')
-    else
-      total_enrolled = "count(*)"
-      query = query.order('rollcall_student_daily_infos.report_date asc')
-    end
-        
-    case function
-      when "Standard Deviation"
-        query = query.select("stddev_pop(#{total_absent}) over (order by report_date asc rows between unbounded preceding and current row) as \"deviation\"")        
-      when "Average"
-        query = query.select("avg(#{total_absent}) over (order by report_date asc rows between unbounded preceding and current row) as \"average\"")
-      when "Average 30 Day"
-        query = query.select("avg(#{total_absent}) over (order by report_date asc rows between 29 preceding and current row) as \"average\"")
-      when "Average 60 Day"
-        query = query.select("avg(#{total_absent}) over (order by report_date asc rows between 59 preceding and current row) as \"average\"")
-      when "Cusum"
-        avg = info_type.average("#{total_absent}").to_f
-        query = query.select("greatest(greatest(sum((#{total_absent} - #{avg})) over (order by report_date rows between unbounded preceding and 1 preceding),0) + #{total_absent} - #{avg},0) as \"cusum\"")
-    end
-    
-    query = query.select("report_date as report_date")
-      .select(%{#{total_absent} as "total", #{total_enrolled} as "enrolled"})  
     query
   end
   
-  def get_info_type_class query
-    info_type = ""
-          
-    query.join_sources.each do |source|      
-      source.left.scan(/ [\w|_]*_infos /) do |match|
-        info_type = match.strip
-      end
+  def apply_group query, conditions
+    if @ili
+      query = query.group("rollcall_student_daily_infos.report_date")
+      query = query.group("rollcall_schools.district_id") if self.is_a?(Rollcall::SchoolDistrict)
+    elsif self.is_a?(Rollcall::SchoolDistrict)
+      query = query.group("rollcall_schools.district_id, rollcall_school_daily_infos.report_date")
     end
     
-    case info_type
-      when "rollcall_school_daily_infos"
-        type = Rollcall::SchoolDailyInfo
-      when "rollcall_school_district_daily_infos"
-        type = Rollcall::SchoolDistrictDailyInfo
-      when "rollcall_student_daily_infos"
-        type = Rollcall::StudentDailyInfo
-    end
-    
-    type
+    query
   end
-      
+  
+  def apply_selects query, function    
+    if @ili           
+      total_absent = "count(*)"
+      report_date = "rollcall_student_daily_infos.report_date"
+      total_enrolled = self.is_a?(Rollcall::School) ? "MAX(total_enrolled)" : "MAX(district_info.total_enrolled)"
+    elsif self.is_a?(Rollcall::School)
+      total_absent = "total_absent"  
+      report_date = "rollcall_school_daily_infos.report_date"
+      total_enrolled = "total_enrolled"
+    elsif self.is_a?(Rollcall::SchoolDistrict)
+      total_absent = "SUM(total_absent)"
+      report_date = "rollcall_school_daily_infos.report_date"
+      total_enrolled = "SUM(total_enrolled)"
+    end
+    
+    function = [function] unless function.is_a?(Array)
+    query = query.select("stddev_pop(#{total_absent}) over (order by #{report_date} asc rows between unbounded preceding and current row) as \"deviation\"") if function.include?("Standard Deviation")       
+    query = query.select("avg(#{total_absent}) over (order by #{report_date} asc rows between unbounded preceding and current row) as \"average\"") if function.include?("Average")
+    query = query.select("avg(#{total_absent}) over (order by #{report_date} asc rows between 29 preceding and current row) as \"average\"") if function.include?("Average 30 Day")
+    query = query.select("avg(#{total_absent}) over (order by #{report_date} asc rows between 59 preceding and current row) as \"average\"") if function.include?("Average 60 Day")
+    if function.include?("Cusum")
+      avg = (query.select("AVG(#{total_absent}) OVER () as av").limit(1).first || {"av" => 0})["av"].to_f
+      query = query.select("greatest(greatest(sum(#{total_absent} - #{avg}) over (order by #{report_date} rows between unbounded preceding and 1 preceding),0) + #{total_absent} - #{avg},0) as \"cusum\"")
+    end
+    
+    query = query.select("#{report_date} as report_date")
+      .select(%{#{total_absent} as "total", #{total_enrolled} as "enrolled"})  
+    query
+  end
     
   def param_setup params
     params = params.with_indifferent_access
@@ -169,6 +164,8 @@ module Rollcall::DataModule
     if params[:absent].present? && params[:absent] == "Confirmed Illness"
       params[:confirmed_illness] = true
     end
+    
+    @ili = (params[:age].present? || params[:gender].present? || params[:grade].present? || params[:confirmed_illness] == true || params[:symptoms].present?)
     
     return params
   end    

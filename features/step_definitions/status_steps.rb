@@ -16,26 +16,6 @@ Given /^I have schools with reported rollcall data$/ do
     | Ashford Elementary  | 273           | 101912273 | Elementary School | 77077       | 29.7477296 | -95.5988336 | "Ashford Elementary School, 1815 Shannon Valley Dr, Houston, TX 77077, USA"    |
     | Yates High School   | 20            | 101912020 | High School       | 77004       | 29.7232848 | -95.3546602 | "Yates High School: School Buildings, 3703 Sampson St, Houston, TX 77004, USA" |
   })
-  step %Q{"Houston" has the following current district absenteeism data:}, table(%{
-    | day | total_enrolled | total_absent |
-    | 1   | 400            | 13           |
-    | 2   | 400            | 14           |
-    | 3   | 400            | 13           |
-    | 4   | 400            | 14           |
-    | 5   | 400            | 13           |
-    | 6   | 400            | 13           |
-    | 7   | 400            | 13           |
-    | 8   | 400            | 13           |  
-  })
-  step %Q{"Hoho" has the following current district absenteeism data:}, table(%{
-    | day | total_enrolled | total_absent |
-    | 8   | 400            | 13           |
-    | 9   | 400            | 14           |
-    | 10  | 400            | 13           |
-    | 11  | 400            | 14           |
-    | 12  | 400            | 13           |
-    | 13  | 400            | 14           |
-  })
   step %Q{"Houston" has the following current school absenteeism data:}, table(%{
     | day | school_name         | total_enrolled | total_absent |
     | 7   | Anderson Elementary | 100            | 2            |

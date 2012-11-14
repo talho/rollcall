@@ -1,5 +1,5 @@
-Feature: Use Nurse Assistant Panel
-  In order to utilize the Nurse Assistant Panel
+Feature: Use Symptom Cases Panel
+  In order to utilize the Symptom Cases Panel
   As a Rollcall user
   I should be able to select from a list of schools and then generate the report
 
@@ -61,10 +61,6 @@ Feature: Use Nurse Assistant Panel
       | Ector Junior High School          |
       | Gale Pond Alamo Elementary School |
       | Austin Elementary School          |
-    And "District1" has the following current district absenteeism data:
-      | day | total_enrolled | total_absent |
-      | 1   | 400            | 13           |
-      | 2   | 400            | 14           |
     And "District1" has the following current school absenteeism data:
       | day | school_name         | total_enrolled | total_absent |
       | 1   | Anderson Elementary | 100            | 2            |
@@ -102,10 +98,6 @@ Feature: Use Nurse Assistant Panel
       | 2   | Yates High School   | 17       |            |           | 04/23/1994 | 10    | F      | false         |                             |                |
       | 2   | Yates High School   | 18       |            |           | 10/17/1993 | 12    | M      | true          | Chills,Cough,Headache       |                |
       | 2   | Yates High School   | 18       |            |           | 07/23/1993 | 12    | M      | true          | Chills,Temperature,Headache |                |
-    And "District2" has the following current district absenteeism data:
-      | day | total_enrolled | total_absent |
-      | 1   | 500            | 13           |
-      | 2   | 500            | 14           |
     And "District2" has the following current school absenteeism data:
       | day | school_name                       | total_enrolled | total_absent |
       | 1   | Ector Junior High School          | 150            | 2            |

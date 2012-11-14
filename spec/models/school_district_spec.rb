@@ -44,12 +44,7 @@ describe Rollcall::SchoolDistrict do
       it "returns a list of schools for this school district" do
         @school_district.schools.should include(@school)
       end
-    end
-    context "daily_infos" do
-      it "returns a list of daily info for this school district" do
-        @school_district.daily_infos.should include(@daily_info)
-      end
-    end
+    end    
   end
   describe "average_absence_rate" do
     before(:each) do
@@ -63,27 +58,6 @@ describe Rollcall::SchoolDistrict do
     end
   end
 
-  describe "update_daily_info" do
-    before(:each) do
-      @school                     = FactoryGirl.create(:rollcall_school)
-      @schoo_daily_info           = FactoryGirl.create(:rollcall_school_daily_info, :school => @school, :report_date => (Time.now - 2.days))
-      @school_district_daily_info = FactoryGirl.create(:rollcall_school_district_daily_info, :school_district => @school.district)
-    end
-    it "returns school district daily info for specific date" do
-      di = @school.district.update_daily_info Time.now
-      di.should_not be_blank
-      di.total_enrollment.should == 100
-      di.total_absent.should     == 10
-      di.report_date.should      == Date.today
-    end
-    it "creates school district daily info if none exist for a specific date" do
-      di = Rollcall::SchoolDistrictDailyInfo.find_by_report_date_and_school_district_id((Time.now - 2.days),@school.district.id)
-      di.should be_blank
-      @school.district.update_daily_info((Time.now - 2.days))
-      di = Rollcall::SchoolDistrictDailyInfo.find_by_report_date_and_school_district_id((Time.now - 2.days),@school.district.id)
-      di.should_not be_blank
-    end
-  end
 
   describe "recent_absentee_rates" do
     before(:each) do

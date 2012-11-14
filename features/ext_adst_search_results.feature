@@ -1,5 +1,5 @@
 Feature: Interact with search result controls feature
-  In order to interact with ADST search result controls
+  In order to interact with Graphing search result controls
   As a Rollcall user
   I should be able to select from a list of search results, click and interact with its controls
 
@@ -50,10 +50,6 @@ Background:
     | Anderson Elementary |
     | Ashford Elementary  |
     | Yates High School   |
-  And "Houston" has the following current district absenteeism data:
-    | day | total_enrolled | total_absent |
-    | 1   | 400            | 13           |
-    | 2   | 400            | 14           |
   And "Houston" has the following current school absenteeism data:
     | day | school_name         | total_enrolled | total_absent |
     | 1   | Anderson Elementary | 100            | 2            |
@@ -94,7 +90,7 @@ Background:
 
   And I am logged in as "nurse.betty@example.com"
   And I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I wait for the panel to load
   And I press "Submit"
   And delayed jobs are processed

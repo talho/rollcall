@@ -53,7 +53,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   # GET /rollcall/export
   def export    
     results = get_search_results params
-    export_hash = {:params => params, :user_id => current_user.id}
+    export_hash = {:params => params, :user_id => current_user.id}    
     adst_results = Rollcall::AdstResults.new
     adst_results.export_data(export_hash)    
   end
@@ -103,7 +103,10 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     respond_with(@results)
   end
   
-  def get_neighbors       
+  def get_neighbors
+    params[:startdt] ||= 3.months.ago.to_s # put a 3 month limit on start date to limit data points being returned
+    params[:enddt] ||= Date.today.to_s
+     
     @school_district_array = Array.new
     
     if params.has_key?(:school_districts) 

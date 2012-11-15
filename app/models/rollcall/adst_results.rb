@@ -17,15 +17,22 @@ class Rollcall::GraphingResults
     end
     
     results.each do |r|
-      r.result = r.get_graph_data(params).as_json      
+      r.result = r.get_graph_data(params).as_json
     end
     
-    @csv_data = "Name,Identifier,Total Absent,Total Enrolled,Report Date\n"
-    results.each do |row|
-      row.result do |r|
-        unless row.result["total"].to_s == "0"
-          @csv_data += "#{row.school_name},#{row.tea_id},#{r["total"]},#{r["enrolled"]},#{r["report_date"]}\n"
-        end
+    if results.first.is_a? Rollcall::SchoolDistrict
+      @csv_data = "District Name,Identifier,Total Absent,Total Enrolled,Report Date\n"
+    else
+      @csv_data = "School Name,Identifier,Total Absent,Total Enrolled,Report Date\n"
+    end
+    
+    results.each do |row|      
+      row.result.each do |r|
+        if results.first.is_a? Rollcall::SchoolDistrict
+          @csv_data += "#{row.name},#{r["total"]},#{r["enrolled"]},#{r["report_date"]}\n"
+        else
+          @csv_data += "#{row.display_name},#{row.tea_id},#{r["total"]},#{r["enrolled"]},#{r["report_date"]}\n"
+        end             
       end
     end
     
@@ -41,7 +48,7 @@ class Rollcall::GraphingResults
     @document.save!
     if !@document.folder.nil? && @document.folder.notify_of_document_addition
       DocumentMailer.rollcall_document_addition(@document, user_obj).deliver
-    end
+    end    
     true
   end
   

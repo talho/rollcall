@@ -142,7 +142,7 @@ module Rollcall::DataModule
     query = query.select("avg(#{total_absent}) over (order by #{report_date} asc rows between 59 preceding and current row) as \"average\"") if function.include?("Average 60 Day")
     if function.include?("Cusum")
       avg = (query.select("AVG(#{total_absent}) OVER () as av").limit(1).first || {"av" => 0})["av"].to_f
-      query = query.select("greatest(greatest(sum(#{total_absent} - #{avg}) over (order by #{report_date} rows between unbounded preceding and 1 preceding),0) + #{total_absent} - #{avg},0) as \"cusum\"")
+      query = query.select("greatest(sum(#{total_absent} - #{avg}) over (order by #{report_date} rows between unbounded preceding and current row),0) as \"cusum\"")
     end
     
     query = query.select("#{report_date} as report_date")

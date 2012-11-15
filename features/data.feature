@@ -185,13 +185,13 @@ Scenario: School District Data Function Cusum
   When I do get_data for "District1" with:
     | data_func | Cusum        |
   Then get_data should return:
-    | 13        | 2012-06-20   | 13           |
-    | 13        | 2012-06-21   | 13           |
-    | 15        | 2012-06-22   | 13.667       |
-    | 21        | 2012-06-23   | 15.5         |
-    | 7         | 2012-06-24   | 13.8         |
-    | 17        | 2012-06-25   | 14.333       |
-    | 12        | 2012-06-26   | 14           |
+    | 13        | 2012-06-20   | 0            |
+    | 13        | 2012-06-21   | 0            |
+    | 15        | 2012-06-22   | 0            |
+    | 21        | 2012-06-23   | 6            |
+    | 7         | 2012-06-24   | 0            |
+    | 17        | 2012-06-25   | 2            |
+    | 12        | 2012-06-26   | 0            |
     
 Scenario: School District Data Function Average
   When I do get_data for "District1" with:
@@ -245,13 +245,13 @@ Scenario: School Data Function Cusum
   When I do get_data for "Ashford Elementary" with:
     | data_func | Cusum        |
   Then get_data should return:
-    | 1         | 2012-06-20   | 0.0          |
-    | 4         | 2012-06-21   | 0.0          |
-    | 5         | 2012-06-22   | 0.333        |
-    | 7         | 2012-06-23   | 2.333        |
-    | 1         | 2012-06-24   | 0.0          |
-    | 4         | 2012-06-25   | 0.0          |
-    | 4         | 2012-06-26   | 0.0          |
+    | 1         | 2012-06-20   | 0            |
+    | 4         | 2012-06-21   | 0            |
+    | 5         | 2012-06-22   | 0            |
+    | 7         | 2012-06-23   | 2.143        |
+    | 1         | 2012-06-24   | 0            |
+    | 4         | 2012-06-25   | 0            |
+    | 4         | 2012-06-26   | 0            |
     
 Scenario: School Data Function Average
   When I do get_data for "Ashford Elementary" with:

@@ -102,7 +102,7 @@ module Rollcall::DataModule
   def apply_order query, conditions
     if @ili
       query = query.order("rollcall_student_daily_infos.report_date")
-    elsif self.is_a?(Rollcall::SchoolDistrict)
+    elsif
       query = query.order("rollcall_school_daily_infos.report_date")
     end
     

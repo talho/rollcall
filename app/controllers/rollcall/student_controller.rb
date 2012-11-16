@@ -36,7 +36,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
         :zip                => params[:zip],
         :gender             => params[:gender].first,
         :phone              => params[:phone].to_i,
-        :race               => get_default_options({:simple => true})[:race].each{ |rec, index| rec[:value] == params[:race] ? index : 0 },
+        :race               => (get_default_options({:simple => true})[:race].index{ |rec, index| rec[:value] == params[:race]} || 0 ),
         :school_id          => params[:school_id].to_i,
         :dob                => DateTime.strptime(params[:dob].to_s, "%m/%d/%Y"),
         :student_number     => params[:student_number]
@@ -70,67 +70,62 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
 
   # PUT rollcall/students/:id
   def update
-    begin
-      student_record  = Rollcall::Student.find_by_id params[:id]
-      student_success = student_record.update_attributes(
-        :first_name         => params[:first_name],
-        :last_name          => params[:last_name],
-        :contact_first_name => params[:contact_first_name],
-        :contact_last_name  => params[:contact_last_name],
-        :address            => params[:address],
-        :zip                => params[:zip],
-        :phone              => params[:phone],
-        :dob                => DateTime.strptime(params[:dob].to_s, "%m/%d/%Y"),
-        :student_number     => params[:student_number],
-        :gender             => params[:gender].first,
-        :race               => get_default_options({:simple => true})[:race].each do |rec, index| rec[:value] == params[:race] ? index : 0  end
+    student_record  = Rollcall::Student.find_by_id params[:id]
+    student_success = student_record.update_attributes(
+      :first_name         => params[:first_name],
+      :last_name          => params[:last_name],
+      :contact_first_name => params[:contact_first_name],
+      :contact_last_name  => params[:contact_last_name],
+      :address            => params[:address],
+      :zip                => params[:zip],
+      :phone              => params[:phone],
+      :dob                => DateTime.strptime(params[:dob].to_s, "%m/%d/%Y"),
+      :student_number     => params[:student_number],
+      :gender             => params[:gender].first,
+      :race               => (get_default_options({:simple => true})[:race].index{|rec| rec[:value] == params[:race]} || 0)
+    )
+    student_record.save if student_success
+    unless params[:student_info_id].blank?
+      student_daily_record  = Rollcall::StudentDailyInfo.find(params[:student_info_id])
+      student_daily_success = student_daily_record.update_attributes(
+        :grade              => params[:grade].to_i,
+        :confirmed_illness  => !params[:symptoms].blank?,
+        :temperature        => params[:temperature],
+        :treatment          => params[:treatment]
       )
-      student_record.save if student_success
-      unless params[:student_info_id].blank?
-        student_daily_record  = Rollcall::StudentDailyInfo.find(params[:student_info_id])
-        student_daily_success = student_daily_record.update_attributes(
-          :grade              => params[:grade].to_i,
-          :confirmed_illness  => !params[:symptoms].blank?,
-          :temperature        => params[:temperature],
-          :treatment          => params[:treatment]
-        )
-        student_daily_record.save if student_daily_success
-        daily_infos = Rollcall::StudentReportedSymptom.find_all_by_student_daily_info_id(student_daily_record.id)
-        unless params[:symptom_list].blank?
-          symptom_list_or = []
-          symptom_list_up = []
-          daily_infos.each do |rec|
-            symptom_list_or.push(rec.symptom)
-          end
-          ActiveSupport::JSON.decode(params[:symptom_list]).each do |rec|
-            symptom_list_up.push(Rollcall::Symptom.find_by_name(rec["name"]))
-          end
-          diff_result = symptom_list_or - symptom_list_up
-          unless diff_result.blank?
-            diff_result.each do |d|
-              daily_infos.each do |rec|
-                rec.destroy if rec.symptom.id == d.id
-              end
-            end
-          else
-            symptom_list_up.each do |s|
-              r = Rollcall::StudentReportedSymptom.find_by_student_daily_info_id_and_symptom_id(student_daily_record.id,s.id)
-              r = Rollcall::StudentReportedSymptom.create(:student_daily_info_id=>student_daily_record.id,:symptom_id=>s.id) if r.blank?
+      student_daily_record.save if student_daily_success
+      daily_infos = Rollcall::StudentReportedSymptom.find_all_by_student_daily_info_id(student_daily_record.id)
+      unless params[:symptom_list].blank?
+        symptom_list_or = []
+        symptom_list_up = []
+        daily_infos.each do |rec|
+          symptom_list_or.push(rec.symptom)
+        end
+        ActiveSupport::JSON.decode(params[:symptom_list]).each do |rec|
+          symptom_list_up.push(Rollcall::Symptom.find_by_name(rec["name"]))
+        end
+        diff_result = symptom_list_or - symptom_list_up
+        unless diff_result.blank?
+          diff_result.each do |d|
+            daily_infos.each do |rec|
+              rec.destroy if rec.symptom.id == d.id
             end
           end
         else
-          daily_infos.each do |r|
-            r.destroy
+          symptom_list_up.each do |s|
+            r = Rollcall::StudentReportedSymptom.find_by_student_daily_info_id_and_symptom_id(student_daily_record.id,s.id)
+            r = Rollcall::StudentReportedSymptom.create(:student_daily_info_id=>student_daily_record.id,:symptom_id=>s.id) if r.blank?
           end
-          Rollcall::StudentReportedSymptom.create(
-            :student_daily_info_id => student_daily_record.id,
-            :symptom_id            => Rollcall::Symptom.find_by_name("None").id
-          )
         end
+      else
+        daily_infos.each do |r|
+          r.destroy
+        end
+        Rollcall::StudentReportedSymptom.create(
+          :student_daily_info_id => student_daily_record.id,
+          :symptom_id            => Rollcall::Symptom.find_by_name("None").id
+        )
       end
-    rescue Exception => e # There is something going on with this causing failing tests, but I can't get to the bottom of it and it doesn't happen live or when I have this debugger statement in here.
-      debugger
-      1==1
     end
     @success = student_success
     respond_with(@success)  

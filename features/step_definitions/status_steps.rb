@@ -72,7 +72,7 @@ Then /^I see schools that have not reported$/ do
     school.save!
   end
   step %Q{I click x-menu-item "Status"}
-  step %Q{I should see "Hoho"}
+  step %Q{I should not see "Hoho"}
   step %Q{I should see "Anderson Elementary"}  
   step %Q{I should see "Yates High School"}
   step %Q{I should not see "Ashford Elementary"}  

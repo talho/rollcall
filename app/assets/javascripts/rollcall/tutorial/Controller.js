@@ -12,7 +12,16 @@ Talho.Rollcall.tutorial.Controller = Ext.extend(Ext.util.Observable, {
       return this.layout;
     }
     
+    this.layout.on({
+      'loadvideo': this._loadVideo,
+      scope: this
+    });
+    
     Talho.Rollcall.tutorial.Controller.superclass.constructor.apply(this, arguments);
+  },
+  
+  _loadVideo: function (videoUrl, autoplay) {
+    this.layout.loadVideo(videoUrl, autoplay);
   }
 });
 

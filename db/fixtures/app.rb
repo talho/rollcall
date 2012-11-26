@@ -8,12 +8,14 @@ rollcall.login_text = %Q{<p>The TALHO Public Health Information Network (TALHO P
 rollcall.logo = File.open(Rails.root.join('app','assets','images','talho_phin','talho_phin_title.jpg')) if rollcall.logo_file_name.blank?
 rollcall.tiny_logo = File.open(Rails.root.join('app','assets','images','images','talho_header_logo.png')) if rollcall.tiny_logo_file_name.blank?
 rollcall.about_label = 'About OpenPHIN' if rollcall.about_label.blank?
-rollcall.about_text = %Q{<h1>About OpenPHIN</h1>
+rollcall.about_text = %Q{
 <p>The TALHO Dashboard is an online site providing numerous public health services, such as disaster volunteer management (VMS), school illness and attendance tracking (Rollcall), and the dissemination of Health Alerts (HAN).  This site is owned and managed by the Texas Association of Local Health Officials.</p>
 <p>You can set up contact devices to receive Phin Alerts.  Your account email is your first contact device, and you can add more addresses if you like.  TALHO recommends adding a phone device, and there are also choices for Blackberry PIN messaging and regular text messaging.  Thanks for your participation with TALHO PHIN.</p>
 <p>If you encounter any problems in completing these tasks, email support at <a href="mailto:admins@talho.org">admins@talho.org</a></p>
 <p>To learn more about Rollcall please visit <a href="/info">Rollcall Info</a></p>
-<p>Copyright &cp; 2009 - 2011 Texas Association of Local Health Officials - All Rights Reserved</p>} if rollcall.about_text.blank?
-  
+<p>Copyright &copy; 2009 - 2011 Texas Association of Local Health Officials - All Rights Reserved</p>} if rollcall.about_text.blank?
+rollcall.title = "Rollcall"
+rollcall.info_path = "rollcall/info"
+
 rollcall.save!
 

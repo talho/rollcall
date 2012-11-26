@@ -14,3 +14,8 @@ Feature: Tutorial Page
   Scenario: Clicking a video loads new video
     When I click on a video
     Then I see a new video
+    
+  Scenario: Clicking a video while a video is playing loads the new video
+    When I click on a video
+    And I click on a new video
+    Then the new video plays

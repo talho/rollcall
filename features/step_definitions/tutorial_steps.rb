@@ -4,13 +4,28 @@ Given /^I have a rollcall user$/ do
 end
 
 Then /^I see a video$/ do
-  pending # express the regexp above with the code you wish you had
+  step %Q{I navigate to "Apps>Rollcall>Tutorials"}
+  page.should have_selector('object[data]')
 end
 
 When /^I click on a video$/ do
-  pending # express the regexp above with the code you wish you had
+  step %Q{I navigate to "Apps>Rollcall>Tutorials"}  
+  @og_video = page.first('object[data]')['data']
+  page.all(:css, '.youtubelistitem')[3].click    
 end
 
 Then /^I see a new video$/ do
-  pending # express the regexp above with the code you wish you had
+  new_video = page.first('object[data]')['data']
+  @og_video.should_not == new_video
+end
+
+When /^I click on a new video$/ do
+  @second_video = page.first('object[data]')['data']
+  page.all(:css, '.youtubelistitem')[2].click
+end
+
+Then /^the new video plays$/ do
+  new_video = page.first('object[data]')['data']
+  @og_video.should_not == new_video
+  @second_video.should_not == new_video
 end

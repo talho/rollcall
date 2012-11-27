@@ -75,9 +75,6 @@ class SchoolDataTransformer
   def transform_and_import
     transform_files
     import
-    if !@attendance_file.blank? && !@enroll_file.blank?
-      SchoolDataImporter.new(nil).school_district_dailies(@district)
-    end
   end
 
   # Method calls the rename, extract, reorder_files, and transform methods in order to bring delivered data files
@@ -229,9 +226,6 @@ class SchoolDataTransformer
     FileUtils.mv(enr_file_name, File.join(@dir, "archive")) unless @enroll_file.blank?
     FileUtils.mv(att_file_name, File.join(@dir, "archive")) unless @attendance_file.blank?
     FileUtils.mv(ili_file_name, File.join(@dir, "archive")) unless @ili_file.blank?
-    if !@attendance_file.blank? && !@enroll_file.blank?
-      SchoolDataImporter.new(nil).school_district_dailies(@district)
-    end
   end
 
   # Method is responsible for determining weather the enrollment file needs to be completely transformed

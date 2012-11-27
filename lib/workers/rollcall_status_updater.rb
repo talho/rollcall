@@ -8,7 +8,7 @@ class RollcallStatusUpdater < BackgrounDRb::MetaWorker
   
   def mail_status()
     users = Role.superadmins("rollcall").first.users
-    school_districts = Rollcall::Status.get_school_districts
+    school_districts = Rollcall::Status.get_school_districts.having("MAX(rsdi.report_date) < CURRENT_DATE - 7")
     schools = Rollcall::Status.get_schools
     
     unless school_districts.count == 0 && schools.count == 0

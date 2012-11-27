@@ -1,4 +1,4 @@
-class Rollcall::AdstResults
+class Rollcall::GraphingResults
   def export_data(options_hash)
     user_obj = User.find(options_hash[:user_id]) 
     filename = "rollcall_export.#{Time.now.strftime("%m-%d-%Y")}"

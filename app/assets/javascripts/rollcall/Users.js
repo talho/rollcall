@@ -15,7 +15,7 @@ Talho.Rollcall.Users = Ext.extend(Ext.util.Observable, {
       proxy:      new Ext.data.HttpProxy({url: '/rollcall/users', method: 'get'}),
       root:       'results',
       fields:     ['user_id','display_name','first_name','last_name','email','role_memberships','role_requests','photo','school_districts','schools'],
-      autoLoad:   false,
+      totalProperty: 'total_results',
       remoteSort: true,
       baseParams: {limit: this.RESULTS_PAGE_SIZE},
       listeners:  {

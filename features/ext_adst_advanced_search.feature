@@ -1,9 +1,9 @@
 # TODO: modify to test that d3 is graphic the data
 
-Feature: Execute Advanced ADST Queries
+Feature: Execute Advanced Graphing Queries
   In order to execute advanced search queries
   As a Rollcall user
-  I should be able to select from a list of advanced ADST options, construct and execute my query
+  I should be able to select from a list of advanced Graphing options, construct and execute my query
 
 Background:
   Given the following entities exist:
@@ -62,10 +62,6 @@ Background:
     | Ector Junior High School          |
     | Gale Pond Alamo Elementary School |
     | Austin Elementary School          |
-  And "District1" has the following current district absenteeism data:
-    | day | total_enrolled | total_absent |
-    | 1   | 400            | 13           |
-    | 2   | 400            | 14           |
   And "District1" has the following current school absenteeism data:
     | day | school_name         | total_enrolled | total_absent |
     | 1   | Anderson Elementary | 100            | 2            |
@@ -103,10 +99,6 @@ Background:
     | 2   | Yates High School   | 17       |            |           | 04/23/1994 | 10    | F      | false         |                             |                |
     | 2   | Yates High School   | 18       |            |           | 10/17/1993 | 12    | M      | true          | Chills,Cough,Headache       |                |
     | 2   | Yates High School   | 18       |            |           | 07/23/1993 | 12    | M      | true          | Chills,Temperature,Headache |                |
-  And "District2" has the following current district absenteeism data:
-    | day | total_enrolled | total_absent |
-    | 1   | 500            | 13           |
-    | 2   | 500            | 14           |
   And "District2" has the following current school absenteeism data:
     | day | school_name                       | total_enrolled | total_absent |
     | 1   | Ector Junior High School          | 150            | 2            |
@@ -146,7 +138,7 @@ Background:
     | 2   | Austin Elementary School          | 18       |            |           | 07/23/1993 | 12    | M      | true          | Chills,Temperature,Headache |                |
 
   And I am logged in as "nurse.betty@example.com"
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I wait for the panel to load
 
 Scenario: User runs an advanced query against multiple schools

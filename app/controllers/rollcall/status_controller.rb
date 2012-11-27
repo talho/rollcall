@@ -7,7 +7,7 @@ class Rollcall::StatusController < Rollcall::RollcallAppController
   #GET rollcall/status
   def index
     if current_user.is_super_admin?("rollcall")
-      @school_districts = Rollcall::Status.get_school_districts
+      @school_districts = Rollcall::Status.get_school_districts.having("MAX(rsdi.report_date) < CURRENT_DATE - 7")
       @schools = Rollcall::Status.get_schools
           
       respond_with(@school_districts, @schools)

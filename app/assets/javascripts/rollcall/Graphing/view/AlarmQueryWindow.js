@@ -1,8 +1,8 @@
 //
 
-Ext.namespace("Talho.Rollcall.ADST.view");
+Ext.namespace("Talho.Rollcall.Graphing.view");
 
-Talho.Rollcall.ADST.view.AlarmQueryWindow = Ext.extend(Ext.Window, {
+Talho.Rollcall.Graphing.view.AlarmQueryWindow = Ext.extend(Ext.Window, {
   layout: 'fit',
   width: 300,
   height: 500,
@@ -143,7 +143,7 @@ Talho.Rollcall.ADST.view.AlarmQueryWindow = Ext.extend(Ext.Window, {
     
     this.buttons.push({text: 'Cancel', scope: this, handler: function(){this.close();}});
     
-    Talho.Rollcall.ADST.view.AlarmQueryWindow.superclass.initComponent.apply(this, arguments);
+    Talho.Rollcall.Graphing.view.AlarmQueryWindow.superclass.initComponent.apply(this, arguments);
   },
   
   _changeTextField: function(obj, new_number, old_number)

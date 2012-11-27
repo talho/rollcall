@@ -1,8 +1,8 @@
 //= rollcall/ux/ComboBox.js
 
-Ext.namespace("Talho.Rollcall.ADST.view");
+Ext.namespace("Talho.Rollcall.Graphing.view");
 
-Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
+Talho.Rollcall.Graphing.view.SimpleParameters = Ext.extend(Ext.Container, {
   id: "simple_query_select",
   itemId: "simple_query_select",
   layout: 'auto',
@@ -21,8 +21,8 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
   border: false,
     
   initComponent: function () {
-    this.addEvents('hideadstmask');
-    this.enableBubble('hideadstmask');
+    this.addEvents('hidegraphingmask');
+    this.enableBubble('hidegraphingmask');
     
     var absent = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'Absenteeism', emptyText:'Gross', id: 'absent', editable: false});
         
@@ -89,7 +89,7 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
       {items: func },      
     ];
     
-    Talho.Rollcall.ADST.view.SimpleParameters.superclass.initComponent.apply(this, arguments);
+    Talho.Rollcall.Graphing.view.SimpleParameters.superclass.initComponent.apply(this, arguments);
     this.doLayout();
   },
   
@@ -108,7 +108,7 @@ Talho.Rollcall.ADST.view.SimpleParameters = Ext.extend(Ext.Container, {
     Ext.each(this.loadable, function (d) {
       d.item.store = new Ext.data.JsonStore({fields: d.fields, data: data[d.key] });
     });
-    this.fireEvent('hideadstmask');
+    this.fireEvent('hidegraphingmask');
   },
   
   clearOptions: function (id) {

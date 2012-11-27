@@ -1,17 +1,17 @@
 //= require ext_extensions/Graph
-//= require rollcall/ADST/view/SchoolProfile
-//= require rollcall/ADST/view/GraphWindow
+//= require rollcall/Graphing/view/SchoolProfile
+//= require rollcall/Graphing/view/GraphWindow
 
-Ext.namespace("Talho.Rollcall.ADST.view");
+Ext.namespace("Talho.Rollcall.Graphing.view");
 
-Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
-  id:     'ADSTResultPanel',
+Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
+  id:     'GraphingResultPanel',
   itemId: 'portalId',
   border: false,
   hidden: true,
   
   constructor: function(config){    
-    Talho.Rollcall.ADST.view.Results.superclass.constructor.apply(this, arguments);
+    Talho.Rollcall.Graphing.view.Results.superclass.constructor.apply(this, arguments);
     
     this.addEvents('createalarmquery', 'showreportmessage', 'exportresult', 'getneighbors');
     this.enableBubble(['createalarmquery', 'showreportmessage', 'exportresult', 'getneighbors']);    
@@ -43,7 +43,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       idProperty: 'school_id',
       fields: ['tea_id', 'school_id', 'name', 'results', 'id' ],
       writer: new Ext.data.JsonWriter({encode: false}),
-      url: '/rollcall/adst',
+      url: '/rollcall/graphing',
       restful: true,
       listeners: {
         scope: this,
@@ -70,7 +70,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
       return (this.neighbor_mode ? neighbor_store : result_store);
     };
     
-    Talho.Rollcall.ADST.view.Results.superclass.initComponent.apply(this, arguments);
+    Talho.Rollcall.Graphing.view.Results.superclass.initComponent.apply(this, arguments);
   },
   
   loadResultStore: function (params, callback) {
@@ -144,7 +144,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
             }
           },          
           {id: 'gis', qtip: 'School Profile', handler: function (e, targetEl, panel, tc) {
-              var gmap = new Talho.Rollcall.ADST.view.SchoolProfile({school_name: panel.school_name, school: panel.school.json});
+              var gmap = new Talho.Rollcall.Graphing.view.SchoolProfile({school_name: panel.school_name, school: panel.school.json});
               gmap.show();        
             },
             hidden: this.gis
@@ -166,7 +166,7 @@ Talho.Rollcall.ADST.view.Results = Ext.extend(Ext.ux.Portal, {
           xField: 'report_date',
           listeners: {'render': function (c) {
             c.getEl().on('click', function () {
-              var w = new Talho.Rollcall.ADST.view.GraphWindow({
+              var w = new Talho.Rollcall.Graphing.view.GraphWindow({
                 graphNumber: id, _getFieldArray: getFA, graph_series: graph_series,
                 search_params: local_params
               }).show();

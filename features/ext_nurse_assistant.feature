@@ -1,5 +1,5 @@
-Feature: Use Nurse Assistant Panel
-  In order to utilize the Nurse Assistant Panel
+Feature: Use Symptom Cases Panel
+  In order to utilize the Symptom Cases Panel
   As a Rollcall user
   I should be able to add, edit, and view student visits to the nurse.
 
@@ -50,10 +50,6 @@ Background:
     | Anderson Elementary |
     | Ashford Elementary  |
     | Yates High School   |
-  And "Houston" has the following current district absenteeism data:
-    | day | total_enrolled | total_absent |
-    | 1   | 400            | 13           |
-    | 2   | 400            | 14           |
   And "Houston" has the following current school absenteeism data:
     | day | school_name         | total_enrolled | total_absent |
     | 1   | Anderson Elementary | 100            | 2            |
@@ -97,7 +93,7 @@ Background:
 
   And I am logged in as "nurse.betty@example.com"
   And I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > Nurse Assistant"
+  And I navigate to "Apps > Rollcall > Symptom Cases"
   And I wait for the panel to load
   #And I select "Anderson Elementary" from ext combo "select_school"
   #And I press "OK"

@@ -55,7 +55,7 @@ Talho.Rollcall.ux.AlarmQueryWindow = Ext.extend(Ext.Window, {
           name:         'school',
           displayField: 'display_name',
           editable:     false,
-          store:        new Ext.data.JsonStore({fields: ['id', 'display_name'], data: Ext.getCmp('rollcall_adst').init_store.getAt(0).get('schools')}),
+          store:        new Ext.data.JsonStore({fields: ['id', 'display_name'], data: Ext.getCmp('rollcall_graphing').init_store.getAt(0).get('schools')}),
           listeners:    {
             select: function(this_combo_box, data_record, index)
             {

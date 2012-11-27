@@ -1,7 +1,7 @@
 
-Ext.namespace("Talho.Rollcall.ADST.view");
+Ext.namespace("Talho.Rollcall.Graphing.view");
 
-Talho.Rollcall.ADST.view.Alarms = Ext.extend(Ext.Panel, {
+Talho.Rollcall.Graphing.view.Alarms = Ext.extend(Ext.Panel, {
   hideBorders: true,
   hideHeaders: true,
   setToScroll:  false,
@@ -115,7 +115,7 @@ Talho.Rollcall.ADST.view.Alarms = Ext.extend(Ext.Panel, {
       }
     ];
     
-    Talho.Rollcall.ADST.view.Alarms.superclass.initComponent.apply(this, config);
+    Talho.Rollcall.Graphing.view.Alarms.superclass.initComponent.apply(this, config);
   },
   
   _close_alarm_tip: function () {

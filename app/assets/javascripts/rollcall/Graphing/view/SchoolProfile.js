@@ -1,8 +1,8 @@
 //= require ext_extensions/GMapPanel
 
-Ext.namespace("Talho.Rollcall.ADST.view");
+Ext.namespace("Talho.Rollcall.Graphing.view");
 
-Talho.Rollcall.ADST.view.SchoolProfile = Ext.extend(Ext.Window, {
+Talho.Rollcall.Graphing.view.SchoolProfile = Ext.extend(Ext.Window, {
   layout: 'hbox',
   labelAlign: 'top',
   padding: '5',
@@ -167,7 +167,7 @@ Talho.Rollcall.ADST.view.SchoolProfile = Ext.extend(Ext.Window, {
       this._getSchoolData(1, student_grid_panel, 'student');
     }, this);
     
-    Talho.Rollcall.ADST.view.SchoolProfile.superclass.initComponent.apply(this, arguments);    
+    Talho.Rollcall.Graphing.view.SchoolProfile.superclass.initComponent.apply(this, arguments);    
   },
   
   _getSchoolData: function (month, grid_panel, type) {

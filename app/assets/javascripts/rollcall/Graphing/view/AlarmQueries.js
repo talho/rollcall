@@ -1,13 +1,13 @@
 
-Ext.namespace("Talho.Rollcall.ADST.view");
+Ext.namespace("Talho.Rollcall.Graphing.view");
 
-Talho.Rollcall.ADST.view.AlarmQueries = Ext.extend(Ext.DataView, {
+Talho.Rollcall.Graphing.view.AlarmQueries = Ext.extend(Ext.DataView, {
   style: "x-overflow:auto;",
   loadingText: 'Loading...',
   itemSelector: 'div.rollcall-query-holder',
   
   constructor: function(){
-    Talho.Rollcall.ADST.view.AlarmQueries.superclass.constructor.apply(this, arguments);
+    Talho.Rollcall.Graphing.view.AlarmQueries.superclass.constructor.apply(this, arguments);
     this.addEvents('deletequery', 'editquery', 'togglequery', 'runquery');
     this.enableBubble('deletequery');
     this.enableBubble('editquery');
@@ -79,7 +79,7 @@ Talho.Rollcall.ADST.view.AlarmQueries = Ext.extend(Ext.DataView, {
       '</tpl>'
     );
     
-    Talho.Rollcall.ADST.view.AlarmQueries.superclass.initComponent.apply(this, arguments);
+    Talho.Rollcall.Graphing.view.AlarmQueries.superclass.initComponent.apply(this, arguments);
     
     this.on('click', this._item_clicked, this);        
   },

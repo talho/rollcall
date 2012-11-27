@@ -1,22 +1,22 @@
-# The ADST controller class for the Rollcall application.  This controller class handles
+# The Graphing controller class for the Rollcall application.  This controller class handles
 # the initial search request(index), the export request, the report request, and the
-# get_options method (which returns the drop down values for the Rollcall ADST application).
+# get_options method (which returns the drop down values for the Rollcall Graphing application).
 #
 # Author::    Eddie Gomez  (mailto:eddie@talho.org)
 # Copyright:: Copyright (c) 2011 TALHO
 #
-# The actions held in this controller are called by the Rollcall ADST panel.
+# The actions held in this controller are called by the Rollcall Graphing panel.
 
-class Rollcall::AdstController < Rollcall::RollcallAppController
+class Rollcall::GraphingController < Rollcall::RollcallAppController
   before_filter :rollcall_isd_required
   respond_to :json
   layout false
   
-  # Action is called by the ADSTResultPanel result_store on load.  Method processes
+  # Action is called by the GraphingResultPanel result_store on load.  Method processes
   # the search request, calling get_graph_data(), returns
   # the total result length and the paginated result set
   #
-  # GET /rollcall/adst
+  # GET /rollcall/graphing
   def index    
     options = {:page => (params[:start] ? (params[:start].to_f / 6).floor + 1 : 1), :per_page => params[:limit] || 6}    
 
@@ -33,7 +33,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     
     begin    
       if defined? REPORT_DB
-        collection = REPORT_DB.collection("adst_analytics")
+        collection = REPORT_DB.collection("graphing_analytics")
         
         doc = {"params" => params, "home_jurisdiction_id" => current_user.home_jurisdiction_id }
         
@@ -45,7 +45,7 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     respond_with(@length, @results)    
   end
 
-  # Action is called by the ADST main panel method exportResultSet and the ADSTResultPanel method exportResult.
+  # Action is called by the Graphing main panel method exportResultSet and the GraphingResultPanel method exportResult.
   # Method sets the export file name based on export params.  Method then calls a delayed job on
   # export_data(a delayed job) which is responsible for gathering the data, creating a csv file, and placing it
   # in the users documents folder and sending out message to users email when process is done.
@@ -53,9 +53,9 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
   # GET /rollcall/export
   def export    
     results = get_search_results params
-    export_hash = {:params => params, :user_id => current_user.id}    
-    adst_results = Rollcall::AdstResults.new
-    adst_results.export_data(export_hash)    
+    export_hash = {:params => params, :user_id => current_user.id}
+    graphing_results = Rollcall::GraphingResults.new
+    graphing_results.export_data(export_hash)    
   end
 
   # GET /rollcall/report
@@ -76,8 +76,8 @@ class Rollcall::AdstController < Rollcall::RollcallAppController
     end
   end
 
-  # Action is called by the ADST main panel method initFormComponent.  Method returns
-  # a set of option values that are used to build the drop down boxes in the ADST main panel.
+  # Action is called by the Graphing main panel method initFormComponent.  Method returns
+  # a set of option values that are used to build the drop down boxes in the Graphing main panel.
   #
   # POST /rollcall/query_options
   def get_options

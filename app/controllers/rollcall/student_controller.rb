@@ -36,7 +36,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
         :zip                => params[:zip],
         :gender             => params[:gender].first,
         :phone              => params[:phone].to_i,
-        :race               => get_default_options({:simple => true})[:race].each{ |rec, index| rec[:value] == params[:race] ? index : 0 },
+        :race               => (get_default_options({:simple => true})[:race].index{ |rec, index| rec[:value] == params[:race]} || 0 ),
         :school_id          => params[:school_id].to_i,
         :dob                => DateTime.strptime(params[:dob].to_s, "%m/%d/%Y"),
         :student_number     => params[:student_number]
@@ -82,7 +82,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       :dob                => DateTime.strptime(params[:dob].to_s, "%m/%d/%Y"),
       :student_number     => params[:student_number],
       :gender             => params[:gender].first,
-      :race               => get_default_options({:simple => true})[:race].each do |rec, index| rec[:value] == params[:race] ? index : 0  end
+      :race               => (get_default_options({:simple => true})[:race].index{|rec| rec[:value] == params[:race]} || 0)
     )
     student_record.save if student_success
     unless params[:student_info_id].blank?

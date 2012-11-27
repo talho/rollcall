@@ -93,47 +93,6 @@ class SchoolDataImporter
     end
   end
 
-  # Method is called to tally and record total_absent and total_enrolled for the school district
-  #
-  # @param district object district object
-  def school_district_dailies district
-    schools       = Rollcall::School.find_all_by_district_id district.id
-    daily_results = Rollcall::SchoolDailyInfo.find_all_by_school_id schools
-    dates         = daily_results.map{|m| m.report_date}.uniq
-    s_i           = []
-    dates.each do |i|
-      report_date    = i
-      total_absent   = 0
-      total_enrolled = 0
-      daily_results.map{|m|
-        if m.report_date == report_date
-          total_absent   += m.total_absent.to_i
-          total_enrolled += m.total_enrolled.to_i
-        end
-      }
-      if total_enrolled != 0
-        absentee_rate  = (total_absent.to_f / total_enrolled.to_f)
-        Rollcall::SchoolDistrictDailyInfo.create(
-          :report_date        => report_date,
-          :absentee_rate      => absentee_rate,
-          :total_enrollment   => total_enrolled,
-          :total_absent       => total_absent,
-          :school_district_id => district.id
-        )
-        report_time = report_date.to_time
-        if report_date.strftime("%a").downcase == "sat" || report_date.strftime("%a").downcase == "sun"
-          s_i.push([(report_time + 1.day).to_i.to_s, 0, total_enrolled])
-        else
-          s_i.push([(report_time + 1.day).to_i.to_s, total_absent, total_enrolled])
-        end
-      end
-    end
-    begin
-      s_i.sort!{|a,b| a.first <=> b.first}
-    rescue
-    end
-  end
-
 private
 
   # Method returns a new hash with correctly mapped values

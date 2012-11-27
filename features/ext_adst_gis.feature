@@ -50,10 +50,6 @@ Background:
     | Anderson Elementary |
     | Ashford Elementary  |
     | Yates High School   |
-  And "Houston" has the following current district absenteeism data:
-    | day | total_enrolled | total_absent |
-    | 1   | 400            | 13           |
-    | 2   | 400            | 14           |
   And "Houston" has the following current school absenteeism data:
     | day | school_name         | total_enrolled | total_absent |
     | 1   | Anderson Elementary | 100            | 2            |
@@ -96,7 +92,7 @@ Background:
 
 Scenario: User views a school in an alarm state within the GMap Panel
   When I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > ADST"
+  And I navigate to "Apps > Rollcall > Graphing"
   And I wait for the panel to load
   And I press "Submit"
   And delayed jobs are processed

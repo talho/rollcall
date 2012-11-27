@@ -2,12 +2,12 @@
 //= require rollcall/ux/ComboBox.js
 //= require_tree ./view
 
-Ext.namespace('Talho.Rollcall.ADST');
+Ext.namespace('Talho.Rollcall.Graphing');
 
-Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
+Talho.Rollcall.Graphing.Controller = Ext.extend(Ext.util.Observable, {
   constructor: function () {
          
-    this.layout = new Talho.Rollcall.ADST.view.Layout();
+    this.layout = new Talho.Rollcall.Graphing.view.Layout();
     
     this.getPanel = function () {
       return this.layout;
@@ -29,16 +29,16 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
       'saveasalarm': this.createAlarmFromResultSet,
       'pagingparams': this._loadPagingParams,
       'getneighbors': this._getNeighbors,
-      'showadstmask': this._showAdstMask,
-      'hideadstmask': this._hideAdstMask,      
+      'showgraphingmask': this._showGraphingMask,
+      'hidegraphingmask': this._hideGraphingMask,      
       scope: this
     });
     
-    Talho.Rollcall.ADST.Controller.superclass.constructor.apply(this, arguments)
+    Talho.Rollcall.Graphing.Controller.superclass.constructor.apply(this, arguments)
   },
   
   _submitQuery: function (params) {
-    var mask = new Ext.LoadMask(this.layout.adst_panel.getEl(), {msg:"Please wait..."});
+    var mask = new Ext.LoadMask(this.layout.graphing_panel.getEl(), {msg:"Please wait..."});
     mask.show();
     
     this.layout.on('resize', this._resizeResults, this);
@@ -54,7 +54,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   },
   
   _getNeighbors: function (districts) {
-    var mask = new Ext.LoadMask(this.layout.adst_panel.getEl(), {msg:"Please wait..."});
+    var mask = new Ext.LoadMask(this.layout.graphing_panel.getEl(), {msg:"Please wait..."});
     mask.show();
     
     params['school_districts[]'] = districts;
@@ -152,7 +152,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   
   showNewAlarmQueryWindow: function(id, name, params){    
     // Create the new alarm window
-    var win = new Talho.Rollcall.ADST.view.AlarmQueryWindow({
+    var win = new Talho.Rollcall.Graphing.view.AlarmQueryWindow({
       school_id: id, school_name: name, query_params: params, state: 'new', listeners: {
         scope: this,
         'savecomplete': function(){
@@ -168,7 +168,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
     var params = alarm_query.get('params');
     
     // Create the new alarm window
-    var win = new Talho.Rollcall.ADST.view.AlarmQueryWindow({
+    var win = new Talho.Rollcall.Graphing.view.AlarmQueryWindow({
       alarm_query: alarm_query, state: 'edit', listeners: {
         scope: this,
         'savecomplete': function(){
@@ -226,7 +226,7 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
   },
   
   _resizeResults: function () {
-    var mask = new Ext.LoadMask(this.layout.adst_panel.getEl(), {msg:"Please wait..."});
+    var mask = new Ext.LoadMask(this.layout.graphing_panel.getEl(), {msg:"Please wait..."});
     mask.show();
     
     var results = this.layout.getResultsPanel();
@@ -241,29 +241,29 @@ Talho.Rollcall.ADST.Controller = Ext.extend(Ext.util.Observable, {
         button.show(); 
       }
     });
-    this.layout.adst_panel.getBottomToolbar().doLayout();
+    this.layout.graphing_panel.getBottomToolbar().doLayout();
   },
   
   _hideButtons: function () {
     Ext.each(this.layout.hidden_buttons, function (button) {
       button.hide();
     });
-    this.layout.adst_panel.getBottomToolbar().doLayout();
+    this.layout.graphing_panel.getBottomToolbar().doLayout();
   },
   
-  _showAdstMask: function () {
-    var mask = new Ext.LoadMask(this.layout.adst_panel.getEl(), {msg:"Please wait..."});
-    this.layout.adst_panel.container.mask = mask;
+  _showGraphingMask: function () {
+    var mask = new Ext.LoadMask(this.layout.graphing_panel.getEl(), {msg:"Please wait..."});
+    this.layout.graphing_panel.container.mask = mask;
     mask.show();
   },
   
-  _hideAdstMask: function () {
-    this.layout.adst_panel.container.mask.hide();
+  _hideGraphingMask: function () {
+    this.layout.graphing_panel.container.mask.hide();
   },
 });
 
   
-Talho.ScriptManager.reg("Talho.Rollcall.ADST", Talho.Rollcall.ADST.Controller, function (config) {
-  var cont = new Talho.Rollcall.ADST.Controller(config);
+Talho.ScriptManager.reg("Talho.Rollcall.Graphing", Talho.Rollcall.Graphing.Controller, function (config) {
+  var cont = new Talho.Rollcall.Graphing.Controller(config);
   return cont.getPanel();
 });

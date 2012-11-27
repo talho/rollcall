@@ -71,11 +71,6 @@ Background:
   And "nurse.betty@example.com" is not public in app "phin"
   And "epi.smith@example.com" is not public in app "phin"
   And "heatlh.offcr@example.com" is not public in app "phin"
-
-  And "Houston" has the following current district absenteeism data:
-    | day | total_enrolled | total_absent |
-    | 1   | 400            | 13           |
-    | 2   | 400            | 14           |
   And "Houston" has the following current school absenteeism data:
     | day | school_name         | total_enrolled | total_absent |
     | 1   | Anderson Elementary | 100            | 2            |

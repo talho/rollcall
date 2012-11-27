@@ -107,7 +107,7 @@ Scenario: Uploading a file
 
   And I am logged in as "nurse.betty@example.com"
   And I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > Nurse Assistant"
+  And I navigate to "Apps > Rollcall > Symptom Cases"
   And I wait for the panel to load
   When I press "Change School"
   And I wait for the panel to load

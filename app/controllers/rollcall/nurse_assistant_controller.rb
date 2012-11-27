@@ -1,4 +1,4 @@
-# The Nurse Assistant controller class for the Rollcall application.  This controller class handles
+# The Symptom Cases controller class for the Rollcall application.  This controller class handles
 # the index(read) and destroy methods for the StudentDailyInfo object.
 #
 # Author::    Eddie Gomez  (mailto:eddie@talho.org)
@@ -47,7 +47,7 @@ class Rollcall::NurseAssistantController < Rollcall::RollcallAppController
   end
 
   # Method returns a set of option values that are used to built the drop down boxes for the
-  # NurseAssisant ExtJs panel.  Method also determines if the Nurse Assistant app is being run for the
+  # NurseAssisant ExtJs panel.  Method also determines if the Symptom Cases app is being run for the
   # first time and sends back a flag to the client, app_init, that client uses to prompt the user to select
   # their current school.
   #

@@ -1,9 +1,9 @@
-//= require rollcall/ADST/view/SimpleParameters
-//= require rollcall/ADST/view/AdvancedParameters
+//= require rollcall/Graphing/view/SimpleParameters
+//= require rollcall/Graphing/view/AdvancedParameters
 
-Ext.namespace("Talho.Rollcall.ADST.view");
+Ext.namespace("Talho.Rollcall.Graphing.view");
 
-Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
+Talho.Rollcall.Graphing.view.Parameters = Ext.extend(Ext.Panel, {
   id: 'parameters',
   collapsible: false,
   layout: 'fit',
@@ -11,14 +11,14 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
   cls: 'rollcall-top-padding',
 
   initComponent: function (config) {    
-    this.addEvents('notauthorized', 'toggle', 'showadstmask');
-    this.enableBubble(['notauthorized', 'showadstmask']);
+    this.addEvents('notauthorized', 'toggle', 'showgraphingmask');
+    this.enableBubble(['notauthorized', 'showgraphingmask']);
     
     this.simple_mode = true;
     
     this.getSimplePanel = function () {
       if (!this.simple_panel) {
-        this.simple_panel = new Talho.Rollcall.ADST.view.SimpleParameters({getBubbleTarget: this.getBubbleTarget});
+        this.simple_panel = new Talho.Rollcall.Graphing.view.SimpleParameters({getBubbleTarget: this.getBubbleTarget});
       }
       if (this.data) {this.simple_panel.loadOptions(this.data)}
       return this.simple_panel;      
@@ -26,7 +26,7 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
     
     this.getAdvancedPanel = function () {
       if (!this.advanced_panel) {
-        this.advanced_panel = new Talho.Rollcall.ADST.view.AdvancedParameters({getBubbleTarget: this.getBubbleTarget});
+        this.advanced_panel = new Talho.Rollcall.Graphing.view.AdvancedParameters({getBubbleTarget: this.getBubbleTarget});
       }
       if (this.data) {this.advanced_panel.loadOptions(this.data)}
       return this.advanced_panel;
@@ -40,7 +40,7 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
       method: 'GET',
       scope: this,
       success: function (response) {
-        this.fireEvent('showadstmask');
+        this.fireEvent('showgraphingmask');
         this.data = Ext.decode(response.responseText);
         this.getSimplePanel().loadOptions(this.data);
         this.getAdvancedPanel().loadOptions(this.data);
@@ -51,7 +51,7 @@ Talho.Rollcall.ADST.view.Parameters = Ext.extend(Ext.Panel, {
       }
     });               
     
-    Talho.Rollcall.ADST.view.Parameters.superclass.initComponent.apply(this, config);        
+    Talho.Rollcall.Graphing.view.Parameters.superclass.initComponent.apply(this, config);        
   },
   
   getParameters: function () {

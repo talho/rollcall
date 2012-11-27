@@ -52,14 +52,6 @@ Factory.define :rollcall_school_district, :class => Rollcall::SchoolDistrict do 
   m.association :jurisdiction, :factory => :jurisdiction
 end
 
-Factory.define :rollcall_school_district_daily_info, :class => Rollcall::SchoolDistrictDailyInfo do |m|
-  m.report_date Time.now
-  m.absentee_rate 1.0
-  m.total_enrollment 100
-  m.total_absent 10
-  m.association :school_district, :factory => :rollcall_school_district
-end
-
 Factory.define :rollcall_student, :class => Rollcall::Student do |m|
   m.first_name "Student"
   m.last_name "Name"

@@ -20,6 +20,7 @@ class Rollcall::School < ActiveRecord::Base
   has_many :school_daily_infos, :class_name => "Rollcall::SchoolDailyInfo"
   has_many :alarms, :class_name => "Rollcall::Alarm"
   has_many :students, :class_name => "Rollcall::Student"
+  has_many :student_daily_infos, :through => :students
   before_create :set_display_name
   include Rollcall::DataModule
     
@@ -57,11 +58,14 @@ class Rollcall::School < ActiveRecord::Base
     roles = Role.admin('rollcall').id.to_s + ',' + Role.superadmin('rollcall').id.to_s
     schools = self                  
       .joins("left join rollcall_user_schools US on US.school_id = rollcall_schools.id")
+      .joins("left join rollcall_user_school_districts USD on USD.school_district_id = rollcall_schools.district_id")
       .joins("left join (rollcall_school_districts SD " +
         "inner join Jurisdictions J2 on SD.jurisdiction_id = J2.id " +
         "inner join Jurisdictions J1 on J2.lft between J1.lft and J1.rgt " +
         "inner join role_memberships RM on RM.jurisdiction_id = J1.id) on rollcall_schools.district_id = SD.id")
-      .where("(SD.id is not null and RM.role_id in (#{roles}) and RM.user_id = #{user.id}) or (US.id is not null and US.user_id = #{user.id})")
+      .where(%[(SD.id is not null and RM.role_id in (#{roles}) and RM.user_id = #{user.id})
+               or (US.id is not null and US.user_id = #{user.id})
+               or (USD.user_id is not null and USD.user_id = #{user.id})])
       .uniq
     schools
   end

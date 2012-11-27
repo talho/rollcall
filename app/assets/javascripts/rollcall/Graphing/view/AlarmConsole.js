@@ -1,7 +1,7 @@
 
-Ext.namespace("Talho.Rollcall.ADST.view");
+Ext.namespace("Talho.Rollcall.Graphing.view");
 
-Talho.Rollcall.ADST.view.AlarmConsole = Ext.extend(Ext.Tip, {
+Talho.Rollcall.Graphing.view.AlarmConsole = Ext.extend(Ext.Tip, {
   
   
   initComponent: function () {
@@ -56,6 +56,6 @@ Talho.Rollcall.ADST.view.AlarmConsole = Ext.extend(Ext.Tip, {
       })
     ]
     
-    Talho.Rollcall.ADST.view.AlarmConsole.superclass.initComponent.apply(this, arguments);
+    Talho.Rollcall.Graphing.view.AlarmConsole.superclass.initComponent.apply(this, arguments);
   },
 });

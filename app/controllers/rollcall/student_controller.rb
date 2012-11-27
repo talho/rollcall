@@ -84,7 +84,6 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
       :gender             => params[:gender].first,
       :race               => (get_default_options({:simple => true})[:race].index{|rec| rec[:value] == params[:race]} || 0)
     )
-    student_record.save if student_success
     unless params[:student_info_id].blank?
       student_daily_record  = Rollcall::StudentDailyInfo.find(params[:student_info_id])
       student_daily_success = student_daily_record.update_attributes(
@@ -93,7 +92,6 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
         :temperature        => params[:temperature],
         :treatment          => params[:treatment]
       )
-      student_daily_record.save if student_daily_success
       daily_infos = Rollcall::StudentReportedSymptom.find_all_by_student_daily_info_id(student_daily_record.id)
       unless params[:symptom_list].blank?
         symptom_list_or = []
@@ -102,7 +100,7 @@ class Rollcall::StudentController < Rollcall::RollcallAppController
           symptom_list_or.push(rec.symptom)
         end
         ActiveSupport::JSON.decode(params[:symptom_list]).each do |rec|
-          symptom_list_up.push(Rollcall::Symptom.find_by_name(rec["name"]))
+          symptom_list_up.push(Rollcall::Symptom.find_by_name(rec["name"])) unless rec["name"].blank?
         end
         diff_result = symptom_list_or - symptom_list_up
         unless diff_result.blank?

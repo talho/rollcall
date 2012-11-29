@@ -3,6 +3,10 @@
   .masthead{
     padding: 20px;
   }
+  
+  .pdf-list{
+    list-style-image: url('assets/documents/file_pdf_small.png');
+  }
 </style>
     
 <div class="masthead">
@@ -16,21 +20,39 @@
     <li><a href="#history" data-toggle="tab">History</a></li>
     <li><a href="#how" data-toggle="tab">How Does It Work?</a></li>
     <li><a href="#video" data-toggle="tab">Videos and Screenshots</a></li>
+    <li><a href="#feedback" data-toggle="tab">Feedback</a></li>
   </ul>
   <div class="tab-content">
     <div class="tab-pane active container-fluid" id="home">
       <div class="row-fluid">
         <div class="span9">
           <h4>What is Rollcall?</h4>
-          <p>Rollcall is an epidemiology tool that allows for the tracking and analysis of school absenteeism and syndromes as entered by nursing.
-             It uses a data feed from existing school software and removes the requirement for any sort of manual reporting of influenza-like illness from the schools to the health departments.</p>
+            <p>Rollcall is a web-based epidemiology tool that allows for the tracking and analysis of school absenteeism and, in many areas, syndromic data.</p>
+            <p>All data utilized by Rollcall comes from existing daily electronic school reporting software, and allows the user to have access to the organized data, graphed and analyzed data.</p>
           <h4>Features</h4>
-          <ul>
-            <li>Graphing and analysis tools</li>
-            <li>Alarms</li>
-            <li>Mapping</li>
-            <li>Integrates with existing school software</li>
-          </ul>
+            <ul>
+              <li>Utilizes existing data feeds</li>
+              <li>Web-Based</li>
+              <li>Comparative graphing</li>
+              <li>Mapping features</li>
+              <li>Alerting features</li>
+              <li>Symptom tracking</li>
+              <li>Over 700 schools in Texas</li>
+            </ul>
+          <h4>Why Track Attendance?</h4>
+            <img src=""/><br/>
+            <p>Often times school absenteeism can be the first, measurable indication of a community disease outbreak, appearing well before reportable hospital data can be gathered to indicate an outbreak.</p>
+          <h4>Has this been done before?</h4>
+            <p>There have been some other attendance tracking tools that have used school absenteeism data for the purpose of surveillance for outbreak.</p>
+            <p>However, no tool we have found has been in development for as long as Rollcall, no tool takes in as much data as Rollcall currently does, and not tool has been as easy to use and accessible as Rollcall.</p> 
+          <h4>Research Publications Related to Tracking School Absenteeism</h4>
+            <ul class="pdf-list">
+              <a href=""><li>Alberta Complete SS Tool 2012</li></a>
+              <a href=""><li>Arizona Paper 2007</li></a>
+              <a href=""><li>Framework for SS Systems 2004</li></a>
+              <a href=""><li>Miami-Dade ILI 2011</li></a>
+              <a href=""><li>NYC 2005</li></a>
+            </ul>
         </div>
         <div class="span3">
           <blockquote class="pull-right">
@@ -47,20 +69,31 @@
     
     <div class="tab-pane container-fluid" id="history">
       <h4>History</h4>
-      <p>Rollcall began as a partnership with the Houston public health department to develop an early warning system for influenza outbreaks in the schools. After H1N1, the project gained a new importance,
-        shifting its focus to near real-time analysis, alarms and adding in syndromic surveilance to provide additional tools to prepare for, detect, and track influenza outbreaks.</p>
-      <p>Through 2011 and 2012, we completed our first expansion, covering 20+ school districts, 10+ health departments, and 700+ schools. Current goals include further expansion, development, and
-        improving the speed of deploying to new schools.</p>
+      <p>Rollcall began in 2009 as a partnership with the largest local health department in the state of Texas, Houston Department of Health and Human Services (HDHHS), 
+        and one of the top ten largest school districts in the nation, the Houston Independent School District (HISD).</p>
+      <p>The Rollcall Project was a response to the need for an early warning system for influenza outbreaks in the schools. After H1N1, the project gained a new significance, 
+        shifting its focus to near real-time analysis with alarms and syndromic surveillance to provide additional tools to prepare for, detect, and track influenza outbreaks.</p>
+      <p>Through 2011 and 2012, we completed our first expansion, covering 20+ school districts, 10+ health departments, and 700+ schools. Current goals include adding 
+        additional tools, further increasing ease of use, and streamlining the deployment process with new schools.</p>
     </div>
     
     <div class="tab-pane container-fluid" id="how">
       <h4>How does it work?</h4>
-      <p>Most school districts already have a centralized attendance application which is also being used by school nurses to enter in student nurse visits and absentee reasons. We help develop an
-        automated script that is run on the school district's hosting. Once this daily export is running, the school district no longer needs to worry about reporting influenza-like illness to the health
-        department. In addition, district nurses, epidemiologists, and interested parties will be able to access our analysis tools and historical data.</p>
-      <p>Health departments can take advantage of a number of features, depending on their specific use case. Simple graphing gives those who are only interested in the current status of influenza-like
-        illness and absenteeism a quick and easy way to access and analyze the data. Alarms, when set, can give health departments early warnings from spikes in absenteeism and influenza. Advanced graphing
-        features allow epidemiologists to dig deeper into the numbers to spot patterns and trends.</p>
+      <p>Setting up a near-real time data feed for Rollcall is as easy as ‘set it and forget it.’</p>
+      <p>Most school districts already have centralized attendance software also being used by school nurses to enter in student nurse visits and absentee reasons. We work with those software companies
+        to develop an automated script that accesses that data in real-time, being careful to only take de-identified raw data. Once this export is running, the school district no longer needs to worry 
+        about reporting influenza-like illness to the health department.</p>
+      <p>Then, the data is immediately and always available in Rollcall to be accessed in simple searches, exportable CSVs, and graphing and mapping analysis tools.</p>
+      <p>Simple graphing gives those who are only interested in the current status of influenza-like illness and absenteeism a quick and easy way to access and analyze the data. Alarms, when set, can 
+        give health departments early warnings from spikes in absenteeism and influenza. Advanced graphing features allow epidemiologists to dig deeper into the numbers to spot patterns and trends.</p>
+      <h4>Who really uses Rollcall?</h4>
+        <p>Our heavy users are mainly local health department epidemiologists and their staff. However, with the appropriate data agreements in place, district nurses, school nurses, and interested 
+          parties can be able to access appropriate portions of the data and analysis tools.</p>
+        <p>Since our past and continuous development of Rollcall is based on user feedback, we built the application with health departments in mind. For years now, health departments have been able 
+          to take advantage of Rollcall features that have assisted them in syndromic surveillance and preparedness tasks.</p>
+      <h4>What about privacy concerns?</h4>
+        <p>Our development team and our users take privacy very seriously. We take all measures possible to scrub the data clean of any identifiable student data such as names and student ID.</p>
+        <p>The unidentified syndromic data we do accept involves indicators such as age, zip code, grade, and chief complaint.</p>
     </div>
     
     <div class="tab-pane container-fluid" id="video">
@@ -69,8 +102,42 @@
       <h5>Graphing Tutorial</h5>
       <p></p>
       <h5>Screenshots</h5>
-      
-    </div>        
+      <div id="myCarousel" class="carousel slide">
+      <!-- Carousel items -->
+        <div class="carousel-inner">
+          <div class="active item">
+            <img src="http://i.imgur.com/2ZVNQ.gif">
+            <div class="carousel-caption">
+              <h4>Happy Cat</h4>
+              <p>Happy Cat was one of the first I Can Haz Cheezburger cats and is very happy.</p>
+            </div>
+          </div>
+          <div class="item">            
+            <img src="http://i.imgur.com/FC1rL.jpg">
+            <div class="carousel-caption">
+              <h4>Monorail Cat</h4>
+              <p>One of many cats with missing legs. They seem to congregate on rails.</p>
+            </div>
+          </div>
+          <div class="item">
+            <img src="http://i.imgur.com/lEgef.jpg">
+            <div class="carousel-caption">
+              <h4>Bullet Cat</h4>
+              <p>Bullet Cat is a commonly macro'ed image. You often find bullet cats floating a few feet above the surface during the spring time.</p>
+            </div>
+          </div>
+        </div>
+      <!-- Carousel nav -->
+        <a class="carousel-control left" href="#myCarousel" data-slide="prev">&lsaquo;</a>
+        <a class="carousel-control right" href="#myCarousel" data-slide="next">&rsaquo;</a>
+      </div>      
+    </div>
+    
+    <div class="tab-pane container-fluid" id="feedback">
+      <p>While TALHO’s Rollcall development team may not be epidemiologists themselves, they work with users and epidemiologists on an almost daily basis. So please let us know what you need. 
+        We can build features that you want to see!</p>
+      <p>Found a bug? Have the next genius idea for a helpful Rollcall tool? Email: <a href="mailto:admins@talho.org">admins@talho.org</a></p>
+    </div>
   </div>
 </div>
   

@@ -115,7 +115,7 @@ Talho.Rollcall.Graphing.view.Alarms = Ext.extend(Ext.Panel, {
       }
     ];
     
-    Talho.Rollcall.Graphing.view.Alarms.superclass.initComponent.apply(this, config);
+    Talho.Rollcall.Graphing.view.Alarms.superclass.initComponent.call(this);
   },
   
   _close_alarm_tip: function () {

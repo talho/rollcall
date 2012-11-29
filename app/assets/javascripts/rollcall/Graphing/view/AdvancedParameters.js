@@ -138,7 +138,7 @@ Talho.Rollcall.Graphing.view.AdvancedParameters = Ext.extend(Ext.Container, {
       ]}           
     ];
     
-    Talho.Rollcall.Graphing.view.AdvancedParameters.superclass.initComponent.apply(this, arguments);
+    Talho.Rollcall.Graphing.view.AdvancedParameters.superclass.initComponent.call(this);
   },
       
   reset: function () {

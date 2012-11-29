@@ -47,7 +47,7 @@ Talho.Rollcall.Graphing.view.SimpleParameters = Ext.extend(Ext.Container, {
       }
     });    
     
-    var type = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'School Type', emptyText:'Select School Type...', allowBlank: true,
+    var type = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'School Type', emptyText: 'Select School Type...', allowBlank: true,
       id: 'school_type', itemId: 'school_type', editable: false,      
       listeners: {
         scope: this,
@@ -86,10 +86,10 @@ Talho.Rollcall.Graphing.view.SimpleParameters = Ext.extend(Ext.Container, {
           selectOnFocus:true, ctCls: 'ux-combo-box-cls'
         }
       },
-      {items: func },      
+      {items: func }
     ];
     
-    Talho.Rollcall.Graphing.view.SimpleParameters.superclass.initComponent.apply(this, arguments);
+    Talho.Rollcall.Graphing.view.SimpleParameters.superclass.initComponent.call(this);
     this.doLayout();
   },
   

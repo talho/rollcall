@@ -51,7 +51,7 @@ Talho.Rollcall.Graphing.view.Parameters = Ext.extend(Ext.Panel, {
       }
     });               
     
-    Talho.Rollcall.Graphing.view.Parameters.superclass.initComponent.apply(this, config);        
+    Talho.Rollcall.Graphing.view.Parameters.superclass.initComponent.call(this);        
   },
   
   getParameters: function () {

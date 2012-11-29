@@ -143,7 +143,7 @@ Talho.Rollcall.Graphing.view.AlarmQueryWindow = Ext.extend(Ext.Window, {
     
     this.buttons.push({text: 'Cancel', scope: this, handler: function(){this.close();}});
     
-    Talho.Rollcall.Graphing.view.AlarmQueryWindow.superclass.initComponent.apply(this, arguments);
+    Talho.Rollcall.Graphing.view.AlarmQueryWindow.superclass.initComponent.call(this);
   },
   
   _changeTextField: function(obj, new_number, old_number)

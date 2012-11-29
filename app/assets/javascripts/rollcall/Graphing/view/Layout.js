@@ -90,6 +90,6 @@ Talho.Rollcall.Graphing.view.Layout = Ext.extend(Ext.Panel, {
         ]
       }
     ];   
-    Talho.Rollcall.Graphing.view.Layout.superclass.initComponent.apply(this, arguments);
+    Talho.Rollcall.Graphing.view.Layout.superclass.initComponent.call(this);
   },    
 });

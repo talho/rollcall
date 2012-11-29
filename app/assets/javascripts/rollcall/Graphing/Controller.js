@@ -34,7 +34,7 @@ Talho.Rollcall.Graphing.Controller = Ext.extend(Ext.util.Observable, {
       scope: this
     });
     
-    Talho.Rollcall.Graphing.Controller.superclass.constructor.apply(this, arguments)
+    Talho.Rollcall.Graphing.Controller.superclass.constructor.call(this);
   },
   
   _submitQuery: function (params) {

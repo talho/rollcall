@@ -37,7 +37,7 @@ Talho.Rollcall.Graphing.view.SearchForm = Ext.extend(Ext.FormPanel, {
     
     this.school_mode = true;
     
-    Talho.Rollcall.Graphing.view.SearchForm.superclass.initComponent.apply(this, config);       
+    Talho.Rollcall.Graphing.view.SearchForm.superclass.initComponent.call(this);       
   },
   
   getParams: function () {

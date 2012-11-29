@@ -1,0 +1,3 @@
+class Rollcall::ILIReport
+  
+end

@@ -14,7 +14,7 @@ $query = "SELECT \"STU_SYMPTOMS\".\"OFFICE-VISIT-REF-NO\" AS 'cid', \"STUDENT_HE
        \"STU_SYMPTOMS\".\"REASONS\" AS 'symptoms', \"ZIP1\".\"ZIP-CODE\" AS 'zip', (\"STUDENT_HEALTH\".\"SCHOOL-YEAR\"-\"STUDENT1\".\"GRAD-YR\"+12) AS 'grade', 
        \"NAME_stu\".\"GENDER\" AS 'gender', \"NAME_stu\".\"RACE-CODE\" AS 'race', (\"NAME_dr\".\"FIRST-NAME\" +  ' ' + \"NAME_dr\".\"LAST-NAME\") AS 'doctor'
 FROM   \"SKYWARD\".\"PUB\".\"STUDENT-HEALTH\" \"STUDENT_HEALTH\"
-INNER JOIN  \"SKYWARD\".\"PUB\".\"ENTITY\" ON \"STUDENT_HEALTH\".\"SCHOOL-YEAR\" = \"ENTITY\".\"SCHOOL-YEAR\" AND \"ENTITY\".\"ENTITY-ID\" = '000' AND \"STUDENT_HEALTH\".\"HLT-DATE\" <= CURDATE()
+INNER JOIN  \"SKYWARD\".\"PUB\".\"ENTITY\" ON \"STUDENT_HEALTH\".\"SCHOOL-YEAR\" = \"ENTITY\".\"SCHOOL-YEAR\" AND \"ENTITY\".\"ENTITY-ID\" = '000'
 INNER JOIN \"SKYWARD\".\"PUB\".\"STUDENT\" \"STUDENT1\" ON \"STUDENT_HEALTH\".\"STUDENT-ID\"=\"STUDENT1\".\"STUDENT-ID\" 
 INNER JOIN \"SKYWARD\".\"PUB\".\"NAME\" \"NAME_stu\" ON \"STUDENT1\".\"NAME-ID\"=\"NAME_stu\".\"NAME-ID\"
 LEFT OUTER JOIN \"SKYWARD\".\"PUB\".\"SCHOOL\" \"SCHOOL1\" ON \"STUDENT_HEALTH\".\"SCHOOL-ID\"=\"SCHOOL1\".\"SCHOOL-ID\"
@@ -46,6 +46,7 @@ INNER JOIN (SELECT \"HLT-OFFICE-VISIT-MST\".\"STUDENT-ID\", \"HLT-OFFICE-VISIT-M
 	WHERE \"1\".\"OFFICE-VISIT-DTL-TYPE\"='V' 
 	GROUP BY \"HLT-OFFICE-VISIT-MST\".\"STUDENT-ID\", \"HLT-OFFICE-VISIT-MST\".\"OFFICE-VISIT-REF-NO\", \"HLT-OFFICE-VISIT-MST\".\"REF-NO\", \"HLT-OFFICE-VISIT-MST\".\"HLT-OVM-TEMPERATURE\"
 ) AS \"STU_SYMPTOMS\" ON \"STU_SYMPTOMS\".\"STUDENT-ID\" = \"STUDENT_HEALTH\".\"STUDENT-ID\" AND \"STUDENT_HEALTH\".\"REF-NO\"=\"STU_SYMPTOMS\".\"REF-NO\" 
+WHERE \"STUDENT_HEALTH\".\"HLT-DATE\" >= (CURDATE() - 7) AND \"STUDENT_HEALTH\".\"HLT-DATE\" <= CURDATE()
 ";
 
 // Disable the script time limit.
@@ -74,7 +75,7 @@ if (!$dbdata = odbc_exec($dbconnect, $query)) {
 
 $result = array();
 while ($row = odbc_fetch_array($dbdata)) {
-  $rowarray = array($row["cid"], $row["year"], $row["campusid"], $row["date"], $row["temp"], $row["grade"], $row["zip"], $row["gender"], $row["race"], $row["doctor"], $row["symptoms"]));
+  $rowarray = array($row["cid"], $row["year"], $row["campusid"], $row["date"], $row["temp"], $row["grade"], $row["zip"], $row["gender"], $row["race"], $row["doctor"], $row["symptoms"]);
 
   // Write the line to the output file and increment the record count.
   writeLine($outfile,$rowarray);

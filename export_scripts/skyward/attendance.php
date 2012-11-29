@@ -21,7 +21,7 @@ $absencesubquery = "SELECT \"ATND_ABSENCE_TYPE\".\"AAT-ID\"
      \"ATND_ABSENCE_TYPE\".\"AAT-EXC-UNEXC-TAR-OTH\"<>'T' AND
      \"ATND_ABSENCE_TYPE\".\"ENTITY-ID\"=\"STUDENT_ATND_DETAIL\".\"ENTITY-ID\" AND
      \"ATND_ABSENCE_TYPE\".\"AAT-INCL-IN-TOT-ATND\"=1 and
-     \"ATND_ABSENCE_TYPE\".\"SCHOOL-YEAR\"=\"STUDENT_ATND_DETAIL\".\"SCHOOL-YEAR\""
+     \"ATND_ABSENCE_TYPE\".\"SCHOOL-YEAR\"=\"STUDENT_ATND_DETAIL\".\"SCHOOL-YEAR\"";
 
 $absencequery = "SELECT \"STUDENT_ATND_DETAIL\".\"ATND-DATE\" AS 'date', '".$districtid."'+\"ENTITY\".\"ENTITY-ID\" AS 'id', \"ENTITY\".\"ENTITY-NAME\" AS 'name', count(\"STUDENT_ATND_DETAIL\".\"STUDENT-ID\") as 'absent'
 FROM   \"SKYWARD\".\"PUB\".\"STUDENT-ATND-DETAIL\" \"STUDENT_ATND_DETAIL\"
@@ -32,7 +32,6 @@ WHERE  \"STUDENT_ATND_DETAIL\".\"ATND-DATE\" = Curdate()
 	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[2] in (".$absencesubquery.") OR
 	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[3] in (".$absencesubquery.") OR
 	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[4] in (".$absencesubquery.") OR
-	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[5] in (".$absencesubquery.") OR
 	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[5] in (".$absencesubquery.") OR
 	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[6] in (".$absencesubquery.") OR
 	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[7] in (".$absencesubquery.") OR
@@ -68,7 +67,7 @@ if (!$dbdata = odbc_exec($dbconnect, $enrollmentquery)) {
 	wlogdie("Failed to execute query!");
 }
 while ($row = odbc_fetch_array($dbdata)){
-	$result[$districtid.$row["id"]] = array(
+	$result[$row["id"]] = array(
 		"date" => $row["date"],
 		"id" => $row['id'],
 		"enrolled" => $row["enrolled"]
@@ -77,7 +76,7 @@ while ($row = odbc_fetch_array($dbdata)){
 odbc_free_result($dbdata);
 
 // Execute the attendance query.
-if (!$dbdata = odbc_exec($dbconnect, $attendancequery)) {
+if (!$dbdata = odbc_exec($dbconnect, $absencequery)) {
 	echo "Failed to execute query!" . "\r\n";
 	wlogdie("Failed to execute query!");
 }
@@ -89,8 +88,8 @@ odbc_free_result($dbdata);
 
 
 // Close the ODBC connection
-//odbc_close($dbconnect);
-//odbc_close_all();
+odbc_close($dbconnect);
+odbc_close_all();
 
 // Write the csv out to file
 

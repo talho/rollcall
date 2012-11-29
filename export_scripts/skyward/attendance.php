@@ -1,6 +1,6 @@
 <?
 
-$outputfile = "./attendence.csv";
+$outputfile = "./attendance.csv";
 $user = "";
 $pass = "";
 $dsn = "";

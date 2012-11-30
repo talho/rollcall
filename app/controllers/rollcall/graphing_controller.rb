@@ -103,7 +103,10 @@ class Rollcall::GraphingController < Rollcall::RollcallAppController
     respond_with(@results)
   end
   
-  def get_neighbors       
+  def get_neighbors
+    params[:startdt] ||= 3.months.ago.to_s # put a 3 month limit on start date to limit data points being returned
+    params[:enddt] ||= Date.today.to_s
+     
     @school_district_array = Array.new
     
     if params.has_key?(:school_districts) 

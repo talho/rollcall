@@ -2,6 +2,11 @@
 <style>
   .masthead{
     padding: 20px;
+    text-align: center;
+  }
+  
+  .pdf-list{
+    list-style-image: url('assets/documents/file_pdf_small.png');
   }
 </style>
     
@@ -15,31 +20,49 @@
     <li class="active"><a href="#home" data-toggle="tab">Home</a></li>
     <li><a href="#history" data-toggle="tab">History</a></li>
     <li><a href="#how" data-toggle="tab">How Does It Work?</a></li>
-    <li><a href="#video" data-toggle="tab">Videos and Screenshots</a></li>
+    <li><a href="#video" data-toggle="tab">Inside Look</a></li>
+    <li><a href="#feedback" data-toggle="tab">Feedback</a></li>
   </ul>
   <div class="tab-content">
     <div class="tab-pane active container-fluid" id="home">
       <div class="row-fluid">
         <div class="span9">
           <h4>What is Rollcall?</h4>
-          <p>Rollcall is an epidemiology tool that allows for the tracking and analysis of school absenteeism and syndromes as entered by nursing.
-             It uses a data feed from existing school software and removes the requirement for any sort of manual reporting of influenza-like illness from the schools to the health departments.</p>
+            <p>Rollcall is a web-based epidemiology tool that allows for the tracking and analysis of school absenteeism and, in many areas, syndromic data.</p>
+            <p>All data utilized by Rollcall comes from existing daily electronic school reporting software, and allows the user to have access to the organized data, graphed and analyzed data.</p>
           <h4>Features</h4>
-          <ul>
-            <li>Graphing and analysis tools</li>
-            <li>Alarms</li>
-            <li>Mapping</li>
-            <li>Integrates with existing school software</li>
-          </ul>
+            <ul>
+              <li>Utilizes existing data feeds</li>
+              <li>Web-Based</li>
+              <li>Comparative graphing</li>
+              <li>Mapping features</li>
+              <li>Alerting features</li>
+              <li>Symptom tracking</li>
+              <li>Over 700 schools in Texas</li>
+            </ul>
+          <h4>Why Track Attendance?</h4>
+            <img src=""/><br/>
+            <p>Often times school absenteeism can be the first, measurable indication of a community disease outbreak, appearing well before reportable hospital data can be gathered to indicate an outbreak.</p>
+          <h4>Has this been done before?</h4>
+            <p>There have been some other attendance tracking tools that have used school absenteeism data for the purpose of surveillance for outbreak.</p>
+            <p>However, no tool we have found has been in development for as long as Rollcall, no tool takes in as much data as Rollcall currently does, and not tool has been as easy to use and accessible as Rollcall.</p> 
+          <h4>Research Publications Related to Tracking School Absenteeism</h4>
+            <ul class="pdf-list">
+              <a href="http://wwwnc.cdc.gov/eid/article/17/2/pdfs/10-0496.pdf"><li>Alert System to Detect Possible School-based Outbreaks of Influenza-like Illness, Miami-Dade County, Florida 2011</li></a>
+              <a href="http://xa.yimg.com/kq/groups/23515872/57815284/name/2009+INFLUENCE+OF+SCHOOL+CLOSURE+ON+THE.pdf"><li>Influence of school closure on the incidence of viral respiratory diseases among children and on health care utilization, 2009</li></a>
+              <a href="http://www.isdsjournal.org/articles/3495.pdf"><li>Pilot Evaluation of Syndrome-Specific School Absenteeism Data for Public Health Surveillance, Davis County, Utah 2008</li></a>
+              <a href="http://www.ima.org.il/imaj/ar07jan-1.pdf"><li>Evaluation of a Syndromic Surveillance System Using the WSARE Algorithm for Early Detection of an Unusual, Localized Summer Outbreak of Influenza B: Implications for Bioterrorism Surveillance, 2007</li></a>
+              <a href="http://www.isdsjournal.org/articles/1951.pdf"><li>Arizona’s Near Real Time School-based Syndromic Surveillance Program, 2007</li></a>
+            </ul>
         </div>
         <div class="span3">
           <blockquote class="pull-right">
-            <p style="font-size:14px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla pretium, est et imperdiet pretium, lorem odio laoreet ipsum, ut fermentum metus neque quis metus.</p>
-            <small>Some Person, Title, Some County</small>
+            <p style="font-size:14px;"></p>
+            <small></small>
           </blockquote>
           <blockquote class="pull-right">
-            <p style="font-size:14px;">Suspendisse rutrum scelerisque nisi. Ut accumsan, lacus in pulvinar gravida, elit libero aliquam quam, id tincidunt odio velit id neque.</p>
-            <small>Some Person, Title, Some Company</small>
+            <p style="font-size:14px;"></p>
+            <small></small>
           </blockquote>
         </div>
       </div>
@@ -47,30 +70,79 @@
     
     <div class="tab-pane container-fluid" id="history">
       <h4>History</h4>
-      <p>Rollcall began as a partnership with the Houston public health department to develop an early warning system for influenza outbreaks in the schools. After H1N1, the project gained a new importance,
-        shifting its focus to near real-time analysis, alarms and adding in syndromic surveilance to provide additional tools to prepare for, detect, and track influenza outbreaks.</p>
-      <p>Through 2011 and 2012, we completed our first expansion, covering 20+ school districts, 10+ health departments, and 700+ schools. Current goals include further expansion, development, and
-        improving the speed of deploying to new schools.</p>
+      <p>Rollcall began in 2009 as a partnership with the largest local health department in the state of Texas, Houston Department of Health and Human Services (HDHHS), 
+        and one of the top ten largest school districts in the nation, the Houston Independent School District (HISD).</p>
+      <p>The Rollcall Project was a response to the need for an early warning system for influenza outbreaks in the schools. After H1N1, the project gained a new significance, 
+        shifting its focus to near real-time analysis with alarms and syndromic surveillance to provide additional tools to prepare for, detect, and track influenza outbreaks.</p>
+      <p>Through 2011 and 2012, we completed our first expansion, covering 20+ school districts, 10+ health departments, and 700+ schools. Current goals include adding 
+        additional tools, further increasing ease of use, and streamlining the deployment process with new schools.</p>
     </div>
     
     <div class="tab-pane container-fluid" id="how">
       <h4>How does it work?</h4>
-      <p>Most school districts already have a centralized attendance application which is also being used by school nurses to enter in student nurse visits and absentee reasons. We help develop an
-        automated script that is run on the school district's hosting. Once this daily export is running, the school district no longer needs to worry about reporting influenza-like illness to the health
-        department. In addition, district nurses, epidemiologists, and interested parties will be able to access our analysis tools and historical data.</p>
-      <p>Health departments can take advantage of a number of features, depending on their specific use case. Simple graphing gives those who are only interested in the current status of influenza-like
-        illness and absenteeism a quick and easy way to access and analyze the data. Alarms, when set, can give health departments early warnings from spikes in absenteeism and influenza. Advanced graphing
-        features allow epidemiologists to dig deeper into the numbers to spot patterns and trends.</p>
+      <p>Setting up a near-real time data feed for Rollcall is as easy as ‘set it and forget it.’</p>
+      <p>Most school districts already have centralized attendance software also being used by school nurses to enter in student nurse visits and absentee reasons. We work with those software companies
+        to develop an automated script that accesses that data in real-time, being careful to only take de-identified raw data. Once this export is running, the school district no longer needs to worry 
+        about reporting influenza-like illness to the health department.</p>
+      <p>Then, the data is immediately and always available in Rollcall to be accessed in simple searches, exportable CSVs, and graphing and mapping analysis tools.</p>
+      <p>Simple graphing gives those who are only interested in the current status of influenza-like illness and absenteeism a quick and easy way to access and analyze the data. Alarms, when set, can 
+        give health departments early warnings from spikes in absenteeism and influenza. Advanced graphing features allow epidemiologists to dig deeper into the numbers to spot patterns and trends.</p>
+      <h4>Who uses Rollcall?</h4>
+        <p>Our heavy users are mainly local health department epidemiologists and their staff. However, with the appropriate data agreements in place, district nurses, school nurses, and interested 
+          parties can be able to access appropriate portions of the data and analysis tools.</p>
+        <p>Since our past and continuous development of Rollcall is based on user feedback, we built the application with health departments in mind. Since we released version 2 of Rollcall, health departments have been able 
+          to take advantage of Rollcall features that have assisted them in syndromic surveillance and preparedness tasks.</p>
+      <h4>What about privacy concerns?</h4>
+        <p>Our development team and our users take privacy very seriously. We take all measures possible to scrub the data clean of any identifiable student data such as names and student ID.</p>
+        <p>The unidentified syndromic data we do accept involves indicators such as age, zip code, grade, and chief complaint.</p>
     </div>
     
     <div class="tab-pane container-fluid" id="video">
+      <div id="myCarousel" class="carousel slide">
+      <!-- Carousel items -->
+        <div class="carousel-inner">
+          <div class="active item">
+            <img src="/assets/rollcall/screenshots/ADST Simple.png">
+            <div class="carousel-caption">
+              <h4>Graphing</h4>
+              <p>Powerful graphing library gives a visual representation of the current state. View absences, ILI syndrome, confirmed illness, and statistical data functions on the result sets.</p>
+            </div>
+          </div>
+          <div class="item">         
+            <img src="/assets/rollcall/screenshots/Schools.png">
+            <div class="carousel-caption">
+              <h4>Mapping</h4>
+              <p>Integrated with mapping tools to show where the outbreaks are and track the spread.</p>
+            </div>
+          </div>
+          <div class="item">
+            <img src="/assets/rollcall/screenshots/Schools in Alert State.png">
+            <div class="carousel-caption">
+              <h4>Alarms</h4>
+              <p>View schools whose absenteism or flu-like symptoms have crossed user-set thresholds.</p>
+            </div>
+          </div>
+          <div class="item">
+            <img src="/assets/rollcall/screenshots/ADST Alarm.png">
+            <div class="carousel-caption">
+              <h4>Alarms</h4>
+              <p>Set thresholds for the system to enter into an alarm state.</p>
+            </div>
+          </div>
+        </div>
+      <!-- Carousel nav -->
+        <a class="carousel-control left" href="#myCarousel" data-slide="prev">&lsaquo;</a>
+        <a class="carousel-control right" href="#myCarousel" data-slide="next">&rsaquo;</a>
+      </div>      
       <h5>Demo</h5>
-      <p><iframe width="420" height="315" src="http://www.youtube.com/embed/oHg5SJYRHA0" frameborder="0" allowfullscreen></iframe></p>
-      <h5>Graphing Tutorial</h5>
-      <p><iframe width="420" height="236" src="http://www.youtube.com/embed/9bZkp7q19f0" frameborder="0" allowfullscreen></iframe></p>
-      <h5>Screenshots</h5>
-      <img src="http://i.imgur.com/Cxagv.jpg"/>
-    </div>        
+      <p><iframe width="640" height="360" src="http://www.youtube.com/embed/X1B6ZhkvGlw?rel=0" frameborder="0" allowfullscreen></iframe></p>
+    </div>
+    
+    <div class="tab-pane container-fluid" id="feedback">
+      <p>While TALHO’s Rollcall development team may not be epidemiologists themselves, they work with users and epidemiologists on an almost daily basis. So please let us know what you need. 
+        We can build features that you want to see!</p>
+      <p>Found a bug? Have the next genius idea for a helpful Rollcall tool? Email: <a href="mailto:admins@talho.org">admins@talho.org</a></p>
+    </div>
   </div>
 </div>
   

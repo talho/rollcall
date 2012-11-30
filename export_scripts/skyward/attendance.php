@@ -1,6 +1,6 @@
 <?
 
-$outputfile = "./attendence.csv";
+$outputfile = "./attendance.csv";
 $user = "";
 $pass = "";
 $dsn = "";
@@ -89,8 +89,8 @@ odbc_free_result($dbdata);
 
 
 // Close the ODBC connection
-//odbc_close($dbconnect);
-//odbc_close_all();
+odbc_close($dbconnect);
+odbc_close_all();
 
 // Write the csv out to file
 

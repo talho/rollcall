@@ -73,7 +73,7 @@ if (!$dbdata = odbc_exec($dbconnect, $query)) {
 	wlogdie("Failed to execute query!");
 }
 
-$result = array();
+$count = 0;
 while ($row = odbc_fetch_array($dbdata)) {
   $rowarray = array($row["cid"], $row["year"], $row["campusid"], $row["date"], $row["temp"], $row["grade"], $row["zip"], $row["gender"], $row["race"], $row["doctor"], $row["symptoms"]);
 

@@ -3,7 +3,7 @@ module Rollcall::DataModule
     base.send(:attr_accessor, :result)
   end
   
-  def build_graph_query query, params    
+  def build_graph_query query, params
     params = param_setup params
     
     query = apply_joins query, params

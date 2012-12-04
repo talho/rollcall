@@ -54,7 +54,7 @@ module Rollcall
       # Creates a query for searching out schools based on passed parameters
       # Query will look something like:
       # WHERE :name or ((:district or :zip) and :type)
-      def school_search_relation(params)
+      def school_search_relation(params)        
         query = []
         query << "rollcall_schools.display_name in (:school)" if params[:school].present?
         

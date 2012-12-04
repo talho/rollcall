@@ -16,7 +16,7 @@ Given /^I have schools with reported rollcall data$/ do
     | Ashford Elementary  | 273           | 101912273 | Elementary School | 77077       | 29.7477296 | -95.5988336 | "Ashford Elementary School, 1815 Shannon Valley Dr, Houston, TX 77077, USA"    |
     | Yates High School   | 20            | 101912020 | High School       | 77004       | 29.7232848 | -95.3546602 | "Yates High School: School Buildings, 3703 Sampson St, Houston, TX 77004, USA" |
   })
-  step %Q{"Houston" has the following current school absenteeism data:}, table(%{
+  step %Q{"Houston" has the following rollcall school absenteeism data:}, table(%{
     | day | school_name         | total_enrolled | total_absent |
     | 7   | Anderson Elementary | 100            | 2            |
     | 6   | Anderson Elementary | 100            | 5            |
@@ -29,7 +29,7 @@ Given /^I have schools with reported rollcall data$/ do
     | 7   | Ashford Elementary  | 100            | 4            |
     | 8   | Ashford Elementary  | 100            | 4            |
     | 10  | Yates High School   | 200            | 10           |
-    | 12  | Yates High School   | 200            | 5            |
+    | 11  | Yates High School   | 200            | 5            |
   })
 end
 
@@ -89,4 +89,34 @@ end
 When /^backgroundrb has run the rollcall status update$/ do
   require 'workers/rollcall_status_updater'
   RollcallStatusUpdater.new().mail_status()  
+end
+
+Given /^"([^\"]*)" has the following rollcall school absenteeism data:$/ do |isd, table|
+  school            = ''
+  report_date       = ''
+  total_enrolled    = ''
+  district          = Rollcall::SchoolDistrict.find_by_name isd
+  current_time      = Time.current
+  table.hashes.each do |row|
+    if school.blank?
+      school    = Rollcall::School.find_by_display_name(row['school_name'])
+    else
+      if school.display_name != row['school_name']
+        school    = Rollcall::School.find_by_display_name(row['school_name'])
+      end
+    end
+    if (true if Integer(row["day"]) rescue false)
+      report_date = current_time - row["day"].strip.to_i.days  
+    else      
+      report_date = Date.parse(row["day"])
+    end
+    total_absent   = row['total_absent'].strip.to_i
+    total_enrolled = row['total_enrolled'].strip.to_i
+    result = Rollcall::SchoolDailyInfo.create(
+      :school_id      => school.id,
+      :total_absent   => total_absent,
+      :total_enrolled => total_enrolled,
+      :report_date    => report_date
+    )
+  end
 end

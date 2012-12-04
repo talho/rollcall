@@ -17,7 +17,6 @@ namespace :rollcall do
       prev = 0
       start.upto(DateTime.now) do |report_date|
         prev = total_absent = [total_enrolled * 0.05, prev].max + (rand(2) > 0 ? -1 : 1)*rand(6)
-
         Rollcall::SchoolDailyInfo.create(
           :school_id => school.id, 
           :total_absent => total_absent, 
@@ -55,7 +54,7 @@ namespace :rollcall do
       start.upto(DateTime.now) do |report_date|
         p "DATE: #{report_date}"
         odds = rand(100)
-        if (odds.to_i < 3)
+        if (odds.to_i < 2)
           info = Rollcall::StudentDailyInfo.new
           info.student_id = student.id
           info.report_date = report_date
@@ -78,5 +77,4 @@ namespace :rollcall do
       end  
     end
   end
-  
 end

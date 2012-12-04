@@ -103,10 +103,11 @@ Talho.Rollcall.Graphing.Controller = Ext.extend(Ext.util.Observable, {
     });
     
     Ext.Ajax.request({
-      url:      '/rollcall/export?' + param_string,
+      url:      '/rollcall/export',
       method:   'GET',
       scope:    this,
-      failure: function(){}
+      params:   params,
+      failure:  function(){}
     });
   },
   

@@ -16,9 +16,9 @@ class Rollcall::GraphingResults
       results = user_obj.school_search params
     end
     
-    results.each do |r|
+    results.each do |r|      
       r.result = r.get_graph_data(params).as_json
-    end
+    end    
     
     if results.first.is_a? Rollcall::SchoolDistrict
       @csv_data = "District Name,Identifier,Total Absent,Total Enrolled,Report Date\n"
@@ -27,10 +27,10 @@ class Rollcall::GraphingResults
     end
     
     results.each do |row|      
-      row.result.each do |r|
+      row.result.each do |r|        
         if results.first.is_a? Rollcall::SchoolDistrict
           @csv_data += "#{row.name},#{r["total"]},#{r["enrolled"]},#{r["report_date"]}\n"
-        else
+        else          
           @csv_data += "#{row.display_name},#{row.tea_id},#{r["total"]},#{r["enrolled"]},#{r["report_date"]}\n"
         end             
       end
@@ -52,5 +52,4 @@ class Rollcall::GraphingResults
     true
   end
   
-  handle_asynchronously :export_data
 end

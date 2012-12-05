@@ -1,10 +1,10 @@
 <?
 
 $outputfile = "./symptoms.csv";
-$user = "SKYDBUSER";
-$pass = "stuL0b0db";
-$dsn = "Skyward Student";
-$districtid = "092903";
+$user = "";
+$pass = "";
+$dsn = "";
+$districtid = "";
 $logfilename = "./out.log";
 include('include.php');
 

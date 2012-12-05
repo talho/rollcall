@@ -48,7 +48,7 @@ while ($row = odbc_fetch_array($dbdata)){
 	array_push($tardie_arr, "'".$row["id"]."'");
 }
 odbc_free_result($dbdata);
-$tardies = implode(',',$tardiness_arr);
+$tardies = implode(',',$tardie_arr);
 
 // Find the daily absenses
 $absencequery = "SELECT \"STUDENT_ATND_DETAIL\".\"ATND-DATE\" AS 'date', '".$districtid."'+\"STUDENT_ATND_DETAIL\".\"ENTITY-ID\" AS 'id', count(\"STUDENT_ATND_DETAIL\".\"STUDENT-ID\") as 'absent'
@@ -66,11 +66,9 @@ WHERE  \"STUDENT_ATND_DETAIL\".\"ATND-DATE\" = Curdate()
     \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[9] NOT IN (".$tardies.") OR
     \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[10] NOT IN (".$tardies.") OR
     \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[11] NOT IN (".$tardies.") OR
-    \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[12] NOT IN (".$tardies.") OR
+    \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[12] NOT IN (".$tardies.")
        )
 GROUP BY \"STUDENT_ATND_DETAIL\".\"ENTITY-ID\", \"STUDENT_ATND_DETAIL\".\"ATND-DATE\"";
-
-echo $absencequery."\r\n";
 
 // Execute the enrollment query.
 if (!$dbdata = odbc_exec($dbconnect, $enrollmentquery)) {
@@ -93,7 +91,6 @@ if (!$dbdata = odbc_exec($dbconnect, $absencequery)) {
 }
 while ($row = odbc_fetch_array($dbdata)){
 	$result[$row["id"]]["absent"] = $row["absent"];
-	$result[$row["id"]]["name"] = $row["name"];
 }
 odbc_free_result($dbdata);
 

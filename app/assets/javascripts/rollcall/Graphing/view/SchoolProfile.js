@@ -167,7 +167,7 @@ Talho.Rollcall.Graphing.view.SchoolProfile = Ext.extend(Ext.Window, {
       this._getSchoolData(1, student_grid_panel, 'student');
     }, this);
     
-    Talho.Rollcall.Graphing.view.SchoolProfile.superclass.initComponent.apply(this, arguments);    
+    Talho.Rollcall.Graphing.view.SchoolProfile.superclass.initComponent.call(this);    
   },
   
   _getSchoolData: function (month, grid_panel, type) {

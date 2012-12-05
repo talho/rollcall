@@ -95,9 +95,6 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
         emptyText: '<div><b style="color:#000">No Student Data Available</b></div>',
         forceFit: true
       },
-      bodyStyle: {
-        position: 'absolute !important'
-      },
       store: new Ext.data.JsonStore({
         autoDestroy: true,
         autoSave:    true,

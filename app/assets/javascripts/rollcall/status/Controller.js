@@ -10,7 +10,7 @@ Talho.Rollcall.status.Controller = Ext.extend(Ext.util.Observable, {
       return this.layout;
     }
     
-    Talho.Rollcall.status.Controller.superclass.constructor.apply(this, arguments);
+    Talho.Rollcall.status.Controller.superclass.constructor.call(this);
   }
 });
 

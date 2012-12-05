@@ -61,6 +61,6 @@ Talho.Rollcall.status.view.Index = Ext.extend(Ext.Panel, {
       ]}
     ]
     
-    Talho.Rollcall.status.view.Index.superclass.initComponent.apply(this, arguments);
+    Talho.Rollcall.status.view.Index.superclass.initComponent.call(this);
   }
 });

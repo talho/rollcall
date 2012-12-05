@@ -70,7 +70,7 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
       return (this.neighbor_mode ? neighbor_store : result_store);
     };
     
-    Talho.Rollcall.Graphing.view.Results.superclass.initComponent.apply(this, arguments);
+    Talho.Rollcall.Graphing.view.Results.superclass.initComponent.call(this);
   },
   
   loadResultStore: function (params, callback) {
@@ -102,6 +102,13 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
       var name = school.get('name');
       var field_array = this._getFieldArray(school);
       var graph_series = this._getGraphSeries(field_array);
+      //Fixes a bug in IE
+      if (!Talho.Detection.SVG()) {
+        Ext.each(school.data.results, function (record, i) {
+          var date = record.report_date.split("-");
+          school.data.results[i].report_date = new Date(date[0], date[1], date[2]);
+        });
+      }
       var school_store = new Ext.data.JsonStore({fields: field_array, data: school.get('results')});
       var gis = typeof school.gmap_lat == "undefined" ? true : false;
       var getFA = this._getFieldArray;

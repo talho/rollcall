@@ -53,7 +53,7 @@ Talho.Rollcall.Graphing.view.GraphWindow = Ext.extend(Ext.Window, {
     
     this.combo.getStore().load({params: this.search_params});       
     
-    Talho.Rollcall.Graphing.view.GraphWindow.superclass.initComponent.apply(this, arguments)
+    Talho.Rollcall.Graphing.view.GraphWindow.superclass.initComponent.call(this);
   },
   
   _nextGraph: function () {

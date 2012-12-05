@@ -8,42 +8,6 @@ $districtid = "";
 $logfilename = "./out.log";
 include('include.php');
 
-// Find the total enrollment
-$enrollmentquery = "SELECT Curdate() AS 'date', '".$districtid."'+\"STUDENT_EW\".\"ENTITY-ID\" AS 'id', count( \"STUDENT_EW\".\"STUDENT-ID\") AS 'enrolled'
-FROM   \"SKYWARD\".\"PUB\".\"STUDENT-EW\" \"STUDENT_EW\" 
-WHERE  \"STUDENT_EW\".\"EW-DATE\"<=SYSDATE() AND (\"STUDENT_EW\".\"WITHDRAWAL-DATE\" IS  NULL  OR \"STUDENT_EW\".\"WITHDRAWAL-DATE\">SYSDATE())
-GROUP BY \"STUDENT_EW\".\"ENTITY-ID\"";
-
-// Find the daily absenses
-$absencesubquery = "SELECT \"ATND_ABSENCE_TYPE\".\"AAT-ID\"
- FROM   \"SKYWARD\".\"PUB\".\"ATND-ABSENCE-TYPE\" \"ATND_ABSENCE_TYPE\"
- WHERE  
-     \"ATND_ABSENCE_TYPE\".\"AAT-EXC-UNEXC-TAR-OTH\"<>'T' AND
-     \"ATND_ABSENCE_TYPE\".\"ENTITY-ID\"=\"STUDENT_ATND_DETAIL\".\"ENTITY-ID\" AND
-     \"ATND_ABSENCE_TYPE\".\"AAT-INCL-IN-TOT-ATND\"=1 and
-     \"ATND_ABSENCE_TYPE\".\"SCHOOL-YEAR\"=\"STUDENT_ATND_DETAIL\".\"SCHOOL-YEAR\""
-
-$absencequery = "SELECT \"STUDENT_ATND_DETAIL\".\"ATND-DATE\" AS 'date', '".$districtid."'+\"ENTITY\".\"ENTITY-ID\" AS 'id', \"ENTITY\".\"ENTITY-NAME\" AS 'name', count(\"STUDENT_ATND_DETAIL\".\"STUDENT-ID\") as 'absent'
-FROM   \"SKYWARD\".\"PUB\".\"STUDENT-ATND-DETAIL\" \"STUDENT_ATND_DETAIL\"
-INNER JOIN  \"SKYWARD\".\"PUB\".\"ENTITY\" ON \"STUDENT_ATND_DETAIL\".\"ENTITY-ID\" = \"ENTITY\".\"ENTITY-ID\" AND \"STUDENT_ATND_DETAIL\".\"SCHOOL-YEAR\" = \"ENTITY\".\"SCHOOL-YEAR\"
-WHERE  \"STUDENT_ATND_DETAIL\".\"ATND-DATE\" = Curdate()
-  AND  (
-	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[1] in (".$absencesubquery.") OR
-	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[2] in (".$absencesubquery.") OR
-	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[3] in (".$absencesubquery.") OR
-	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[4] in (".$absencesubquery.") OR
-	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[5] in (".$absencesubquery.") OR
-	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[5] in (".$absencesubquery.") OR
-	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[6] in (".$absencesubquery.") OR
-	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[7] in (".$absencesubquery.") OR
-	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[8] in (".$absencesubquery.") OR
-	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[9] in (".$absencesubquery.") OR
-	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[10] in (".$absencesubquery.") OR
-	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[11] in (".$absencesubquery.") OR
-	\"STUDENT_ATND_DETAIL\".\"AAT-ID\"[12] in (".$absencesubquery.")
-       )
-GROUP BY \"ENTITY\".\"ENTITY-ID\", \"ENTITY\".\"ENTITY-NAME\", \"STUDENT_ATND_DETAIL\".\"ATND-DATE\"";
-
 // Disable the script time limit.
 set_time_limit(0);
 
@@ -62,13 +26,57 @@ if (!$dbconnect = odbc_connect($dsn, $user, $pass)) {
 	wlogDie("Failed to connect to data source!");
 }
 
+// Find the total enrollment
+$enrollmentquery = "SELECT Curdate() AS 'date', '".$districtid."'+\"STUDENT_EW\".\"ENTITY-ID\" AS 'id', count( \"STUDENT_EW\".\"STUDENT-ID\") AS 'enrolled'
+FROM   \"SKYWARD\".\"PUB\".\"STUDENT-EW\" \"STUDENT_EW\" 
+WHERE  \"STUDENT_EW\".\"EW-DATE\"<=SYSDATE() AND (\"STUDENT_EW\".\"WITHDRAWAL-DATE\" IS  NULL  OR \"STUDENT_EW\".\"WITHDRAWAL-DATE\">SYSDATE())
+GROUP BY \"STUDENT_EW\".\"ENTITY-ID\"";
+
+// Find which attendance details are tardies
+$tardinessquery = "SELECT DISTINCT \"ATND_ABSENCE_TYPE\".\"AAT-ID\" as \"id\"
+ FROM  \"SKYWARD\".\"PUB\".\"ATND-ABSENCE-TYPE\" \"ATND_ABSENCE_TYPE\"
+ WHERE \"ATND_ABSENCE_TYPE\".\"AAT-EXC-UNEXC-TAR-OTH\" = 'T' 
+    OR \"ATND_ABSENCE_TYPE\".\"AAT-INCL-IN-TOT-ATND\" != 1";
+
+$tardie_arr = ["''"];
+// Build the tardiness list.
+if (!$dbdata = odbc_exec($dbconnect, $tardinessquery)) {
+	echo "Failed to execute query!" . "\r\n";
+	wlogdie("Failed to execute query!");
+}
+while ($row = odbc_fetch_array($dbdata)){
+	array_push($tardie_arr, "'".$row["id"]."'");
+}
+odbc_free_result($dbdata);
+$tardies = implode(',',$tardie_arr);
+
+// Find the daily absenses
+$absencequery = "SELECT \"STUDENT_ATND_DETAIL\".\"ATND-DATE\" AS 'date', '".$districtid."'+\"STUDENT_ATND_DETAIL\".\"ENTITY-ID\" AS 'id', count(\"STUDENT_ATND_DETAIL\".\"STUDENT-ID\") as 'absent'
+FROM   \"SKYWARD\".\"PUB\".\"STUDENT-ATND-DETAIL\" \"STUDENT_ATND_DETAIL\"
+WHERE  \"STUDENT_ATND_DETAIL\".\"ATND-DATE\" = Curdate()
+  AND  (
+    \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[1] NOT IN (".$tardies.") OR
+    \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[2] NOT IN (".$tardies.") OR
+    \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[3] NOT IN (".$tardies.") OR
+    \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[4] NOT IN (".$tardies.") OR
+    \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[5] NOT IN (".$tardies.") OR
+    \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[6] NOT IN (".$tardies.") OR
+    \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[7] NOT IN (".$tardies.") OR
+    \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[8] NOT IN (".$tardies.") OR
+    \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[9] NOT IN (".$tardies.") OR
+    \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[10] NOT IN (".$tardies.") OR
+    \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[11] NOT IN (".$tardies.") OR
+    \"STUDENT_ATND_DETAIL\".\"AAT-ID\"[12] NOT IN (".$tardies.")
+       )
+GROUP BY \"STUDENT_ATND_DETAIL\".\"ENTITY-ID\", \"STUDENT_ATND_DETAIL\".\"ATND-DATE\"";
+
 // Execute the enrollment query.
 if (!$dbdata = odbc_exec($dbconnect, $enrollmentquery)) {
 	echo "Failed to execute query!" . "\r\n";
 	wlogdie("Failed to execute query!");
 }
 while ($row = odbc_fetch_array($dbdata)){
-	$result[$districtid.$row["id"]] = array(
+	$result[$row["id"]] = array(
 		"date" => $row["date"],
 		"id" => $row['id'],
 		"enrolled" => $row["enrolled"]
@@ -77,13 +85,12 @@ while ($row = odbc_fetch_array($dbdata)){
 odbc_free_result($dbdata);
 
 // Execute the attendance query.
-if (!$dbdata = odbc_exec($dbconnect, $attendancequery)) {
+if (!$dbdata = odbc_exec($dbconnect, $absencequery)) {
 	echo "Failed to execute query!" . "\r\n";
 	wlogdie("Failed to execute query!");
 }
 while ($row = odbc_fetch_array($dbdata)){
 	$result[$row["id"]]["absent"] = $row["absent"];
-	$result[$row["id"]]["name"] = $row["name"];
 }
 odbc_free_result($dbdata);
 
@@ -96,7 +103,7 @@ odbc_close_all();
 
 $count = 0;
 foreach ( $result as $value ){
-	$rowarray = array($value["date"], $value["id"], $value["name"], $value["enrolled"], $value["absent"]);
+	$rowarray = array($value["date"], $value["id"], $value["enrolled"], $value["absent"]);
 
 	// Write the line to the output file and increment the record count.
 	writeLine($outfile,$rowarray);

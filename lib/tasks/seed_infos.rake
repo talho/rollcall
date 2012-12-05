@@ -13,9 +13,10 @@ namespace :rollcall do
     p "Warning this is going to take a loooooonnngg time"
     Rollcall::School.all.each do |school|
       start = DateTime.now - 1.year
+      total_enrolled = 100 + rand(800)
+      prev = 0
       start.upto(DateTime.now) do |report_date|
-        total_absent = rand(40)
-        total_enrolled = 1 + total_absent + rand(500)
+        prev = total_absent = [total_enrolled * 0.05, prev].max + (rand(2) > 0 ? -1 : 1)*rand(6)
         Rollcall::SchoolDailyInfo.create(
           :school_id => school.id, 
           :total_absent => total_absent, 

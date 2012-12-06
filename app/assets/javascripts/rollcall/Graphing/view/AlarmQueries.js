@@ -79,7 +79,7 @@ Talho.Rollcall.Graphing.view.AlarmQueries = Ext.extend(Ext.DataView, {
       '</tpl>'
     );
     
-    Talho.Rollcall.Graphing.view.AlarmQueries.superclass.initComponent.apply(this, arguments);
+    Talho.Rollcall.Graphing.view.AlarmQueries.superclass.initComponent.call(this);
     
     this.on('click', this._item_clicked, this);        
   },

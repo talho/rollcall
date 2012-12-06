@@ -10,9 +10,12 @@ class Rollcall::ILIReport < ::Report
     
     school_districts = user.school_districts
     school_districts.each do |sd|
+      val = {district: sd}
       # find the absence rate for the school district
+      val[:absence_rate] = sd.school_daily_infos
       # find confirmed illness
-      # find 
+      # find
+      params[:school_districts] << val
     end
   end
 end

@@ -35,8 +35,8 @@ namespace :rollcall do
         (1..25).each do |i|
           age = rand(18)
           Rollcall::Student.create(
-            :first_name => "Hi",
-            :last_name => "there",
+            :first_name => "Unknown",
+            :last_name => "Unknown",
             :gender => rand(1) ? "M" : "F",
             :school_id => school.id,
             :dob => age.to_i.year.ago
@@ -50,7 +50,7 @@ namespace :rollcall do
     
     Rollcall::Student.all.each do |student|
       p "Student id: #{student.id}"
-      start = DateTime.now - 1.year
+      start = DateTime.now - 3.months
       start.upto(DateTime.now) do |report_date|
         p "DATE: #{report_date}"
         odds = rand(100)

@@ -38,7 +38,7 @@ $tardinessquery = "SELECT DISTINCT \"ATND_ABSENCE_TYPE\".\"AAT-ID\" as \"id\"
  WHERE \"ATND_ABSENCE_TYPE\".\"AAT-EXC-UNEXC-TAR-OTH\" = 'T' 
     OR \"ATND_ABSENCE_TYPE\".\"AAT-INCL-IN-TOT-ATND\" != 1";
 
-$tardie_arr = ["''"];
+$tardie_arr = array("''");
 // Build the tardiness list.
 if (!$dbdata = odbc_exec($dbconnect, $tardinessquery)) {
 	echo "Failed to execute query!" . "\r\n";

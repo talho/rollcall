@@ -12,9 +12,12 @@ class Rollcall::ILIReport < ::Report
     school_districts.each do |sd|
       val = {district: sd}
       # find the absence rate for the school district
-      val[:absence_rate] = sd.school_daily_infos
+      val[:rates] = sd.school_daily_infos.select('SUM(total_enrolled) as enrolled, SUM(total_absent) as absent, SUM(total_absent)::float/SUM(total_enrolled) as rate').group(:report_date).having('report_date > (current_date - 7)').as_json
       # find confirmed illness
-      # find
+      val[:confirmed] = sd.
+      # find ili
+      val[:ili] 
+      
       params[:school_districts] << val
     end
   end

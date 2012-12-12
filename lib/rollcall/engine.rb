@@ -15,6 +15,7 @@ module Rollcall
       ::Jurisdiction.send(:include, Models::Jurisdiction)
       ::User.send(:include, Models::User)
       ::DocumentMailer.send(:include, Models::DocumentMailer)
+      Rollcall::ILIReport
     end
     
   end

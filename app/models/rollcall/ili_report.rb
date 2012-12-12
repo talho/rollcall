@@ -10,6 +10,8 @@ class Rollcall::ILIReport < ::Report
     
     params = {school_districts: []}
     
+    icd9_codes = ['487.1', '780.60', '780.64', '787.02'];
+    
     school_districts = user.school_districts
     school_districts.each do |sd|
       val = {district: sd.as_json(:only => [:id, :district_id, :jurisdiction_id, :name])}
@@ -21,7 +23,7 @@ class Rollcall::ILIReport < ::Report
       val[:confirmed] = sd.student_daily_infos.select("report_date, count(*) as total").where(confirmed_illness: true).order(:report_date).group(:report_date).where("report_date > (current_date -7)").as_json
       val[:confirmed].each{|v| v["report_date"] = v["report_date"].to_time}
       # find ili
-      val[:ili] = sd.student_daily_infos.select("report_date, count(*) as total").joins(:symptoms).where("icd9_code in ('487.1', '780.60', '780.64', '787.02')").where("report_date > (current_date -7)").order(:report_date).group(:report_date).as_json
+      val[:ili] = sd.student_daily_infos.select("report_date, count(*) as total").joins(:symptoms).where("icd9_code in (#{icd9_codes.map{|c| "'#{c}'"}.join(',')})").where("report_date > (current_date -7)").order(:report_date).group(:report_date).as_json
       val[:ili].each{|v| v["report_date"] = v["report_date"].to_time}
       
       schools_with_ili = sd.schools.select("rollcall_schools.*, confirmed, ili")
@@ -37,7 +39,7 @@ class Rollcall::ILIReport < ::Report
                                              JOIN   rollcall_student_reported_symptoms on rollcall_student_daily_infos.id = rollcall_student_reported_symptoms.student_daily_info_id
                                              JOIN   rollcall_symptoms on rollcall_student_reported_symptoms.symptom_id = rollcall_symptoms.id
                                              WHERE  report_date > (current_date -7)
-                                               AND  icd9_code in ('487.1', '780.60', '780.64', '787.02')
+                                               AND  icd9_code in (#{icd9_codes.map{|c| "'#{c}'"}.join(',')})
                                              GROUP BY school_id) ili on rollcall_schools.id = ili.school_id")
                                    .where("confirmed > 0 or ili > 0")
                                    .order("confirmed DESC, ili DESC")

@@ -9,6 +9,7 @@ $menu_config[:rollcall] = <<EOF
   if current_user.has_non_public_role?('rollcall')
     nav = "{name: 'Rollcall', items:[
       {name: 'Graphing', tab:{id: 'rollcall_graphing', title:'Rollcall Graphing', url:'', initializer: 'Talho.Rollcall.Graphing'}},
+      {name: 'New Graphing', tab:{id: 'rollcall_newgraphing', title:'Rollcall Graphing', url:'', initializer: 'Talho.Rollcall.newGraphing'}},
       {name: 'Symptom Cases', tab:{id: 'rollcall_nurse_assistant', title:'Symptom Cases', url:'', initializer: 'Talho.Rollcall.NurseAssistant'}},
       {name: 'Schools', tab:{id: 'rollcall_schools', title:'Rollcall Schools', url:'', initializer: 'Talho.Rollcall.Schools'}}"
     if current_user.is_rollcall_admin?

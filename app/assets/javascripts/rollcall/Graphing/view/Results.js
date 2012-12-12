@@ -267,7 +267,7 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
         qtip: function(d){
           return '<div class="d3-tip-row"><span>Report Date:</span><span>' + d3.time.format.utc('%m-%d-%y')(d.get('report_date')) + '</span></div>' +
                  '<div class="d3-tip-row"><span>Absent:</span><span>' + d.get('total') + '</span></div>' +
-                 '<div class="d3-tip-row"><span>Enrolled:</span><span>' + d.get('enrolled') + '</span></div>';
+                 '<div class="d3-tip-row"><span>Enrolled:</span><span>' + ((d.get('enrolled') == 0 || d.get('enrolled') == null) ? 'Not Reported' : d.get('enrolled')) + '</span></div>';
         }
       },
       'average' : {type: 'line', displayName: 'Average', yField: 'average',

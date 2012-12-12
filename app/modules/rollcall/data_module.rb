@@ -40,13 +40,17 @@ module Rollcall::DataModule
     if @ili      
       query = query.joins("inner join rollcall_students on rollcall_students.school_id = rollcall_schools.id")
                    .joins("inner join rollcall_student_daily_infos on rollcall_student_daily_infos.student_id = rollcall_students.id")
-      query = query.joins("left join rollcall_school_daily_infos on rollcall_student_daily_infos.report_date = rollcall_school_daily_infos.report_date and rollcall_schools.id = rollcall_school_daily_infos.school_id") if self.is_a? Rollcall::School
+      if self.is_a? Rollcall::School                   
+        query = query.joins("left join rollcall_school_daily_infos on rollcall_student_daily_infos.report_date = rollcall_school_daily_infos.report_date and rollcall_schools.id = rollcall_school_daily_infos.school_id")
+                     .joins("inner join (select Max(total_enrolled) as max_enrolled, school_id from rollcall_school_daily_infos group by school_id) as max_school_enrollment on max_school_enrollment.school_id = rollcall_schools.id")
+      end
       query = query.joins("LEFT JOIN (SELECT SUM(total_enrolled) as total_enrolled, district_id, report_date 
                                  FROM rollcall_schools rs 
                                  JOIN rollcall_school_daily_infos rsdi ON rs.id = rsdi.school_id 
                                  GROUP BY district_id, report_date) district_info on district_info.district_id = rollcall_school_districts.id and district_info.report_date = rollcall_student_daily_infos.report_date") if self.is_a? Rollcall::SchoolDistrict
     else
       query = query.joins("inner join rollcall_school_daily_infos on rollcall_school_daily_infos.school_id = rollcall_schools.id")
+                   .joins("inner join (select Max(total_enrolled) as max_enrolled, school_id from rollcall_school_daily_infos group by school_id) as max_school_enrollment on max_school_enrollment.school_id = rollcall_schools.id")
     end
     
     query
@@ -124,11 +128,11 @@ module Rollcall::DataModule
     if @ili           
       total_absent = "count(*)"
       report_date = "rollcall_student_daily_infos.report_date"
-      total_enrolled = self.is_a?(Rollcall::School) ? "MAX(total_enrolled)" : "MAX(district_info.total_enrolled)"
+      total_enrolled = self.is_a?(Rollcall::School) ? "MAX(CASE WHEN total_enrolled = 0 or total_enrolled is null THEN max_enrolled ELSE total_enrolled END)" : "MAX(district_info.total_enrolled)"
     elsif self.is_a?(Rollcall::School)
       total_absent = "total_absent"  
-      report_date = "rollcall_school_daily_infos.report_date"
-      total_enrolled = "total_enrolled"
+      report_date = "rollcall_school_daily_infos.report_date"      
+      total_enrolled = "CASE WHEN total_enrolled = 0 or total_enrolled is null THEN max_enrolled ELSE total_enrolled END"
     elsif self.is_a?(Rollcall::SchoolDistrict)
       total_absent = "SUM(total_absent)"
       report_date = "rollcall_school_daily_infos.report_date"

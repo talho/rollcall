@@ -46,8 +46,7 @@ INNER JOIN (SELECT \"HLT-OFFICE-VISIT-MST\".\"STUDENT-ID\", \"HLT-OFFICE-VISIT-M
 	WHERE \"1\".\"OFFICE-VISIT-DTL-TYPE\"='V' 
 	GROUP BY \"HLT-OFFICE-VISIT-MST\".\"STUDENT-ID\", \"HLT-OFFICE-VISIT-MST\".\"OFFICE-VISIT-REF-NO\", \"HLT-OFFICE-VISIT-MST\".\"REF-NO\", \"HLT-OFFICE-VISIT-MST\".\"HLT-OVM-TEMPERATURE\"
 ) AS \"STU_SYMPTOMS\" ON \"STU_SYMPTOMS\".\"STUDENT-ID\" = \"STUDENT_HEALTH\".\"STUDENT-ID\" AND \"STUDENT_HEALTH\".\"REF-NO\"=\"STU_SYMPTOMS\".\"REF-NO\" 
-WHERE \"STUDENT_HEALTH\".\"HLT-DATE\" >= (CURDATE() - 7) AND \"STUDENT_HEALTH\".\"HLT-DATE\" <= CURDATE()
-";
+WHERE \"STUDENT_HEALTH\".\"HLT-DATE\" >= (CURDATE() - 7) AND \"STUDENT_HEALTH\".\"HLT-DATE\" <= CURDATE()";
 
 // Disable the script time limit.
 set_time_limit(0);
@@ -73,7 +72,7 @@ if (!$dbdata = odbc_exec($dbconnect, $query)) {
 	wlogdie("Failed to execute query!");
 }
 
-$result = array();
+$count = 0;
 while ($row = odbc_fetch_array($dbdata)) {
   $rowarray = array($row["cid"], $row["year"], $row["campusid"], $row["date"], $row["temp"], $row["grade"], $row["zip"], $row["gender"], $row["race"], $row["doctor"], $row["symptoms"]);
 

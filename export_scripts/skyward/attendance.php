@@ -8,24 +8,6 @@ $districtid = "";
 $logfilename = "./out.log";
 include('include.php');
 
-// Disable the script time limit.
-set_time_limit(0);
-
-// log the beginning of the import
-wlog("Starting attendence export.");
-
-// Open the output file.
-if (!$outfile = fopen($outputfile, "w+")) {
-	echo "Failed to open output file!" . "\r\n";
-	wlogDie("Failed to open output file!");
-}
-
-// Connect to the data source.
-if (!$dbconnect = odbc_connect($dsn, $user, $pass)) {
-	echo "Failed to connect to data source!" . "\r\n";
-	wlogDie("Failed to connect to data source!");
-}
-
 // Find the total enrollment
 $enrollmentquery = "SELECT Curdate() AS 'date', '".$districtid."'+\"STUDENT_EW\".\"ENTITY-ID\" AS 'id', count( \"STUDENT_EW\".\"STUDENT-ID\") AS 'enrolled'
 FROM   \"SKYWARD\".\"PUB\".\"STUDENT-EW\" \"STUDENT_EW\" 

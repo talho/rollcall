@@ -1,0 +1,44 @@
+
+<div class="container">
+  <h2>Absentee and Influenza-like Illness Report</h2>
+  <h5>Report date: <%= l @report.created_at.to_date %></h5>
+  
+  <% @report.params["school_districts"].each do |district| %>
+    <h3><%= district["district"]["name"] %></h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Absence Rate</th>
+          <th>Confirmed Illnesses*</th>
+          <th>Flu-like Symptoms</th>
+          <th>Total Enrollment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% district["rates"].each do |rate| %>
+          <tr>
+            <td><%= l rate["report_date"].to_date %></td>
+            <td><%= number_to_percentage((rate["rate"].to_f * 100), :precision => 1) %></td>
+            <td><%= (district["confirmed"].select{|c| c["report_date"] == rate["report_date"]}.first || {})["total"] %></td>
+            <td><%= (district["ili"].select{|c| c["report_date"] == rate["report_date"]}.first || {})["total"] %></td>
+            <td><%= rate["enrolled"] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% unless district["schools_with_ili"].blank? %>
+      <p><b>Schools with confirmed absences or ili in the last week:</b> 
+        <%= district["schools_with_ili"].map{|school| "#{school['display_name']} (#{school['confirmed'] || '0'} confirmed/#{school['ili'] || '0'} ili)"}.join(', ') %>
+      </p>    
+    <% end %>
+    
+    <% unless district["schools_above_average"].blank? %>
+      <p><b>Schools that are beyond 1 deviation higher:</b>
+        <%= district["schools_above_average"].map{|school| "#{school['display_name']} (#{l school['report_date'].to_date } - #{number_to_percentage((school['rate'].to_f * 100), :precision => 1)})"}.join(', ') %>
+      </p>
+    <% end %>
+  <% end %>
+  
+  <small>* Not all districts report confirmed illnesses with their symptoms.</small>
+</div>

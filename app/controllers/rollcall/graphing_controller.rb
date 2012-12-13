@@ -32,13 +32,15 @@ class Rollcall::GraphingController < Rollcall::RollcallAppController
     end
     
     begin    
-      if defined? REPORT_DB
-        collection = REPORT_DB.collection("graphing_analytics")
-        
-        doc = {"params" => params, "home_jurisdiction_id" => current_user.home_jurisdiction_id }
-        
-        collection.insert(doc)
-      end
+      config = YAML::load(File.read(File.join(Rails.root,'config','mongo_database.yml')))[Rails.env].symbolize_keys
+      conn = Mongo::Connection.new(config[:host],config[:port],(config[:options]||{}))
+      db = conn.db(config[:database])
+      db.authenticate(config[:database],config[:password]) if config[:password]
+      collection = db.collection("graphing_analytics")
+      
+      doc = {"params" => params, "home_jurisdiction_id" => current_user.home_jurisdiction_id }
+      
+      collection.insert(doc)
     rescue #swallow analytics errors
     end      
     

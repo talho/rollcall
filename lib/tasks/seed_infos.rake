@@ -12,6 +12,7 @@ namespace :rollcall do
   task :school_info => :environment do
     p "Warning this is going to take a loooooonnngg time"
     Rollcall::School.all.each do |school|
+      ActiveRecord::Base.connection.execute("DELETE * FROM rollcall_school_daily_infos WHERE school_id = #{school.id}")
       start = DateTime.now - 3.months
       total_enrolled = 100 + rand(800)
       prev = 0

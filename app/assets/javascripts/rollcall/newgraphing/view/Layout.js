@@ -1,4 +1,5 @@
 //= require ext_extensions/DoNotCollapseActive
+//= require rollcall/ux/ComboBox.js
 
 Ext.namespace("Talho.Rollcall.newGraphing.view");
 
@@ -10,21 +11,33 @@ Talho.Rollcall.newGraphing.view.Layout = Ext.extend(Ext.Panel, {
   
   initComponent: function () {
     
+    var basic = new Talho.Rollcall.graphing.view.filter.Basic();
+    
+    var demographic = new Talho.Rollcall.graphing.view.filter.Demographic();
+    
+    var school = new Talho.Rollcall.graphing.view.filter.School();
+    
+    var symptom = new Talho.Rollcall.graphing.view.filter.Symptom();
+    
+    var common = new Talho.Rollcall.graphing.view.filter.Common();
+    
+    this.filters = [basic, demographic, schoo, symptom, common];
+    
+    this.saved_searches = new Talho.Rollcall.graphing.view.SavedSearches();
+    
     this.accordion = new Ext.Panel({
-      region: 'west', width: 200, layout: 'accordion',      
+      layout: 'accordion', anchor: '100% 75%',   
       layoutConfig: { hideCollapseTool: true, animate: Application.rails_environment !== 'cucumber' ? true : false },
       activeItem: 0, plugins: ['donotcollapseactive'], cls: 'rollcall-navigation-accordion',
-      items: [
-        {title: 'Simple', border: false, html: '<div>hue hue hue</div>'},
-        {title: 'Advanced',  border: false, html: '<div>hue hue hue</div>'},
-        {title: 'Alarms',  border: false, html: '<div>hue hue hue</div>'}
-      ]
+      defaults: { border: false },
+      items: [basic, demographic, school, symptom, common, this.saved_searches]
     })
     
     this.items = {id: 'new_graphing_layout', layout: 'border', autoScroll: true, scope: this,
-      items: [
-        this.accordion,
-        {xtype: 'panel', region: 'center'},
+      items: [        
+        {xtype: 'panel', region: 'east', layout: 'anchor', width: 350, 
+          items: [this.accordion, common]},
+        {xtype: 'panel', region: 'center', html: '<div>this is a center</div>'},
       ]
     }
     

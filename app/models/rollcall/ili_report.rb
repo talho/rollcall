@@ -16,7 +16,7 @@ class Rollcall::ILIReport < ::Report
     school_districts.each do |sd|
       val = {district: sd.as_json(:only => [:id, :district_id, :jurisdiction_id, :name])}
       # find the absence rate for the school district
-      val[:rates] = sd.school_daily_infos.select('report_date, SUM(total_enrolled) as enrolled, SUM(total_absent) as absent, SUM(total_absent)::float/SUM(total_enrolled) as rate').order(:report_date)
+      val[:rates] = sd.school_daily_infos.select('report_date, SUM(total_enrolled) as enrolled, SUM(total_absent) as absent, SUM(total_absent)::float/nullif(SUM(total_enrolled), 0) as rate').order(:report_date)
                     .group(:report_date).having('report_date > (current_date - 7)').as_json
       val[:rates].each{|v| v["report_date"] = v["report_date"].to_time}
       # find confirmed illness
@@ -46,7 +46,7 @@ class Rollcall::ILIReport < ::Report
       
       val[:schools_with_ili] = schools_with_ili.as_json(:only => [:display_name, :confirmed, :ili])
       
-      schools_above_average = sd.schools.select("display_name, report_date, total_absent::float/total_enrolled as rate, total_absent, absent_dev, absent_avg")
+      schools_above_average = sd.schools.select("display_name, report_date, total_absent::float/nullif(total_enrolled, 0) as rate, total_absent, absent_dev, absent_avg")
                                         .joins("JOIN rollcall_school_daily_infos on rollcall_schools.id = rollcall_school_daily_infos.school_id")
                                         .joins("JOIN (SELECT school_id, STDDEV(total_absent) as absent_dev, AVG(total_absent) as absent_avg
                                                       FROM   rollcall_school_daily_infos

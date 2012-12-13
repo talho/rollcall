@@ -138,7 +138,7 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
             if(targetEl.hasClass('x-tool-unpin')) panel.pinned = true;
             else panel.pinned = false;
           }},
-          {id: 'report', qtip: 'Generate Report', scope: this, hidden: hideToolTip,
+          /*{id: 'report', qtip: 'Generate Report', scope: this, hidden: hideToolTip,
             handler: function(e, targetEl, panel, tc) {              
               var scrollMenu = new Ext.menu.Menu();
               scrollMenu.add({text: 'Attendance Report', handler: function () { 
@@ -149,7 +149,7 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
               });
               scrollMenu.show(targetEl);
             }
-          },          
+          },*/          
           {id: 'gis', qtip: 'School Profile', handler: function (e, targetEl, panel, tc) {
               var gmap = new Talho.Rollcall.Graphing.view.SchoolProfile({school_name: panel.school_name, school: panel.school.json});
               gmap.show();        
@@ -267,7 +267,7 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
         qtip: function(d){
           return '<div class="d3-tip-row"><span>Report Date:</span><span>' + d3.time.format.utc('%m-%d-%y')(d.get('report_date')) + '</span></div>' +
                  '<div class="d3-tip-row"><span>Absent:</span><span>' + d.get('total') + '</span></div>' +
-                 '<div class="d3-tip-row"><span>Enrolled:</span><span>' + d.get('enrolled') + '</span></div>';
+                 '<div class="d3-tip-row"><span>Enrolled:</span><span>' + ((d.get('enrolled') == 0 || d.get('enrolled') == null) ? 'Not Reported' : d.get('enrolled')) + '</span></div>';
         }
       },
       'average' : {type: 'line', displayName: 'Average', yField: 'average',

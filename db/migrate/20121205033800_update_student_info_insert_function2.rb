@@ -1,4 +1,4 @@
-class UpdateStudentInfoInsertFunction < ActiveRecord::Migration
+class UpdateStudentInfoInsertFunction2 < ActiveRecord::Migration
   def up
     execute %Q{
       CREATE OR REPLACE FUNCTION rollcall_insert_student_info(_cid varchar(255), _year varchar(20), _tea_id int, _date date, _onset date, _temp float, _grade int, _zip int, _gender varchar(1), _doc varchar(200), _doc_address varchar(200), 

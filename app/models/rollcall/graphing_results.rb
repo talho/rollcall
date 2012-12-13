@@ -26,8 +26,8 @@ class Rollcall::GraphingResults
       @csv_data = "School Name,Identifier,Total Absent,Total Enrolled,Report Date\n"
     end
     
-    results.each do |row|      
-      row.result.each do |r|        
+    results.each do |row|
+      row.result.each do |r|
         if results.first.is_a? Rollcall::SchoolDistrict
           @csv_data += "#{row.name},#{r["total"]},#{r["enrolled"]},#{r["report_date"]}\n"
         else          
@@ -52,4 +52,5 @@ class Rollcall::GraphingResults
     true
   end
   
+  handle_asynchronously :export_data
 end

@@ -56,7 +56,7 @@ Talho.Rollcall.Graphing.view.Layout = Ext.extend(Ext.Panel, {
       handler: function (button, firedEvent) { this.getSearchForm()._showReportMenu(button.getEl(), null) }
     });
       
-    this.hidden_buttons = [this.export_button, this.alarm_button, this.report_button];
+    this.hidden_buttons = [this.export_button, this.alarm_button];//, this.report_button];
     
     this.graphing_panel = new Ext.Panel({id: 'graphing_panel', border: false, collapsible: false,
       region: 'center', autoScroll: true, scope: this, height: 200,

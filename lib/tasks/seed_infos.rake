@@ -12,11 +12,12 @@ namespace :rollcall do
   task :school_info => :environment do
     p "Warning this is going to take a loooooonnngg time"
     Rollcall::School.all.each do |school|
-      start = DateTime.now - 1.year
+      ActiveRecord::Base.connection.execute("DELETE * FROM rollcall_school_daily_infos WHERE school_id = #{school.id}")
+      start = DateTime.now - 3.months
       total_enrolled = 100 + rand(800)
       prev = 0
       start.upto(DateTime.now) do |report_date|
-        prev = total_absent = [total_enrolled * 0.05, prev].max + (rand(2) > 0 ? -1 : 1)*rand(6)
+        prev = total_absent = ([total_enrolled * 0.05, prev].max + (rand(2) > 0 ? -1 : 1)*rand(6)).floor
         Rollcall::SchoolDailyInfo.create(
           :school_id => school.id, 
           :total_absent => total_absent, 
@@ -35,8 +36,8 @@ namespace :rollcall do
         (1..25).each do |i|
           age = rand(18)
           Rollcall::Student.create(
-            :first_name => "Hi",
-            :last_name => "there",
+            :first_name => "Unknown",
+            :last_name => "Unknown",
             :gender => rand(1) ? "M" : "F",
             :school_id => school.id,
             :dob => age.to_i.year.ago
@@ -50,7 +51,7 @@ namespace :rollcall do
     
     Rollcall::Student.all.each do |student|
       p "Student id: #{student.id}"
-      start = DateTime.now - 1.year
+      start = DateTime.now - 3.months
       start.upto(DateTime.now) do |report_date|
         p "DATE: #{report_date}"
         odds = rand(100)

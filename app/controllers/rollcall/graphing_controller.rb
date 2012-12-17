@@ -81,7 +81,7 @@ class Rollcall::GraphingController < Rollcall::RollcallAppController
   #
   # POST /rollcall/query_options
   def get_options
-    default_options  = get_default_options
+    default_options = get_default_options
     
     zipcodes = current_user.rollcall_zip_codes              
     

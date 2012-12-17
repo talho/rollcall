@@ -1,9 +1,8 @@
 
 Ext.namespace("Talho.Rollcall.graphing.view.filter");
 
-Talho.Rollcall.graphing.view.filter.Demographic = Ext.extend(Talho.Rollcall.Graphing.view.filter.Filter, {
-  title: 'Demographic Filter',
-  layout: 'form',
+Talho.Rollcall.graphing.view.filter.Demographic = Ext.extend(Talho.Rollcall.ux.Filter, {
+  title: 'Demographic Filter',  
   
   initComponent: function () {    
     var age = new Ext.ListView({id: 'age', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',

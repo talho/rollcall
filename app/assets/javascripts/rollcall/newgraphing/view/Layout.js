@@ -1,5 +1,6 @@
 //= require ext_extensions/DoNotCollapseActive
 //= require rollcall/ux/ComboBox.js
+//= require rollcall/ux/Filter
 
 Ext.namespace("Talho.Rollcall.newGraphing.view");
 
@@ -21,7 +22,7 @@ Talho.Rollcall.newGraphing.view.Layout = Ext.extend(Ext.Panel, {
     
     var common = new Talho.Rollcall.graphing.view.filter.Common();
     
-    this.filters = [basic, demographic, schoo, symptom, common];
+    this.filters = [basic, demographic, school, symptom, common];
     
     this.saved_searches = new Talho.Rollcall.graphing.view.SavedSearches();
     

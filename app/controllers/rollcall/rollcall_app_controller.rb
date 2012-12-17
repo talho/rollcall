@@ -130,11 +130,6 @@ class Rollcall::RollcallAppController < ApplicationController
       data_functions = [
         {:id => 0, :value => 'Raw'},
         {:id => 1, :value => 'Average'},
-        {:id => 2, :value => 'Standard Deviation'}
-      ]
-      data_functions_adv = [
-        {:id => 0, :value => 'Raw'},
-        {:id => 1, :value => 'Average'},
         {:id => 2, :value => 'Average 30 Day'},
         {:id => 3, :value => 'Average 60 Day'},
         {:id => 4, :value => 'Standard Deviation'},
@@ -146,7 +141,6 @@ class Rollcall::RollcallAppController < ApplicationController
         :gender             => gender,
         :symptoms           => symptoms,
         :data_functions     => data_functions,
-        :data_functions_adv => data_functions_adv,
         :race               => race,
         :grade              => grade
       }

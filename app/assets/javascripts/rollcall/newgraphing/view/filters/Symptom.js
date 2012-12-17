@@ -1,9 +1,8 @@
 
 Ext.namespace("Talho.Rollcall.graphing.view.filter");
 
-Talho.Rollcall.graphing.view.filter.Symptom = Ext.extend(Talho.Rollcall.Graphing.view.filter.Filter,  {
+Talho.Rollcall.graphing.view.filter.Symptom = Ext.extend(Talho.Rollcall.ux.Filter,  {
   title: 'Symptom Filter',
-  layout: 'form',
   
   initComponent: function () {
     var symptoms = new Ext.ListView({id: 'symptoms', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',

@@ -1,7 +1,6 @@
 json.absenteeism @options[:default_options][:absenteeism] 
 json.age @options[:default_options][:age] 
-json.data_functions @options[:default_options][:data_functions] 
-json.data_functions_adv @options[:default_options][:data_functions_adv] 
+json.data_functions @options[:default_options][:data_functions]
 json.gender @options[:default_options][:gender] 
 json.symptoms @options[:default_options][:symptoms]   
 json.zipcode @options[:zipcodes] do |json, zip|

@@ -10,6 +10,22 @@ Talho.Rollcall.newGraphing.Controller = Ext.extend(Ext.util.Observable, {
       return this.layout;
     }
     
+    Ext.Ajax.request({
+      url: '/rollcall/query_options',
+      method: 'GET',
+      scope: this,
+      success: function (response) {
+        var data = Ext.decode(response.responseText);
+        Ext.each(this.layout.filters, function (f) {
+          f.loadOptions(data);
+        });
+        this.layout.doLayout();
+      },
+      failure: function (response) {
+        this.fireEvent('notauthorized');        
+      }
+    });
+    
     Talho.Rollcall.newGraphing.Controller.superclass.constructor.call(this);
   }
 });

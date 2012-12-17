@@ -1,9 +1,8 @@
 
 Ext.namespace("Talho.Rollcall.graphing.view.filter");
 
-Talho.Rollcall.graphing.view.filter.Basic = Ext.extend(Talho.Rollcall.Graphing.view.filter.Filter, {
+Talho.Rollcall.graphing.view.filter.Basic = Ext.extend(Talho.Rollcall.ux.Filter, {
   title: 'Basic',
-  layout: 'form',
   
   initComponent: function () {
     var district = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'School District', emptyText:'Select School District...',

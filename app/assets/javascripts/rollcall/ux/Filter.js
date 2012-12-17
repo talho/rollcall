@@ -1,12 +1,12 @@
 
-Ext.namespace("Talho.Rollcall.graphing.view.filter");
+Ext.namespace("Talho.Rollcall.ux");
 
-Talho.Rollcall.graphing.view.filter.Filter = Ext.extend(Ext.Panel, {
+Talho.Rollcall.ux.Filter = Ext.extend(Ext.Panel, {
   layout: 'form',
   border: false,
   
   initComponent: function () {
-    Talho.Rollcall.graphing.view.filter.Filter.superclass.initComponent.call(this);
+    Talho.Rollcall.ux.Filter.superclass.initComponent.call(this);
   },
   
   reset: function () {

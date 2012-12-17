@@ -1,9 +1,8 @@
 
 Ext.namespace("Talho.Rollcall.graphing.view.filter");
 
-Talho.Rollcall.graphing.view.filter.School = Ext.extend(Talho.Rollcall.Graphing.view.filter.Filter, {
+Talho.Rollcall.graphing.view.filter.School = Ext.extend(Talho.Rollcall.ux.Filter, {
   title: 'School Filter',
-  layout: 'form',
   
   initComponent: function () {
     var type = new Ext.ListView({id: 'school_type', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',

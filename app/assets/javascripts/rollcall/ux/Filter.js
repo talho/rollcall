@@ -1,8 +1,7 @@
 
 Ext.namespace("Talho.Rollcall.ux");
 
-Talho.Rollcall.ux.Filter = Ext.extend(Ext.Panel, {
-  layout: 'form',
+Talho.Rollcall.ux.Filter = Ext.extend(Ext.FormPanel, {  
   border: false,
   
   initComponent: function () {
@@ -15,18 +14,51 @@ Talho.Rollcall.ux.Filter = Ext.extend(Ext.Panel, {
         r.reset(r.item)
       }
       else {
-        r.item.clearValue();
+        r.clearValue();
       }
     });
   },
   
   loadOptions: function (data) {
     Ext.each(this.loadable, function (d) {
-      d.item.store = new Ext.data.JsonStore({fields: d.fields, data: data[d.key] });
+      d.item.store = new Ext.data.JsonStore({ fields: d.fields, data: data[d.key] });
     });
   },
   
   getParameters: function () {
+    var params = new Object;
     
+    Ext.each(this.getable, function (item) {
+      var value = item.get(item.param);
+      if (this._includeParam(value)) {
+        params[item.key] = value;
+      }
+    }, this);
+    
+    return params;
+  },
+  
+  getListBoxParameters: function (listBox) {
+    var records = []
+    
+    Ext.each(listBox.getSelectedRecords(), function (selected) {
+      records.push(selected.get('value'));
+    });
+    
+    return records;
+  },
+  
+  _includeParam: function (value) {
+    if (value != undefined && value != null && value != "") {
+      if (value instanceof Array) {
+        if (value.length == 0) {
+          return false
+        }
+      }
+      
+      return true;
+    }
+    
+    return false;
   }
 });

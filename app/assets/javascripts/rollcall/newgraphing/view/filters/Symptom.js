@@ -5,9 +5,9 @@ Talho.Rollcall.graphing.view.filter.Symptom = Ext.extend(Talho.Rollcall.ux.Filte
   title: 'Symptom Filter',
   
   initComponent: function () {
-    var symptoms = new Ext.ListView({id: 'symptoms', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
+    var symptoms = new Ext.ListView({multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
       columns: [{dataIndex: 'name', width: 0.70, cls:'symptom-list-item'}, {dataIndex: 'value'}],
-      hideHeaders: true, height: 160, fieldLabel: 'Symptoms ICD-9 Code'
+      hideHeaders: true, height: 160, fieldLabel: 'Symptoms ICD-9 Code', clearValue: function () { this.clearSelections(); }
     });
     
     this.items = [symptoms];
@@ -18,7 +18,9 @@ Talho.Rollcall.graphing.view.filter.Symptom = Ext.extend(Talho.Rollcall.ux.Filte
     
     this.resetable = this.items;
     
-    this.getable = [];
+    this.getable = [
+      {key: 'symptoms[]', get: this.getListBoxParameters, param: symptoms}
+    ];
     
     Talho.Rollcall.graphing.view.filter.Symptom.superclass.initComponent.call(this);
   }

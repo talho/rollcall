@@ -5,23 +5,32 @@ Talho.Rollcall.graphing.view.filter.School = Ext.extend(Talho.Rollcall.ux.Filter
   title: 'School Filter',
   
   initComponent: function () {
-    var type = new Ext.ListView({id: 'school_type', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
+    this.enableBubble('activateschool');
+    
+    var type = new Ext.ListView({multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
         columns: [{dataIndex: 'value', cls:'school-type-list-item'}], hideHeaders: true, height: 90, fieldLabel: 'School Type'       
     });
     
-    var zip = new Ext.ListView({id: 'zip', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
+    var zip = new Ext.ListView({multiSelect: true, simpleSelect: true, cls: 'ux-query-form', 
       columns: [{dataIndex: 'value', cls:'zipcode-list-item'}], hideHeaders: true, height: 90, fieldLabel: 'Zipcode'
     }); 
     
-    var district = new Ext.ListView({id: 'school_district', multiSelect: true, simpleSelect: true, cls: 'ux-query-form', 
+    var district = new Ext.ListView({multiSelect: true, simpleSelect: true, cls: 'ux-query-form', 
       columns: [{dataIndex: 'value', cls:'school-district-list-item'}], hideHeaders: true, height: 90, fieldLabel: 'School District'        
     });
     
-    var school = new Ext.ListView({id: 'school', multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
-      columns: [{dataIndex: 'value', cls:'school-name-list-item'}], hideHeaders: true, height: 90, fieldLabel: 'School'     
+    var school = new Ext.ListView({multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
+      columns: [{dataIndex: 'value', cls:'school-name-list-item'}], hideHeaders: true, height: 90, fieldLabel: 'School'           
     });    
     
     this.items = [type, zip, district, school];
+    
+    Ext.each(this.items, function (item) {
+      item.clearValue = function () { this.clearSelections(); };
+      item.addListener('selectionchange', function (view, selections) { 
+        this.fireEvent('activateschool');
+      }, this);
+    }, this);
         
     this.loadable = [
       {item: type, fields: ['id', 'value'], key: 'school_type'},
@@ -32,7 +41,12 @@ Talho.Rollcall.graphing.view.filter.School = Ext.extend(Talho.Rollcall.ux.Filter
     
     this.resetable = this.items;
     
-    this.getable = [];
+    this.getable = [
+      {key: 'type[]', get: this.getListBoxParameters, param: type},
+      {key: 'zip[]', get: this.getListBoxParameters, param: zip},
+      {key: 'district[]', get: this.getListBoxParameters, param: district},
+      {key: 'school[]', get: this.getListBoxParameters, param: school}
+    ];
     
     Talho.Rollcall.graphing.view.filter.School.superclass.initComponent.call(this);
   }

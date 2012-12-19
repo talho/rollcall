@@ -10,6 +10,15 @@ Talho.Rollcall.newGraphing.Controller = Ext.extend(Ext.util.Observable, {
       return this.layout;
     }
     
+    this.layout.on({
+      'reset': this._reset,
+      'submitquery': this._submit,
+      'activatebasic': this._activateBasic,
+      'activateschool': this._activateSchool,
+      'notauthorized': this._notAuthorized,
+      scope: this
+    });
+    
     Ext.Ajax.request({
       url: '/rollcall/query_options',
       method: 'GET',
@@ -27,6 +36,34 @@ Talho.Rollcall.newGraphing.Controller = Ext.extend(Ext.util.Observable, {
     });
     
     Talho.Rollcall.newGraphing.Controller.superclass.constructor.call(this);
+  },
+  
+  _reset: function () {
+    Ext.each(this.layout.filters, function (f) {
+      f.reset();
+    });
+  },
+  
+  _submit: function () {
+    //Show mask
+    var params = this.layout.getParameters();
+    this.layout.results.neighbor_mode = false;
+    this.layout.results.loadResultStore(params);
+    //hide mask
+  },
+  
+  _activateBasic: function () {
+    this.layout.school.reset();
+  },
+  
+  _activateSchool: function () {
+    this.layout.basic.reset();
+  },
+  
+  _notAuthorized: function () {    
+    Ext.Msg.alert('Access', 'You are not authorized to access this feature.  Please contact TX PHIN.', function() {
+      this.layout.ownerCt.destroy();
+    }, this);
   }
 });
 

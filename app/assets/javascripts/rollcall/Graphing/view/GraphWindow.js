@@ -47,7 +47,7 @@ Talho.Rollcall.Graphing.view.GraphWindow = Ext.extend(Ext.Window, {
         {xtype: 'container', width: 'auto', items: [this.combo]},        
         {xtype: 'container', flex: 1, items: [
           {xtype: 'button', style: {'float': 'right'}, text: 'Next', handler: this._nextGraph, scope: this}
-        ]},
+        ]}
       ]
     });
     

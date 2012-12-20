@@ -84,12 +84,12 @@ Talho.Rollcall.Graphing.view.Layout = Ext.extend(Ext.Panel, {
           {xtype: 'panel', region: 'south', height: 120, title: 'Alarm Queries', layout: 'fit', padding: '2px 2px 4px 2px', items: this.alarm_queries},
           {xtype: 'panel', id: 'alarms_c', itemId: 'alarms', region: 'west', title: 'Alarms', layout: 'fit', bodyStyle: 'padding: 0px',
             width: 140, minSize: 140, maxSize: 140, hideBorders: true,
-            items: [new Talho.Rollcall.Graphing.view.Alarms({getBubbleTarget: findBubble})],            
+            items: [new Talho.Rollcall.Graphing.view.Alarms({getBubbleTarget: findBubble})]      
           },          
           this.graphing_panel
         ]
       }
     ];   
     Talho.Rollcall.Graphing.view.Layout.superclass.initComponent.call(this);
-  },    
+  }
 });

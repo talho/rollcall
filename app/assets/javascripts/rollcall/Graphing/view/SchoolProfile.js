@@ -81,7 +81,7 @@ Talho.Rollcall.Graphing.view.SchoolProfile = Ext.extend(Ext.Window, {
         {header: 'Enrolled', sortable: true, dataIndex: 'total_enrolled'},
         {header: 'Report Date', sortable: true, dataIndex: 'report_date'}
       ],
-      stripeRows:  true,
+      stripeRows:  true
     });
     
     var student_grid_panel = new Ext.grid.GridPanel({

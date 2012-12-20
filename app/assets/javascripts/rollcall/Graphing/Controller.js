@@ -260,7 +260,7 @@ Talho.Rollcall.Graphing.Controller = Ext.extend(Ext.util.Observable, {
   
   _hideGraphingMask: function () {
     this.layout.graphing_panel.container.mask.hide();
-  },
+  }
 });
 
   

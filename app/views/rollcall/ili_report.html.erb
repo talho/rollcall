@@ -3,13 +3,38 @@
   <h2>Absentee and Influenza-like Illness Report</h2>
   <h5>Report date: <%= l @report.created_at.to_date %></h5>
   
+  <h3>Total Absenteeism</h3>
+  <table class="table table-condensed">
+    <thead>
+      <th>Date</th>
+      <th>Absence Rate</th>
+      <th>Total Absences</th>
+      <th>Confirmed Illnesses*</th>
+      <th>Flu-like Symptoms</th>
+      <th>Total Enrollment</th>
+    </thead>
+    <tbody>
+      <% @report.params["totals"].each do |total| %>
+        <tr>
+          <td><%= l total["report_date"].to_date %></td>
+          <td><%= number_to_percentage((total["rate"].to_f * 100), :precision => 1) %></td>
+          <td><%= total["absent"]%></td>
+          <td><%= total["confirmed"] %></td>
+          <td><%= total["ili"] %></td>
+          <td><%= total["enrolled"] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  
   <% @report.params["school_districts"].each do |district| %>
     <h3><%= district["district"]["name"] %></h3>
-    <table class="table">
+    <table class="table table-condensed">
       <thead>
         <tr>
           <th>Date</th>
           <th>Absence Rate</th>
+          <th>Total Absences</th>
           <th>Confirmed Illnesses*</th>
           <th>Flu-like Symptoms</th>
           <th>Total Enrollment</th>
@@ -20,6 +45,7 @@
           <tr>
             <td><%= l rate["report_date"].to_date %></td>
             <td><%= number_to_percentage((rate["rate"].to_f * 100), :precision => 1) %></td>
+            <td><%= rate["absent"]%></td>
             <td><%= (district["confirmed"].select{|c| c["report_date"] == rate["report_date"]}.first || {})["total"] %></td>
             <td><%= (district["ili"].select{|c| c["report_date"] == rate["report_date"]}.first || {})["total"] %></td>
             <td><%= rate["enrolled"] %></td>
@@ -28,14 +54,21 @@
       </tbody>
     </table>
     <% unless district["schools_with_ili"].blank? %>
-      <p><b>Schools with confirmed absences or ili in the last week:</b> 
-        <%= district["schools_with_ili"].map{|school| "#{school['display_name']} (#{school['confirmed'] || '0'} confirmed/#{school['ili'] || '0'} ili)"}.join(', ') %>
+      <p><h4>Schools with confirmed absences or ili in the last week:</h4> 
+        <%= raw(district["schools_with_ili"].map{|school| "<b>#{school['display_name']}</b> (#{school['confirmed'] || '0'} confirmed/#{school['ili'] || '0'} ili)"}.join(', ')) %>
       </p>    
     <% end %>
     
     <% unless district["schools_above_average"].blank? %>
-      <p><b>Schools that are beyond 1 deviation higher:</b>
-        <%= district["schools_above_average"].map{|school| "#{school['display_name']} (#{l school['report_date'].to_date } - #{number_to_percentage((school['rate'].to_f * 100), :precision => 1)})"}.join(', ') %>
+      <p><h4>Schools that are beyond 1 deviation higher:</h4>
+        <ul class="unstyled">
+          <% district["schools_above_average"].collect{|s| s['display_name']}.uniq.each do |school_name| %>
+            <li><b><%= school_name %></b> - <%= raw(district["schools_above_average"].select{|s| s['display_name'] == school_name }
+                                                                          .map{|school| "<span class='text-info'>#{l school['report_date'].to_date }</span> #{number_to_percentage((school['rate'].to_f * 100), :precision => 1)} (#{school['total_absent']}/#{school['total_enrolled']})"}
+                                                                          .join('; ')) %>
+            </li>
+          <% end %>
+        </ul>
       </p>
     <% end %>
   <% end %>

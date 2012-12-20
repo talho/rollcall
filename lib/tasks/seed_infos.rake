@@ -12,7 +12,7 @@ namespace :rollcall do
   task :school_info => :environment do
     p "Warning this is going to take a loooooonnngg time"
     Rollcall::School.all.each do |school|
-      ActiveRecord::Base.connection.execute("DELETE * FROM rollcall_school_daily_infos WHERE school_id = #{school.id}")
+      ActiveRecord::Base.connection.execute("DELETE FROM rollcall_school_daily_infos WHERE school_id = #{school.id}")
       start = DateTime.now - 3.months
       total_enrolled = 100 + rand(800)
       prev = 0
@@ -23,37 +23,39 @@ namespace :rollcall do
           :total_absent => total_absent, 
           :total_enrolled => total_enrolled,
           :report_date => report_date
-        )
-        p "School: #{school.display_name} Report Date: #{report_date} Absent: #{total_absent} Enrolled: #{total_enrolled}"        
+        )      
       end      
+      p "School: #{school.display_name} Enrolled: #{total_enrolled}"  
     end
   end
   
   desc description
   task :student_info => :environment do
-    if Rollcall::Student.all.length == 0
-      Rollcall::School.all.each do |school|
-        (1..25).each do |i|
-          age = rand(18)
-          Rollcall::Student.create(
-            :first_name => "Unknown",
-            :last_name => "Unknown",
-            :gender => rand(1) ? "M" : "F",
-            :school_id => school.id,
-            :dob => age.to_i.year.ago
-          )
-          p "Student  SchoolId: #{school.id} DOB: #{age.to_i.year.ago}"
-        end
+    p "destroying sdi"
+    ActiveRecord::Base.connection.execute("DELETE FROM rollcall_student_daily_infos")
+    p "destroying students"
+    ActiveRecord::Base.connection.execute("DELETE FROM rollcall_students")
+    
+    Rollcall::School.order(:display_name).all.each do |school|
+      p "#{school.display_name}"
+      (1..25).each do |i|
+        age = rand(18)
+        Rollcall::Student.create(
+          :first_name => "Unknown",
+          :last_name => "Unknown",
+          :gender => rand(1) ? "M" : "F",
+          :school_id => school.id,
+          :dob => age.to_i.year.ago
+        )
       end
     end
     
-    number_of_symptoms = Rollcall::Symptom.all.count
+    number_of_symptoms = Rollcall::Symptom.count
     
     Rollcall::Student.all.each do |student|
       p "Student id: #{student.id}"
       start = DateTime.now - 3.months
       start.upto(DateTime.now) do |report_date|
-        p "DATE: #{report_date}"
         odds = rand(100)
         if (odds.to_i < 2)
           info = Rollcall::StudentDailyInfo.new
@@ -73,7 +75,6 @@ namespace :rollcall do
               :symptom_id => rand(number_of_symptoms)              
             )
           end
-          p "Info: #{info.id} Grade: #{info.grade} Report Date: #{report_date}"
         end
       end  
     end

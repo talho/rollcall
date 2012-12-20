@@ -5,5 +5,6 @@ option transfer binary
 open blueridge@s1.talho.org
 # put "c:\rollcall\attendance.csv" change to your local rollcall directory and export filename
 put "c:\rollcall\attendance.csv"
+put "c:\rollcall\symptoms.csv"
 close
 exit

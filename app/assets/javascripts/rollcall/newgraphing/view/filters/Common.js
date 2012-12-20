@@ -14,7 +14,7 @@ Talho.Rollcall.graphing.view.filter.Common = Ext.extend(Talho.Rollcall.ux.Filter
       selectOnFocus:true, ctCls: 'ux-combo-box-cls'
     });
     
-    var end = new Ext.form.DateField({ fieldLabel: 'End Date', name: 'enddt',
+    var end = new Ext.form.DateField({fieldLabel: 'End Date', name: 'enddt',
       startDateField: 'startdt_simple', emptyText:'Select End Date...', allowBlank: true,
       selectOnFocus:true, ctCls: 'ux-combo-box-cls'
     });
@@ -35,7 +35,9 @@ Talho.Rollcall.graphing.view.filter.Common = Ext.extend(Talho.Rollcall.ux.Filter
     
     this.loadable = [
       {item: absent, fields: ['id', 'value'], key: 'absenteeism'}, 
-      {item: data_function, fields: ['id', 'value'], key: 'data_functions'}
+      {item: data_function, fields: ['id', 'value'], key: 'data_functions'},
+      {item: start, set: this.reset_starts, key: 'start'},
+      {item: end, set: this.reset_end, key: 'end'}
     ];
     
     this.resetable = [

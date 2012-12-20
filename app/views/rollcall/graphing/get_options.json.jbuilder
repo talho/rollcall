@@ -19,4 +19,4 @@ json.grade @options[:grades] do |json, g|
 end
 json.school_districts @options[:school_districts]
 json.schools @options[:schools]
-
+json.start 3.months.ago.strftime('%m/%d/%Y')

@@ -21,7 +21,12 @@ Talho.Rollcall.ux.Filter = Ext.extend(Ext.FormPanel, {
   
   loadOptions: function (data) {
     Ext.each(this.loadable, function (d) {
-      d.item.store = new Ext.data.JsonStore({ fields: d.fields, data: data[d.key] });
+      if (!d.set) {
+        d.item.store = new Ext.data.JsonStore({ fields: d.fields, data: data[d.key] });
+      }
+      else {
+        d.set(d.item, data[d.key]);
+      }
     });
   },
   
@@ -54,11 +59,9 @@ Talho.Rollcall.ux.Filter = Ext.extend(Ext.FormPanel, {
         if (value.length == 0) {
           return false
         }
-      }
-      
+      }      
       return true;
-    }
-    
+    }    
     return false;
   }
 });

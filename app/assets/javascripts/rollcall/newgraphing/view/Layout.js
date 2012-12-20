@@ -45,7 +45,7 @@ Talho.Rollcall.newGraphing.view.Layout = Ext.extend(Ext.Panel, {
     
     this.items = {id: 'new_graphing_layout', layout: 'border', autoScroll: true, scope: this,
       items: [        
-        {xtype: 'panel', region: 'east', layout: 'anchor', width: 350, 
+        {xtype: 'panel', region: 'west', layout: 'anchor', width: 350, 
           items: [this.accordion, this.common]},
         this.results
       ]

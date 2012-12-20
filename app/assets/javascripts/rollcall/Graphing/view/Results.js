@@ -56,7 +56,7 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
       root: 'results',
       totalProperty: 'total_results',
       idProperty: 'title',
-      fields: ['id', 'name', 'title', 'results', ],
+      fields: ['id', 'name', 'title', 'results'],
       writer: new Ext.data.JsonWriter({encode: false}),
       url: '/rollcall/get_neighbors',
       restful: true,

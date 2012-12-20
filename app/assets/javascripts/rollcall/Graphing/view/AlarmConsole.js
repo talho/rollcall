@@ -57,5 +57,5 @@ Talho.Rollcall.Graphing.view.AlarmConsole = Ext.extend(Ext.Tip, {
     ]
     
     Talho.Rollcall.Graphing.view.AlarmConsole.superclass.initComponent.call(this);
-  },
+  }
 });

@@ -105,8 +105,11 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
       //Fixes a bug in IE
       if (!Talho.Detection.SVG()) {
         Ext.each(school.data.results, function (record, i) {
-          var date = record.report_date.split("-");
-          school.data.results[i].report_date = new Date(date[0], date[1], date[2]);
+          if (!(record.report_date instanceof Date))
+          {
+            var date = record.report_date.split("-");
+            school.data.results[i].report_date = new Date(date[0], date[1], date[2]);
+          }            
         });
       }
       var school_store = new Ext.data.JsonStore({fields: field_array, data: school.get('results')});

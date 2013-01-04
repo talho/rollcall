@@ -3,6 +3,11 @@ Ext.namespace("Talho.Rollcall.ux");
 
 Talho.Rollcall.ux.Filter = Ext.extend(Ext.FormPanel, {  
   border: false,
+  cls: 'rollcall-filter',
+  labelAlign: 'top',
+  defaults: {
+    labelStyle: 'font-weight:bold;'
+  },
   
   initComponent: function () {
     Talho.Rollcall.ux.Filter.superclass.initComponent.call(this);

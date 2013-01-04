@@ -93,7 +93,7 @@ class Rollcall::GraphingController < Rollcall::RollcallAppController
       .uniq
       .pluck("rollcall_schools.school_type")                      
         
-    @options = {:schools => current_user.schools.all, :school_districts => current_user.school_districts.all, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => (0..12).to_a}          
+    @options = {:schools => current_user.schools.all, :school_districts => current_user.school_districts.all, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => (0..12).to_a }          
   end
   
   # GET /rollcall/search_results

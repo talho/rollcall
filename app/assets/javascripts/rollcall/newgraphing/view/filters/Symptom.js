@@ -7,7 +7,8 @@ Talho.Rollcall.graphing.view.filter.Symptom = Ext.extend(Talho.Rollcall.ux.Filte
   initComponent: function () {
     var symptoms = new Ext.ListView({multiSelect: true, simpleSelect: true, cls: 'ux-query-form',
       columns: [{dataIndex: 'name', width: 0.70, cls:'symptom-list-item'}, {dataIndex: 'value'}],
-      hideHeaders: true, height: 160, fieldLabel: 'Symptoms ICD-9 Code', clearValue: function () { this.clearSelections(); }
+      hideHeaders: true, height: 300, clearValue: function () { this.clearSelections(); },
+      fieldLabel: 'Symptoms&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ICD-9 Code'
     });
     
     this.items = [symptoms];

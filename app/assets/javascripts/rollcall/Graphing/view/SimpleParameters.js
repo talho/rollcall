@@ -86,7 +86,7 @@ Talho.Rollcall.Graphing.view.SimpleParameters = Ext.extend(Ext.Container, {
           selectOnFocus:true, ctCls: 'ux-combo-box-cls'
         }
       },
-      {items: func }
+      {items: func}
     ];
     
     Talho.Rollcall.Graphing.view.SimpleParameters.superclass.initComponent.call(this);

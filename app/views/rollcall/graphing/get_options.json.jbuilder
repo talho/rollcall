@@ -20,3 +20,4 @@ end
 json.school_districts @options[:school_districts]
 json.schools @options[:schools]
 json.start 3.months.ago.strftime('%m/%d/%Y')
+json.end DateTime.now.strftime('%m/%d/%Y')

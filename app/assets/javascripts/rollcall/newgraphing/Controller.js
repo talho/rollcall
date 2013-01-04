@@ -16,8 +16,24 @@ Talho.Rollcall.newGraphing.Controller = Ext.extend(Ext.util.Observable, {
       'activatebasic': this._activateBasic,
       'activateschool': this._activateSchool,
       'notauthorized': this._notAuthorized,
+      'pagingparams': this._loadPagingParams,
+      'afterrender': this._getOptions,
       scope: this
     });
+
+    Talho.Rollcall.newGraphing.Controller.superclass.constructor.call(this);
+  },
+  
+  _loadPagingParams: function(paging, params) {    
+    var store = this.layout.results.getResultsStore();
+    var lastOptions = store.lastOptions;
+    lastOptions.params['start'] = params['start'];    
+    
+    store.load({params: lastOptions.params});
+  },
+  
+  _getOptions: function () {
+    var mask = this._mask();
     
     Ext.Ajax.request({
       url: '/rollcall/query_options',
@@ -27,15 +43,14 @@ Talho.Rollcall.newGraphing.Controller = Ext.extend(Ext.util.Observable, {
         var data = Ext.decode(response.responseText);
         Ext.each(this.layout.filters, function (f) {
           f.loadOptions(data);
-        });
+        });        
         this.layout.doLayout();
+        mask.hide();        
       },
       failure: function (response) {
         this.fireEvent('notauthorized');        
-      }
+      },
     });
-    
-    Talho.Rollcall.newGraphing.Controller.superclass.constructor.call(this);
   },
   
   _reset: function () {
@@ -45,11 +60,11 @@ Talho.Rollcall.newGraphing.Controller = Ext.extend(Ext.util.Observable, {
   },
   
   _submit: function () {
-    //Show mask
     var params = this.layout.getParameters();
     this.layout.results.neighbor_mode = false;
-    this.layout.results.loadResultStore(params);
-    //hide mask
+    var mask = this._mask();
+    var callback = function () { mask.hide(); };
+    this.layout.results.loadResultStore(params, callback);
   },
   
   _activateBasic: function () {
@@ -64,6 +79,13 @@ Talho.Rollcall.newGraphing.Controller = Ext.extend(Ext.util.Observable, {
     Ext.Msg.alert('Access', 'You are not authorized to access this feature.  Please contact TX PHIN.', function() {
       this.layout.ownerCt.destroy();
     }, this);
+  },
+  
+  _mask: function () {
+    var mask = new Ext.LoadMask(this.layout.getEl(), {msg:"Loading..."});
+    mask.show();
+    
+    return mask;
   }
 });
 

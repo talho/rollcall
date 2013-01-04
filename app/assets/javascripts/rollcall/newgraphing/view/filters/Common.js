@@ -2,42 +2,40 @@
 Ext.namespace("Talho.Rollcall.graphing.view.filter");
 
 Talho.Rollcall.graphing.view.filter.Common = Ext.extend(Talho.Rollcall.ux.Filter, {
-  anchor: '100% 25%',
+  cls: 'rollcall-filter rollcall-filter-common',
   
   initComponent: function () {
     this.enableBubble(['submitquery', 'reset'])
     
     this.individual = true;
     
-    var start = new Ext.form.DateField({fieldLabel: 'Start Date', name: 'startdt',
-      endDateField: 'enddt_simple', emptyText:'Select Start Date...', allowBlank: true,
-      selectOnFocus:true, ctCls: 'ux-combo-box-cls'
+    var start = new Ext.form.DateField({name: 'startdt', fieldLabel: 'Start Date',
+      endDateField: 'enddt', emptyText:'Select Start Date...', allowBlank: true,
+      selectOnFocus: true, ctCls: 'ux-combo-box-cls', width: 200
     });
     
-    var end = new Ext.form.DateField({fieldLabel: 'End Date', name: 'enddt',
-      startDateField: 'startdt_simple', emptyText:'Select End Date...', allowBlank: true,
-      selectOnFocus:true, ctCls: 'ux-combo-box-cls'
+    var end = new Ext.form.DateField({name: 'enddt', fieldLabel: 'End Date',
+      startDateField: 'startdt', emptyText:'Select End Date...', allowBlank: true,
+      selectOnFocus: true, ctCls: 'ux-combo-box-cls', width: 200
     });
     
-    var data_function = new Talho.Rollcall.ux.ComboBox({editable: false, fieldLabel: 'Data Function'});
+    var data_function = new Talho.Rollcall.ux.ComboBox({editable: false, emptyText: 'Data Function...', fieldLabel: 'Data Function'});
          
-    var absent = new Talho.Rollcall.ux.ComboBox({fieldLabel: 'Absenteeism', editable: false});
+    var absent = new Talho.Rollcall.ux.ComboBox({editable: false, emptyText: 'Absenteeism...', fieldLabel: 'Absenteeism'});
     
     this.school = new Ext.Button({text: 'School', toggleGroup: 'individual', pressed: true, scope: this, handler: function () { this.individual = true; }});  
     
-    this.district = new Ext.Button({text: 'School District', toggleGroup: 'individual', scope: this, handler: function () { this.individual = false; }}); 
+    this.district = new Ext.Button({text: 'School District', toggleGroup: 'individual', scope: this, handler: function () { this.individual = false; }});     
     
-    var submit = {xtype: 'button', text: "Submit", scope: this, handler: function () { this.fireEvent('submitquery'); }};
-    
-    var reset = {xtype: 'button', text: "Reset", scope: this, handler: function () { this.fireEvent('reset'); }};
-    
-    this.items = [start, end, data_function, absent, this.school, this.district, submit, reset];
+    this.items = [start, end, data_function, absent, {xtype: 'container', html: "<span style='font-weight:bold'>Mode:</span>"}, 
+      {xtype: 'spacer', height: 5}, {xtype: 'container', border: false, layout: 'hbox', items: [this.school, {xtype: 'spacer', width: 5}, this.district]}
+    ];
     
     this.loadable = [
       {item: absent, fields: ['id', 'value'], key: 'absenteeism'}, 
       {item: data_function, fields: ['id', 'value'], key: 'data_functions'},
-      {item: start, set: this.reset_starts, key: 'start'},
-      {item: end, set: this.reset_end, key: 'end'}
+      {item: start, set: this.reset_starts, key: 'start', set: function (item, value) { item.setValue(value); }},
+      {item: end, set: this.reset_end, key: 'end', set: function (item, value) { item.setValue(value); }}
     ];
     
     this.resetable = [
@@ -51,11 +49,22 @@ Talho.Rollcall.graphing.view.filter.Common = Ext.extend(Talho.Rollcall.ux.Filter
       {key: 'startdt', get: function () { return start.getValue(); }},
       {key: 'enddt', get: function () { return end.getValue(); }},
       {key: 'data_func', get: function () { return data_function.getValue(); }},
-      {key: 'absent', get: function () { return absent.getValue() }},
-      {key: 'return_individual_school', get: function (individual) { return (individual ? 'on' : null); }, param: this.individual}
+      {key: 'absent', get: function () { return absent.getValue(); }}      
     ];
     
     Talho.Rollcall.graphing.view.filter.Common.superclass.initComponent.call(this);
+  },
+  
+  getIndividual: function () {
+    return (this.individual ? 'on' : null);
+  },
+  
+  getParameters: function () {
+    var params = Talho.Rollcall.graphing.view.filter.Common.superclass.getParameters();
+    if (this.individual) {
+      params['return_individual_school'] = 'on';
+    }
+    return params;
   },
   
   reset: function () {
@@ -64,6 +73,6 @@ Talho.Rollcall.graphing.view.filter.Common = Ext.extend(Talho.Rollcall.ux.Filter
     this.district.toggle(false, true);
     
     Talho.Rollcall.graphing.view.filter.Common.superclass.reset();
-  }  
-  
+  }
+    
 });

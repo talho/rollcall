@@ -51,7 +51,7 @@ Talho.Rollcall.graphing.view.filter.Basic = Ext.extend(Talho.Rollcall.ux.Filter,
     
     this.getable = [
       {key: 'type[]', get: function () { return [type.getValue()]; }},      
-      {key: 'district[]', get: function () { return [district.getValue()]; }},
+      {key: 'school_district[]', get: function () { return [district.getValue()]; }},
       {key: 'school[]', get: function () { return [school.getValue()]; }}
     ];
     

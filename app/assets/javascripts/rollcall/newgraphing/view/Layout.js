@@ -27,31 +27,35 @@ Talho.Rollcall.newGraphing.view.Layout = Ext.extend(Ext.Panel, {
     
     this.symptom = new Talho.Rollcall.graphing.view.filter.Symptom();
     
-    this.common = new Talho.Rollcall.graphing.view.filter.Common();
+    this.common = new Talho.Rollcall.graphing.view.filter.Common({ anchor: '100% 25%' });
     
     this.filters = [this.basic, this.demographic, this.school, this.symptom, this.common];
     
-    this.saved_searches = new Talho.Rollcall.graphing.view.SavedSearches();
+    this.results = new Talho.Rollcall.graphing.view.Results({region: 'center'});
     
-    this.results = new Talho.Rollcall.Graphing.view.Results({region: 'center'});
+    var submit = {xtype: 'button', text: "Submit", scope: this, handler: function () { this.fireEvent('submitquery'); }};
+    
+    var reset = {xtype: 'button', text: "Reset", scope: this, handler: function () { this.fireEvent('reset'); }};
+    
+    this.submit = new Ext.Panel({ border: false, minHeight: 30, buttons: [reset, submit], anchor: '100% 5%' });
     
     this.accordion = new Ext.Panel({
-      layout: 'accordion', anchor: '100% 75%',   
+      layout: 'accordion', anchor: '100% 70%',   
       layoutConfig: { hideCollapseTool: true, animate: Application.rails_environment !== 'cucumber' ? true : false },
       activeItem: 0, plugins: ['donotcollapseactive'], cls: 'rollcall-navigation-accordion',
       defaults: { border: false },
-      items: [this.basic, this.demographic, this.school, this.symptom, this.common, this.saved_searches]
+      items: [this.basic, this.demographic, this.school, this.symptom, this.common]
     });
     
     this.items = {id: 'new_graphing_layout', layout: 'border', autoScroll: true, scope: this,
       items: [        
-        {xtype: 'panel', region: 'west', layout: 'anchor', width: 350, 
-          items: [this.accordion, this.common]},
+        {xtype: 'panel', region: 'east', layout: 'anchor', width: 275, 
+          items: [this.common, this.accordion, this.submit]},
         this.results
       ]
     };
     
-    var bubbles = [this.basic, this.demographic, this.school, this.symptom, this.common, this.saved_searches];
+    var bubbles = [this.basic, this.demographic, this.school, this.symptom, this.common];
     
     Ext.each(bubbles, function (bubble) {
       bubble.getBubbleTarget = findBubble;

@@ -1,4 +1,4 @@
-<?
+<?php
 
 $outputfile = "./attendance.csv";
 $user = "";
@@ -10,14 +10,14 @@ include('include.php');
 
 // Find the total enrollment
 $enrollmentquery = "SELECT Curdate() AS 'date', '".$districtid."'+\"STUDENT_EW\".\"ENTITY-ID\" AS 'id', count( \"STUDENT_EW\".\"STUDENT-ID\") AS 'enrolled'
-FROM   \"SKYWARD\".\"PUB\".\"STUDENT-EW\" \"STUDENT_EW\" 
+FROM   \"SKYWARD\".\"PUB\".\"STUDENT-EW\" \"STUDENT_EW\"
 WHERE  \"STUDENT_EW\".\"EW-DATE\"<=SYSDATE() AND (\"STUDENT_EW\".\"WITHDRAWAL-DATE\" IS  NULL  OR \"STUDENT_EW\".\"WITHDRAWAL-DATE\">SYSDATE())
 GROUP BY \"STUDENT_EW\".\"ENTITY-ID\"";
 
 // Find which attendance details are tardies
 $tardinessquery = "SELECT DISTINCT \"ATND_ABSENCE_TYPE\".\"AAT-ID\" as \"id\"
  FROM  \"SKYWARD\".\"PUB\".\"ATND-ABSENCE-TYPE\" \"ATND_ABSENCE_TYPE\"
- WHERE \"ATND_ABSENCE_TYPE\".\"AAT-EXC-UNEXC-TAR-OTH\" = 'T' 
+ WHERE \"ATND_ABSENCE_TYPE\".\"AAT-EXC-UNEXC-TAR-OTH\" = 'T'
     OR \"ATND_ABSENCE_TYPE\".\"AAT-INCL-IN-TOT-ATND\" != 1";
 
 $tardie_arr = array("''");

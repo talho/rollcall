@@ -11,6 +11,7 @@ class Rollcall::GraphingController < Rollcall::RollcallAppController
   before_filter :rollcall_isd_required
   respond_to :json
   layout false
+  include Rollcall::DataModule
   
   # Action is called by the GraphingResultPanel result_store on load.  Method processes
   # the search request, calling get_graph_data(), returns
@@ -133,23 +134,4 @@ class Rollcall::GraphingController < Rollcall::RollcallAppController
     
     respond_with(@length, @school_district_array)
   end
-  
-  protected
-  
-  def get_search_results params
-    if params[:return_individual_school].blank?
-      school_ids = current_user
-        .school_search_relation(params)
-        .where('rollcall_schools.district_id is not null')
-        .reorder('rollcall_schools.district_id')
-        .pluck('rollcall_schools.district_id')
-        .uniq
-      results = current_user.school_districts.where("rollcall_school_districts.id in (?)", school_ids)
-    else
-      results = current_user.school_search params
-    end
-    
-    results
-  end
-  
 end

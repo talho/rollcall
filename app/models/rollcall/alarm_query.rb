@@ -30,6 +30,13 @@ class Rollcall::AlarmQuery < ActiveRecord::Base
       false
     end
   end
+  
+  def get_schools
+    query = get_query    
+    schools = user.school_search query
+    
+    schools    
+  end
 
   private
 
@@ -37,6 +44,13 @@ class Rollcall::AlarmQuery < ActiveRecord::Base
   #
   def create_alarm
     Rollcall::Alarm.find_all_by_alarm_query_id(id).each { |a| a.destroy }
+    schools = get_schools
+    query = get_query
+    schools.each { |school| create_alarms_for_school(school, query) }
+    !Rollcall::Alarm.find_all_by_alarm_query_id(id).blank?
+  end
+  
+  def get_query
     query_params.gsub!("[]", "")
     query = {}
     unless query_params.blank?
@@ -46,13 +60,11 @@ class Rollcall::AlarmQuery < ActiveRecord::Base
       elsif fs.is_a? Hash
         query = fs.symbolize_keys
       end
-    end    
-    #schools = Rollcall::School.search(query, user)
-    schools = user.school_search query
-    schools.each { |school| create_alarms_for_school(school, query) }
-    !Rollcall::Alarm.find_all_by_alarm_query_id(id).blank?
+    end
+    
+    query
   end
-
+  
   # Method creates alarms for specific school
   #
   # Method creates an alarms for school

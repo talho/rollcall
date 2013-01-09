@@ -42,4 +42,19 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
     @success = alarm_query.destroy
     respond_with(@success)
   end
+  
+  # POST rollcall/alarm_query/toggle/:id
+  def toggle
+    alarm_query = Rollcall::AlarmQuery.find(params[:id])
+    
+    alarm_query.alarm_set = alarm_query.alarm_set;
+    alarm_query.save
+    
+    if self.alarm_set      
+      Rollcall::Alarm.destroy_by_alarm_query_id(alarm_query.id)
+      return alarm_query.generate_alarms
+    end
+    
+    true
+  end
 end

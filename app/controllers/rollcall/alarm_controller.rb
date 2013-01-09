@@ -13,7 +13,7 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
   layout false
   
   # GET rollcall/alarms
-  def index
+  def index    
     alarms        = []
     alarm_queries = []
     unless params[:alarm_query_id].blank?
@@ -33,7 +33,7 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
         alarms.push(result)
       end
     end
-    @alarms = alarms    
+    @alarms = alarms      
     respond_with(@alarms)
   end
 

@@ -7,8 +7,10 @@ Talho.Rollcall.alarm.Controller = Ext.extend(Ext.util.Observable, {
     this.layout = new Talho.Rollcall.alarm.view.Layout();
     
     this.getPanel = function () {
-      return this.layout();
+      return this.layout;
     }
+    
+    Talho.Rollcall.alarm.Controller.superclass.constructor.call(this);
   }
 });
 

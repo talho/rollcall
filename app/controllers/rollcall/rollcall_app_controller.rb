@@ -3,9 +3,9 @@ class Rollcall::RollcallAppController < ApplicationController
 
   # Method checks current user role memberships to detect if they have the Rollcall Application name attached to them
   #
-  # Method checks against current_user.role_memberships.  If appropriate application is not found, method redirects to 
+  # Method checks against current_user.role_memberships.  If appropriate application is not found, method redirects to
   # action unauthorized
-  def rollcall_required  
+  def rollcall_required
     if current_user.is_rollcall_user?
       return true
     else
@@ -20,7 +20,7 @@ class Rollcall::RollcallAppController < ApplicationController
   # Method checks against current_user.role_memberships.  If appropriate role is not found, method redirects to
   # action unauthorized
   def rollcall_isd_required
-    if current_user.is_rollcall_epi? || current_user.is_rollcall_health_officer? || current_user.is_rollcall_admin?
+    if current_user.has_non_public_role?(:rollcall)
       return true
     else
       redirect_to :action => "unauthorized", :controller => 'rollcall/rollcall_app'

@@ -86,7 +86,7 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
       stripeRows:  true,
       stateful:    true
     });
-    
+
     var student_grid_panel  = new Ext.grid.GridPanel({
       forceLayout: true,
       scope:       this,
@@ -210,24 +210,6 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
               xtype: 'container',
               width: 253,
               items: [student_radio_group,student_grid_panel]
-            },{
-              xtype:  'spacer',
-              height: 10
-            },{
-              xtype:   'button',
-              text:    'Generate Attendance Report',
-              recipe:  'RecipeInternal::AttendanceAllRecipe',
-              scope:   this,
-              handler: this._showReportMessage
-            },{
-              xtype:  'spacer',
-              height: 10
-            },{
-              xtype:   'button',
-              text:    'Generate ILI Report',
-              recipe:  'RecipeInternal::IliAllRecipe',
-              scope:   this,
-              handler: this._showReportMessage
             }]
           }]
         },{
@@ -346,44 +328,6 @@ Talho.Rollcall.Schools = Ext.extend(function(){}, {
         this.grid_mask.hide();
         //if(data_type == "student") this.grid_mask.hide();
       }
-    });
-  },
-  /*
-  Method displays a reports menu
-  @param element   the ext element to show the menu next to
-  @param school_id the school id
-   */
-  _showReportMenu: function(element, school_id)
-  {
-    var scrollMenu = new Ext.menu.Menu();
-    scrollMenu.add({school_id: school_id, recipe: 'RecipeInternal::AttendanceAllRecipe', text: 'Attendance Report', handler: this._showReportMessage});
-    scrollMenu.add({school_id: school_id, recipe: 'RecipeInternal::IliAllRecipe',        text: 'ILI Report',        handler: this._showReportMessage});
-    scrollMenu.show(element);
-  },
-  /*
-  Method makes an ajax request, initiating selected report, displays as callback message
-  @param buttonObj the ext button pressed
-  @param eventObj  the click event
-   */
-  _showReportMessage: function(buttonObj, eventObj)
-  {
-    Ext.Ajax.request({
-      url:      '/rollcall/report',
-      params:   {recipe_id: buttonObj.recipe, school_id: buttonObj.ownerCt.ownerCt.school_id},
-      method:   'GET',
-      callback: function(options, success, response)
-      {
-        var title = 'Generating Report';
-        var msg   = 'Your report will be placed in the report portal when the system '+
-                    'is done generating it. Please check the report portal in a few minutes.';
-        Ext.MessageBox.show({
-          title:   title,
-          msg:     msg,
-          buttons: Ext.MessageBox.OK,
-          icon:    Ext.MessageBox.INFO
-        });
-      },
-      failure: function(){}
     });
   }
 });

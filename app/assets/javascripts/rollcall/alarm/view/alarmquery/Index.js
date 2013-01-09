@@ -1,7 +1,7 @@
 
-Ext.namespace("Talho.Rollcall.alarm.view");
+Ext.namespace("Talho.Rollcall.alarm.view.alarmquery");
 
-Talho.Rollcall.alarm.view.Queries = Ext.extend(Ext.Panel, { 
+Talho.Rollcall.alarm.view.alarmquery.Index = Ext.extend(Ext.Panel, { 
   layout: 'fit',
   title: 'Alarm Queries',
   
@@ -82,6 +82,6 @@ Talho.Rollcall.alarm.view.Queries = Ext.extend(Ext.Panel, {
       indexView
     ];
     
-    Talho.Rollcall.alarm.view.Queries.superclass.initComponent.call(this);
+    Talho.Rollcall.alarm.view.alarmquery.Index.superclass.initComponent.call(this);
   }
 });

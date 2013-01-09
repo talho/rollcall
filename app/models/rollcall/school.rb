@@ -17,8 +17,8 @@
 
 class Rollcall::School < ActiveRecord::Base
   belongs_to :district, :class_name => "Rollcall::SchoolDistrict"
-  has_many :school_daily_infos, :class_name => "Rollcall::SchoolDailyInfo"
-  has_many :alarms, :class_name => "Rollcall::Alarm"
+  has_and_belongs_to_many :alarm_queries, :class_name => "Rollcall::AlarmQuery", :join_table => "rollcall_alarm_queries_schools"
+  has_many :school_daily_infos, :class_name => "Rollcall::SchoolDailyInfo"  
   has_many :students, :class_name => "Rollcall::Student"
   has_many :student_daily_infos, :through => :students
   before_create :set_display_name

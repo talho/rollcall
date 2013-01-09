@@ -52,9 +52,7 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
     
     if self.alarm_set      
       Rollcall::Alarm.destroy_by_alarm_query_id(alarm_query.id)
-      return alarm_query.generate_alarms
-    end
-    
-    true
+      alarm_query.generate_alarms
+    end        
   end
 end

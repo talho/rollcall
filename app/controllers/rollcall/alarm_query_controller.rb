@@ -43,6 +43,12 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
     respond_with(@success)
   end
   
+  # GET rollcall/alarm_query/:id
+  def show
+    @alarm_query = Rollcall::AlarmQuery.find(params[:id])
+    respond_with(@alarm_query)
+  end
+  
   # POST rollcall/alarm_query/toggle/:id
   def toggle
     alarm_query = Rollcall::AlarmQuery.find(params[:id])

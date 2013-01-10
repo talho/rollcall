@@ -4,7 +4,6 @@
 #
 #  id                  :integer(4)      not null, primary key
 #  user_id             :integer(4)
-#  query_params        :string(255)
 #  name                :string(255)
 #  severity_min        :integer(4)
 #  severity_max        :integer(4)
@@ -30,15 +29,15 @@ class Rollcall::AlarmQuery < ActiveRecord::Base
     params = get_query_params
     
     select = Rollcall::SchoolDailyInfo
-             .joins("inner join (select stddev_pop(total_absent) as deviation, school_id as deviation_school_id from rollcall_school_daily_infos group by school_id) school_sd on deviation_school_id = school_id")
-             .where("report_date between ? and ?", params[:start_date], params[:end_date])
-             .where("school_id in (?)", params[:schools])
-             .where("and (((cast(total_absent as double) / cast(total_enrolled as double) * 100) >= ?) or (@deviation not between ? and ?))", severity_min, deviation_min, deviation_max)
-             .select("school_id, ?", id)
-             .select(absentee_thang)
-             .select("deviation")
-             .select("(cast(total_absent as double) / cast(total_enrolled as double) as severity, ((cast(total_absent as double) / cast(total_enrolled as double) * 100) as absentee_rate")
-             .select("report_date, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP")               
+               .joins("inner join (select stddev_pop(total_absent) as deviation, school_id as deviation_school_id from rollcall_school_daily_infos group by school_id) school_sd on deviation_school_id = school_id")
+               .where("report_date between ? and ?", params[:start_date], params[:end_date])
+               .where("school_id in (?)", params[:schools])
+               .where("and (((cast(total_absent as double) / cast(total_enrolled as double) * 100) >= ?) or (@deviation not between ? and ?))", severity_min, deviation_min, deviation_max)
+               .select("school_id, ?", id)
+               .select(absentee_thang)
+               .select("deviation")
+               .select("(cast(total_absent as double) / cast(total_enrolled as double) as severity, ((cast(total_absent as double) / cast(total_enrolled as double) * 100) as absentee_rate")
+               .select("report_date, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP")               
     
    Rollcall::Alarm.connection.execute insert + select.to_sql
   end

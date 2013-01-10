@@ -10,15 +10,22 @@ Talho.Rollcall.alarm.view.Layout = Ext.extend(Ext.Panel, {
   
   initComponent: function () {
     var queries = new Talho.Rollcall.alarm.view.alarmquery.Index({region: 'west', width: 400});
-    var alarms = new Talho.Rollcall.alarm.view.alarm.Index({region: 'center'});
+    var alarms = new Talho.Rollcall.alarm.view.alarm.Index({region: 'center'});    
     
     this.items = {xtype: 'panel', layout: 'border', autoScroll: true, scope: this,
       items: [
         queries,
-        alarms
+        alarms        
       ]
     };
     
+    this.addListener('afterrender', function () { this._window(); }, this);
+    
     Talho.Rollcall.alarm.view.Layout.superclass.initComponent.call(this);
+  },
+  
+  _window: function () {
+    var newquery = new Talho.Rollcall.alarm.view.alarmquery.New();
+    //newquery.show();
   }
 });

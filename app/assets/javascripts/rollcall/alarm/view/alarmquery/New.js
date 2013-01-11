@@ -5,6 +5,8 @@ Talho.Rollcall.alarm.view.alarmquery.New = Ext.extend(Ext.Window, {
   layout: 'fit',  
   
   initComponent: function () {
+    this.title = 'New Alarm Query'
+    
     this.addEvents('cancelnewalarmquery', 'createnewalarmquery');
     this.enableBubble(['cancelnewalarmquery', 'createnewalarmquery']);
     
@@ -47,7 +49,7 @@ Talho.Rollcall.alarm.view.alarmquery.New = Ext.extend(Ext.Window, {
     this.addListener('afterrender', function () { this._loadWindow(); }, this);
     
     this.buttons = [
-      {xtype: 'button', text: 'Cancel', handler: function () { this.fireEvent('cancelnewalarmquery'); }, scope: this},
+      {xtype: 'button', text: 'Cancel', handler: function () { this.close(); }, scope: this},
       {xtype: 'button', text: 'Create Alarm Query', handler: function () { this.fireEvent('createnewalarmquery'); }, scope: this}
     ];
     

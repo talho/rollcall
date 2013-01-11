@@ -10,7 +10,17 @@ Talho.Rollcall.alarm.Controller = Ext.extend(Ext.util.Observable, {
       return this.layout;
     }
     
+    this.layout.on({
+      'createalarmquery': this._createAlarmQuery,
+      scope: this
+    })
+    
     Talho.Rollcall.alarm.Controller.superclass.constructor.call(this);
+  },
+  
+  _createAlarmQuery: function () {
+    var newquery = new Talho.Rollcall.alarm.view.alarmquery.New();
+    newquery.show();
   }
 });
 

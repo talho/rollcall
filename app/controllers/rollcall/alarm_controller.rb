@@ -14,26 +14,12 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
   
   # GET rollcall/alarms
   def index    
-    alarms        = []
-    alarm_queries = []
-    unless params[:alarm_query_id].blank?
-      alarm_queries.push(Rollcall::AlarmQuery.find(params[:alarm_query_id]))
+    if params[:alarm_query_id].present?
+      @alarms = Rollcall::Alarm.where(:alarm_query_id => params[:alarm_query_id])
     else
-      alarm_queries = current_user.alarm_queries.order(:name)
+      @alarms = Rollcall::Alarm.joins(:alarm_query).where("rollcall_alarm_queries.user_id = ?", current_user.id)
     end    
-    alarm_queries.each do |query|          
-      if query.alarm_set        
-        result = Rollcall::Alarm.find_all_by_alarm_query_id(query.id).each do |alarm|
-          alarm[:school_name] = alarm.school.display_name
-          alarm[:school_lat]  = alarm.school.gmap_lat
-          alarm[:school_lng]  = alarm.school.gmap_lng
-          alarm[:school_addr] = alarm.school.gmap_addr
-          alarm[:alarm_name]  = alarm.alarm_query.name
-        end
-        alarms.push(result)
-      end
-    end
-    @alarms = alarms      
+       
     respond_with(@alarms)
   end
 
@@ -91,5 +77,10 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
     @confirmed_absents = confirmed_absents
     @student_info = student_info
     respond_with(@school_info, @severity, @confirmed_absents, @student_info)
+  end
+  
+  # GET rollcall/get_gis
+  def get_gis
+  
   end
 end

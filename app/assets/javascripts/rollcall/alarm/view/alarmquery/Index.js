@@ -6,6 +6,9 @@ Talho.Rollcall.alarm.view.alarmquery.Index = Ext.extend(Ext.Panel, {
   title: 'Alarm Queries',
   
   initComponent: function () {
+    this.addEvents('createalarmquery');
+    this.enableBubble('createalarmquery');
+    
     var tpl = new Ext.XTemplate(
       '<ul>',
         '<tpl for=".">',
@@ -80,6 +83,16 @@ Talho.Rollcall.alarm.view.alarmquery.Index = Ext.extend(Ext.Panel, {
     
     this.items = [
       indexView
+    ];
+    
+    this.bbar = [      
+      '->',
+      {xtype: 'button', text: 'GIS', id: 'gis_button', itemId: 'gis_button', iconCls: 'x-tbar-gis',
+        handler: function() {
+          //TODO this wasn't implemented
+        }
+      },
+      {xtype: 'button', text: 'Create New Alarm Query', handler: function () { this.fireEvent('createalarmquery'); }, scope: this}      
     ];
     
     Talho.Rollcall.alarm.view.alarmquery.Index.superclass.initComponent.call(this);

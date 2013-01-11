@@ -34,7 +34,8 @@ Talho.Rollcall.alarm.view.alarmquery.Show = Ext.extend(Ext.Panel, {
       {xtype: 'label', text: (this.set ? 'This alarm query is enabled' : 'This alarm query is disabled')},
       {xtype: 'label', text: this.severity},
       {xtype: 'label', text: this.deviation},
-      {xtype: 'dataview', tpl: tpl, store: new Ext.data.JsonStore({ fields: ['name'], data: this.schools})}
+      {xtype: 'dataview', tpl: tpl, store: new Ext.data.JsonStore({ fields: ['name'], data: this.schools})},
+      new Talho.Rollcall.alarm.view.alarm.Index()      
     ]
     
     Talho.Rollcall.alarm.view.alarmquery.Show.superclass.initComponent.call(this);

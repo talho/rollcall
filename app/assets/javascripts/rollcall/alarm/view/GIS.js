@@ -5,6 +5,10 @@ Talho.Rollcall.alarm.view.GIS = Ext.extend(Ext.Panel, {
   layout: 'fit',
   
   initComponent: function () {
+    this.store = new Ext.data.JsonStore({
+            
+    });
+    
     if (this.store.getTotalCount() != 0) {
       this.items = Ext.ux.GMapPanel({zoomLevel: 5});
       

@@ -81,6 +81,12 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
   
   # GET rollcall/get_gis
   def get_gis
-  
+    @alarms = Rollcall::Alarm.joins("inner join (select max(report_date), school_id from rollcall_alarms group by school_id) as max_date on max_date.max = report_date and max_date.school_id = rollcall_alarms.school_id")
+      .joins("inner join rollcall_alarm_queries on rollcall_alarm_queries.id = rollcall_alarms.alarm_query_id")
+      .joins("inner join rollcall_schools on rollcall_schools.id = rollcall_alarms.school_id")
+      .where("user_id = ?", current_user.id)
+      .select("rollcall_schools.display_name, absentee_rate, deviation, severity, gmap_addr, gmap_lat, gmap_lng")
+    
+    respond_with(@alarms)
   end
 end

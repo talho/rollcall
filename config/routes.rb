@@ -18,6 +18,7 @@ Openphin::Application.routes.draw do
     match "report", :to => "graphing#report", :as => :report
     match "alarm/:alarm_query_id", :to => "alarm#create", :as => :activate_alarm
     match "get_info", :to => "alarm#get_info", :as => :get_info
+    match "get_gis", :to => "alarm#get_gis", :as => :get_gis
     match "get_schools", :to => "school#get_schools", :as => :get_schools
     match "get_school_data", :to => "school#get_school_data", :as => :get_school_data
     match "get_student_data", :to => "school#get_student_data", :as => :get_student_data

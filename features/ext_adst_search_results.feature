@@ -102,7 +102,7 @@ Scenario: User closes a graph window
 
 Scenario: User exports result data
   When "Anderson Elementary" graphs has done loading
-  And I click the "down" tool on the "Query Result for Anderson Elementary" window  
+  And I click the "down" tool on the "Query Result for Anderson Elementary" window
   And I should see "Your CSV file will be placed in your documents folders"
   And delayed jobs are processed
   And I press "OK"
@@ -134,23 +134,3 @@ Scenario: User pins a graph result
   And I press "Submit"
   And delayed jobs are processed
   Then I should see "Anderson Elementary,Yates High School" within the results
-
-Scenario: User reports result data
-  When "Anderson Elementary" graphs has done loading
-  And I click the "report" tool on the "Query Result for Anderson Elementary" window
-  And I click x-menu-item "ILI Report"
-  And delayed jobs are processed
-  Then I should see "Generating Report" within ".x-window"
-  And I press "OK" within ".x-window"
-
-  When I press "Generate Report from Result Set"
-  And I click x-menu-item "Attendance Report"
-  And delayed jobs are processed
-  Then I should see "Generating Report" within ".x-window"
-  And I press "OK" within ".x-window"
-
-  When I navigate to "Reports"
-  And I click x-tbar-loading ""
-  Then I should see "Ili-All-Recipe-1" in grid row 2
-  And I should see "Attendance-All-Recipe-2" in grid row 1
-

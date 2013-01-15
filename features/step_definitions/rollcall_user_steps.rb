@@ -19,3 +19,14 @@ end
 Then /^rollcall user "([^\"]*)" should not receive an email$/ do |email|
   find_email(email).should be_nil
 end
+
+Given /^I am logged in as a nonpublic rollcall user$/ do
+  step %Q{the following entities exists:}, table([
+    %w{ Jurisdiction Texas}
+  ])
+  step %Q{the following users exist:}, table(%{
+    | Its Me |  me@example.com | Health Officer | Texas | rollcall |
+  })
+
+  step %Q{I am logged in as "me@example.com"}
+end

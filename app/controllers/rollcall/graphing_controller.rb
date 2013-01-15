@@ -11,14 +11,14 @@ class Rollcall::GraphingController < Rollcall::RollcallAppController
   before_filter :rollcall_isd_required
   respond_to :json
   layout false
-  
+
   # Action is called by the GraphingResultPanel result_store on load.  Method processes
   # the search request, calling get_graph_data(), returns
   # the total result length and the paginated result set
   #
   # GET /rollcall/graphing
-  def index    
-    options = {:page => (params[:start] ? (params[:start].to_f / 6).floor + 1 : 1), :per_page => params[:limit] || 6}    
+  def index
+    options = {:page => (params[:start] ? (params[:start].to_f / 6).floor + 1 : 1), :per_page => params[:limit] || 6}
 
     params[:startdt] ||= 3.months.ago.to_s # put a 3 month limit on start date to limit data points being returned
     params[:enddt] ||= Date.today.to_s
@@ -26,25 +26,25 @@ class Rollcall::GraphingController < Rollcall::RollcallAppController
     res = get_search_results(params)
     @length = res.count(distinct: true)
     @results = res.paginate(options)
-        
+
     @results.each do |r|
       r.result = r.get_graph_data(params).as_json
     end
-    
-    begin    
+
+    begin
       config = YAML::load(File.read(File.join(Rails.root,'config','mongo_database.yml')))[Rails.env].symbolize_keys
       conn = Mongo::Connection.new(config[:host],config[:port],(config[:options]||{}))
       db = conn.db(config[:database])
       db.authenticate(config[:database],config[:password]) if config[:password]
       collection = db.collection("graphing_analytics")
-      
+
       doc = {"params" => params, "home_jurisdiction_id" => current_user.home_jurisdiction_id }
-      
+
       collection.insert(doc)
     rescue #swallow analytics errors
-    end      
-    
-    respond_with(@length, @results)    
+    end
+
+    respond_with(@length, @results)
   end
 
   # Action is called by the Graphing main panel method exportResultSet and the GraphingResultPanel method exportResult.
@@ -53,29 +53,11 @@ class Rollcall::GraphingController < Rollcall::RollcallAppController
   # in the users documents folder and sending out message to users email when process is done.
   #
   # GET /rollcall/export
-  def export    
+  def export
     results = get_search_results params
     export_hash = {:params => params, :user_id => current_user.id}
     graphing_results = Rollcall::GraphingResults.new
-    graphing_results.export_data(export_hash)    
-  end
-
-  # GET /rollcall/report
-  def report
-    begin
-      recipe             = params[:recipe_id]
-      report             = current_user.reports.create!(:recipe=>recipe,:criteria=>params,:incomplete=>true)
-      unless Rails.env == 'development'
-        Delayed::Job.enqueue( Reporters::Reporter.new(:report_id=>report[:id]) )
-      else
-        Reporters::Reporter.new(:report_id=>report[:id]).perform  # for development
-      end      
-      @reportId = report[:id]        
-    rescue StandardError => error
-      respond_to do |format|
-        format.json {render :json => {:success => false, :msg => error.as_json}, :content_type => 'text/html', :status => 406}
-      end
-    end
+    graphing_results.export_data(export_hash)
   end
 
   # Action is called by the Graphing main panel method initFormComponent.  Method returns
@@ -84,38 +66,38 @@ class Rollcall::GraphingController < Rollcall::RollcallAppController
   # POST /rollcall/query_options
   def get_options
     default_options  = get_default_options
-    
-    zipcodes = current_user.rollcall_zip_codes              
-    
+
+    zipcodes = current_user.rollcall_zip_codes
+
     school_types = current_user
       .schools
       .select("rollcall_schools.school_type")
       .where("rollcall_schools.school_type is not null")
       .reorder("rollcall_schools.school_type")
       .uniq
-      .pluck("rollcall_schools.school_type")                      
-        
-    @options = {:schools => current_user.schools.all, :school_districts => current_user.school_districts.all, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => (0..12).to_a}          
+      .pluck("rollcall_schools.school_type")
+
+    @options = {:schools => current_user.schools.all, :school_districts => current_user.school_districts.all, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => (0..12).to_a}
   end
-  
+
   # GET /rollcall/search_results
   def search_results
-    @results = get_search_results params    
-    
+    @results = get_search_results params
+
     respond_with(@results)
   end
-  
+
   def get_neighbors
     params[:startdt] ||= 3.months.ago.to_s # put a 3 month limit on start date to limit data points being returned
     params[:enddt] ||= Date.today.to_s
-     
+
     @school_district_array = Array.new
-    
-    if params.has_key?(:school_districts) 
+
+    if params.has_key?(:school_districts)
       params[:school_districts].map! do |sd|
           sd.to_i
-        end 
-      if current_user.has_school_districts(params[:school_districts])      
+        end
+      if current_user.has_school_districts(params[:school_districts])
         #check to see if user has the school districts
         params[:school_districts].each do |sd|
           Rollcall::SchoolDistrict.get_neighbors(sd).each do |neighbor|
@@ -127,17 +109,17 @@ class Rollcall::GraphingController < Rollcall::RollcallAppController
       end
     end
 
-    @school_district_array.each do |sd|      
+    @school_district_array.each do |sd|
       sd.result = sd.get_graph_data(params).as_json
     end
-    
+
     @length = @school_district_array.count
-    
+
     respond_with(@length, @school_district_array)
   end
-  
+
   protected
-  
+
   def get_search_results params
     if params[:return_individual_school].blank?
       school_ids = current_user
@@ -150,8 +132,8 @@ class Rollcall::GraphingController < Rollcall::RollcallAppController
     else
       results = current_user.school_search params
     end
-    
+
     results
   end
-  
+
 end

@@ -10,7 +10,7 @@ Background:
     | Jurisdiction | Collin         |          |
   And Texas is the parent jurisdiction of:
     | Collin  |
-  And Collin has the following school districts:                 
+  And Collin has the following school districts:
     | District1 | 101912 |
     | District2 | 68901  |
   And "District1" has the following schools:
@@ -136,7 +136,7 @@ Background:
     | 2   | Austin Elementary School          | 18       |            |           | 07/23/1993 | 12    | M      | true          | Chills,Temperature,Headache |                |
 
   And I am logged in as "nurse.betty@example.com"
-  
+
 Scenario: User runs a simple query against absenteeism to view the raw data
   When I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > Graphing"
@@ -224,28 +224,3 @@ Scenario: User runs a simple query against a school district, requests school di
   And delayed jobs are processed
   Then I should see "District2" within the results
   #Then I should see graphs "DF-Raw_district_68901_c_absenteeism.png" within the results
-
-Scenario: User generates reports from a simple query
-  Given I navigate to the ext dashboard page
-  And I navigate to "Apps > Rollcall > Graphing"
-  And I wait for the panel to load
-  And I press "Submit"
-  And delayed jobs are processed
-
-  When I press "Generate Report from Result Set"  
-  And I click x-menu-item "ILI Report"
-  And delayed jobs are processed
-  Then I should see "Generating Report" within ".x-window"
-  And I press "OK" within ".x-window"
-
-  When I press "Generate Report from Result Set"
-  And I click x-menu-item "Attendance Report"
-  And delayed jobs are processed
-  Then I should see "Generating Report" within ".x-window"
-  And I press "OK" within ".x-window"
-
-  When I navigate to "Reports"
-  And I click x-tbar-loading ""
-  Then I should see "Ili-All-Recipe-1" in grid row 2
-  And I should see "Attendance-All-Recipe-2" in grid row 1
-

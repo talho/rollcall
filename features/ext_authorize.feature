@@ -110,19 +110,15 @@ Scenario: Nurse attempts to access Graphing
   When I am logged in as "nurse.betty@example.com"
   And I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > Graphing"
-  And I wait for the panel to load  
-  And I should see "You are not authorized to access this feature"
-  And I press "OK"  
-  Then I should not see "Rollcall Graphing"
+  And I wait for the panel to load
+  Then I should see "Rollcall Graphing"
 
 Scenario: Nurse attempts to access School Panel
   When I am logged in as "nurse.betty@example.com"
   And I navigate to the ext dashboard page
   And I navigate to "Apps > Rollcall > Schools"
   And I wait for the panel to load
-  And I should see "You are not authorized to access this feature"
-  And I press "OK"
-  Then I should not see "Rollcall Schools"
+  Then I should see "Rollcall Schools"
 
 Scenario: Nurse attempts to access Symptom Cases
   When I am logged in as "nurse.betty@example.com"
@@ -155,7 +151,7 @@ Scenario: Epidemiologist attempts to access Graphing
   And I navigate to "Apps > Rollcall > Graphing"
   And I wait for the panel to load
   Then I should see "Rollcall Graphing"
-    
+
 Scenario: Health Officer attempts to access Symptom Cases
   When I am logged in as "heatlh.offcr@example.com"
   And I navigate to the ext dashboard page

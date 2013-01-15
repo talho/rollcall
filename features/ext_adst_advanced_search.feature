@@ -189,7 +189,7 @@ Scenario: User runs an advanced query against multiple grades
 Scenario: User runs an advanced query against multiple symptoms
   When I press "Switch to Advanced"
   And I click symptom-list-item "Chills"
-  And I click symptom-list-item "Influenza"  
+  And I click symptom-list-item "Influenza"
   And I Submit and wait
   #And delayed jobs are processed
   Then I should see "Anderson Elementary,Ashford Elementary,Yates High School" within the results
@@ -287,26 +287,3 @@ Scenario: User runs a simple query against a school district, requests school di
   #And delayed jobs are processed
   Then I should see "District2" within the results
   #Then I should see graphs "DF-Raw_district_68901_c_absenteeism.png" within the results
-
-  Scenario: User generates reports from a advanced query
-    When I press "Switch to Advanced"
-    And I click school-district-list-item "District2"
-    And I press "Submit"
-    And delayed jobs are processed
-
-    When I press "Generate Report from Result Set"
-    And I click x-menu-item "ILI Report"
-    And delayed jobs are processed
-    Then I should see "Generating Report" within ".x-window"
-    And I press "OK" within ".x-window"
-
-    When I press "Generate Report from Result Set"
-    And I click x-menu-item "Attendance Report"
-    And delayed jobs are processed
-    Then I should see "Generating Report" within ".x-window"
-    And I press "OK" within ".x-window"
-
-    When I navigate to "Reports"
-    And I click x-tbar-loading ""
-    Then I should see "Ili-All-Recipe-1" in grid row 2
-    And I should see "Attendance-All-Recipe-2" in grid row 1

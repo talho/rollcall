@@ -85,6 +85,9 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
       .joins("inner join rollcall_alarm_queries on rollcall_alarm_queries.id = rollcall_alarms.alarm_query_id")
       .joins("inner join rollcall_schools on rollcall_schools.id = rollcall_alarms.school_id")
       .where("user_id = ?", current_user.id)
+      .where("gmap_addr is not null")
+      .where("gmap_lat is not null")
+      .where("gmap_lng is not null")
       .select("rollcall_schools.display_name, absentee_rate, deviation, severity, gmap_addr, gmap_lat, gmap_lng")
     
     respond_with(@alarms)

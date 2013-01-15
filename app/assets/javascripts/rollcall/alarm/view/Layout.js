@@ -15,12 +15,12 @@ Talho.Rollcall.alarm.view.Layout = Ext.extend(Ext.Panel, {
         };
     
     var queries = new Talho.Rollcall.alarm.view.alarmquery.Index({region: 'west', width: 400, getBubbleTarget: findBubble});
-    var alarms = new Talho.Rollcall.alarm.view.alarm.Index({region: 'center', getBubbleTarget: findBubble});    
+    this.center = new Talho.Rollcall.alarm.view.alarm.Index({region: 'center', getBubbleTarget: findBubble});    
     
     this.items = {xtype: 'panel', layout: 'border', autoScroll: true, scope: this,
       items: [
         queries,
-        alarms        
+        this.center        
       ]
     };        
     

@@ -1,4 +1,5 @@
 //= require_tree ./view
+//= require ext_extensions/GMapPanel
 
 Ext.namespace('Talho.Rollcall.alarm');
 
@@ -12,6 +13,7 @@ Talho.Rollcall.alarm.Controller = Ext.extend(Ext.util.Observable, {
     
     this.layout.on({
       'createalarmquery': this._createAlarmQuery,
+      'alarmgis': this._alarmGIS,
       scope: this
     })
     
@@ -21,6 +23,11 @@ Talho.Rollcall.alarm.Controller = Ext.extend(Ext.util.Observable, {
   _createAlarmQuery: function () {
     var newquery = new Talho.Rollcall.alarm.view.alarmquery.New();
     newquery.show();
+  },
+  
+  _alarmGIS: function () {
+    var wind = new Talho.Rollcall.alarm.view.GIS();
+    wind.show();
   }
 });
 

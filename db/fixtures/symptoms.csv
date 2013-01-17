@@ -1,40 +1,40 @@
-icd9_code,name
-032.9,Diphtheria
-034.0,Strep Throat
-034.1,Scarlet Fever
-038.11,Staph Aureus
-041.00,Streptococcal Infection
-052.9,Chicken Pox
-056.9,Rubella
-055.9,Measles
-072.9,Mumps
-132.0,Lice
-249.0,Diabetic
-322.9,Meningitis
-323.9,Encephalitis
-379.93,Red Eye
-388.70,Earache
-462,Sore Throat
-478.19,Congestion (Runny Nose)
-487.1,Influenza (Flu)
-493,Asthma
-573.3,Hepatitis
-525.9,Toothache
-626.3,Puberty Bleeding (Menses)
-780.4,Dizziness
-780.60,Fever (Temperature)
-780.64,Chills
-780.79,Lethargy
-782.1,Skin Rash
-784.0,Headache
-784.7,Nosebleed
-786.05,Dyspnea (Difficulty Breathing)
-786.2,Cough
-787.02,Nausea
-787.03,Vomiting
-787.91,Diarrhea
-789.0,Abdominal Pain (Cramping)
+icd9_code,name,matches
+032.9,Diphtheria,diptheria
+034.0,Strep Throat,strep;strep throat
+034.1,Scarlet Fever,scarlet fever
+038.11,Staph Aureus,staph aureus
+041.00,Streptococcal Infection,streptococcal infection
+052.9,Chicken Pox,chicken pox
+056.9,Rubella,rubella
+055.9,Measles,measles
+072.9,Mumps,mumps
+132.0,Lice,lice
+249.0,Diabetic,diabetic;diabetes
+322.9,Meningitis,meningitis
+323.9,Encephalitis,encephalitis
+379.93,Red Eye,red eye;pink eye
+388.70,Earache,earache
+462,Sore Throat,sore throat
+478.19,Congestion (Runny Nose),congestion;runny nose;drainage
+487.1,Influenza (Flu),influenza;flu
+493,Asthma,asthma
+573.3,Hepatitis,hepatitis
+525.9,Toothache,toothache
+626.3,Puberty Bleeding (Menses),puberty bleeding;menses
+780.4,Dizziness,dizziness;dizzy
+780.60,Fever (Temperature),fever;high temp;temperature
+780.64,Chills,chills;chill
+780.79,Lethargy,lethargy;low energy
+782.1,Skin Rash,rash;skin rash;heat rash
+784.0,Headache,headache;migraine
+784.7,Nosebleed,nosebleed;nose bleed
+786.05,Dyspnea (Difficulty Breathing),dyspnea;difficulty breathing;short breath
+786.2,Cough,cough
+787.02,Nausea,nausea
+787.03,Vomiting,vomiting
+787.91,Diarrhea,diarrhea
+789.0,Abdominal Pain (Cramping),abdominal pain;cramping;cramp
 796,Other
-919,Superficial Injury (Cut or Abrasion)
-992.3,Heat Exhaustion
+919,Superficial Injury (Cut or Abrasion),superficial injury;cut;abrasion;scratch
+992.3,Heat Exhaustion,heat exhaustion;heat stroke
 0,None

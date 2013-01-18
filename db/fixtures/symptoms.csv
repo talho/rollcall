@@ -13,14 +13,14 @@ icd9_code,name,matches
 322.9,Meningitis,meningitis
 323.9,Encephalitis,encephalitis
 379.93,Red Eye,red eye;pink eye
-388.70,Earache,earache
+388.70,Earache,earache;ear ache
 462,Sore Throat,sore throat
-478.19,Congestion (Runny Nose),congestion;runny nose;drainage
-487.1,Influenza (Flu),influenza;flu
+478.19,Congestion (Runny Nose),congestion;runny nose;drainage;stuffy nose
+487.1,Influenza (Flu),influenza;flu;flu like symptoms
 493,Asthma,asthma
 573.3,Hepatitis,hepatitis
-525.9,Toothache,toothache
-626.3,Puberty Bleeding (Menses),puberty bleeding;menses
+525.9,Toothache,toothache;tooth ache
+626.3,Puberty Bleeding (Menses),puberty bleeding;menses;menstral
 780.4,Dizziness,dizziness;dizzy
 780.60,Fever (Temperature),fever;high temp;temperature
 780.64,Chills,chills;chill
@@ -31,10 +31,10 @@ icd9_code,name,matches
 786.05,Dyspnea (Difficulty Breathing),dyspnea;difficulty breathing;short breath
 786.2,Cough,cough
 787.02,Nausea,nausea
-787.03,Vomiting,vomiting
-787.91,Diarrhea,diarrhea
+787.03,Vomiting,vomiting;vomit
+787.91,Diarrhea,diarrhea;loose watery stool
 789.0,Abdominal Pain (Cramping),abdominal pain;cramping;cramp
 796,Other
-919,Superficial Injury (Cut or Abrasion),superficial injury;cut;abrasion;scratch
+919,Superficial Injury (Cut or Abrasion),superficial injury;cut;abrasion;scratch;scrape
 992.3,Heat Exhaustion,heat exhaustion;heat stroke
 0,None

@@ -14,7 +14,7 @@ icd9_code,name,matches
 323.9,Encephalitis,encephalitis
 379.93,Red Eye,red eye;pink eye
 388.70,Earache,earache;ear ache
-462,Sore Throat,sore throat
+462,Sore Throat,sore throat;st
 478.19,Congestion (Runny Nose),congestion;runny nose;drainage;stuffy nose
 487.1,Influenza (Flu),influenza;flu;flu like symptoms
 493,Asthma,asthma
@@ -26,14 +26,14 @@ icd9_code,name,matches
 780.64,Chills,chills;chill
 780.79,Lethargy,lethargy;low energy
 782.1,Skin Rash,rash;skin rash;heat rash
-784.0,Headache,headache;migraine
+784.0,Headache,headache;migraine;ha
 784.7,Nosebleed,nosebleed;nose bleed
 786.05,Dyspnea (Difficulty Breathing),dyspnea;difficulty breathing;short breath
 786.2,Cough,cough
 787.02,Nausea,nausea
 787.03,Vomiting,vomiting;vomit
 787.91,Diarrhea,diarrhea;loose watery stool
-789.0,Abdominal Pain (Cramping),abdominal pain;cramping;cramp
+789.0,Abdominal Pain (Cramping),abdominal pain;cramping;cramp;sa;stomache ache;stomacheache
 796,Other
 919,Superficial Injury (Cut or Abrasion),superficial injury;cut;abrasion;scratch;scrape
 992.3,Heat Exhaustion,heat exhaustion;heat stroke

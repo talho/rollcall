@@ -511,12 +511,35 @@
   padding-top: 5px;
 }
 
-.rollcallalarmquery-click {
-  cursor: pointer;
+.rollcallalarmquery-header {
+  color: #5E7088;
+  display: inline-block;
+  font-size: large;
+  font-weight: bold;
 }
 
 .rollcall-alarm-query-new {
   padding-top: 10px;
+}
+
+.rollcall-alarm-query-new-reason {
+  padding: 10px 20px 20px 20px;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.rollcall-alarm-query-new-tip {
+  padding-top: 5px;
+}
+
+.rollcall-alarm-show-gmap {
+  padding: 20px;
+}
+
+.rollcall-alarm-reason {
+  font-size: 2em; 
+  margin: .67em 0;
+  color: #444444;
 }
 
 /* --------- Rollcall ---------------- */

@@ -18,6 +18,10 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
 
   # POST rollcall/alarm_query
   def create
+    if params[:alarm_query][:start_date].blank?
+      params[:alarm_query][:start_date] = DateTime.now
+    end
+    
     alarm_count = Rollcall::AlarmQuery.where("user_id = ? AND name LIKE ?", current_user.id, "#{params[:alarm_query][:name]}%").count  
     params[:alarm_query][:name] = "#{params[:alarm_query][:name]}_#{alarm_count}" if alarm_count > 0
     alarm_query = Rollcall::AlarmQuery.new(params[:alarm_query])

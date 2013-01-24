@@ -13,14 +13,54 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
   layout false
   
   # GET rollcall/alarms
-  def index    
-    if params[:alarm_query_id].present?
-      @alarms = Rollcall::Alarm.where(:alarm_query_id => params[:alarm_query_id])
+  def index
+    @alarms = Rollcall::Alarm
+        .joins(:alarm_query)
+        .joins(:school)
+        
+    if params[:alarm_query_id].present? 
+      @alarms = @alarms
+        .where(:alarm_query_id => params[:alarm_query_id])
     else
-      @alarms = Rollcall::Alarm.joins(:alarm_query).where("rollcall_alarm_queries.user_id = ?", current_user.id)
-    end    
-       
-    respond_with(@alarms)
+      @alarms = @alarms
+        .where("rollcall_alarm_queries.user_id = ?", current_user.id)    
+    end
+    
+    @alarms = @alarms
+      .select('rollcall_schools.display_name, report_date, rollcall_alarms.id')
+      .order('report_date, display_name')
+    
+    options = {:page => (params[:start] ? (params[:start].to_f / 15).floor + 1 : 1), :per_page => params[:limit] || 15}
+    @total = @alarms.count()
+    @alarms = @alarms.paginate(options)
+    
+    respond_with(@alarms, @total)
+  end
+  
+  #GET rollcall/alarm/:id
+  def show
+    @alarm = Rollcall::Alarm
+      .joins(:school)
+      .select('display_name, school_id, rollcall_alarms.id, deviation, severity, ignore_alarm, report_date, gmap_lat, gmap_lng, gmap_addr, absentee_rate')
+      .where(:id => params[:id])
+      .first
+      
+    @alarm['school_info'] = Rollcall::SchoolDailyInfo
+      .where(:school_id => @alarm.school_id)
+      .where("report_date between ? and ?", @alarm.report_date - 7.days, @alarm.report_date)
+      
+    @alarm['symptom_info'] = Rollcall::Symptom
+      .joins("inner join rollcall_student_reported_symptoms s on rollcall_symptoms.id = s.symptom_id")
+      .joins("inner join rollcall_student_daily_infos i on s.student_daily_info_id = i.id")
+      .joins("inner join rollcall_students ss on ss.id = i.student_id")
+      .where("ss.school_id = ?", @alarm.school_id)
+      .where("i.report_date between ? and ?", @alarm.report_date - 7.days, @alarm.report_date)
+      .select("name")
+      .uniq  
+          
+    @alarm = [@alarm]
+    
+    respond_with(@alarm)
   end
 
   # POST rollcall/alarms
@@ -88,7 +128,7 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
       .where("gmap_addr is not null")
       .where("gmap_lat is not null")
       .where("gmap_lng is not null")
-      .select("rollcall_schools.display_name, absentee_rate, deviation, severity, gmap_addr, gmap_lat, gmap_lng")
+      .select("rollcall_schools.display_name, absentee_rate, rollcall_alarms.deviation, rollcall_alarms.severity, gmap_addr, gmap_lat, gmap_lng")
     
     respond_with(@alarms)
   end

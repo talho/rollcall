@@ -7,6 +7,7 @@ Talho.Rollcall.alarm.view.GIS = Ext.extend(Ext.Window, {
     var windowSize = Ext.getBody().getViewSize();
     this.width = windowSize.width - 40;
     this.height = windowSize.height - 40;
+    this.title = "My Schools in an Alarm State";
     
     var store = new Ext.data.JsonStore({
       url: 'rollcall/get_gis',
@@ -81,12 +82,7 @@ Talho.Rollcall.alarm.view.GIS = Ext.extend(Ext.Window, {
       });     
     }, this);
     
-    if (this.store.getTotalCount() == 0) {
-      //default Austin to location if no locations
-      var loc = new google.maps.LatLng(30.2669, -97.7428);
-      this.gmap.centerMap(loc);
-    }
-    else {
+    if (!latlngbounds.isEmpty()) {
       this.gmap.gmap.fitBounds(latlngbounds);
     }
   }

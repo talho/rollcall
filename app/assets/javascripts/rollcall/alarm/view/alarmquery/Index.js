@@ -4,77 +4,93 @@ Ext.namespace("Talho.Rollcall.alarm.view.alarmquery");
 Talho.Rollcall.alarm.view.alarmquery.Index = Ext.extend(Ext.Panel, { 
   layout: 'fit',
   title: 'Alarm Queries',
+  autoScroll: true,
   
   initComponent: function () {
     this.addEvents('createalarmquery', 'alarmgis');
     this.enableBubble(['createalarmquery', 'alarmgis']);
     
     var tpl = new Ext.XTemplate(
-      '<ul>',
+      '<ul style="padding: 20px;">',
         '<tpl for=".">',
           '<li class="rollcallalarmquery-click" queryid="{id}"><div>',
-            '<h3>{name}</h3>',
+            '<h3 class="rollcallalarmquery-header">{name}</h3>',
+            '<div class="forum-divider">&nbsp;</div>',
+            '<span class="forum-actions query-toggle {[ this.toggleClass(values) ]}" queryid="{id}">&nbsp;&laquo;{[ this.toggleText(values) ]}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>',
+            '<span class="forum-actions query-edit" queryid="{id}">&laquo;Edit</span><br /><br />',
             '<table>',
-              '<tpl for="alarm_info_array">',
-                '<tr><td>{key}: </td><td>{value}</td></tr>',
-              '</tpl>',                          
-            '</table>',      
-          '</div></li>',
+              '<tr><td>Deviation: </td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>{deviation}</td></tr><tr><td>&nbsp;</td></tr>',
+              '<tr><td>Severity: </td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>{severity}</td></tr><tr><td>&nbsp;</td></tr>',
+              '<tr><td>Starting on: </td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>{start_date}</td></tr><tr><td>&nbsp;</td></tr>',
+              '<tr><td>Schools: </td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>{[ this.catSchools(values) ]}</td></tr><tr><td>&nbsp;</td></tr>',
+              '<tr><td>School Districts: </td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>{[ this.catSchoolDistricts(values) ]}</td></tr><tr><td>&nbsp;</td></tr>',                         
+            '</table>',
+          '</li><br />',
         '</tpl>',
-      '</ul>'
+      '</ul>',
+      {
+        catSchools: function (values) {
+          if (values.schools.length == 0) {
+            return 'None';  
+          }
+          
+          var names = [];
+          for (var i = 0; i < values.schools.length; i++) {
+            names.push(values.schools[i].display_name)
+          }
+          
+          return names.join(", ");
+        },
+        
+        catSchoolDistricts: function (values) {
+          if (values.school_districts.length == 0) {
+            return 'None';  
+          }
+          
+          var names = [];
+          for (var i = 0; i < values.school_districts.length; i++) {
+            names.push(values.school_districts[i].name)
+          }
+          
+          return names.join(", ");
+        },
+        
+        toggleText: function (values) {
+          if (values.alarm_set) {
+            return "Turn Off";
+          }
+          
+          return "Turn On";
+        },
+        
+        toggleClass: function (values) {
+          if (values.alarm_set) {
+            return "toggle";
+          }                    
+        }
+      }
     );
     
-    var store = new Ext.data.JsonStore({
+    this.store = new Ext.data.JsonStore({
       url: '/rollcall/alarm_query',
       root: 'results',
-      fields: ['id', 'user_id', 'name', 'alarm_set', 'deviation_min', 'deviation_max', 'severity_min', 'severity_max', 'query_params', 'schools', 
-        {name: 'query_param_array', mapping: 'query_params', 
-          convert: function(v, rec){
-            var params,
-                param_array = [];
-            try{
-              params = Ext.decode(v);
-            }
-            catch(e){}
-            
-            for(var k in params){
-              param_array.push({key: k, value: params[k]});
-            }
-            return param_array;
-          }
-        }, 
-        {name: 'alarm_info_array', mapping: 'query_params', 
-          convert: function(v, rec){
-            var params,
-                param_array = [];
-            try{
-              params = Ext.decode(v);
-            }
-            catch(e){}
-            
-            param_array.push({key: 'deviation_min', value: rec.deviation_min});
-            param_array.push({key: 'deviation_max', value: rec.deviation_max});
-            param_array.push({key: 'severity_min', value: rec.severity_min});
-            param_array.push({key: 'severity_max', value: rec.severity_max});
-            for(var k in params){
-              param_array.push({key: k, value: params[k]});
-            }
-            return param_array;
-          }
-        }
-      ],
+      fields: ['id', 'user_id', 'name', 'alarm_set', 'deviation', 'severity', 'start_date', 'schools', 'school_districts'],
       autoLoad: true,
       autoDestroy: true
     });
     
     var indexView = new Ext.DataView({
-      store: store,
+      store: this.store,
       tpl: tpl,
       listeners: {
+        scope: this,
         'click': {
           fn: function (div, index, node, e) {
-            if (node.classList.contains('rollcallalarmquery-click')) {
-              this.fireEvent('queryclick', parseInt(node.attributes['queryid'].value));
+            if (node.classList.contains('query-toggle')) {
+              this.fireEvent('querytoggle', parseInt(node.attributes['queryid'].value), node.classList.contains('toggle'));
+            }
+            if (node.classList.contains('query-edit')) {
+              this.fireEvent('queryedit', parseInt(node.attributes['queryid'].value));
             }
           }
         }
@@ -96,5 +112,9 @@ Talho.Rollcall.alarm.view.alarmquery.Index = Ext.extend(Ext.Panel, {
     ];
     
     Talho.Rollcall.alarm.view.alarmquery.Index.superclass.initComponent.call(this);
+  },
+
+  refresh: function () {
+    this.store.reload();
   }
 });

@@ -2,7 +2,7 @@ Openphin::Application.routes.draw do
   namespace :rollcall do 
     resources :graphing, :only => [:index]
     resources :alarm_query, :except => [:show,:new,:edit]
-    resources :alarms, :controller => "alarm", :except => [:new,:show,:edit]
+    resources :alarms, :controller => "alarm", :except => [:new,:edit]
     resources :schools, :controller => "school", :only => [:index,:show]
     resources :nurse_assistant, :only => [:index,:destroy]
     resources :students, :controller => "student"
@@ -16,6 +16,7 @@ Openphin::Application.routes.draw do
     match "get_neighbors", :to => "graphing#get_neighbors", :as => :get_neighbors
     match "export", :to => "graphing#export", :as => :export
     match "report", :to => "graphing#report", :as => :report
+    match "/alarm_query/toggle/:id", :to => "alarm_query#toggle", :as => :toggle
     match "alarm/:alarm_query_id", :to => "alarm#create", :as => :activate_alarm
     match "get_info", :to => "alarm#get_info", :as => :get_info
     match "get_gis", :to => "alarm#get_gis", :as => :get_gis

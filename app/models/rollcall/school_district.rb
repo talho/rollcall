@@ -16,6 +16,7 @@ class Rollcall::SchoolDistrict < ActiveRecord::Base
   has_many :students, :through => :schools
   has_many :student_daily_infos, :through => :students
   has_many :school_daily_infos, :through => :schools
+  has_and_belongs_to_many :alarm_queries, :class_name => "Rollcall::AlarmQuery", :join_table => "rollcall_alarm_queries_school_districts"
   include Rollcall::DataModule
   require 'will_paginate/array'
 

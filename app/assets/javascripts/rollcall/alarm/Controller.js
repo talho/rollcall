@@ -18,6 +18,7 @@ Talho.Rollcall.alarm.Controller = Ext.extend(Ext.util.Observable, {
       'alarmshow': this._alarmShow,
       'querytoggle': this._queryToggle,
       'queryedit': this._queryEdit,
+      'querydelete': this._queryDelete,
       scope: this
     })
     
@@ -64,8 +65,8 @@ Talho.Rollcall.alarm.Controller = Ext.extend(Ext.util.Observable, {
       scope: this,
       success: function (response) {
         this.layout.queries.refresh();
-        this.layout.index.refresh();
-        Ext.MessageBox.alert((toggle ? 'Turned on' : 'Turned off'));
+        this.layout.center.refresh();
+        Ext.MessageBox.alert('Success', (toggle ? 'Turned on' : 'Turned off'));
       },
       failure: function (response) {
         Ext.MessageBox.alert('Save Error', 'Please try again.');        
@@ -76,6 +77,22 @@ Talho.Rollcall.alarm.Controller = Ext.extend(Ext.util.Observable, {
   _queryEdit: function (query_id) {
     this.editquery = new Talho.Rollcall.alarm.view.alarmquery.Edit({getBubbleTarget: this.layout.findBubble});
     this.editquery.show();
+  },
+  
+  _queryDelete: function (query_id) {
+    Ext.Ajax.request({
+      url: 'rollcall/alarm_query/' + query_id,
+      method: 'DELETE',
+      scope: this,
+      success: function (response) {
+        this.layout.queries.refresh();
+        this.layout.center.refresh();
+        Ext.MessageBox.alert('Success', 'It has been deleted.'); 
+      },
+      failure: function (response) {
+        Ext.MessageBox.alert('Delete Error', 'Please try again.');        
+      }
+    });
   }
 });
 

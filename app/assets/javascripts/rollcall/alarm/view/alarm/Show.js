@@ -41,26 +41,41 @@ Talho.Rollcall.alarm.view.alarm.Show = Ext.extend(Ext.Window, {
     
     var school_tpl = new Ext.XTemplate(
       '<tpl for=".">',
-        '<div class="rollcall-alarm-header"></div><table><tbody>',
-        '<tpl for="school_info">',
-          '<tr><td>{report_date}</td>Absent: <td></td><td>{total_absent}</td><td>Enrolled: </td><td>{total_enrolled}</td></tr>',
-        '</tpl><tbody></table>',      
+        '<div class="forum-wrap" style="padding: 20px;">',
+          '<span class="forum-header-title">Recent absentee data for {school_name}</span>',
+          '<div class="forum-divider">&nbsp;</div><br /><table><tbody>',          
+          '<tpl for="school_info">',
+            '<tr>',
+              '<td class="rollcall-alarm-show-head">{report_date}</td>',
+              '<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>',
+              '<td class="rollcall-alarm-show-bold">Absent: {total_absent}</td>',
+              '<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>',
+              '<td class="rollcall-alarm-show-bold">Enrolled: {total_enrolled}</td>',
+            '</tr>',
+          '</tpl></tbody></table>',
+        '</div>',     
       '</tpl>'
     );
     
     var symptom_tpl = new Ext.XTemplate(
       '<tpl for=".">',
-        '<div class="rollcall-alarm-header">Reported Symptoms for week previous to {report_date}</div><ul>',
-        '<tpl for="symptom_info">',
-          '<li>{name}</li>',
-        '</tpl></ul>',      
+        '<div class="forum-wrap" style="padding: 20px;">',
+          '<div class="forum-header">',
+            '<span class="forum-header-title">Reported Symptoms for week previous to {report_date}</span>',
+          '</div>',
+          '<div class="forum-divider">&nbsp;</div>',
+          '<tpl for="school_info">',
+            '<div class="rollcall-alarm-show-row">',
+              '<span class="rollcall-alarm-show-head">{name}</span>',
+            '</div>',
+          '</tpl>',
       '</tpl>'
     );
     
     this.gmap = new Ext.ux.GMapPanel({zoomLevel: 11, cls: 'rollcall-alarm-show-gmap', border: true});
     this.title_view = new Ext.DataView({tpl: header_tpl});
     this.school_view = new Ext.DataView({tpl: school_tpl});
-    this.symptom_view = new Ext.DataView({tpl: symptom_tpl});
+    this.symptom_view = new Ext.DataView({tpl: symptom_tpl, emptyText: 'None reported'});
     
     this.defaults = {frame: false, border: false, width: this.columnWidth, height: this.rowHeight};
     
@@ -68,8 +83,10 @@ Talho.Rollcall.alarm.view.alarm.Show = Ext.extend(Ext.Window, {
       {xtype: 'panel', items: [ this.title_view ]},
       {xtype: 'panel', items: [ this.gmap ]},
       {xtype: 'panel', autoScroll: true, items: [ this.school_view ]},
-      {xtype: 'panel', autoScroll: true, items: [ this.student_view ]}
+      {xtype: 'panel', autoScroll: true, items: [ this.symptom_view ]}
     ];
+    
+    this.ignore_button = new Ext.Button({text: 'Ignore'});
     
     this.buttons = [
       this.ignore_button,
@@ -92,10 +109,11 @@ Talho.Rollcall.alarm.view.alarm.Show = Ext.extend(Ext.Window, {
     this.gmap_store = new Ext.data.JsonStore({fields: ['school_name', 'absentee_rate', 'deviation', 'severity', 'gmap_addr', 'gmap_lat', 'gmap_lng'], data: alarm.get('nearby_schools')});
     
     this.setTitle("Alarm for " + this.school + " on " + this.report_date);
+    this.ignore_button.setText((this.ignored ? 'Un-Ignore' : 'Ignore'));
     
     this.title_view.bindStore(this.store);
-    this.school_view.bindStore(this.school_view);
-    this.symptom_view(this.school_view);
+    this.school_view.bindStore(this.store);
+    this.symptom_view.bindStore(this.store);
     
     this._render_gmap_markers();
     

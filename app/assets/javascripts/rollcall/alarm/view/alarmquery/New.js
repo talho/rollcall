@@ -17,7 +17,7 @@ Talho.Rollcall.alarm.view.alarmquery.New = Ext.extend(Ext.Window, {
     
     this.name = new Ext.form.TextField({fieldLabel: 'Name', allowBlank: false});
     
-    this.deviation = new Ext.slider.MultiSlider({minValue: 0, maxValue: 4, fieldLabel: 'Deviation', 
+    this.deviation = new Ext.slider.MultiSlider({minValue: 0, maxValue: 4, fieldLabel: 'Deviation', id: 'querydeviation',
       listeners: {
         scope: this,
         'change': function (obj, newValue, oldValue) {
@@ -32,7 +32,7 @@ Talho.Rollcall.alarm.view.alarmquery.New = Ext.extend(Ext.Window, {
       plugins: new Ext.slider.Tip() 
     });
     
-    this.severity = new Ext.slider.MultiSlider({minValue: 0, maxValue: 100, values: [0], fieldLabel: 'Serverity %',
+    this.severity = new Ext.slider.MultiSlider({minValue: 0, maxValue: 100, values: [0], fieldLabel: 'Serverity %', id: 'queryseverity',
       listeners: {
         scope: this,
         'change': function (obj, newValue, oldValue) {

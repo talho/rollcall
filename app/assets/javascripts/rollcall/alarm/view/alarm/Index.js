@@ -50,7 +50,7 @@ Talho.Rollcall.alarm.view.alarm.Index = Ext.extend(Ext.Panel, {
                   '</tr>',
                 '</table></div>',
                 '<div class="forum-reply-count">{report_date}</div>',
-                '<div class="forum-clear"></div>' ,       
+                '<div class="forum-clear"></div>',       
               '</div>',               
             '</li>',          
           '</tpl>',

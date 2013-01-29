@@ -7,8 +7,8 @@ Talho.Rollcall.alarm.view.alarmquery.Index = Ext.extend(Ext.Panel, {
   autoScroll: true,
   
   initComponent: function () {
-    this.addEvents('createalarmquery', 'alarmgis');
-    this.enableBubble(['createalarmquery', 'alarmgis']);
+    this.addEvents('createalarmquery', 'alarmgis', 'queryedit', 'querydelete');
+    this.enableBubble(['createalarmquery', 'alarmgis', 'queryedit', 'querydelete']);
     
     var tpl = new Ext.XTemplate(
       '<ul style="padding: 20px;">',
@@ -17,7 +17,8 @@ Talho.Rollcall.alarm.view.alarmquery.Index = Ext.extend(Ext.Panel, {
             '<h3 class="rollcallalarmquery-header">{name}</h3>',
             '<div class="forum-divider">&nbsp;</div>',
             '<span class="forum-actions query-toggle {[ this.toggleClass(values) ]}" queryid="{id}">&nbsp;&laquo;{[ this.toggleText(values) ]}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>',
-            '<span class="forum-actions query-edit" queryid="{id}">&laquo;Edit</span><br /><br />',
+            '<span class="forum-actions query-edit" queryid="{id}">&laquo;Edit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>',
+            '<span class="forum-actions query-delete" queryid="{id}">&laquo;Delete</span><br /><br />',
             '<table>',
               '<tr><td>Deviation: </td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>{deviation}</td></tr><tr><td>&nbsp;</td></tr>',
               '<tr><td>Severity: </td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>{severity}</td></tr><tr><td>&nbsp;</td></tr>',
@@ -91,6 +92,9 @@ Talho.Rollcall.alarm.view.alarmquery.Index = Ext.extend(Ext.Panel, {
             }
             if (node.classList.contains('query-edit')) {
               this.fireEvent('queryedit', parseInt(node.attributes['queryid'].value));
+            }
+            if (node.classList.contains('query-delete')) {
+              this.fireEvent('querydelete', parseInt(node.attributes['queryid'].value));
             }
           }
         }

@@ -1,6 +1,4 @@
 //= require ext_extensions/Graph
-//= require rollcall/graphing/view/SchoolProfile
-//= require rollcall/graphing/view/GraphWindow
 
 Ext.namespace("Tahlo.Rollcall.Graphing.view");
 

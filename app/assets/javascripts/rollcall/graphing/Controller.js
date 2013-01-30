@@ -19,6 +19,7 @@ Talho.Rollcall.Graphing.Controller = Ext.extend(Ext.util.Observable, {
       'pagingparams': this._loadPagingParams,
       'afterrender': this._getOptions,
       'alarmshow': this._alarmShow,
+      'getneighbors': this._getNeighbors,
       scope: this
     });
 
@@ -67,6 +68,7 @@ Talho.Rollcall.Graphing.Controller = Ext.extend(Ext.util.Observable, {
   _submit: function () {
     var params = this.layout.getParameters();
     this.layout.results.neighbor_mode = false;
+    this.layout.results.paging_toolbar.show();
     var mask = this._mask();
     var callback = function () { mask.hide(); };
     this.layout.results.loadResultStore(params, callback);
@@ -91,7 +93,20 @@ Talho.Rollcall.Graphing.Controller = Ext.extend(Ext.util.Observable, {
     mask.show();
     
     return mask;
-  }
+  },
+  
+  _getNeighbors: function (districts) {
+    var mask = new Ext.LoadMask(this.layout.results.getEl(), {msg:"Please wait..."});
+    mask.show();
+    
+    var params = {};
+    params['school_districts[]'] = districts;
+    
+    var callback = function () { mask.hide(); }    
+    this.layout.results.neighbor_mode = true;
+    this.layout.results.paging_toolbar.hide();
+    this.layout.results.loadResultStore(params, callback);
+  },
 });
 
 Talho.ScriptManager.reg("Talho.Rollcall.Graphing", Talho.Rollcall.Graphing.Controller, function (config) {

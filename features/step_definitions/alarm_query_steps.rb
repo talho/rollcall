@@ -130,8 +130,7 @@ end
 When /^I create a new alarm query$/ do
   step %Q{I press "Create New Alarm Query"}
   step %Q{I fill in "Name" with "Example Query"}
-  step %Q{I click school-name-list-item "Anderson Elementary"}  
-  step %Q{I suspend cucumber}
+  step %Q{I click school-name-list-item "Anderson Elementary"}    
   page.execute_script("Ext.getCmp('querydeviation').setValue(1);")  
   step %Q{I press "Create Alarm Query"}
 end

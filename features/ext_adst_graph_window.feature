@@ -95,27 +95,27 @@ Background:
     And I press "Submit"
     And delayed jobs are processed
   
-Scenario: Open a Graph
-  When I click ".Anderson-Elementary .ux-graph-container"
+Scenario: Open a Graph  
+  When I click ".Anderson-Elementary .x-panel-bwrap .x-panel-body div"  
   Then I should see "Anderson Elementary" within ".x-window-header-text"
 
 Scenario: Open a Graph then close it and open a new graph
-  When I click ".Anderson-Elementary .ux-graph-container"
+  When I click ".Anderson-Elementary .x-panel-bwrap .x-panel-body div"
   And I click ".graph-window .x-tool-close"  
-  When I click ".Ashford-Elementary .ux-graph-container"
+  When I click ".Ashford-Elementary .x-panel-bwrap .x-panel-body div"
   Then I should see "Ashford Elementary" within ".x-window-header-text"
   
 Scenario: Next Graph
-  When I click ".Anderson-Elementary .ux-graph-container"
+  When I click ".Anderson-Elementary .x-panel-bwrap .x-panel-body div"
   Then I press "Next"
   Then I should see "Ashford Elementary" within ".x-window-header-text"
   
 Scenario: Previous Graph
-  When I click ".Anderson-Elementary .ux-graph-container"
+  When I click ".Anderson-Elementary .x-panel-bwrap .x-panel-body div"
   Then I press "Previous"
   Then I should see "Yates High School" within ".x-window-header-text"
   
 Scenario: Drop Down Graph
-  When I click ".Anderson-Elementary .ux-graph-container"
+  When I click ".Anderson-Elementary .x-panel-bwrap .x-panel-body div"
   And I select "Yates High School" from ext combo "graph-window-school"
   Then I should see "Yates High School" within ".x-window-header-text"

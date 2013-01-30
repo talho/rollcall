@@ -2,35 +2,34 @@
 //= require rollcall/ux/ComboBox.js
 //= require rollcall/ux/Filter
 
-Ext.namespace("Tahlo.Rollcall.Graphing.view");
+Ext.namespace("Talho.Rollcall.Graphing.view");
 
-Tahlo.Rollcall.Graphing.view.Layout = Ext.extend(Ext.Panel, {
+Talho.Rollcall.Graphing.view.Layout = Ext.extend(Ext.Panel, {
   id: 'graphing',
   closable: true,
   layout: 'fit',
   border: false,
   title: "Rollcall Graphing",  
   
-  initComponent: function () {
-    
+  initComponent: function () {    
     var me = this,
         findBubble = function () {
           return me;
         };
     
-    this.basic = new Tahlo.Rollcall.Graphing.view.filter.Basic();
+    this.basic = new Talho.Rollcall.Graphing.view.filter.Basic();
     
-    this.demographic = new Tahlo.Rollcall.Graphing.view.filter.Demographic();
+    this.demographic = new Talho.Rollcall.Graphing.view.filter.Demographic();
     
-    this.school = new Tahlo.Rollcall.Graphing.view.filter.School();
+    this.school = new Talho.Rollcall.Graphing.view.filter.School();
     
-    this.symptom = new Tahlo.Rollcall.Graphing.view.filter.Symptom();
+    this.symptom = new Talho.Rollcall.Graphing.view.filter.Symptom();
     
-    this.common = new Tahlo.Rollcall.Graphing.view.filter.Common({ anchor: '100% 25%' });
+    this.common = new Talho.Rollcall.Graphing.view.filter.Common({ anchor: '100% 25%' });
     
     this.filters = [this.basic, this.demographic, this.school, this.symptom, this.common];
     
-    this.results = new Tahlo.Rollcall.Graphing.view.Results({region: 'center'});
+    this.results = new Talho.Rollcall.Graphing.view.Results({region: 'center'});
     
     var submit = {xtype: 'button', text: "Submit", scope: this, handler: function () { this.fireEvent('submitquery'); }};
     
@@ -60,7 +59,7 @@ Tahlo.Rollcall.Graphing.view.Layout = Ext.extend(Ext.Panel, {
       bubble.getBubbleTarget = findBubble;
     });
    
-    Tahlo.Rollcall.Graphing.view.Layout.superclass.initComponent.call(this); 
+    Talho.Rollcall.Graphing.view.Layout.superclass.initComponent.call(this); 
   },
   
   getParameters: function () {

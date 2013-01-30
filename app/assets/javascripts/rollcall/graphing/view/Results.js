@@ -1,8 +1,8 @@
 //= require ext_extensions/Graph
 
-Ext.namespace("Tahlo.Rollcall.Graphing.view");
+Ext.namespace("Talho.Rollcall.Graphing.view");
 
-Tahlo.Rollcall.Graphing.view.Results = Ext.extend(Ext.Panel, {
+Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.Panel, {
   border: false,
   
   initComponent: function () {
@@ -81,7 +81,7 @@ Tahlo.Rollcall.Graphing.view.Results = Ext.extend(Ext.Panel, {
       ]
     });
     
-    Tahlo.Rollcall.Graphing.view.Results.superclass.initComponent.call(this);
+    Talho.Rollcall.Graphing.view.Results.superclass.initComponent.call(this);
   },
   
   loadResultStore: function (params, callback) {
@@ -158,7 +158,7 @@ Tahlo.Rollcall.Graphing.view.Results = Ext.extend(Ext.Panel, {
             }
           },*/          
           {id: 'gis', qtip: 'School Profile', handler: function (e, targetEl, panel, tc) {
-              var gmap = new Tahlo.Rollcall.Graphing.view.SchoolProfile({school_name: panel.school_name, school: panel.school.json});
+              var gmap = new Talho.Rollcall.Graphing.view.SchoolProfile({school_name: panel.school_name, school: panel.school.json});
               gmap.show();        
             },
             hidden: this.gis
@@ -181,7 +181,7 @@ Tahlo.Rollcall.Graphing.view.Results = Ext.extend(Ext.Panel, {
           cls: 'x-panel-mc',
           listeners: {'render': function (c) {
             c.getEl().on('click', function () {
-              var w = new Tahlo.Rollcall.Graphing.view.GraphWindow({
+              var w = new Talho.Rollcall.Graphing.view.GraphWindow({
                 graphNumber: id, _getFieldArray: getFA, graph_series: graph_series,
                 search_params: local_params
               }).show();
@@ -216,7 +216,7 @@ Tahlo.Rollcall.Graphing.view.Results = Ext.extend(Ext.Panel, {
           scope: this })]
       };
       
-      this.results.add(graphImageConfig);
+      this.results.add(neighbor);
     }
     
     this.doLayout();

@@ -163,11 +163,6 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.Panel, {
             },
             hidden: this.gis
           },          
-          {id: 'save', qtip: 'Create Alarm', scope: this, hidden: hideToolTip,
-            handler: function(e, targetEl, panel, tc) {
-              this.fireEvent('createalarmquery', school.get('id'), school.get('name'));
-            }
-          },
           {id: 'down', qtip: 'Export Result', hidden: hideToolTip, scope: this, handler: function () { this.fireEvent('exportresult') } },
           {id: 'close', qtip: "Close", handler: this._closeResult }
         ],               

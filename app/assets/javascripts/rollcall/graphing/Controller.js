@@ -50,7 +50,7 @@ Talho.Rollcall.Graphing.Controller = Ext.extend(Ext.util.Observable, {
         mask.hide();        
       },
       failure: function (response) {
-        this.fireEvent('notauthorized');        
+        this.layout.fireEvent('notauthorized');        
       },
     });
   },

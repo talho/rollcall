@@ -1,45 +1,23 @@
-Then /^I click the alarm group "([^\"]*)"$/ do |title|
-  page.find(:xpath, ".//div[contains(concat(' ', @class, ' '), 'rollcall_alarm_icon') step %Q{text() = '#{title}']").click
-end
+Feature: Alarms
+  In order to interact with alarms
+  As a Rollcall user
+  I should be able to create/edit alarms based off of alarm queries
 
-Then /^I click the last alarm within the "([^\"]*)" alarm group$/ do |title|
-  page.find(:xpath, ".//div[contains(concat(' ', @class, ' '), 'x-grid-group-body') step %Q{..//div[contains(concat(' ', @class, ' '), 'rollcall_alarm_icon') step %Q{text() = '#{title}']]/div[last()]").click
-end
-
-Then /^I delete the alarms for "([^\"]*)"$/ do |alarm_group_name|
-  e_o_r  = false
-  begin
-    step %{I click the last alarm within the "#{alarm_group_name}" alarm group}
-    step %{I wait for the panel to load}
-    step %{I should see "Delete Alarm"}
-    step %{I press "Delete Alarm"}
-    step %{I should see "Are you sure you want to delete this alarm?"}
-    step %{I press "Yes"}
-    step %{I wait for the panel to load}
-  rescue
-    e_o_r = true
-  end while(e_o_r == false)
-end
-
-Given /^I have alarm data$/ do
-  step %Q{the following entities exist:}, table(%{
+Background:
+  Given the following entities exist:
     | Role         | Epidemiologist  | rollcall |
     | Jurisdiction | Texas           |          |
     | Jurisdiction | Harris          |          |
-  })
-  step %Q{Texas is the parent jurisdiction of:}, table(%{
+  And Texas is the parent jurisdiction of:
     | Harris |
-  })
-  step %Q{Harris has the following school districts:}, table(%{
+  And Harris has the following school districts:
     | Houston | 101912 |
-  })
-  step %Q{"Houston" has the following schools:}, table(%{
+  And "Houston" has the following schools:
     | name                | school_number | tea_id    | school_type       | postal_code | gmap_lat   | gmap_lng    | gmap_addr                                                                      |
     | Anderson Elementary | 105           | 101912105 | Elementary School | 77035       | 29.6496766 | -95.4879978 | "Anderson Elementary School, 5727 Ludington Dr, Houston, TX 77035-4399, USA"   |
     | Ashford Elementary  | 273           | 101912273 | Elementary School | 77077       | 29.7477296 | -95.5988336 | "Ashford Elementary School, 1815 Shannon Valley Dr, Houston, TX 77077, USA"    |
     | Yates High School   | 20            | 101912020 | High School       | 77004       | 29.7232848 | -95.3546602 | "Yates High School: School Buildings, 3703 Sampson St, Houston, TX 77004, USA" |
-  })
-  step %Q{the following symptoms exist:}, table(%{
+  And the following symptoms exist:
     | icd9_code | name                    |
     | 032.9     | Diphtheria              |
     | 034.0     | Strep Throat            |
@@ -64,19 +42,15 @@ Given /^I have alarm data$/ do
     | 787.03    | Vomiting                |
     | 787.91    | Diarrhea                |
     | 0         | None                    |
-  })
-  step %Q{the following users exist:}, table(%{
+  And the following users exist:
     | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Harris | rollcall |
-  })
-  step %Q{rollcall user "nurse.betty@example.com" has the following school districts assigned:}, table(%{
+  And rollcall user "nurse.betty@example.com" has the following school districts assigned:
     | Houston |
-  })
-  step %Q{rollcall user "nurse.betty@example.com" has the following schools assigned:}, table(%{
+  And rollcall user "nurse.betty@example.com" has the following schools assigned:
     | Anderson Elementary |
     | Ashford Elementary  |
     | Yates High School   |
-  })
-  step %Q{"Houston" has the following current school absenteeism data:}, table(%{
+  And "Houston" has the following current school absenteeism data:
     | day | school_name         | total_enrolled | total_absent |
     | 1   | Anderson Elementary | 100            | 2            |
     | 2   | Anderson Elementary | 100            | 5            |
@@ -84,8 +58,7 @@ Given /^I have alarm data$/ do
     | 2   | Ashford Elementary  | 100            | 4            |
     | 1   | Yates High School   | 200            | 10           |
     | 2   | Yates High School   | 200            | 5            |
-  })
-  step %Q{"Houston" has the following current student absenteeism data:}, table(%{
+  And "Houston" has the following current student absenteeism data:
     | day | school_name         | age      | first_name | last_name | dob        | grade | gender | confirmed_ill | symptoms                    | student_number |
     | 1   | Anderson Elementary | 8        |            |           | 02/13/2003 | 2     | M      | true          | Cough,Temperature           |                |
     | 1   | Anderson Elementary | 7        |            |           | 03/01/2004 | 1     | F      | false         |                             |                |
@@ -114,35 +87,63 @@ Given /^I have alarm data$/ do
     | 2   | Yates High School   | 17       |            |           | 04/23/1994 | 10    | F      | false         |                             |                |
     | 2   | Yates High School   | 18       |            |           | 10/17/1993 | 12    | M      | true          | Chills,Cough,Headache       |                |
     | 2   | Yates High School   | 18       |            |           | 07/23/1993 | 12    | M      | true          | Chills,Temperature,Headache |                |
-  })
-  
-  aq = Rollcall::AlarmQuery.new(:name => "Example Query", :user_id => User.find_by_email("nurse.betty@example.com").id, :start_date => 60.days.ago, :deviation => 1, :severity => 1, :school_ids => [Rollcall::School.find_by_display_name('Anderson Elementary').id])
-  aq.save
-  
-  step %Q{I am logged in as "nurse.betty@example.com"}
-  step %Q{I navigate to the ext dashboard page}
-  step %Q{I navigate to "Apps > Rollcall > Alarms"}
-  step %Q{I click ".query-toggle"}
-  step %Q{I press "OK"}  
-  step %Q{I click ".forum-title"}
-  step %Q{I should see "Alarm for Anderson Elementary on"}
-end
 
-Then /^the alarm is ignored$/ do
-  step %Q{I click ".forum-title"}  
-  step %Q{I should see "Un-Ignore"}
-end
+  And I am logged in as "nurse.betty@example.com"
+  And I navigate to the ext dashboard page
+  And I navigate to "Apps > Rollcall > Graphing"
+  And I wait for the panel to load
+  And I press "Submit"
+  And delayed jobs are processed
+  And "Anderson Elementary" graphs has done loading
+  And I click the "save" tool on the "Query Result for Anderson Elementary" window
+  And I should see "New Alarm Query"
+  And I fill in "Name" with "Example Query"
+  And I fill in "alarm_query[deviation_min]" with "1"
+  And I fill in "alarm_query[deviation_max]" with "2"
+  And I fill in "alarm_query[severity_min]" with "1"
+  And I fill in "alarm_query[severity_max]" with "2"
+  And I press "Save" within ".x-window"
+  And I should see "Example Query"  
+  And I click the "alarm-off" tool on the "Example Query" window
+  And delayed jobs are processed
+  And I wait for the panel to load
+  And I press "Refresh" within "#alarms_c"  
+  And I should see "Example Query" within "#alarm_grid_panel"
 
-Given /^I have an ignored alarm$/ do
-  step %Q{I press "Ignore"}
-  step %Q{I click ".forum-title"}
-end
+Scenario: User views alarm information
+  When I click the alarm group "Example Query"  
+  And I click the last alarm within the "Example Query" alarm group  
+  And I should see "Alarm Information for Anderson Elementary" within ".alarm-tip"
+  And I should see "Severity" within ".alarm-tip"
+  And I should see "extreme" within ".alarm-tip"
+  Then I click the alarm group "Example Query"
 
-Then /^the alarm is not ignored$/ do
-  step %Q{I click ".forum-title"}
-  step %Q{I should see "Ignore"}
-end
+Scenario: User ignores an alarm
+  When I click the alarm group "Example Query"
+  And I click the last alarm within the "Example Query" alarm group  
+  And I should see "Ignore Alarm"
+  And I press "Ignore Alarm"  
+  And I should see "Are you sure you want to ignore this alarm?"
+  And I press "Yes"
+  And I wait for the panel to load  
+  And I should see "Deviation Rate" within ".ignore"
 
-Then /^the alarm is deleted$/ do
-  step %Q{I should see "Anderson Elementary"}
-end
+Scenario: User un-ignores an alarm
+  When I click the alarm group "Example Query"
+  And I click the last alarm within the "Example Query" alarm group
+  And I should see "Ignore Alarm"
+  And I press "Ignore Alarm"
+  And I should see "Are you sure you want to ignore this alarm?"
+  And I press "Yes"
+  And I wait for the panel to load
+  And I should see "Deviation Rate" within ".ignore"
+  And I click the last alarm within the "Example Query" alarm group
+  And I should see "Unignore Alarm"
+  And I press "Unignore Alarm"
+  And I wait for the panel to load
+  Then I should see "Deviation Rate" within ".alarm"
+
+Scenario: User deletes an alarm
+  When I click the alarm group "Example Query"
+  And I delete the alarms for "Example Query"
+  Then I should not see "Example Query" within "#alarm_grid_panel"

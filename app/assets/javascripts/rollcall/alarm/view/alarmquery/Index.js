@@ -7,8 +7,8 @@ Talho.Rollcall.alarm.view.alarmquery.Index = Ext.extend(Ext.Panel, {
   autoScroll: true,
   
   initComponent: function () {
-    this.addEvents('createalarmquery', 'alarmgis', 'queryedit', 'querydelete');
-    this.enableBubble(['createalarmquery', 'alarmgis', 'queryedit', 'querydelete']);
+    this.addEvents('createalarmquery', 'alarmgis', 'queryedit', 'querydelete', 'querytoggle', 'refresh');
+    this.enableBubble(['createalarmquery', 'alarmgis', 'queryedit', 'querydelete', 'querytoggle', 'refresh']);
     
     var tpl = new Ext.XTemplate(
       '<ul style="padding: 20px;">',
@@ -94,7 +94,11 @@ Talho.Rollcall.alarm.view.alarmquery.Index = Ext.extend(Ext.Panel, {
               this.fireEvent('queryedit', parseInt(node.attributes['queryid'].value));
             }
             if (node.classList.contains('query-delete')) {
-              this.fireEvent('querydelete', parseInt(node.attributes['queryid'].value));
+              Ext.MessageBox.confirm("Confirm Delete", "Would you like to delete this?", function (btn) {
+                if (btn == 'yes') {
+                  this.fireEvent('querydelete', parseInt(node.attributes['queryid'].value));
+                } 
+              }, this);
             }
           }
         }
@@ -107,6 +111,10 @@ Talho.Rollcall.alarm.view.alarmquery.Index = Ext.extend(Ext.Panel, {
     
     this.bbar = [      
       '->',
+      {xtype: 'button', text: 'Refresh', scope: this, handler: function () {
+          this.fireEvent('refresh');     
+        }
+      },
       {xtype: 'button', text: 'GIS', id: 'gis_button', itemId: 'gis_button', iconCls: 'x-tbar-gis', scope: this,
         handler: function() {
           this.fireEvent('alarmgis');

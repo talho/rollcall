@@ -44,9 +44,7 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.Panel, {
       }
     });
     
-    var export_btn = new Ext.Button({ text: 'Export Result Set' });
-    
-    var alarm_btn = new Ext.Button({ text: 'Create Alarm from Result Set' });
+    var export_btn = new Ext.Button({ text: 'Export Result Set', handler: function () { this.fireEvent('exportresult') }, scope: this });        
 
     this.getResultsStore = function () {
       return (this.neighbor_mode ? neighbor_store : result_store);
@@ -76,8 +74,7 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.Panel, {
         this.paging_toolbar,        
         '->',
         new Ext.Spacer({height: 26}),
-        export_btn,
-        alarm_btn
+        export_btn
       ]
     });
     

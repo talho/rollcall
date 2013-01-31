@@ -20,6 +20,7 @@ Talho.Rollcall.Graphing.Controller = Ext.extend(Ext.util.Observable, {
       'afterrender': this._getOptions,
       'alarmshow': this._alarmShow,
       'getneighbors': this._getNeighbors,
+      'exportresult': this._exportResultSet,
       scope: this
     });
 
@@ -107,6 +108,33 @@ Talho.Rollcall.Graphing.Controller = Ext.extend(Ext.util.Observable, {
     this.layout.results.paging_toolbar.hide();
     this.layout.results.loadResultStore(params, callback);
   },
+  
+  _exportResultSet: function () {
+    var params = this.layout.getParameters();
+    var param_string = '';
+    
+    for (key in params) {
+      if (key != 'school_type[]' && key != 'zip[]') {
+        param_string += key + '=' + params[key] + '&';
+      }
+    }
+    
+    Ext.MessageBox.show({
+      title: 'Creating CSV Export File',
+      msg:   'Your CSV file will be placed in your documents folders when the system '+
+      'is done generating it. Please check your documents folder in a few minutes.',
+      buttons: Ext.MessageBox.OK,
+      icon:    Ext.MessageBox.INFO
+    });
+    
+    Ext.Ajax.request({
+      url:      '/rollcall/export',
+      method:   'GET',
+      scope:    this,
+      params:   params,
+      failure:  function(){}
+    });
+  }
 });
 
 Talho.ScriptManager.reg("Talho.Rollcall.Graphing", Talho.Rollcall.Graphing.Controller, function (config) {

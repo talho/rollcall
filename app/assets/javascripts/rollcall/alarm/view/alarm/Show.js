@@ -6,6 +6,9 @@ Talho.Rollcall.alarm.view.alarm.Show = Ext.extend(Ext.Window, {
   layoutConfig: {columns: 2},
   
   initComponent: function () {
+    this.addEvents('alarmdelete', 'alarmignoretoggle');
+    this.enableBubble(['alarmdelete', 'alarmignoretoggle']);
+    
     var windowSize = Ext.getBody().getViewSize();
     this.width = windowSize.width - 40;
     this.height = windowSize.height - 40;
@@ -86,11 +89,11 @@ Talho.Rollcall.alarm.view.alarm.Show = Ext.extend(Ext.Window, {
       {xtype: 'panel', autoScroll: true, items: [ this.symptom_view ]}
     ];
     
-    this.ignore_button = new Ext.Button({text: 'Ignore'});
+    this.ignore_button = new Ext.Button({text: 'Ignore', scope: this});
     
     this.buttons = [
       this.ignore_button,
-      {xtype: 'button', text: 'Delete'}
+      {xtype: 'button', text: 'Delete', scope: this, handler: function () { this.fireEvent('alarmdelete', this.alarm_id); }}
     ]    
     
     Talho.Rollcall.alarm.view.alarm.Show.superclass.initComponent.call(this);
@@ -110,6 +113,9 @@ Talho.Rollcall.alarm.view.alarm.Show = Ext.extend(Ext.Window, {
     
     this.setTitle("Alarm for " + this.school + " on " + this.report_date);
     this.ignore_button.setText((this.ignored ? 'Un-Ignore' : 'Ignore'));
+    this.ignore_button.setHandler(function () { 
+      this.fireEvent('alarmignoretoggle', this.alarm_id, this.ignored); 
+    }, this);
     
     this.title_view.bindStore(this.store);
     this.school_view.bindStore(this.store);

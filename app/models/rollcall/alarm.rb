@@ -22,6 +22,6 @@ class Rollcall::Alarm < ActiveRecord::Base
   self.table_name = "rollcall_alarms"
   
   def self.destroy_by_alarm_query_id(alarm_query_id)
-    destroy_all(:alarm_query_id => id)
+    destroy_all(:alarm_query_id => alarm_query_id)
   end
 end

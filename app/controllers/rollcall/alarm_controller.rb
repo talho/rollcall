@@ -41,7 +41,7 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
   def show
     @alarm = Rollcall::Alarm
       .joins(:school)
-      .select('display_name, school_id, rollcall_alarms.id, deviation, severity, ignore_alarm, report_date, gmap_lat, gmap_lng, gmap_addr, absentee_rate')
+      .select('display_name, school_id, rollcall_alarms.id, deviation, severity, ignore_alarm, report_date, gmap_lat, gmap_lng, gmap_addr, absentee_rate, alarm_query_id')
       .where(:id => params[:id])
       .first
       
@@ -56,7 +56,13 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
       .where("ss.school_id = ?", @alarm.school_id)
       .where("i.report_date between ? and ?", @alarm.report_date - 7.days, @alarm.report_date)
       .select("name")
-      .uniq  
+      .uniq
+      
+    reasons = []
+    aq = Rollcall::AlarmQuery.find(@alarm.alarm_query_id)
+    reasons.push("Severity (#{@alarm.severity}) met or exceeded the threshold of #{aq.severity}") if (aq.severity <= @alarm.severity && aq.severity != 0)
+    reasons.push("Deviation (#{@alarm.deviation}) met or exceeded the threshold of #{aq.deviation}") if (aq.deviation <= @alarm.deviation && aq.deviation !=0)
+    @alarm['reason'] = reasons.count == 0 ? "None" : reasons.join(" and ")
           
     @alarm = [@alarm]
     

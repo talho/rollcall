@@ -1,22 +1,23 @@
-Given /^I have alarm query data$/ do
-  step %Q{the following entities exist:}, table(%{
+Feature: Alarm Queries
+  In order to create and set alarms
+  As a Rollcall user
+  I should be able to create alarm queries based off absenteeism severity/deviation from a set of search results
+
+Background:
+  Given the following entities exist:
     | Role         | Epidemiologist  | rollcall |
     | Jurisdiction | Texas           |          |
     | Jurisdiction | Harris          |          |
-  })
-  step %Q{Texas is the parent jurisdiction of:}, table(%{
+  And Texas is the parent jurisdiction of:
     | Harris |
-  })
-  step %Q{Harris has the following school districts:}, table(%{
+  And Harris has the following school districts:
     | Houston | 101912 |
-  })
-  step %Q{"Houston" has the following schools:}, table(%{
+  And "Houston" has the following schools:
     | name                | school_number | tea_id    | school_type       | postal_code | gmap_lat   | gmap_lng    | gmap_addr                                                                      |
     | Anderson Elementary | 105           | 101912105 | Elementary School | 77035       | 29.6496766 | -95.4879978 | "Anderson Elementary School, 5727 Ludington Dr, Houston, TX 77035-4399, USA"   |
     | Ashford Elementary  | 273           | 101912273 | Elementary School | 77077       | 29.7477296 | -95.5988336 | "Ashford Elementary School, 1815 Shannon Valley Dr, Houston, TX 77077, USA"    |
     | Yates High School   | 20            | 101912020 | High School       | 77004       | 29.7232848 | -95.3546602 | "Yates High School: School Buildings, 3703 Sampson St, Houston, TX 77004, USA" |
-  })
-  step %Q{the following symptoms exist:}, table(%{
+  And the following symptoms exist:
     | icd9_code | name                    |
     | 032.9     | Diphtheria              |
     | 034.0     | Strep Throat            |
@@ -41,19 +42,15 @@ Given /^I have alarm query data$/ do
     | 787.03    | Vomiting                |
     | 787.91    | Diarrhea                |
     | 0         | None                    |
-  })
-  step %Q{the following users exist:}, table(%{
+  And the following users exist:
     | Nurse Betty  | nurse.betty@example.com | Epidemiologist    | Harris | rollcall |
-  })
-  step %Q{rollcall user "nurse.betty@example.com" has the following school districts assigned:}, table(%{
+  And rollcall user "nurse.betty@example.com" has the following school districts assigned:
     | Houston |
-  })
-  step %Q{rollcall user "nurse.betty@example.com" has the following schools assigned:}, table(%{
+  And rollcall user "nurse.betty@example.com" has the following schools assigned:
     | Anderson Elementary |
     | Ashford Elementary  |
     | Yates High School   |
-  })
-  step %Q{"Houston" has the following current school absenteeism data:}, table(%{
+  And "Houston" has the following current school absenteeism data:
     | day | school_name         | total_enrolled | total_absent |
     | 1   | Anderson Elementary | 100            | 5            |
     | 2   | Anderson Elementary | 100            | 4            |
@@ -67,8 +64,7 @@ Given /^I have alarm query data$/ do
     | 2   | Yates High School   | 200            | 5            |
     | 3   | Yates High School   | 200            | 4            |
     | 4   | Yates High School   | 200            | 4            |
-  })
-  step %Q{"Houston" has the following current student absenteeism data:}, table(%{
+  And "Houston" has the following current student absenteeism data:
     | day | school_name         | age      | first_name | last_name | dob        | grade | gender | confirmed_ill | symptoms                    | student_number |
     | 1   | Anderson Elementary | 8        | John       | Dorian    | 02/13/2003 | 2     | M      | true          | Cough,Temperature,Chills    | 10055500       |
     | 1   | Anderson Elementary | 6        |            |           | 12/01/2005 | 1     | F      | false         |                             |                |
@@ -120,48 +116,90 @@ Given /^I have alarm query data$/ do
     | 4   | Yates High School   | 17       |            |           | 06/21/1994 | 10    | F      | true          | Lethargy,Headache           |                |
     | 4   | Yates High School   | 17       |            |           | 02/11/1994 | 10    | F      | false         |                             |                |
     | 4   | Yates High School   | 18       |            |           | 11/09/1993 | 12    | F      | true          | Temperature,Cough           |                |
-  })
-  step %Q{I am logged in as "nurse.betty@example.com"}
-  step %Q{I navigate to the ext dashboard page}
-  step %Q{I navigate to "Apps > Rollcall > Alarms"}
-  step %Q{I wait for the panel to load}
-end
 
-When /^I create a new alarm query$/ do
-  step %Q{I press "Create New Alarm Query"}
-  step %Q{I fill in "Name" with "Example Query"}
-  step %Q{I click school-name-list-item "Anderson Elementary"}    
-  page.execute_script("Ext.getCmp('querydeviation').setValue(1);")  
-  step %Q{I press "Create Alarm Query"}
-end
+  And I am logged in as "nurse.betty@example.com"
+  And I navigate to the ext dashboard page
+  And I navigate to "Apps > Rollcall > Graphing"
+  And I wait for the panel to load
+  And I press "Submit"
 
-Then /^I see a new alarm query$/ do
-  step %Q{I should see "Example Query"}
-end
+Scenario: User creates an Alarm Query
+  When "Anderson Elementary" graphs has done loading
+  And I click the "save" tool on the "Query Result for Anderson Elementary" window
+  And I should see "New Alarm Query"
+  And I fill in "Name" with "Example Query"
+  And I press "Save" within ".x-window"  
+  Then I should see "Example Query"
 
-Given /^I have an alarm query$/ do
-  aq = Rollcall::AlarmQuery.new(:deviation => 1, :name => "Example Query", :user_id => current_user.id, :start_date => 60.days.ago, :school_ids => [Rollcall::School.find_by_display_name("Anderson Elementary").id])
-  aq.save
-  step %Q{I press "Refresh"}
-end
+Scenario: User creates an Alarm Query with specific threshold
+  When "Anderson Elementary" graphs has done loading
+  And I click the "save" tool on the "Query Result for Anderson Elementary" window
+  And I should see "New Alarm Query"
+  And I fill in "Name" with "Example Query"  
+  And I fill in "alarm_query[deviation_min]" with "2"
+  And I fill in "alarm_query[severity_min]" with "3"
+  And I press "Save" within ".x-window"
+  And I should see "Example Query"
+  And I should see "severity_min" within ".rollcall-query-column-1"
+  And I should see "3" within ".rollcall-query-column-2"
+  And I should see "deviation_min" within ".rollcall-query-column-1"
+  Then I should see "2" within ".rollcall-query-column-2"
 
-Then /^I delete an alarm query$/ do
-  step %Q{I click ".query-delete"}
-  step %Q{I press "Yes"}  
-end
+Scenario: User creates a new Alarm Query off of an existing Alarm Query
+  When "Anderson Elementary" graphs has done loading
+  And I click the "save" tool on the "Query Result for Anderson Elementary" window  
+  And I should see "New Alarm Query"
+  And I fill in "Name" with "Example Query"
+  And I press "Save" within ".x-window"
+  Then I should see "Example Query" 
+  And I click the "gear" tool on the "Example Query" window
+  And I select "Ashford Elementary" from ext combo "school_alarm"  
+  And I press "Save As New"   
+  Then I should see "Ashford Elementary" within ".rollcall-query-column-2"
 
-Then /^I should not see an alarm query$/ do
-  step %Q{I should not see "Example Query"}
-end
+Scenario: User deletes an existing Alarm Query
+  When "Anderson Elementary" graphs has done loading
+  And I click the "save" tool on the "Query Result for Anderson Elementary" window
+  And I should see "New Alarm Query"
+  And I fill in "Name" with "Example Query"
+  And I press "Save" within ".x-window"
+  Then I should see "Example Query" 
+  And I click the "close" tool on the "Example Query" window
+  And I should see "Are you sure you would like to delete this alarm query? This action cannot be undone"
+  And I press "Yes"
+  And I wait for the panel to load
+  Then I should not see "Example Query" 
 
-When /^edit an alarm query$/ do
-  step %Q{I click ".query-edit"}
-end
+Scenario: User toggles Alarm
+  And I click the "save" tool on the "Query Result for Anderson Elementary" window
+  When "Anderson Elementary" graphs has done loading
+  And I should see "New Alarm Query"
+  And I fill in "Name" with "Example Query"
+  And I fill in "alarm_query[deviation_min]" with "1"
+  And I fill in "alarm_query[deviation_max]" with "2"
+  And I fill in "alarm_query[severity_min]" with "1"
+  And I fill in "alarm_query[severity_max]" with "2"
+  And I press "Save" within ".x-window"
+  Then I should see "Example Query" 
+  And I click the "alarm-off" tool on the "Example Query" window
+  And delayed jobs are processed
+  And I wait for the panel to load
+  And I press "Refresh" within "#alarms_c"
+  Then I should see "Example Query" within "#alarm_grid_panel"
 
-Given /^I have an active alarm query$/ do
-  aq = Rollcall::AlarmQuery.new(:deviation => 1, :name => "Example Query", :user_id => current_user.id, :start_date => 60.days.ago, :school_ids => [Rollcall::School.find_by_display_name("Anderson Elementary").id])
-  aq.save
-  step %Q{I press "Refresh"}
-  step %Q{I click ".query-toggle"}
-  step %Q{I press "OK"}  
-end
+Scenario: User executes search query off of an existing Alarm Query
+  When "Anderson Elementary" graphs has done loading
+  And I click the "save" tool on the "Query Result for Anderson Elementary" window
+  And I should see "New Alarm Query"
+  And I fill in "Name" with "Example Query"
+  And I press "Save" within ".x-window"  
+  Then I should see "Example Query" 
+  And I click the "run-query" tool on the "Example Query" window
+  And delayed jobs are processed
+  And I wait for the panel to load
+  #And I should not see graphs "DF-Raw_101912273_c_absenteeism.png,DF-Raw_101912020_c_absenteeism.png" within the results
+  #Then I should see graphs "DF-Raw_101912105_c_absenteeism.png" within the results
+  And I should not see "Ashford Elementary, Yates High School" within the results
+  #And I should not see "Query Result for Ashford Elementary"
+  #And I should not see "Yates High School"
+  Then I should see "Anderson Elementary" within the results

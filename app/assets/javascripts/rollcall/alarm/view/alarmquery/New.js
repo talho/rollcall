@@ -88,9 +88,11 @@ Talho.Rollcall.alarm.view.alarmquery.New = Ext.extend(Ext.Window, {
     
     this.addListener('afterrender', function () { this._loadWindow(); }, this);
     
+    this.submit_button = new Ext.Button({text: 'Create Alarm Query', handler: function () { this._validate(); }, scope: this});
+    
     this.buttons = [
       {xtype: 'button', text: 'Cancel', handler: function () { this.close(); }, scope: this},
-      {xtype: 'button', text: 'Create Alarm Query', handler: function () { this._validate(); }, scope: this}
+      this.submit_button
     ];
     
     Talho.Rollcall.alarm.view.alarmquery.New.superclass.initComponent.call(this);
@@ -139,13 +141,17 @@ Talho.Rollcall.alarm.view.alarmquery.New = Ext.extend(Ext.Window, {
     if (errors.length == 0) {      
       this.setHeight(300);
       this.error_label.hide();
-      this.fireEvent('createnewalarmquery', this._getParams());
+      this._submitEvent()
     }
     else {
       this.error_label.setText(errors.join(', '));
       this.error_label.show();
       this.setHeight(350);
     }
+  },
+  
+  _submitEvent: function () {
+    this.fireEvent('createnewalarmquery', this._getParams());
   },
   
   _getParams: function () {

@@ -1,7 +1,7 @@
 Openphin::Application.routes.draw do
   namespace :rollcall do 
     resources :graphing, :only => [:index]
-    resources :alarm_query, :except => [:show,:new,:edit]
+    resources :alarm_query, :except => [:new,:edit]
     resources :alarms, :controller => "alarm", :except => [:new,:edit]
     resources :schools, :controller => "school", :only => [:index,:show]
     resources :nurse_assistant, :only => [:index,:destroy]

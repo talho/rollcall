@@ -27,22 +27,21 @@ class Rollcall::AlarmQuery < ActiveRecord::Base
       self.save
     end
   
-    insert = "insert into #{Rollcall::Alarm.table_name}"\
-      "(school_id, alarm_query_id, alarm_severity, deviation, severity, absentee_rate,"\
-      "report_date, created_at, updated_at) "
-                 
-    #Fix standard deivation to do by chunk increments
+    insert = "insert into #{Rollcall::Alarm.table_name} (school_id, alarm_query_id, alarm_severity, deviation, severity, absentee_rate, report_date, created_at, updated_at) "
+                     
     select = Rollcall::SchoolDailyInfo      
-      .joins('inner join (select (total_absent - avg) / stddev_pop  as "z-score", s.report_date as "zreport_date", s.school_id as "zschool_id" from rollcall_school_daily_infos s inner join (select Avg(total_absent), stddev_pop(total_absent), school_id from rollcall_school_daily_infos group by school_id) sd on sd.school_id = s.school_id where total_absent <> 0) as z on zschool_id = school_id and zreport_date = report_date')
-      .where("report_date between ? and ?", start_date)
+      .joins('inner join (select (total_absent - avg) / stddev_pop  as "z-score", s.report_date as "zreport_date", s.school_id as "zschool_id" from rollcall_school_daily_infos s inner join (select Avg(total_absent), stddev_pop(total_absent), school_id from rollcall_school_daily_infos group by school_id having stddev_pop(total_absent) <> 0) sd on sd.school_id = s.school_id where total_absent <> 0) as z on zschool_id = school_id and zreport_date = report_date')
+      .where("report_date >= ?", start_date)
       .where("school_id in (?)", schools.pluck(:id))
-      .where("and (((cast(total_absent as double) / cast(total_enrolled as double) * 100) >= ?) or (\"z-score\" >= ?))", severity, deviation)
-      .select("school_id, ? as alarm_query_id", id)               
-      .select("(cast(total_absent as double) / cast(total_enrolled as double) as alarm_severity,") 
+      .where("(((cast(total_absent as float) / cast(total_enrolled as float) * 100) >= ?) or (\"z-score\" >= ? and ? > 0))", severity, deviation, deviation)
+      .where("cast(total_enrolled as float) <> 0")
+      .select("school_id, #{id} as alarm_query_id")               
+      .select("(cast(total_absent as float) / cast(total_enrolled as float)) as alarm_severity") 
       .select('"z-score" as deviation')
-      .select("((cast(total_absent as double) / cast(total_enrolled as double) * 100) as absentee_rate")
-      .select("report_date, CURRENT_TIMESTAMP as created_at, CURRENT_TIMESTAMP as uppdated_at")
-    
-   Rollcall::Alarm.connection.execute insert + select.to_sql
+      .select('(cast(total_absent as float) / cast(total_enrolled as float) * 100) as severity')
+      .select("(cast(total_absent as float) / cast(total_enrolled as float) * 100) as absentee_rate")
+      .select("report_date, CURRENT_TIMESTAMP as created_at, CURRENT_TIMESTAMP as updated_at")
+      
+    Rollcall::Alarm.connection.execute insert + select.to_sql
   end
 end

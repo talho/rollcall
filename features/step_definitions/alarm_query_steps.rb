@@ -131,7 +131,7 @@ When /^I create a new alarm query$/ do
   step %Q{I press "Create New Alarm Query"}
   step %Q{I fill in "Name" with "Example Query"}
   step %Q{I click school-name-list-item "Anderson Elementary"}    
-  page.execute_script("Ext.getCmp('querydeviation').setValue(1);")  
+  page.execute_script("Ext.getCmp('querydeviation').setValue(0,1,false);")  
   step %Q{I press "Create Alarm Query"}
 end
 
@@ -156,6 +156,8 @@ end
 
 When /^edit an alarm query$/ do
   step %Q{I click ".query-edit"}
+  step %Q{I click school-name-list-item "Yates High School"}
+  step %Q{I press "Submit Edits"}
 end
 
 Given /^I have an active alarm query$/ do

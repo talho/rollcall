@@ -136,7 +136,7 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.Panel, {
         
         tools: [
           {id: 'pin', qtip: 'Pin Graph', handler: function (e, targetEl, panel, tc) { 
-            targetEl.findParent('div.x-panel-tl', 50, true).toggleClass('x-panel-pinned');
+            targetEl.findParent('div.x-panel-header', 50, true).toggleClass('x-panel-pinned');
             targetEl.toggleClass('x-tool-pin');
             targetEl.toggleClass('x-tool-unpin');
             if(targetEl.hasClass('x-tool-unpin')) panel.pinned = true;

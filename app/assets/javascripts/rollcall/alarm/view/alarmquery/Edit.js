@@ -29,14 +29,16 @@ Talho.Rollcall.alarm.view.alarmquery.Edit = Ext.extend(Talho.Rollcall.alarm.view
     this.severity.setValue(0, data.severity, false);
     this.start_date.setValue(data.start_date);
     Ext.each(data.schools, function (record) {
-      this.school.select(record.name, true);
+      this.school.select(this.school.getStore().getById(record.id), true);
     }, this);
     Ext.each(data.school_districts, function (record) {
-      this.school_district.select(record.name, true);
+      this.school_district.select(this.school_district.getStore().getById(record.id), true);
     }, this);
   },
   
   _submitEvent: function () {
+    this.addEvents('editalarmquery');
+    this.enableBubble('editalarmquery');
     this.fireEvent('editalarmquery', this._getParams(), this.alarm_query_id);
   }
 });

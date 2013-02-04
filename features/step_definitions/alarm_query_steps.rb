@@ -1,27 +1,4 @@
-Then /^I click the alarm group "([^\"]*)"$/ do |title|
-  page.find(:xpath, ".//div[contains(concat(' ', @class, ' '), 'rollcall_alarm_icon') step %Q{text() = '#{title}']").click
-end
-
-Then /^I click the last alarm within the "([^\"]*)" alarm group$/ do |title|
-  page.find(:xpath, ".//div[contains(concat(' ', @class, ' '), 'x-grid-group-body') step %Q{..//div[contains(concat(' ', @class, ' '), 'rollcall_alarm_icon') step %Q{text() = '#{title}']]/div[last()]").click
-end
-
-Then /^I delete the alarms for "([^\"]*)"$/ do |alarm_group_name|
-  e_o_r  = false
-  begin
-    step %{I click the last alarm within the "#{alarm_group_name}" alarm group}
-    step %{I wait for the panel to load}
-    step %{I should see "Delete Alarm"}
-    step %{I press "Delete Alarm"}
-    step %{I should see "Are you sure you want to delete this alarm?"}
-    step %{I press "Yes"}
-    step %{I wait for the panel to load}
-  rescue
-    e_o_r = true
-  end while(e_o_r == false)
-end
-
-Given /^I have alarm data$/ do
+Given /^I have alarm query data$/ do
   step %Q{the following entities exist:}, table(%{
     | Role         | Epidemiologist  | rollcall |
     | Jurisdiction | Texas           |          |
@@ -78,27 +55,48 @@ Given /^I have alarm data$/ do
   })
   step %Q{"Houston" has the following current school absenteeism data:}, table(%{
     | day | school_name         | total_enrolled | total_absent |
-    | 1   | Anderson Elementary | 100            | 2            |
-    | 2   | Anderson Elementary | 100            | 5            |
+    | 1   | Anderson Elementary | 100            | 5            |
+    | 2   | Anderson Elementary | 100            | 4            |
+    | 3   | Anderson Elementary | 100            | 3            |
+    | 4   | Anderson Elementary | 100            | 2            |
     | 1   | Ashford Elementary  | 100            | 1            |
     | 2   | Ashford Elementary  | 100            | 4            |
+    | 3   | Ashford Elementary  | 100            | 5            |
+    | 4   | Ashford Elementary  | 100            | 3            |
     | 1   | Yates High School   | 200            | 10           |
     | 2   | Yates High School   | 200            | 5            |
+    | 3   | Yates High School   | 200            | 4            |
+    | 4   | Yates High School   | 200            | 4            |
   })
   step %Q{"Houston" has the following current student absenteeism data:}, table(%{
     | day | school_name         | age      | first_name | last_name | dob        | grade | gender | confirmed_ill | symptoms                    | student_number |
-    | 1   | Anderson Elementary | 8        |            |           | 02/13/2003 | 2     | M      | true          | Cough,Temperature           |                |
+    | 1   | Anderson Elementary | 8        | John       | Dorian    | 02/13/2003 | 2     | M      | true          | Cough,Temperature,Chills    | 10055500       |
+    | 1   | Anderson Elementary | 6        |            |           | 12/01/2005 | 1     | F      | false         |                             |                |
+    | 1   | Anderson Elementary | 6        |            |           | 09/11/2005 | 1     | F      | false         |                             |                |
+    | 1   | Anderson Elementary | 8        |            |           | 05/01/2003 | 2     | M      | true          | Congestion,Cough,Headache   |                |
     | 1   | Anderson Elementary | 7        |            |           | 03/01/2004 | 1     | F      | false         |                             |                |
     | 2   | Anderson Elementary | 8        | John       | Dorian    | 02/13/2003 | 2     | M      | true          | Cough,Temperature,Chills    | 10055500       |
     | 2   | Anderson Elementary | 6        |            |           | 12/01/2005 | 1     | F      | false         |                             |                |
     | 2   | Anderson Elementary | 6        |            |           | 09/11/2005 | 1     | F      | false         |                             |                |
     | 2   | Anderson Elementary | 8        |            |           | 05/01/2003 | 2     | M      | true          | Congestion,Cough,Headache   |                |
-    | 2   | Anderson Elementary | 7        |            |           | 03/01/2004 | 1     | F      | false         |                             |                |
+    | 3   | Anderson Elementary | 7        |            |           | 02/15/2004 | 1     | M      | true          | Cough                       |                |
+    | 3   | Anderson Elementary | 7        |            |           | 04/05/2004 | 1     | M      | true          | Cough                       |                |
+    | 3   | Anderson Elementary | 7        |            |           | 03/25/2004 | 1     | F      | false         |                             |                |
+    | 4   | Anderson Elementary | 8        |            |           | 02/13/2003 | 2     | M      | true          | Cough,Temperature           |                |
+    | 4   | Anderson Elementary | 7        |            |           | 03/01/2004 | 1     | F      | false         |                             |                |    
     | 1   | Ashford Elementary  | 9        |            |           | 05/12/2002 | 3     | F      | true          | Influenza                   |                |
     | 2   | Ashford Elementary  | 8        |            |           | 01/02/2003 | 2     | F      | true          | Temperature                 |                |
     | 2   | Ashford Elementary  | 7        |            |           | 01/22/2004 | 2     | M      | true          | None                        |                |
     | 2   | Ashford Elementary  | 7        | Chris      | Turk      | 08/27/2004 | 2     | F      | true          | Temperature                 | 900800700      |
     | 2   | Ashford Elementary  | 8        |            |           | 02/12/2003 | 2     | M      | true          | Temperature,Cough           |                |
+    | 3   | Ashford Elementary  | 8        |            |           | 01/02/2003 | 2     | F      | true          | Temperature                 |                |
+    | 3   | Ashford Elementary  | 7        |            |           | 01/22/2004 | 2     | M      | true          | None                        |                |
+    | 3   | Ashford Elementary  | 7        | Chris      | Turk      | 08/27/2004 | 2     | F      | true          | Temperature                 | 900800700      |
+    | 3   | Ashford Elementary  | 8        |            |           | 02/12/2003 | 2     | M      | true          | Temperature,Cough           |                |
+    | 3   | Ashford Elementary  | 8        |            |           | 02/12/2003 | 2     | M      | true          | Temperature,Cough           |                |
+    | 4   | Ashford Elementary  | 8        |            |           | 04/22/2003 | 2     | F      | false         |                             |                |
+    | 4   | Ashford Elementary  | 7        |            |           | 01/12/2004 | 1     | M      | false         |                             |                |
+    | 4   | Ashford Elementary  | 8        |            |           | 05/12/2003 | 2     | M      | true          | Cough,Temperature           |                |
     | 1   | Yates High School   | 16       |            |           | 06/16/1995 | 10    | M      | false         |                             |                |
     | 1   | Yates High School   | 18       |            |           | 04/26/1993 | 12    | F      | false         |                             |                |
     | 1   | Yates High School   | 18       |            |           | 02/19/1993 | 12    | M      | false         |                             |                |
@@ -114,35 +112,58 @@ Given /^I have alarm data$/ do
     | 2   | Yates High School   | 17       |            |           | 04/23/1994 | 10    | F      | false         |                             |                |
     | 2   | Yates High School   | 18       |            |           | 10/17/1993 | 12    | M      | true          | Chills,Cough,Headache       |                |
     | 2   | Yates High School   | 18       |            |           | 07/23/1993 | 12    | M      | true          | Chills,Temperature,Headache |                |
+    | 3   | Yates High School   | 15       |            |           | 08/04/1996 | 09    | F      | false         |                             |                |
+    | 3   | Yates High School   | 17       |            |           | 12/13/1994 | 11    | M      | false         |                             |                |
+    | 3   | Yates High School   | 17       |            |           | 04/23/1994 | 10    | F      | false         |                             |                |
+    | 3   | Yates High School   | 18       |            |           | 10/17/1993 | 12    | M      | true          | Chills,Cough,Headache       |                |
+    | 4   | Yates High School   | 16       |            |           | 03/08/1995 | 10    | M      | true          | Chills,Cough                |                |
+    | 4   | Yates High School   | 17       |            |           | 06/21/1994 | 10    | F      | true          | Lethargy,Headache           |                |
+    | 4   | Yates High School   | 17       |            |           | 02/11/1994 | 10    | F      | false         |                             |                |
+    | 4   | Yates High School   | 18       |            |           | 11/09/1993 | 12    | F      | true          | Temperature,Cough           |                |
   })
-  
-  aq = Rollcall::AlarmQuery.new(:name => "Example Query", :user_id => User.find_by_email("nurse.betty@example.com").id, :start_date => 60.days.ago, :deviation => 1, :severity => 1, :school_ids => [Rollcall::School.find_by_display_name('Anderson Elementary').id])
-  aq.save
-  
   step %Q{I am logged in as "nurse.betty@example.com"}
   step %Q{I navigate to the ext dashboard page}
   step %Q{I navigate to "Apps > Rollcall > Alarms"}
+  step %Q{I wait for the panel to load}
+end
+
+When /^I create a new alarm query$/ do
+  step %Q{I press "Create New Alarm Query"}
+  step %Q{I fill in "Name" with "Example Query"}
+  step %Q{I click school-name-list-item "Anderson Elementary"}    
+  page.execute_script("Ext.getCmp('querydeviation').setValue(0,1,false);")  
+  step %Q{I press "Create Alarm Query"}
+end
+
+Then /^I see a new alarm query$/ do
+  step %Q{I should see "Example Query"}
+end
+
+Given /^I have an alarm query$/ do
+  aq = Rollcall::AlarmQuery.new(:deviation => 1, :name => "Example Query", :user_id => current_user.id, :start_date => 60.days.ago, :school_ids => [Rollcall::School.find_by_display_name("Anderson Elementary").id])
+  aq.save
+  step %Q{I press "Refresh"}
+end
+
+Then /^I delete an alarm query$/ do
+  step %Q{I click ".query-delete"}
+  step %Q{I press "Yes"}  
+end
+
+Then /^I should not see an alarm query$/ do
+  step %Q{I should not see "Example Query"}
+end
+
+When /^edit an alarm query$/ do
+  step %Q{I click ".query-edit"}
+  step %Q{I click school-name-list-item "Yates High School"}
+  step %Q{I press "Submit Edits"}
+end
+
+Given /^I have an active alarm query$/ do
+  aq = Rollcall::AlarmQuery.new(:deviation => 1, :name => "Example Query", :user_id => current_user.id, :start_date => 60.days.ago, :school_ids => [Rollcall::School.find_by_display_name("Anderson Elementary").id])
+  aq.save
+  step %Q{I press "Refresh"}
   step %Q{I click ".query-toggle"}
   step %Q{I press "OK"}  
-  step %Q{I click ".forum-title"}
-  step %Q{I should see "Alarm for Anderson Elementary on"}
-end
-
-Then /^the alarm is ignored$/ do
-  step %Q{I click ".forum-title"}  
-  step %Q{I should see "Un-Ignore"}
-end
-
-Given /^I have an ignored alarm$/ do
-  step %Q{I press "Ignore"}
-  step %Q{I click ".forum-title"}
-end
-
-Then /^the alarm is not ignored$/ do
-  step %Q{I click ".forum-title"}
-  step %Q{I should see "Ignore"}
-end
-
-Then /^the alarm is deleted$/ do
-  step %Q{I should see "Anderson Elementary"}
 end

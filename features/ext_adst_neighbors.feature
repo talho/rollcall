@@ -92,7 +92,7 @@ Scenario:  User views multiple school district neighbors
   And I am logged in as "nurse.betty@example.com"
   And I navigate to "Apps > Rollcall > Graphing"
   And I wait for the panel to load
-  When I press "Switch to Advanced"
+  And I click x-accordion-hd "School Filter"
   And I click school-district-list-item "District1"
   And I click school-district-list-item "District2"
   And I press "School District"

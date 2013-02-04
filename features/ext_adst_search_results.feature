@@ -112,14 +112,6 @@ Scenario: User exports result data
   And I select the "Rollcall Documents" grid row
   Then my rollcall export should be visible
 
-Scenario: User saves result as alarm query
-  When "Anderson Elementary" graphs has done loading
-  And I click the "save" tool on the "Query Result for Anderson Elementary" window
-  And I should see "New Alarm Query"
-  And I fill in "Name" with "Example Query"
-  And I press "Save" within ".x-window"
-  Then I should see "Example Query"
-
 Scenario: User views a results school profile
   When "Anderson Elementary" graphs has done loading
   And I click the "gis" tool on the "Query Result for Anderson Elementary" window

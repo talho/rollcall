@@ -14,32 +14,64 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
   
   # GET rollcall/alarms
   def index
-    alarms        = []
-    alarm_queries = []
-    unless params[:alarm_query_id].blank?
-      alarm_queries.push(Rollcall::AlarmQuery.find(params[:alarm_query_id]))
+    @alarms = Rollcall::Alarm
+        .joins(:alarm_query)
+        .joins(:school)
+        
+    if params[:alarm_query_id].present? 
+      @alarms = @alarms
+        .where(:alarm_query_id => params[:alarm_query_id])
     else
-      alarm_queries = current_user.alarm_queries.order(:name)
-    end    
-    alarm_queries.each do |query|          
-      if query.alarm_set        
-        result = Rollcall::Alarm.find_all_by_alarm_query_id(query.id).each do |alarm|
-          alarm[:school_name] = alarm.school.display_name
-          alarm[:school_lat]  = alarm.school.gmap_lat
-          alarm[:school_lng]  = alarm.school.gmap_lng
-          alarm[:school_addr] = alarm.school.gmap_addr
-          alarm[:alarm_name]  = alarm.alarm_query.name
-        end
-        alarms.push(result)
-      end
+      @alarms = @alarms
+        .where("rollcall_alarm_queries.user_id = ?", current_user.id)    
     end
-    @alarms = alarms    
-    respond_with(@alarms)
+    
+    @alarms = @alarms
+      .select('rollcall_schools.display_name, report_date, rollcall_alarms.id')
+      .order('report_date, display_name')
+    
+    options = {:page => (params[:start] ? (params[:start].to_f / 15).floor + 1 : 1), :per_page => params[:limit] || 15}
+    @total = @alarms.count()
+    @alarms = @alarms.paginate(options)
+    
+    respond_with(@alarms, @total)
+  end
+  
+  #GET rollcall/alarm/:id
+  def show
+    @alarm = Rollcall::Alarm
+      .joins(:school)
+      .select('display_name, school_id, rollcall_alarms.id, deviation, severity, ignore_alarm, report_date, gmap_lat, gmap_lng, gmap_addr, absentee_rate, alarm_query_id')
+      .where(:id => params[:id])
+      .first
+      
+    @alarm['school_info'] = Rollcall::SchoolDailyInfo
+      .where(:school_id => @alarm.school_id)
+      .where("report_date between ? and ?", @alarm.report_date - 7.days, @alarm.report_date)
+      
+    @alarm['symptom_info'] = Rollcall::Symptom
+      .joins("inner join rollcall_student_reported_symptoms s on rollcall_symptoms.id = s.symptom_id")
+      .joins("inner join rollcall_student_daily_infos i on s.student_daily_info_id = i.id")
+      .joins("inner join rollcall_students ss on ss.id = i.student_id")
+      .where("ss.school_id = ?", @alarm.school_id)
+      .where("i.report_date between ? and ?", @alarm.report_date - 7.days, @alarm.report_date)
+      .select("name")
+      .uniq
+      
+    reasons = []
+    aq = Rollcall::AlarmQuery.find(@alarm.alarm_query_id)
+    reasons.push("Severity (#{@alarm.severity}) met or exceeded the threshold of #{aq.severity}") if (aq.severity <= @alarm.severity && aq.severity != 0)
+    reasons.push("Deviation (#{@alarm.deviation}) met or exceeded the threshold of #{aq.deviation}") if (aq.deviation <= @alarm.deviation && aq.deviation !=0)
+    @alarm['reason'] = reasons.count == 0 ? "None" : reasons.join(" and ")
+          
+    @alarm = [@alarm]
+    
+    respond_with(@alarm)
   end
 
   # POST rollcall/alarms
   def create    
-    Rollcall::AlarmQuery.find(params[:alarm_query_id]).delay.generate_alarm
+    Rollcall::AlarmQuery.find(params[:alarm_query_id]).generate_alarms
   end
 
   # PUT rollcall/alarms/:id
@@ -91,5 +123,19 @@ class Rollcall::AlarmController < Rollcall::RollcallAppController
     @confirmed_absents = confirmed_absents
     @student_info = student_info
     respond_with(@school_info, @severity, @confirmed_absents, @student_info)
+  end
+  
+  # GET rollcall/get_gis
+  def get_gis
+    @alarms = Rollcall::Alarm.joins("inner join (select max(report_date), school_id from rollcall_alarms group by school_id) as max_date on max_date.max = report_date and max_date.school_id = rollcall_alarms.school_id")
+      .joins("inner join rollcall_alarm_queries on rollcall_alarm_queries.id = rollcall_alarms.alarm_query_id")
+      .joins("inner join rollcall_schools on rollcall_schools.id = rollcall_alarms.school_id")
+      .where("user_id = ?", current_user.id)
+      .where("gmap_addr is not null")
+      .where("gmap_lat is not null")
+      .where("gmap_lng is not null")
+      .select("rollcall_schools.display_name, absentee_rate, rollcall_alarms.deviation, rollcall_alarms.severity, gmap_addr, gmap_lat, gmap_lng")
+    
+    respond_with(@alarms)
   end
 end

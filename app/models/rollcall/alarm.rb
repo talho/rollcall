@@ -20,4 +20,8 @@ class Rollcall::Alarm < ActiveRecord::Base
   belongs_to :alarm_query, :class_name => "Rollcall::AlarmQuery", :foreign_key => "alarm_query_id"
 
   self.table_name = "rollcall_alarms"
+  
+  def self.destroy_by_alarm_query_id(alarm_query_id)
+    destroy_all(:alarm_query_id => alarm_query_id)
+  end
 end

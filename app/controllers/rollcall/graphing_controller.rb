@@ -12,6 +12,7 @@ class Rollcall::GraphingController < Rollcall::RollcallAppController
   respond_to :json
   layout false
 
+  include Rollcall::DataModule
   # Action is called by the GraphingResultPanel result_store on load.  Method processes
   # the search request, calling get_graph_data(), returns
   # the total result length and the paginated result set
@@ -65,19 +66,18 @@ class Rollcall::GraphingController < Rollcall::RollcallAppController
   #
   # POST /rollcall/query_options
   def get_options
-    default_options  = get_default_options
-
-    zipcodes = current_user.rollcall_zip_codes
-
+    default_options = get_default_options   
+    zipcodes = current_user.rollcall_zip_codes              
+    
     school_types = current_user
       .schools
       .select("rollcall_schools.school_type")
       .where("rollcall_schools.school_type is not null")
       .reorder("rollcall_schools.school_type")
       .uniq
-      .pluck("rollcall_schools.school_type")
-
-    @options = {:schools => current_user.schools.all, :school_districts => current_user.school_districts.all, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => (0..12).to_a}
+      .pluck("rollcall_schools.school_type")                      
+        
+    @options = {:schools => current_user.schools.all, :school_districts => current_user.school_districts.all, :default_options => default_options, :zipcodes => zipcodes, :school_types => school_types, :grades => (0..12).to_a }          
   end
 
   # GET /rollcall/search_results
@@ -117,23 +117,4 @@ class Rollcall::GraphingController < Rollcall::RollcallAppController
 
     respond_with(@length, @school_district_array)
   end
-
-  protected
-
-  def get_search_results params
-    if params[:return_individual_school].blank?
-      school_ids = current_user
-        .school_search_relation(params)
-        .where('rollcall_schools.district_id is not null')
-        .reorder('rollcall_schools.district_id')
-        .pluck('rollcall_schools.district_id')
-        .uniq
-      results = current_user.school_districts.where("rollcall_school_districts.id in (?)", school_ids)
-    else
-      results = current_user.school_search params
-    end
-
-    results
-  end
-
 end

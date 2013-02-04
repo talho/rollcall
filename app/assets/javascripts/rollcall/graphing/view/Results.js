@@ -1,47 +1,24 @@
 //= require ext_extensions/Graph
-//= require rollcall/Graphing/view/SchoolProfile
-//= require rollcall/Graphing/view/GraphWindow
 
 Ext.namespace("Talho.Rollcall.Graphing.view");
 
-Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
-  id:     'GraphingResultPanel',
-  itemId: 'portalId',
+Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.Panel, {
   border: false,
-  hidden: true,
-
-  constructor: function(config){
-    Talho.Rollcall.Graphing.view.Results.superclass.constructor.apply(this, arguments);
-
-    this.addEvents('createalarmquery', 'exportresult', 'getneighbors');
-    this.enableBubble(['createalarmquery', 'exportresult', 'getneighbors']);
-  },
-
   initComponent: function () {
-    this.items = [
-      {itemId: 'leftColumn', columnWidth: .50},
-      {itemId: 'rightColumn', columnWidth: .50}
-    ];
-
+    this.addEvents('showreportmessage', 'exportresult', 'getneighbors', 'pagingparams');
+    this.enableBubble(['showreportmessage', 'exportresult', 'getneighbors', 'pagingparams']);
+    
+    this.results = new Ext.Panel({autoScroll: true, border: false, cls: 'rollcall-results', items: []});       
+    
     this.neighbor_mode = false;
-
-    this.html = '<div id="graph_legend" style="margin-top:4px;">' +
-      '<div style="float:left;margin-left:8px;margin-right:20px">Legend:&nbsp;</div>' +
-      '<div style="float:left;margin-right:20px"><span style="background-color:#99BBE8">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Raw&nbsp;</div>' +
-      '<div style="float:left;margin-right:20px"><span style="background-color:#FF6600">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Average&nbsp;</div>' +
-      '<div style="float:left;margin-right:20px"><span style="background-color:#0666FF">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Average 30 Day&nbsp;</div>' +
-      '<div style="float:left;margin-right:20px"><span style="background-color:#660066">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Average 60 Day&nbsp;</div>' +
-      '<div style="float:left;margin-right:20px"><span style="background-color:#006600">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Standard Deviation&nbsp;</div>' +
-      '<div style="float:left;margin-right:20px"><span style="background-color:#FF0066">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Cusum&nbsp;</div>' +
-      '</div><br /><hr /><br />';
-
+    
     var result_store = new Ext.data.JsonStore({
       autoLoad: false,
       autoSave: true,
       root: 'results',
       totalProperty: 'total_results',
       idProperty: 'school_id',
-      fields: ['tea_id', 'school_id', 'name', 'results', 'id' ],
+      fields: ['tea_id', 'school_id', 'name', 'results', 'id'],
       writer: new Ext.data.JsonWriter({encode: false}),
       url: '/rollcall/graphing',
       restful: true,
@@ -65,38 +42,64 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
         load: this._loadGraphResults
       }
     });
+    
+    var export_btn = new Ext.Button({ text: 'Export Result Set', handler: function () { this.fireEvent('exportresult') }, scope: this });        
 
     this.getResultsStore = function () {
       return (this.neighbor_mode ? neighbor_store : result_store);
     };
 
+    this.paging_toolbar = new Ext.PagingToolbar(
+      {displayInfo: true, prependButtons: true, pageSize: 6, store: this.getResultsStore(),
+       listeners: {'beforechange': function (tb, params) { this.fireEvent ('pagingparams', tb, params); return false; }, scope: this}
+      }
+    );
+    
+    this.items = [
+      {xtype: 'container', cls: 'rollcall-legend', html: '<div id="graph_legend" style="margin-top:4px;">' +
+        '<div style="float:left;margin-left:8px;margin-right:20px">Legend:&nbsp;</div>' +
+        '<div style="float:left;margin-right:20px"><span style="background-color:#99BBE8">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Raw&nbsp;</div>' +
+        '<div style="float:left;margin-right:20px"><span style="background-color:#FF6600">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Average&nbsp;</div>' +
+        '<div style="float:left;margin-right:20px"><span style="background-color:#0666FF">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Average 30 Day&nbsp;</div>' +
+        '<div style="float:left;margin-right:20px"><span style="background-color:#660066">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Average 60 Day&nbsp;</div>' +
+        '<div style="float:left;margin-right:20px"><span style="background-color:#006600">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Standard Deviation&nbsp;</div>' +
+        '<div style="float:left;margin-right:20px"><span style="background-color:#FF0066">&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Cusum&nbsp;</div>' +
+        '</div><br /><hr />'
+      },
+      this.results,
+    ];
+    
+    this.bbar = new Ext.Toolbar({ hidden: true, items: [
+        this.paging_toolbar,        
+        '->',
+        new Ext.Spacer({height: 26}),
+        export_btn
+      ]
+    });
+    
     Talho.Rollcall.Graphing.view.Results.superclass.initComponent.call(this);
   },
 
   loadResultStore: function (params, callback) {
-    this.getResultsStore().load({params: params, callback: callback});
+    this.getResultsStore().load({params: params, callback: function () { 
+      this.getBottomToolbar().show(); callback(); }, scope: this});    
   },
 
   _loadGraphResults: function (store, records, options) {
-    this.show();
-
     if (!options) { options = this.options }
     else { this.options = options }
 
     var resultLength = store.getRange().length;
-    var leftColumn = this.getComponent('leftColumn');
-    var rightColumn = this.getComponent('rightColumn');
-    var height = 230;
+    var height = 280;
 
-    rightColumn.items.each(function(item){
-      if(!item.pinned) rightColumn.remove(item.id, true);
-    });
-
-    leftColumn.items.each(function(item) {
-      if(!item.pinned) leftColumn.remove(item.id, true);
-    });
-
-
+    this.results.items.each(function (item) {
+      if (!item.pinned) {
+        this.results.remove(item, true);
+      }
+    }, this);
+    
+    this.results.setHeight(this.getHeight() - 69);
+    
     store.each(function (school, i) {
       var id = school.id;
       var name = school.get('name');
@@ -134,8 +137,8 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
         boxMinWidth: 320,
 
         tools: [
-          {id: 'pin', qtip: 'Pin Graph', handler: function (e, targetEl, panel, tc) {
-            targetEl.findParent('div.x-panel-tl', 50, true).toggleClass('x-panel-pinned');
+          {id: 'pin', qtip: 'Pin Graph', handler: function (e, targetEl, panel, tc) { 
+            targetEl.findParent('div.x-panel-header', 50, true).toggleClass('x-panel-pinned');
             targetEl.toggleClass('x-tool-pin');
             targetEl.toggleClass('x-tool-unpin');
             if(targetEl.hasClass('x-tool-unpin')) panel.pinned = true;
@@ -146,12 +149,7 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
               gmap.show();
             },
             hidden: this.gis
-          },
-          {id: 'save', qtip: 'Create Alarm', scope: this, hidden: hideToolTip,
-            handler: function(e, targetEl, panel, tc) {
-              this.fireEvent('createalarmquery', school.get('id'), school.get('name'));
-            }
-          },
+          },          
           {id: 'down', qtip: 'Export Result', hidden: hideToolTip, scope: this, handler: function () { this.fireEvent('exportresult') } },
           {id: 'close', qtip: "Close", handler: this._closeResult }
         ],
@@ -162,6 +160,7 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
           height: 193,
           series: graph_series,
           xField: 'report_date',
+          cls: 'x-panel-mc',
           listeners: {'render': function (c) {
             c.getEl().on('click', function () {
               var w = new Talho.Rollcall.Graphing.view.GraphWindow({
@@ -171,15 +170,9 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
             });
           }}
         })
-      }
-
-      if(i % 2 == 0) {
-        leftColumn.add(graphImageConfig);
-      }
-      else {
-        rightColumn.add(graphImageConfig);
-      }
-
+      }          
+      
+      this.results.add(graphImageConfig);
     }, this);
 
     //Checking to see if we should display the neighbors buttons
@@ -204,13 +197,8 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
           },
           scope: this })]
       };
-
-      if(store.getCount() % 2 == 0) {
-        leftColumn.add(neighbor);
-      }
-      else {
-        rightColumn.add(neighbor);
-      }
+      
+      this.results.add(neighbor);
     }
 
     this.doLayout();
@@ -312,8 +300,5 @@ Talho.Rollcall.Graphing.view.Results = Ext.extend(Ext.ux.Portal, {
   _closeResult: function (e, target, panel) {
     panel.ownerCt.remove(panel, true);
   },
-
-  getSearchParams: function(){
-    return this.getResultsStore().lastOptions.params;
-  }
+  
 });

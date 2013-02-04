@@ -18,6 +18,10 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
 
   # POST rollcall/alarm_query
   def create
+    if params[:alarm_query][:start_date].blank?
+      params[:alarm_query][:start_date] = DateTime.now
+    end
+    
     alarm_count = Rollcall::AlarmQuery.where("user_id = ? AND name LIKE ?", current_user.id, "#{params[:alarm_query][:name]}%").count  
     params[:alarm_query][:name] = "#{params[:alarm_query][:name]}_#{alarm_count}" if alarm_count > 0
     alarm_query = Rollcall::AlarmQuery.new(params[:alarm_query])
@@ -32,8 +36,16 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
 
   # PUT rollcall/alarm_query/:id
   def update
-    query = Rollcall::AlarmQuery.find(params[:id])
-    respond_with(@success = query.update_attributes(params[:alarm_query]))
+    alarm_query = Rollcall::AlarmQuery.find(params[:id])
+    
+    @success = alarm_query.update_attributes(params[:alarm_query])
+    
+    if (@success)
+      Rollcall::Alarm.destroy_by_alarm_query_id(alarm_query.id)
+      alarm_query.generate_alarms
+    end
+    
+    respond_with(@success)
   end
 
   # DELETE rollcall/alarm_query/:id
@@ -41,5 +53,26 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
     alarm_query = Rollcall::AlarmQuery.find(params[:id])
     @success = alarm_query.destroy
     respond_with(@success)
+  end
+  
+  # GET rollcall/alarm_query/:id
+  def show
+    @alarm_query = Rollcall::AlarmQuery.find(params[:id])
+    respond_with(@alarm_query)
+  end
+  
+  # POST rollcall/alarm_query/toggle/:id
+  def toggle
+    alarm_query = Rollcall::AlarmQuery.find(params[:id])
+    
+    alarm_query.alarm_set = !alarm_query.alarm_set
+    alarm_query.save        
+    
+    if alarm_query.alarm_set      
+      Rollcall::Alarm.destroy_by_alarm_query_id(alarm_query.id)
+      alarm_query.generate_alarms
+    end
+            
+    respond_with(@success = true)
   end
 end

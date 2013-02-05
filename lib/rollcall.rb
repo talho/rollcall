@@ -10,6 +10,7 @@ $menu_config[:rollcall] = <<EOF
     nav = "{name: 'Rollcall', items:[
       {name: 'Graphing', tab:{id: 'rollcall_graphing', title:'Rollcall Graphing', url:'', initializer: 'Talho.Rollcall.Graphing'}},      
       {name: 'Alarms', tab:{id: 'alarms', title:'Rollcall Alarms', url:'', initializer: 'Talho.Rollcall.Alarm'}},
+      {name: 'Mapping', tab:{id: 'alarms', title:'Rollcall Maps', url:'', initializer: 'Talho.Rollcall.Map'}},
       {name: 'Symptom Cases', tab:{id: 'rollcall_nurse_assistant', title:'Symptom Cases', url:'', initializer: 'Talho.Rollcall.NurseAssistant'}},
       {name: 'Schools', tab:{id: 'rollcall_schools', title:'Rollcall Schools', url:'', initializer: 'Talho.Rollcall.Schools'}}"
     if current_user.is_rollcall_admin?

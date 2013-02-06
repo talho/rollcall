@@ -5,7 +5,8 @@ Talho.Rollcall.Map.view.Layout = Ext.extend(Ext.Panel, {
   closable: true,
   layout: 'fit',
   border: false,
-  title: "Rollcall Mapping",  
+  defaults: { border: false }
+,  title: "Rollcall Mapping", 
   
   initComponent: function () {    
     var store = new Ext.data.JsonStore({
@@ -13,16 +14,34 @@ Talho.Rollcall.Map.view.Layout = Ext.extend(Ext.Panel, {
       method: 'GET',
       root: 'results',      
       idProperty: 'school_id',
-      autoLoad: false,
-      autoDestroy: true,      
+      autoLoad: false,      
       fields: ['school_id', 'weight', 'gmap_lat', 'gmap_lng', 'display_name']
     });
     
     this.store = store;
     
-    this.gmap = new Ext.ux.GMapPanel({zoomLevel: 6});
+    this.gmap = new Ext.ux.GMapPanel({zoomLevel: 6, region: 'center'});
+    this.start = new Ext.form.Label();
+    this.end = new Ext.form.Label();
     
-    this.items = [this.gmap];
+    this.items = [{xtype: 'panel', layout: 'border', items:[
+        this.gmap,
+        {xtype: 'panel', region: 'south', height: 100, items: [
+          {xtype: 'panel', layout: 'hbox', border: false, items: [
+            {xtype: 'button', text: '<<'},
+            {xtype: 'spacer', width: 20},
+            {xtype: 'label', text: 'start'},
+            {xtype: 'spacer', width: 20},
+            new Ext.slider.MultiSlider({minValue: 0, maxValue: 7, values: [0], width: 250}),
+            {xtype: 'spacer', width: 20},
+            {xtype: 'label', text: 'end'},
+            {xtype: 'spacer', width: 20},
+            {xtype: 'button', text: '>>'}
+          ]},
+          {xtype: 'button', text: 'Play'}
+        ]}
+      ]
+    }];
       
     this.on('afterrender', this._loadStore, this);
           

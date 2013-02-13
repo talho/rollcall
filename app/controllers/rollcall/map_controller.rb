@@ -3,8 +3,8 @@ class Rollcall::MapController < Rollcall::RollcallAppController
   layout false
   def index
     @start = 8.days.ago.to_date
-    @end = 1.days.ago.to_date
-
+    @end = 1.days.ago.to_date        
+    
     if params[:school_district].present?
       @results = get_by_school_district 
     else
@@ -44,24 +44,27 @@ class Rollcall::MapController < Rollcall::RollcallAppController
     process_query flat_results
   end
   
-  def process_query(flat_results)
-    iterator_date = flat_results[0][:report_date]
+  def process_query(flat_results)          
     schools = Array.new
     results = Array.new
+    
+    if !flat_results.empty?
+      iterator_date = flat_results[0][:report_date]
+    
+      flat_results.each_with_index do |s, i|
   
-    flat_results.each_with_index do |s, i|
-
-      if flat_results.count - 1 == i
-        schools.push(s)
-        results.push({record_date: iterator_date, schools: schools})
-      end
-
-      if iterator_date != s.report_date
-        results.push({record_date: iterator_date, schools: schools})
-        schools = Array.new
-        iterator_date = s.report_date
-      else
-        schools.push(s)
+        if flat_results.count - 1 == i
+          schools.push(s)
+          results.push({record_date: iterator_date, schools: schools})
+        end
+  
+        if iterator_date != s.report_date
+          results.push({record_date: iterator_date, schools: schools})
+          schools = Array.new
+          iterator_date = s.report_date
+        else
+          schools.push(s)
+        end
       end
     end
     

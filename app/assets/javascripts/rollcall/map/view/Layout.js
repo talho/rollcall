@@ -27,7 +27,7 @@ Talho.Rollcall.Map.view.Layout = Ext.extend(Ext.Panel, {
         {xtype: 'spacer', width: 20},
         {xtype: 'button', text: '>>', scope: this, handler: function () { this._setDate(this.date_index + 1); }}
       ]},
-      {xtype: 'panel', layout: 'hbox', border: false, layoutConfig: { padding:'5', pack:'center', align:'middle' }, items: [ this.date_label ]}      
+      {xtype: 'panel', layout: 'hbox', cls: 'mapping-controls', border: false, layoutConfig: { padding:'5', pack:'center', align:'middle' }, items: [ this.date_label ]}      
     ]});
     
     this.items = [{xtype: 'panel', layout: 'border', items:[
@@ -145,7 +145,7 @@ Talho.Rollcall.Map.view.Layout = Ext.extend(Ext.Panel, {
   },
   
   _getRadius: function (gmap) {
-    var radii = [2,2,3,3,4,6,8,10,12,5,5,5,6,6,10,10,10,10,10,10,10];
+    var radii = [2,2,3,3,4,6,8,10,12,7,10,15,20,30,40,80,160,320,640,1280,2560];
     
     return radii[gmap.getZoom()];
   },

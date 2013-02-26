@@ -12,6 +12,7 @@ module Rollcall::DataModule
     query = apply_order query, params
     query = apply_group query, params
     query = apply_selects query, params[:data_func]
+    query = apply_total_absent_filter query
         
     query
   end
@@ -113,6 +114,12 @@ module Rollcall::DataModule
     query
   end
   
+  def apply_total_absent_filter query
+    query = query.where("rollcall_school_daily_infos.total_absent <> 0 and rollcall_school_daily_infos.total_enrolled <> 0") if !@ili
+    
+    query
+  end
+  
   def apply_group query, conditions
     if @ili
       query = query.group("rollcall_student_daily_infos.report_date")
@@ -142,8 +149,8 @@ module Rollcall::DataModule
     function = [function] unless function.is_a?(Array)
     query = query.select("stddev_pop(#{total_absent}) over (order by #{report_date} asc rows between unbounded preceding and current row) as \"deviation\"") if function.include?("Standard Deviation")       
     query = query.select("avg(#{total_absent}) over (order by #{report_date} asc rows between unbounded preceding and current row) as \"average\"") if function.include?("Average")
-    query = query.select("avg(#{total_absent}) over (order by #{report_date} asc rows between 29 preceding and current row) as \"average\"") if function.include?("Average 30 Day")
-    query = query.select("avg(#{total_absent}) over (order by #{report_date} asc rows between 59 preceding and current row) as \"average\"") if function.include?("Average 60 Day")
+    query = query.select("avg(#{total_absent}) over (order by #{report_date} asc rows between 29 preceding and current row) as \"average30\"") if function.include?("Average 30 Day")
+    query = query.select("avg(#{total_absent}) over (order by #{report_date} asc rows between 59 preceding and current row) as \"average60\"") if function.include?("Average 60 Day")
     if function.include?("Cusum")
       avg = (query.select("AVG(#{total_absent}) OVER () as av").limit(1).first || {"av" => 0})["av"].to_f
       query = query.select("greatest(sum(#{total_absent} - #{avg}) over (order by #{report_date} rows between unbounded preceding and current row),0) as \"cusum\"")
@@ -189,5 +196,4 @@ module Rollcall::DataModule
     
     results
   end   
-
 end

@@ -68,8 +68,9 @@ class Rollcall::AlarmQueryController < Rollcall::RollcallAppController
     alarm_query.alarm_set = !alarm_query.alarm_set
     alarm_query.save        
     
-    if alarm_query.alarm_set      
-      Rollcall::Alarm.destroy_by_alarm_query_id(alarm_query.id)
+    Rollcall::Alarm.destroy_by_alarm_query_id(alarm_query.id)
+    
+    if alarm_query.alarm_set            
       alarm_query.generate_alarms
     end
             

@@ -27,8 +27,8 @@ When /^I do get_data for "([^\"]*)" with:$/ do |lookup, table|
   if loc == nil
     loc = Rollcall::School.find_by_display_name(lookup)
   end    
-     
-  @result = loc.get_graph_data(@params).order("report_date").as_json
+  
+  @result = loc.get_graph_data(@params).order("report_date").as_json  
 end
 
 Then /^get_data should return:$/ do |table|    
@@ -51,6 +51,10 @@ def normalize array
         when "deviation"
           return_hash[:func] = value.to_f.round(3)
         when "average"
+          return_hash[:func] = value.to_f.round(3)
+        when "average30"
+          return_hash[:func] = value.to_f.round(3)
+        when "average60"
           return_hash[:func] = value.to_f.round(3)
         when "cusum"
           return_hash[:func] = value.to_f.round(3)

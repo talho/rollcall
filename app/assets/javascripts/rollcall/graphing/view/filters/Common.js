@@ -32,8 +32,8 @@ Talho.Rollcall.Graphing.view.filter.Common = Ext.extend(Talho.Rollcall.ux.Filter
     ];
     
     this.loadable = [
-      {item: absent, fields: ['id', 'value'], key: 'absenteeism'}, 
-      {item: data_function, fields: ['id', 'value'], key: 'data_functions'},
+      {item: absent, fields: [{name:'id', mapping:'value'}, 'value'], key: 'absenteeism'}, 
+      {item: data_function, fields: [{name:'id', mapping:'value'}, 'value'], key: 'data_functions'},
       {item: start, set: this.reset_starts, key: 'start', set: function (item, value) { item.setValue(value); }},
       {item: end, set: this.reset_end, key: 'end', set: function (item, value) { item.setValue(value); }}
     ];
@@ -60,7 +60,15 @@ Talho.Rollcall.Graphing.view.filter.Common = Ext.extend(Talho.Rollcall.ux.Filter
   },
   
   getParameters: function () {
-    var params = Talho.Rollcall.Graphing.view.filter.Common.superclass.getParameters();
+    var params = new Object();
+    
+    Ext.each(this.getable, function (item) {
+      var value = item.get(item.param);
+      if (this._includeParam(value)) {
+        params[item.key] = value;
+      }
+    }, this);
+    
     if (this.individual) {
       params['return_individual_school'] = 'on';
     }

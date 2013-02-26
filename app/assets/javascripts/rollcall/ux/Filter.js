@@ -49,7 +49,7 @@ Talho.Rollcall.ux.Filter = Ext.extend(Ext.FormPanel, {
   },
   
   getListBoxParameters: function (listBox) {
-    var records = []
+    var records = [];
     
     Ext.each(listBox.getSelectedRecords(), function (selected) {
       records.push(selected.get('value'));

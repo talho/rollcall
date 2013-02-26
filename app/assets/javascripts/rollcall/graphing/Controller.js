@@ -17,8 +17,7 @@ Talho.Rollcall.Graphing.Controller = Ext.extend(Ext.util.Observable, {
       'activateschool': this._activateSchool,
       'notauthorized': this._notAuthorized,
       'pagingparams': this._loadPagingParams,
-      'afterrender': this._getOptions,
-      'alarmshow': this._alarmShow,
+      'afterrender': this._getOptions,      
       'getneighbors': this._getNeighbors,
       'exportresult': this._exportResultSet,
       scope: this
@@ -54,10 +53,6 @@ Talho.Rollcall.Graphing.Controller = Ext.extend(Ext.util.Observable, {
         this.layout.fireEvent('notauthorized');        
       },
     });
-  },
-  
-  _alarmShow: function () {
-    
   },
   
   _reset: function () {

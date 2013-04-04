@@ -25,8 +25,12 @@ class Rollcall::ILIReport < ::Report
       v["report_date"] = v["report_date"].to_time
     end
 
+    district_yml = YAML.load_file(File.join(File.expand_path(File.dirname(__FILE__)), "..", "..", "..", "config", "districts.yml"))
+
     school_districts = user.school_districts
     school_districts.each do |sd|
+      icd9_codes = (district_yml[sd.name] || district_yml['default'])['ili_codes']
+      icd9_code_string = icd9_codes.map{|c| "'#{c}'"}.join(',')
       val = {district: sd.as_json(:only => [:id, :district_id, :jurisdiction_id, :name])}
       # find the absence rate for the school district
       val[:rates] = sd.school_daily_infos.select('report_date, SUM(total_enrolled) as enrolled, SUM(total_absent) as absent, SUM(total_absent)::float/nullif(SUM(total_enrolled), 0) as rate').order(:report_date)

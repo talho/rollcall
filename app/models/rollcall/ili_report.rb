@@ -58,7 +58,7 @@ class Rollcall::ILIReport < ::Report
                                              JOIN   rollcall_symptoms on rollcall_student_reported_symptoms.symptom_id = rollcall_symptoms.id
                                              WHERE  report_date > (current_date -7)
                                                AND  report_date <= current_date
-                                               AND  icd9_code in (#{icd9_codes.map{|c| "'#{c}'"}.join(',')})
+                                               AND  icd9_code in (#{icd9_code_string})
                                              GROUP BY school_id) ili on rollcall_schools.id = ili.school_id")
                                    .where("confirmed > 0 or ili > 0")
                                    .order("display_name")

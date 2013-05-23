@@ -2,6 +2,7 @@
 Ext.namespace("Talho.Rollcall.admin.users.view");
 
 Talho.Rollcall.admin.users.view.Users = Ext.extend(Ext.Panel, {
+  layout: 'fit',
   constructor: function(){
     Talho.Rollcall.admin.users.view.Users.superclass.constructor.apply(this, arguments);
     this.addEvents('userselect');
@@ -17,6 +18,7 @@ Talho.Rollcall.admin.users.view.Users = Ext.extend(Ext.Panel, {
 
   initComponent: function(){
     var grid = new Ext.grid.GridPanel({
+        autoScroll: true,
         store: new Ext.data.JsonStore({
           fields: ['name', 'id'],
           url: '/rollcall/users.json',

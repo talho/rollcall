@@ -6,7 +6,15 @@ Openphin::Application.routes.draw do
     resources :schools, :controller => "school", :only => [:index,:show]
     resources :nurse_assistant, :only => [:index,:destroy]
     resources :students, :controller => "student"
-    resources :users, :controller => "user", :except => [:new, :create]
+    resources :users, :controller => "user", :except => [:new, :create] do
+      collection do
+        get :available_school_districts
+      end
+      member do
+        get :school_districts
+        get :schools
+      end
+    end
     resources :status, :controller => "status", :only => [:index]
     resources :map, :controller => "map", :only => [:index]
 
@@ -24,7 +32,6 @@ Openphin::Application.routes.draw do
     match "get_schools", :to => "school#get_schools", :as => :get_schools
     match "get_school_data", :to => "school#get_school_data", :as => :get_school_data
     match "get_student_data", :to => "school#get_student_data", :as => :get_student_data
-    match "get_user_school_districts", :to => "user#get_user_school_districts", :as => :get_user_school_districts
     match "unauthorized", :to => "rollcall_app#unauthorized", :as => :unauthorized
   end
 end

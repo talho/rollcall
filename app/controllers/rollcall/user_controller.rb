@@ -1,14 +1,14 @@
 class Rollcall::UserController < Rollcall::RollcallAppController
   before_filter :rollcall_admin_required
-  
+
   respond_to :json
   layout false
 
   # GET rollcall/users
-  def index    
-    @results = User.includes(:role_memberships => {:role => :app}).where("apps.name" => 'rollcall').paginate(:page => (params[:start].to_i/params[:limit].to_i + 1), :per_page => params[:limit])
-    
-    unless current_user.is_super_admin?("rollcall")      
+  def index
+    @results = User.includes(:role_memberships => {:role => :app}).where("apps.name" => 'rollcall').order(:last_name)
+
+    unless current_user.is_super_admin?("rollcall")
       @results = @results.where("role_memberships.role_id != ? AND role_memberships.role_id != ?", Role.admin('rollcall').id, Role.superadmin('rollcall').id)
       @results = @results.joins("JOIN role_memberships rm ON rm.jurisdiction_id = role_memberships.jurisdiction_id").joins("JOIN roles r on rm.role_id = r.id").joins("JOIN apps a on r.app_id = a.id").where("apps.name" => 'rollcall', "rm.user_id" => current_user.id)
     end
@@ -19,17 +19,11 @@ class Rollcall::UserController < Rollcall::RollcallAppController
   # PUT rollcall/users/:id
   def update
     unless params[:school_id].blank?
-      result = Rollcall::UserSchool.find_or_create_by_user_id_and_school_id({
-        :user_id   => params[:id],
-        :school_id => params[:school_id]
-      })
+      result = Rollcall::UserSchool.where(:user_id => params[:id], :school_id => params[:school_id]).first_or_create
     end
     unless params[:school_district_id].blank?
-      result = Rollcall::UserSchoolDistrict.find_or_create_by_user_id_and_school_district_id({
-        :user_id            => params[:id],
-        :school_district_id => params[:school_district_id]
-      })  
-    end    
+      result = Rollcall::UserSchoolDistrict.where(:user_id => params[:id], :school_district_id => params[:school_district_id]).first_or_create
+    end
     respond_with(@success = !result.blank?)
   end
 
@@ -37,23 +31,30 @@ class Rollcall::UserController < Rollcall::RollcallAppController
   def destroy
     u = User.find_by_id params[:id]
     unless params[:school_id].blank?
-      Rollcall::UserSchool.find_all_by_user_id_and_school_id(u.id, params[:school_id]).each{|us| us.destroy}
+      Rollcall::UserSchool.where(user_id: u.id, school_id: params[:school_id]).each{ |us| us.destroy }
     end
     unless params[:school_district_id].blank?
-      Rollcall::UserSchoolDistrict.find_all_by_user_id_and_school_district_id(u.id, params[:school_district_id]).each{|usd|
-        usd.destroy
-      }
+      Rollcall::UserSchoolDistrict.where(user_id: u.id, school_district_id: params[:school_district_id]).each{|usd| usd.destroy }
     end
-    respond_with(@success = true)    
+    respond_with(@success = true)
   end
 
   # Method returns school district
   #
   # Method returns school districts associated with current_user
-  def get_user_school_districts
+  def available_school_districts
     @results = current_user.school_districts
     respond_with(@results)
   end
+
+  def school_districts
+    respond_with( @results = User.find(params[:id]).school_districts )
+  end
+
+  def schools
+    respond_with( @results = User.find(params[:id]).schools )
+  end
+
   protected
 
   # Method builds up a list of options with regards to pagination

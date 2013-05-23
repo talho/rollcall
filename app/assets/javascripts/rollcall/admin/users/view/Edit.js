@@ -26,6 +26,7 @@ Talho.Rollcall.admin.users.view.Edit = Ext.extend(Ext.Panel, {
     this.districtSelector = new Ext.form.ComboBox({
       triggerAction: 'all',
       mode: 'local',
+      name: 'school_district',
       store: this.districtStore,
       valueField: 'id',
       displayField: 'name',
@@ -37,6 +38,7 @@ Talho.Rollcall.admin.users.view.Edit = Ext.extend(Ext.Panel, {
     this.schoolSelector = new Ext.form.ComboBox({
       triggerAction: 'all',
       mode: 'local',
+      name: 'school',
       store: new Ext.data.JsonStore({
         fields: ['id', 'display_name'],
         url: '/rollcall/schools.json',

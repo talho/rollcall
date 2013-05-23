@@ -103,12 +103,12 @@ Given /^I have map data$/ do
 end
 
 When /^I open the map$/ do
-  step %Q{I navigate to "Apps > Rollcall > Mapping"}  
+  step %Q{I navigate to "Apps > Rollcall > Mapping"}
   sleep 3
 end
 
 Then /^map is displayed$/ do
-  step %Q{I should see "Displaying Schools on 2013-02-05"} 
+  step %Q{I should see "Displaying Schools on #{8.days.ago.to_date}"}
 end
 
 When /^I change the map date$/ do
@@ -117,6 +117,6 @@ When /^I change the map date$/ do
   end
 end
 
-Then /^I can go through all the dates$/ do  
+Then /^I can go through all the dates$/ do
   step %Q{I should see "on #{1.days.ago.to_date}"}
 end

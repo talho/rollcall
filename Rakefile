@@ -1,20 +1,14 @@
-require 'rake'
-require 'rake/testtask'
-require 'rake/rdoctask'
+# Add your own tasks in files placed in lib/tasks ending in .rake,
+# for example lib/tasks/capistrano.rake, and they will automatically be available to Rake.
 
-desc 'Default: run unit tests.'
-task :default => :test
+require File.expand_path('../config/application', __FILE__)
 
-desc 'Test the rollcall plugin.'
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
-  t.libs << 'test'
-  t.pattern = 'test/**/*_test.rb'
-  t.verbose = true
-end
+Rails.application.load_tasks
+
+require 'rdoc/task'
 
 desc 'Generate documentation for the rollcall plugin.'
-Rake::RDocTask.new(:rdoc) do |rdoc|
+RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title    = 'Rollcall'
   rdoc.options << '--line-numbers' << '--inline-source'

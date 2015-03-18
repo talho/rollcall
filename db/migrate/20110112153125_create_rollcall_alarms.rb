@@ -1,7 +1,6 @@
 class CreateRollcallAlarms < ActiveRecord::Migration
   def self.up
     create_table :rollcall_alarms do |t|
-      t.integer :id
       t.integer :school_id
       t.integer :saved_query_id
       t.float   :deviation

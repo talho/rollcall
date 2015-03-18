@@ -6,15 +6,12 @@ class CreateRollcallAlert < ActiveRecord::Migration
     end
     add_index :rollcall_alerts, :alarm_id
     add_index :rollcall_alerts, :alert_id
-
-    CreateMTIFor(RollcallAlert)
   end
 
   def self.down
     remove_index :rollcall_alerts, :alarm_id
     remove_index :rollcall_alerts, :alert_id
 
-    DropMTIFor(RollcallAlert)
     drop_table :rollcall_alerts
   end
 end

@@ -1,7 +1,5 @@
 class RecreateMtiViews < ActiveRecord::Migration
-  def self.up    
-    DropMTIFor(RollcallAlert)
-    CreateMTIFor(RollcallAlert)
+  def self.up
   end
 
   def self.down

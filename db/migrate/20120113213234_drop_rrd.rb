@@ -1,6 +1,6 @@
 class DropRrd < ActiveRecord::Migration
   def self.up
-    remove_index :rollcall_rrds, :school_id
+    #remove_index :rollcall_rrds, :school_id
     drop_table :rollcall_rrds
   end
 
@@ -11,6 +11,6 @@ class DropRrd < ActiveRecord::Migration
       t.integer :record_id
       t.timestamps
     end
-    add_index :rollcall_rrds, :record_id
+    #add_index :rollcall_rrds, :record_id
   end
 end

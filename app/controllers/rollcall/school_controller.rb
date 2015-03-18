@@ -9,26 +9,26 @@ class Rollcall::SchoolController < Rollcall::RollcallAppController
     respond_with(@result)
   end
 
-  # POST rollcall/schools
+  # GET rollcall/schools/:id
   def show
     @results = Rollcall::School.find_by_id(params[:school_id])
-    respond_with(@results)    
+    respond_with(@results)
   end
 
-  # POST rollcall/get_schools
+  # GET rollcall/get_schools
   def get_schools
     @schools = Rollcall::School.where('id in (?)', params[:school_ids])
     respond_with(@schools)
   end
 
-  # POST rollcall/get_school_data
+  # GET rollcall/get_school_data
   def get_school_data
     time_span  = params[:time_span].to_i * 30
     @info = Rollcall::SchoolDailyInfo.where('school_id = ? AND report_date >= ?', params[:school_id], time_span.days.ago).order('report_date DESC')
     respond_with(@info)
   end
 
-  # POST rollcall/get_student_data
+  # GET rollcall/get_student_data
   def get_student_data
     time_span = params[:time_span].to_i * 30
     @info = Rollcall::StudentDailyInfo.select("rollcall_student_daily_infos.*, coalesce(cast(extract(year from age(rollcall_students.dob)) as text), 'Unkown') as age, coalesce(rollcall_students.gender, 'Unknown') as gender")

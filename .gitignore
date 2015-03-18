@@ -4,3 +4,7 @@ spec/spec_helper.rb
 .DS_Store
 .project
 *~
+log/*.log
+
+# Ignore application configuration
+/config/application.yml

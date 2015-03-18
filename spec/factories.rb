@@ -1,106 +1,108 @@
 require 'factory_girl'
 
-Factory.define :rollcall_alarm, :class => Rollcall::Alarm do |m|
-  m.association :school, :factory => :rollcall_school
-  m.association :alarm_query, :factory => :rollcall_alarm_query
-  m.deviation 1.0
-  m.severity 1.0
-  m.absentee_rate 1.0
-  m.report_date Time.now
-  m.alarm_severity "low"
-  m.ignore_alarm false
-end
+FactoryGirl.define do
+  factory :rollcall_alarm, :class => Rollcall::Alarm do
+    association :school, :factory => :rollcall_school
+    association :alarm_query, :factory => :rollcall_alarm_query
+    deviation 1.0
+    severity 1.0
+    absentee_rate 1.0
+    report_date Time.now
+    alarm_severity "low"
+    ignore_alarm false
+  end
 
-Factory.define :rollcall_alarm_query, :class => Rollcall::AlarmQuery do |m|
-  m.association :user, :factory => :user
-  m.query_params "{type:simple,absent:gross}"
-  m.sequence(:name){|t| "Name ##{t}"}
-  m.severity_min 1
-  m.severity_max 2
-  m.deviation_min 1
-  m.deviation_max 2
-  m.alarm_set false
-end
+  factory :rollcall_alarm_query, :class => Rollcall::AlarmQuery do
+    association :user, :factory => :user
+    query_params "{type:simple,absent:gross}"
+    sequence(:name){|t| "Name ##{t}"}
+    severity_min 1
+    severity_max 2
+    deviation_min 1
+    deviation_max 2
+    alarm_set false
+  end
+=begin
+  factory :rollcall_alert, :class => RollcallAlert do
+    title "New Alarm for Test School[test]"
+    message "A new alarm of test severity has been created for Test School on this day."
+    association :author, :factory => :user
+    association :alarm, :factory => :rollcall_alarm
+  end
+=end
+  factory :rollcall_school , :class => Rollcall::School do
+    sequence(:display_name){|t| "Display Name ##{t}"}
+    tea_id 11111111
+    school_type "Elementary School"
+    sequence(:gmap_addr){|t| "#{t} Street Lane, City Name ST, 10101"}
+    postal_code "10101"
+    sequence(:school_number){|num| num}
+    association :district, :factory => :rollcall_school_district
+  end
 
-Factory.define :rollcall_alert, :class => RollcallAlert do |m|
-  m.title "New Alarm for Test School[test]"
-  m.message "A new alarm of test severity has been created for Test School on this day."
-  m.association :author, :factory => :user
-  m.association :alarm, :factory => :rollcall_alarm
-end
+  factory :rollcall_school_daily_info, :class => Rollcall::SchoolDailyInfo do
+    association :school, :factory => :rollcall_school
+    total_absent 10
+    total_enrolled 100
+    report_date Time.now
+  end
 
-Factory.define :rollcall_school , :class => Rollcall::School do |m|  
-  m.sequence(:display_name){|t| "Display Name ##{t}"}
-  m.tea_id 11111111
-  m.school_type "Elementary School"
-  m.sequence(:gmap_addr){|t| "#{t} Street Lane, City Name ST, 10101"}
-  m.postal_code "10101"
-  m.sequence(:school_number){|num| num}
-  m.association :district, :factory => :rollcall_school_district
-end
+  factory :rollcall_school_district, :class => Rollcall::SchoolDistrict do
+    sequence(:name){|t| "Name ##{t}"}
+    district_id 1000
+    association :jurisdiction, :factory => :jurisdiction
+  end
 
-Factory.define :rollcall_school_daily_info, :class => Rollcall::SchoolDailyInfo do |m|
-  m.association :school, :factory => :rollcall_school
-  m.total_absent 10
-  m.total_enrolled 100
-  m.report_date Time.now
-end
+  factory :rollcall_student, :class => Rollcall::Student do
+    first_name "Student"
+    last_name "Name"
+    contact_first_name "Contact"
+    contact_last_name  "Name"
+    address "101 Street Lane, City State, 10101"
+    zip "10101"
+    gender "M"
+    phone "1112223333"
+    race  1
+    association :school, :factory => :rollcall_school
+    student_number "01"
+    dob(Time.now - 10.years)
+  end
 
-Factory.define :rollcall_school_district, :class => Rollcall::SchoolDistrict do |m|
-  m.sequence(:name){|t| "Name ##{t}"}
-  m.district_id 1000
-  m.association :jurisdiction, :factory => :jurisdiction
-end
+  factory :rollcall_student_daily_info, :class => Rollcall::StudentDailyInfo do
+    report_date Time.now
+    sequence(:grade){|num|num}
+    confirmed_illness true
+    cid '101010101'
+    health_year Time.now.year
+    date_of_onset(Time.now - 3.days)
+    temperature 98.0
+    in_school true
+    released false
+    follow_up nil
+    doctor nil
+    doctor_address nil
+    association :student, :factory => :rollcall_student
+    report_time Time.now
+  end
 
-Factory.define :rollcall_student, :class => Rollcall::Student do |m|
-  m.first_name "Student"
-  m.last_name "Name"
-  m.contact_first_name "Contact"
-  m.contact_last_name  "Name"
-  m.address "101 Street Lane, City State, 10101"
-  m.zip "10101"
-  m.gender "M"
-  m.phone "1112223333"
-  m.race  1
-  m.association :school, :factory => :rollcall_school
-  m.student_number "01"
-  m.dob(Time.now - 10.years)
-end
+  factory :rollcall_student_reported_symptoms, :class => Rollcall::StudentReportedSymptom do
+    association :symptom, :factory => :rollcall_symptom
+    association :student_daily_info, :factory => :rollcall_student_daily_info
+  end
 
-Factory.define :rollcall_student_daily_info, :class => Rollcall::StudentDailyInfo do |m|
-  m.report_date Time.now
-  m.sequence(:grade){|num|num}
-  m.confirmed_illness true
-  m.cid '101010101'
-  m.health_year Time.now.year
-  m.date_of_onset(Time.now - 3.days)
-  m.temperature 98.0
-  m.in_school true
-  m.released false
-  m.follow_up nil
-  m.doctor nil
-  m.doctor_address nil
-  m.association :student, :factory => :rollcall_student
-  m.report_time Time.now
-end
+  factory :rollcall_symptom , :class => Rollcall::Symptom do
+    sequence(:id){|i| i}
+    sequence(:name){|t| "Name ##{t}"}
+    sequence(:icd9_code){|num| num}
+  end
 
-Factory.define :rollcall_student_reported_symptoms, :class => Rollcall::StudentReportedSymptom do |m|
- m.association :symptom, :factory => :rollcall_symptom
- m.association :student_daily_info, :factory => :rollcall_student_daily_info 
-end
+  factory :rollcall_user_school, :class => Rollcall::UserSchool do
+    association :user, :factory => :user
+    association :school, :factory => :rollcall_school
+  end
 
-Factory.define :rollcall_symptom , :class => Rollcall::Symptom do |m|
-  m.sequence(:id){|i| i}
-  m.sequence(:name){|t| "Name ##{t}"}
-  m.sequence(:icd9_code){|num| num}
-end
-
-Factory.define :rollcall_user_school, :class => Rollcall::UserSchool do |m|
-  m.association :user, :factory => :user
-  m.association :school, :factory => :rollcall_school
-end
-
-Factory.define :rollcall_user_school_district, :class => Rollcall::UserSchoolDistrict do |m|
-  m.association :user, :factory => :user
-  m.association :school_district, :factory => :rollcall_school_district
+  factory :rollcall_user_school_district, :class => Rollcall::UserSchoolDistrict do
+    association :user, :factory => :user
+    association :school_district, :factory => :rollcall_school_district
+  end
 end

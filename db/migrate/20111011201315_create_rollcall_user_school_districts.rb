@@ -1,7 +1,6 @@
 class CreateRollcallUserSchoolDistricts < ActiveRecord::Migration
   def self.up
     create_table :rollcall_user_school_districts do |t|
-      t.integer :id
       t.integer :user_id
       t.integer :school_district_id
       t.timestamps

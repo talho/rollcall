@@ -1,7 +1,6 @@
 class CreateRollcallUserSchools < ActiveRecord::Migration
   def self.up
     create_table :rollcall_user_schools do |t|
-      t.integer :id
       t.integer :user_id
       t.integer :school_id
       t.timestamps

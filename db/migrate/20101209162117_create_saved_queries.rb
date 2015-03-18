@@ -1,7 +1,6 @@
 class CreateSavedQueries < ActiveRecord::Migration
   def self.up
     create_table :saved_queries do |t|
-      t.integer :id
       t.integer :user_id
       t.string  :query_params
       t.string  :name

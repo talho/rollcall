@@ -1,0 +1,42 @@
+<h1>Graphing</h1>
+
+<div class="filters">
+  <div class="btn-group">
+    <%= link_to 'School Districts', graph_filter_path(:type, 'school_district'), class: "btn btn-default #{not_param_active :type, 'school'}" %>
+    <%= link_to 'Schools', graph_filter_path(:type, 'school'), class: "btn btn-default #{param_active :type, 'school'}" %>
+  </div>
+  <div class="btn-group">
+    <%= link_to 'Average', graph_filter_array_path(:function, 'avg'), class: "btn btn-default #{param_array_active(:function, 'avg')}" %>
+    <%= link_to 'Average 30 Day', graph_filter_array_path(:function, 'avg30'), class: "btn btn-default #{param_array_active(:function, 'avg30')}" %>
+    <%= link_to 'Average 60 Day', graph_filter_array_path(:function, 'avg60'), class: "btn btn-default #{param_array_active(:function, 'avg60')}" %>
+    <%= link_to 'Standard Deviation', graph_filter_array_path(:function, 'std'), class: "btn btn-default #{param_array_active(:function, 'std')}" %>
+    <%= link_to 'Cusum', graph_filter_array_path(:function, 'cusum'), class: "btn btn-default #{param_array_active(:function, 'cusum')}" %>
+  </div>
+  <div class="btn-group">
+    <%= link_to '1 Month', graph_filter_path(:span, 'month'), class: "btn btn-default #{param_active(:span, 'month')}" %>
+    <%= link_to '3 Months', graph_filter_path(:span, '3month'), class: "btn btn-default #{param_active(:span, '3month')}" %>
+    <%= link_to '6 Months', graph_filter_path(:span, '6month'), class: "btn btn-default #{param_active(:span, '6month')}" %>
+    <%= link_to '1 Year', graph_filter_path(:span, 'year'), class: "btn btn-default #{param_active(:span, 'year')}" %>
+  </div>
+  <div class="btn-group">
+    <%= link_to 'Influenza', graph_filter_array_path(:symptoms, '487.1'), class: "btn btn-default #{param_array_active(:symptoms, '487.1')}" %>
+    <%= link_to 'Influenza-like Illness', graph_filter_array_path(:symptoms, ['780.4', '780.60', '780.64', '780.79', '787.02', '787.03']), class: "btn btn-default #{param_array_active(:symptoms, ['780.4', '780.60', '780.64', '780.79', '787.02', '787.03'])}" %>
+    <%= link_to 'Measles', graph_filter_array_path(:symptoms, '055.9'), class: "btn btn-default #{param_array_active(:symptoms, '055.9')}" %>
+  </div>
+  <div class="btn-group">
+    <%= link_to 'Confirmed Illness', graph_filter_toggle_path(:confirmed_illness, 'true'), class: "btn btn-default #{param_active(:confirmed_illness, 'true')}" %>
+  </div>
+</div>
+
+<div id="graph-holder">
+</div>
+
+<div id="paging-holder">
+  <%= paginate @entities %>
+</div>
+
+<script>
+  Rollcall.Graphing.init({entities: <%= @entities.map(&:id).to_json.html_safe %>,
+                          type: <%= @type.to_json.html_safe %>,
+                          params: <%= clean_params.to_json.html_safe %>});
+</script>

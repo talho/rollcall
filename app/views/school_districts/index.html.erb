@@ -1,0 +1,14 @@
+<%= link_to 'New School District', new_school_district_path, class: 'btn btn-primary' %>
+<table class="table">
+  <thead>
+    <tr><th>Name</th><th></th></tr>
+  </thead>
+  <tbody>
+    <% @school_districts.each do |district| %>
+      <tr>
+        <td><%= link_to district.name, school_district_path(district) %></td>
+        <td><%= link_to edit_school_district_path(district) do %><i class="fa fa-pencil-square-o"></i><% end if can? :modify, district %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

@@ -5,6 +5,7 @@ class DeviseCreateUsers < ActiveRecord::Migration
         ## Database authenticatable
         t.string :email,              null: false, default: ""
         t.string :encrypted_password, null: false, default: ""
+        t.string :name,               null: false, default: ""
 
         ## Recoverable
         t.string   :reset_password_token
@@ -31,6 +32,7 @@ class DeviseCreateUsers < ActiveRecord::Migration
   end
 
   def down
-    raise ActiveRecord::IrreversibleMigration
+    # raise ActiveRecord::IrreversibleMigration
+    drop_table :users
   end
 end

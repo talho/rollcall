@@ -1,0 +1,28 @@
+<% if can? :manage, @school_district %>
+  <%= link_to 'New School', new_school_district_school_path(@school_district), class: 'btn btn-default' %>
+<% end %>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Address</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @school_district.schools.each do |school| %>
+      <tr>
+        <td><%= link_to school.name, school_district_school_path(@school_district, school) %></td>
+        <td><%= school.gmap_addr %></td>
+        <td>
+          <% if can? :modify, school %>
+            <%= link_to edit_school_district_school_path(@school_district, school), class: 'btn btn-default btn-xs' do %><i class="fa fa-pencil-square-o"></i><% end %>
+            <%= link_to school_district_school_path(@school_district, school), method: :delete, class: 'btn btn-danger btn-xs', data: {confirm: 'Are you sure? This cannot be undone.'} do %>
+              <i class="fa fa-times"></i>
+            <% end %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

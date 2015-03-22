@@ -1,0 +1,9 @@
+<h1>Rollcall</h1>
+<h3>District Health</h3>
+<% @school_districts.each do |district| %>
+  <p><%= district.name %>: <strong class="<%= severity_class district[:pct] %>"><%= number_to_percentage district[:pct] * 100, precision: 0 %></strong></p>
+<% end %>
+<h3>Highest Absentee Rate</h3>
+<% @schools.each do |school| %>
+  <p><%= school.name %>: <strong class="<%= severity_class school[:pct] %>"><%= number_to_percentage school[:pct] * 100, precision: 0 %></strong></p>
+<% end %>

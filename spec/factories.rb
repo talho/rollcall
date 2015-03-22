@@ -30,7 +30,7 @@ FactoryGirl.define do
     association :alarm, :factory => :rollcall_alarm
   end
 =end
-  factory :rollcall_school , :class => Rollcall::School do
+  factory :school do
     sequence(:display_name){|t| "Display Name ##{t}"}
     tea_id 11111111
     school_type "Elementary School"
@@ -47,7 +47,7 @@ FactoryGirl.define do
     report_date Time.now
   end
 
-  factory :rollcall_school_district, :class => Rollcall::SchoolDistrict do
+  factory :school_district do
     sequence(:name){|t| "Name ##{t}"}
     district_id 1000
     association :jurisdiction, :factory => :jurisdiction
@@ -96,12 +96,12 @@ FactoryGirl.define do
     sequence(:icd9_code){|num| num}
   end
 
-  factory :rollcall_user_school, :class => Rollcall::UserSchool do
+  factory :school_user do
     association :user, :factory => :user
     association :school, :factory => :rollcall_school
   end
 
-  factory :rollcall_user_school_district, :class => Rollcall::UserSchoolDistrict do
+  factory :school_district_user do
     association :user, :factory => :user
     association :school_district, :factory => :rollcall_school_district
   end

@@ -1,0 +1,21 @@
+<%= link_to 'Invite User', new_school_district_school_district_user_path(@school_district), class: "btn btn-default" %>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Role</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @school_district.school_district_users.each do |sdu| %>
+      <tr>
+        <td><%= sdu.user_id.blank? ? sdu.email : (sdu.user.name.blank? ? sdu.user.email : sdu.user.name) %></td>
+        <td><%= sdu.role %></td>
+        <td><%= link_to school_district_school_district_user_path(@school_district, sdu), method: :delete, class: "btn btn-danger btn-xs", data: {confirm: 'Are you sure? This cannot be undone.'} do %>
+              <i class="fa fa-times"></i></div>
+            <% end unless sdu.user_id === current_user.id %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

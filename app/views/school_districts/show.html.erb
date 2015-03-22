@@ -1,0 +1,18 @@
+<h1><%= @school_district.name %></h1>
+<% if can? :modify, @school_district %>
+  <%= link_to 'Edit', edit_school_district_path(@school_district), class: 'btn btn-primary' %>
+  <%= link_to 'Destroy', school_district_path(@school_district), method: :delete, class: 'btn btn-danger', data: {confirm: 'Are you sure? This cannot be undone.'} %>
+<% end %>
+
+<p></p>
+
+<div class="row">
+  <% if can? :manage, @school_district %>
+  <div class="col-sm-6">
+    <%= render partial: 'school_districts/school_district_users' %>
+  </div>
+  <% end %>
+  <div class="<%= can?(:manage, @school_district) ? 'col-sm-6' : 'col-sm-12' %>">
+    <%= render partial: 'school_districts/schools' %>
+  </div>
+</div>

@@ -1,0 +1,31 @@
+<h1>Enter Daily School Info</h1>
+<p>Data will be saved for the selected date. Entering data again will replace the record.</p>
+
+<%= form_tag school_daily_infos_path, method: :post do %>
+  <div class="form-group">
+    <%= label_tag :info_date, 'Date' %>
+    <div class="form-inline">
+      <%= select_date Date.today, {prefix: :info_date}, class: 'form-control' %>
+    </div>
+  </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <td>School Name</td>
+        <td>Absent</td>
+        <td>Enrollment</td>
+      </tr>
+    </thead>
+    <tbody>
+      <% @schools.each.with_index do |school, i| %>
+        <tr>
+          <td><%= school.name %><%= hidden_field_tag "school_daily_infos[#{i}][school_id]", school.id %></td>
+          <td><%= number_field_tag "school_daily_infos[#{i}][absent]", "", class: 'form-control', step: 1, min: 0 %></td>
+          <td><%= number_field_tag "school_daily_infos[#{i}][enrollment]", "", class: 'form-control', step: 1, min: 0 %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <%= submit_tag 'Save', class: 'btn btn-primary' %>
+<% end %>

@@ -1,9 +1,27 @@
 Rails.application.routes.draw do
+  resources :school_districts do
+    resources :schools, except: [:index] do
+      resources :school_users, only: [:new, :create, :destroy]
+    end
+    resources :school_district_users, only: [:new, :create, :destroy]
+  end
+
+  resources :school_daily_infos, only: [:index, :create]
+  resources :student_daily_infos, except: [:show]
+  resources :graphing, :only => [:index] do
+    member do
+      get :school
+      get :school_district
+    end
+  end
+
+  root 'main#index'
+
   devise_for :users
-  resources :graphing, :only => [:index]
+
   resources :alarm_query, :except => [:new,:edit]
   resources :alarms, :controller => "alarm", :except => [:new,:edit]
-  resources :schools, :controller => "school", :only => [:index,:show]
+  #resources :schools, :controller => "school", :only => [:index,:show]
   resources :nurse_assistant, :only => [:index,:destroy]
   resources :students, :controller => "student"
   resources :users, :controller => "user", :except => [:new, :create] do

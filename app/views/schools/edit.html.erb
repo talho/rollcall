@@ -1,0 +1,3 @@
+<h1>Edit <%= @school.name %></h1>
+<h3><%= @school.school_district.name %></h3>
+<%= render partial: 'schools/form', locals: {url: school_district_school_path(@school.school_district, @school)} %>

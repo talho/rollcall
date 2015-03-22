@@ -1,0 +1,31 @@
+<h1>Student Syndromic Report</h1>
+<%= link_to 'New Infectious Diseas Report', new_student_daily_info_path, class: 'btn btn-primary' %>
+<table class="table">
+  <thead>
+    <tr>
+      <th>School</th>
+      <th>District</th>
+      <th>Date</th>
+      <th>Grade</th>
+      <th>Symptoms</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @student_daily_infos.each do |sdi| %>
+      <tr>
+        <td><%= sdi.student.school.name %></td>
+        <td><%= sdi.student.school.school_district.name %></td>
+        <td><%= l sdi.date_of_onset %></td>
+        <td><%= sdi.grade %></td>
+        <td><%= sdi.symptoms.map(&:name).join(', ') %></td>
+        <td>
+           <%= link_to edit_student_daily_info_path(sdi), class: 'btn btn-xs btn-default' do %><i class="fa fa-pencil-square-o"></i><% end %>
+           <%= link_to student_daily_info_path(sdi), class: 'btn btn-xs btn-danger', method: :delete, data: {confirm: "Are you sure? This cannot be undone."} do %>
+             <i class="fa fa-times"></i>
+           <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

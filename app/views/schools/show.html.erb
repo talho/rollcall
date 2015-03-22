@@ -1,0 +1,27 @@
+<h1><%= @school.name %></h1>
+<h3><%= link_to @school.school_district.name, @school.school_district %></h3>
+
+<% if can? :modify, @school %>
+  <%= link_to 'Invite User', new_school_district_school_school_user_path(@school.school_district, @school), class: "btn btn-default" %>
+<% end %>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Role</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @school.school_users.each do |su| %>
+      <tr>
+        <td><%= su.user_id.blank? ? su.email : (su.user.name.blank? ? su.user.email : su.user.name) %></td>
+        <td><%= su.role %></td>
+        <td><%= link_to school_district_school_school_user_path(@school.school_district, @school, su), method: :delete, class: "btn btn-danger btn-xs", data: {confirm: 'Are you sure? This cannot be undone.'} do %>
+              <i class="fa fa-times"></i></div>
+            <% end unless cannot?(:modify, @school) || su.user_id === current_user.id %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

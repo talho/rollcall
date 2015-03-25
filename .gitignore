@@ -8,3 +8,4 @@ log/*.log
 
 # Ignore application configuration
 /config/application.yml
+/config/deploy/

@@ -25,6 +25,17 @@ gem 'd3-rails'
 
 gem 'whenever'
 
+gem 'unicorn'
+
+group :development do
+  # deployment
+  gem 'capistrano', '~> 3.0', require: false
+  gem 'capistrano-rails',   '~> 1.1', require: false
+  gem 'capistrano-bundler', '~> 1.1', require: false
+  gem 'rvm1-capistrano3', require: false
+  gem 'capistrano3-unicorn', require: false
+end
+
 group :development, :test do
   gem 'byebug'
   gem 'spring'

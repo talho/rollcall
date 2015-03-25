@@ -25,7 +25,7 @@ class Alarm < ActiveRecord::Base
       if !@abnormal_schools.blank? || (@ili_schools.present? && alarm.ili_threshold.present? && @ili_schools.length >= alarm.ili_threshold) ||
          (@confirmed_ili_schools.present? && alarm.confirmed_ili_threshold.present? && @confirmed_ili_schools.length >= alarm.confirmed_ili_threshold) ||
          (@measles_schools.present? && alarm.measles_threshold.present? && @measles_schools.length >= alarm.measles_threshold)
-        AlarmMailer.send_alarm(alarm, @abnormal_schools, @ili_schools, @confirmed_ili_schools, @measles_schools).deliver_now
+        AlarmMailer.send_alarm(alarm, @abnormal_schools, @ili_schools, @confirmed_ili_schools, @measles_schools).deliver_later
       end
     end
   end

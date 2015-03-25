@@ -9,6 +9,8 @@ class User < ActiveRecord::Base
   has_many :schools, through: :school_users
   has_many :school_districts, through: :school_district_users
 
+  has_one :alarm
+
   after_create :claim_schools_and_districts
 
   protected

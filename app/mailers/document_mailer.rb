@@ -1,4 +1,4 @@
-class DocumentMailer
+class DocumentMailer < ApplicationMailer
   # Method is called when a new document is added to the users Rollcall Documents
   #
   # @param document the document object that was added

@@ -24,10 +24,11 @@
     },
 
     draw: function(url){
+      var m = new Backbone.Model(),
+          v = new Rollcall.GraphView({model: m});
+      $('#graph-holder').append(v.el);
       $.get(url, this.params).then(function(data){
-        var m = new Backbone.Model(data),
-            v = new Rollcall.GraphView({model: m});
-        $('#graph-holder').append(v.el);
+        m.set(data);
         v.render();
       });
     }

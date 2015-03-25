@@ -1,0 +1,42 @@
+<h1>Rollcall Alarm has been triggered.</h1>
+
+<p>The following schools have reported abnormalities.</p>
+
+<% unless @confirmed_ili_schools.blank? %>
+  <h3>Confirmed Influenza</h3>
+  <ul class="list-unstyled">
+    <% @confirmed_ili_schools.each do |school| %>
+      <li><strong><%= school.name %></strong> <%= school.confirmed || 0 %> confirmed/<%= school.ili || 0 %> ILI</li>
+    <% end %>
+  </ul>
+<% end %>
+
+<% unless @ili_schools.blank? %>
+  <h3>ILI</h3>
+  <ul class="list-unstyled">
+    <% @ili_schools.each do |school| %>
+      <li><strong><%= school.name %></strong> <%= school.confirmed || 0 %> confirmed/<%= school.ili || 0 %> ILI</li>
+    <% end %>
+  </ul>
+<% end %>
+
+<% unless @measles_schools.blank? %>
+  <h3>Measles</h3>
+  <ul class="list-unstyled">
+    <% @measles_schools.each do |school| %>
+      <li><strong><%= school.name %></strong> <%= school.ili || 0 %> reported measles cases</li>
+    <% end %>
+  </ul>
+<% end %>
+
+<% unless @abnormal_schools.blank? %>
+  <h3>Above Average Absenses</h3>
+  <ul class="list-unstyled">
+    <% @abnormal_schools.each do |school| %>
+      <li><strong><%= school.name %></strong> -
+          <span class='text-info'><%= l school.report_date %></span>
+          <%= number_to_percentage(school.pct * 100, :precision => 1) %> (<%= school.total_absent %>/<%= school.total_enrolled %>)
+      </li>
+    <% end %>
+  </ul>
+<% end %>

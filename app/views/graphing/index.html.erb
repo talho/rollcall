@@ -20,7 +20,7 @@
   </div>
   <div class="btn-group">
     <%= link_to 'Influenza', graph_filter_array_path(:symptoms, '487.1'), class: "btn btn-default #{param_array_active(:symptoms, '487.1')}" %>
-    <%= link_to 'Influenza-like Illness', graph_filter_array_path(:symptoms, ['780.4', '780.60', '780.64', '780.79', '787.02', '787.03']), class: "btn btn-default #{param_array_active(:symptoms, ['780.4', '780.60', '780.64', '780.79', '787.02', '787.03'])}" %>
+    <%= link_to 'Influenza-like Illness', graph_filter_array_path(:symptoms, ['780.60', '780.64' '787.02']), class: "btn btn-default #{param_array_active(:symptoms, ['780.4', '780.60', '780.64', '780.79', '787.02', '787.03'])}" %>
     <%= link_to 'Measles', graph_filter_array_path(:symptoms, '055.9'), class: "btn btn-default #{param_array_active(:symptoms, '055.9')}" %>
   </div>
   <div class="btn-group">

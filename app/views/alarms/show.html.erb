@@ -1,0 +1,45 @@
+<h1>Alarm Preferences</h1>
+
+<%= form_for @alarm, url: alarm_path, method: :put do |f| %>
+  <% if @alarm.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@alarm.errors.count, "error") %> prohibited this alarm from being saved:</h2>
+
+      <ul>
+      <% @alarm.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :attendance_deviation, 'Abnormal Absenses' %>
+    <div class="checkbox">
+    <%= f.label :attendance_deviation do %>
+      <%= f.check_box :attendance_deviation %>
+      Alarm when a school has many more absenses than normal.
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :ili_threshold, 'ILI Threshold' %>
+    <p class="help-block">Send an alert when there are this many or more ILI symptoms reported at a school. 0 or blank will not trigger any alerts.</p>
+    <%= f.number_field :ili_threshold, class: 'form-control', min: 0 %>
+  </div>
+  <div class="form-group">
+    <%= f.label :confirmed_ili_threshold, 'Confirmed ILI Threshold' %>
+    <p class="help-block">Like ILI threshold, but only counts ILI reports marked as confirmed.</p>
+    <%= f.number_field :confirmed_ili_threshold, class: 'form-control', min: 0 %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :measles_threshold, 'Measles Threshold' %>
+    <p class="help-block">Send an alert when there are this many or more measles cases reported at a school.</p>
+    <%= f.number_field :measles_threshold, class: 'form-control', min: 0 %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit 'Update Alarm Preferences', class: 'btn btn-primary' %>
+  </div>
+<% end %>

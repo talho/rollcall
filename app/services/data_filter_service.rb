@@ -29,7 +29,7 @@ class DataFilterService
 
   def apply_joins
     if @ili
-      @query = @query.joins("JOIN students ON students.id = student_daily_infos.id")
+      @query = @query.joins("JOIN students ON students.id = student_daily_infos.student_id")
                    .joins("JOIN schools ON schools.id = students.id")
                    .joins("JOIN (SELECT MAX(total_enrolled) as max_enrolled, school_id
                                  FROM school_daily_infos
@@ -47,13 +47,13 @@ class DataFilterService
                              GROUP BY school_id) as max_school_enrollment ON max_school_enrollment.school_id = schools.id")
       end
     else
-      @query = @query.joins("JOIN schools ON schools.id = school_daily_infos.id")
+      @query = @query.joins("JOIN schools ON schools.id = school_daily_infos.school_id")
       if @type == :school_district
         @query = @query.joins("JOIN school_districts ON schools.school_district_id = school_districts.id")
       else
         @query = @query.joins("JOIN (SELECT MAX(total_enrolled) as max_enrolled, school_id
-                                 FROM school_daily_infos
-                                 GROUP BY school_id) as max_school_enrollment on max_school_enrollment.school_id = schools.id")
+                               FROM school_daily_infos
+                               GROUP BY school_id) as max_school_enrollment on max_school_enrollment.school_id = schools.id")
       end
     end
   end
@@ -83,7 +83,7 @@ class DataFilterService
     end
   end
 
-  def apply_date_filter start_date, end_date
+  def apply_date_filter start_date = nil, end_date = nil
     if @ili
       report_date = "student_daily_infos.report_date"
     else
@@ -123,15 +123,15 @@ class DataFilterService
   def apply_selects function
     if @ili
       total_absent = "count(*)"
-      report_date = "student_daily_infos.report_date"
+      report_date = "report_date"
       total_enrolled = @type == :school ? "MAX(CASE WHEN total_enrolled = 0 or total_enrolled is null THEN max_enrolled ELSE total_enrolled END)" : "MAX(district_info.total_enrolled)"
     elsif @type == :school
       total_absent = "total_absent"
-      report_date = "school_daily_infos.report_date"
+      report_date = "report_date"
       total_enrolled = "CASE WHEN total_enrolled = 0 or total_enrolled is null THEN max_enrolled ELSE total_enrolled END"
     else
       total_absent = "SUM(total_absent)"
-      report_date = "school_daily_infos.report_date"
+      report_date = "report_date"
       total_enrolled = "SUM(total_enrolled)"
     end
 
@@ -145,18 +145,18 @@ class DataFilterService
       @query = @query.select("greatest(sum(#{total_absent} - #{avg}) over (order by #{report_date} rows between unbounded preceding and current row),0) as \"cusum\"")
     end
 
-    @query = @query.select("#{report_date} as report_date")
-      .select(%{#{total_absent} as "absent", #{total_enrolled} as "enrolled",
-              CAST(#{total_absent} as FLOAT)/CAST(GREATEST(#{total_enrolled}, 1) as FLOAT) as pct})
+    @query = @query.select("report_date")
+                   .select(%{#{total_absent} as "absent", #{total_enrolled} as "enrolled"})
+                   .select(%{#{total_absent}::FLOAT/GREATEST(#{total_enrolled}, 1)::FLOAT as pct})
   end
 
   def param_setup
     case @params[:span]
-    when 'month' then @params[:startdt] ||= 1.month.ago.to_s
-    when '6month' then @params[:startdt] ||= 6.months.ago.to_s
-    when 'year' then @params[:startdt] ||= 1.year.ago.to_s
+    when 'month' then @params[:startdt] ||= 1.month.ago.to_date.to_s
+    when '6month' then @params[:startdt] ||= 6.months.ago.to_date.to_s
+    when 'year' then @params[:startdt] ||= 1.year.ago.to_date.to_s
     else
-      @params[:startdt] ||= 3.months.ago.to_s
+      @params[:startdt] ||= 3.months.ago.to_date.to_s
       @params[:span] = '3month'
     end
 

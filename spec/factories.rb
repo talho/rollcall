@@ -1,35 +1,15 @@
 require 'factory_girl'
 
 FactoryGirl.define do
-  factory :rollcall_alarm, :class => Rollcall::Alarm do
-    association :school, :factory => :rollcall_school
-    association :alarm_query, :factory => :rollcall_alarm_query
-    deviation 1.0
-    severity 1.0
-    absentee_rate 1.0
-    report_date Time.now
-    alarm_severity "low"
-    ignore_alarm false
+
+  factory :alarm do
+    user nil
+    attendance_deviation false
+    ili_threshold 1
+    confirmed_ili_threshold 1
+    measles_threshold 1
   end
 
-  factory :rollcall_alarm_query, :class => Rollcall::AlarmQuery do
-    association :user, :factory => :user
-    query_params "{type:simple,absent:gross}"
-    sequence(:name){|t| "Name ##{t}"}
-    severity_min 1
-    severity_max 2
-    deviation_min 1
-    deviation_max 2
-    alarm_set false
-  end
-=begin
-  factory :rollcall_alert, :class => RollcallAlert do
-    title "New Alarm for Test School[test]"
-    message "A new alarm of test severity has been created for Test School on this day."
-    association :author, :factory => :user
-    association :alarm, :factory => :rollcall_alarm
-  end
-=end
   factory :school do
     sequence(:display_name){|t| "Display Name ##{t}"}
     tea_id 11111111
@@ -40,7 +20,7 @@ FactoryGirl.define do
     association :district, :factory => :rollcall_school_district
   end
 
-  factory :rollcall_school_daily_info, :class => Rollcall::SchoolDailyInfo do
+  factory :school_daily_info do
     association :school, :factory => :rollcall_school
     total_absent 10
     total_enrolled 100
@@ -53,7 +33,7 @@ FactoryGirl.define do
     association :jurisdiction, :factory => :jurisdiction
   end
 
-  factory :rollcall_student, :class => Rollcall::Student do
+  factory :student do
     first_name "Student"
     last_name "Name"
     contact_first_name "Contact"
@@ -68,7 +48,7 @@ FactoryGirl.define do
     dob(Time.now - 10.years)
   end
 
-  factory :rollcall_student_daily_info, :class => Rollcall::StudentDailyInfo do
+  factory :student_daily_info do
     report_date Time.now
     sequence(:grade){|num|num}
     confirmed_illness true
@@ -85,12 +65,12 @@ FactoryGirl.define do
     report_time Time.now
   end
 
-  factory :rollcall_student_reported_symptoms, :class => Rollcall::StudentReportedSymptom do
+  factory :student_reported_symptoms do
     association :symptom, :factory => :rollcall_symptom
     association :student_daily_info, :factory => :rollcall_student_daily_info
   end
 
-  factory :rollcall_symptom , :class => Rollcall::Symptom do
+  factory :symptom do
     sequence(:id){|i| i}
     sequence(:name){|t| "Name ##{t}"}
     sequence(:icd9_code){|num| num}

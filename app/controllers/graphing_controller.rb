@@ -19,7 +19,7 @@ class GraphingController < ApplicationController
   def index
     params[:span] ||= '3month'
     @type = params[:type] ||= :school_district
-    @entities = params[:type] == 'school' ? School.for_user(current_user) : current_user.school_districts
+    @entities = params[:type] == 'school' ? School.for_user(current_user).order('display_name') : current_user.school_districts.order('name')
     @entities = @entities.page(params[:page]).per(5)
   end
 

@@ -23,6 +23,8 @@ gem 'backbone-rails'
 gem 'handlebars_assets'
 gem 'd3-rails'
 
+gem 'whenever'
+
 group :development, :test do
   gem 'byebug'
   gem 'spring'

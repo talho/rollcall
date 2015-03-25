@@ -16,7 +16,7 @@
       <tr>
         <td><%= sdi.student.school.name %></td>
         <td><%= sdi.student.school.school_district.name %></td>
-        <td><%= l sdi.date_of_onset %></td>
+        <td><%= l sdi.report_date %></td>
         <td><%= sdi.grade %></td>
         <td><%= sdi.symptoms.map(&:name).join(', ') %></td>
         <td>

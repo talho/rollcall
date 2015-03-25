@@ -1,9 +1,79 @@
-<h1>Rollcall</h1>
-<h3>District Health</h3>
-<% @school_districts.each do |district| %>
-  <p><%= district.name %>: <strong class="<%= severity_class district[:pct] %>"><%= number_to_percentage district[:pct] * 100, precision: 0 %></strong></p>
-<% end %>
-<h3>Highest Absentee Rate</h3>
-<% @schools.each do |school| %>
-  <p><%= school.name %>: <strong class="<%= severity_class school[:pct] %>"><%= number_to_percentage school[:pct] * 100, precision: 0 %></strong></p>
-<% end %>
+
+<div class="container">
+  <h2>Absentee and Influenza-like Illness Report</h2>
+  <h5>Report date: <%= l Date.today %></h5>
+
+  <h3>Total Absenteeism</h3>
+  <table class="table table-condensed">
+    <thead>
+      <th>Date</th>
+      <th>Absence Rate</th>
+      <th>Total Absences</th>
+      <th>Confirmed Illnesses*</th>
+      <th>Flu-like Symptoms</th>
+      <th>Total Enrollment</th>
+    </thead>
+    <tbody>
+      <% @report.totals.each do |total| %>
+        <tr>
+          <td><%= l total.report_date if total.report_date %></td>
+          <td><%= number_to_percentage(total.pct * 100, :precision => 1) %></td>
+          <td><%= total.total_absent %></td>
+          <td><%= number_with_precision total.confirmed, precision: 0 %></td>
+          <td><%= number_with_precision total.ili, precision: 0 %></td>
+          <td><%= total.total_enrolled %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% @report.school_districts.each do |district| %>
+    <h3><%= district[:school_district].first.name %></h3>
+    <table class="table table-condensed">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Absence Rate</th>
+          <th>Total Absences</th>
+          <th>Confirmed Illnesses*</th>
+          <th>Flu-like Symptoms</th>
+          <th>Total Enrollment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% district[:school_district].each do |rate| %>
+          <tr>
+            <td><%= l rate.report_date if rate.report_date %></td>
+            <td><%= number_to_percentage(rate.pct * 100, :precision => 1) if rate.pct %></td>
+            <td><%= rate.absent %></td>
+            <td><%= rate.confirmed %></td>
+            <td><%= rate.ili %></td>
+            <td><%= rate.enrolled %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% unless district[:schools_with_ili].blank? %>
+      <h4>Schools with confirmed absences or ili in the last week:</h4>
+      <ul class="list-unstyled">
+        <% district[:schools_with_ili].each do |school| %>
+          <li><strong><%= school.name %></strong> <%= school.confirmed || 0 %> confirmed/<%= school.ili || 0 %> ILI</li>
+        <% end %>
+      </ul>
+    <% end %>
+
+    <% unless district[:schools_above_average].blank? %>
+      <h4>Schools that are beyond 1 deviation higher:</h4>
+      <ul class="list-unstyled">
+        <% district[:schools_above_average].each do |school| %>
+          <li><strong><%= school.name %></strong> -
+              <span class='text-info'><%= l school.report_date if school.report_date %></span>
+              <%= number_to_percentage(school.pct * 100, :precision => 1) %> (<%= school.total_absent %>/<%= school.total_enrolled %>)
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  <% end %>
+
+  <small>* Not all districts report confirmed illnesses with their symptoms.</small>
+</div>

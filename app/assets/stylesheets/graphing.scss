@@ -1,0 +1,20 @@
+.graph{
+  .axis {
+    .domain{
+      stroke-width: 1px;
+      stroke: #888;
+      fill: none;
+    }
+
+    .tick text{
+      stroke: #666;
+      font-size: 0.9em;
+    }
+  }
+
+  .line {
+    stroke: #68F;
+    stroke-width: 2px;
+    fill: none;
+  }
+}

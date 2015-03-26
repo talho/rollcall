@@ -14,7 +14,7 @@ set :deploy_to, "/home/ubuntu/#{fetch(:application)}"
 set :linked_files, %w{config/application.yml}
 
 # Default value for linked_dirs is []
-set :linked_dirs, %w{bin log tmp/pids tmp/cache tmp/sockets vendor/bundle}
+set :linked_dirs, %w{log tmp/pids tmp/cache tmp/sockets vendor/bundle}
 
 # Default value for keep_releases is 5
 set :keep_releases, 5
@@ -61,4 +61,5 @@ namespace :deploy do
   after :setup, 'rvm1:install:rvm'
   after :setup, 'rvm1:install:ruby'
 
+  after 'deploy:restart', 'unicorn:restart'
 end

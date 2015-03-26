@@ -60,6 +60,9 @@ namespace :deploy do
   end
   after :setup, 'rvm1:install:rvm'
   after :setup, 'rvm1:install:ruby'
-
-  after 'deploy:restart', 'unicorn:restart'
+  
+  after 'deploy:publishing', 'deploy:restart'
+  task :restart do
+    invoke 'unicorn:restart'
+  end
 end

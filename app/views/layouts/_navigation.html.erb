@@ -28,7 +28,7 @@
         <% end %>
         <ul class="nav navbar-nav navbar-right">
           <% if user_signed_in? %>
-            <li><p class="navbar-text">Signed in as <%= current_user.name.blank? ? current_user.email : current_user.name %></p></li>
+            <li><%= link_to edit_user_registration_path do %><%= current_user.name.blank? ? current_user.email : current_user.name %> <i class="fa fa-wrench"></i><% end %></li>
             <li><%= link_to 'Sign Out', destroy_user_session_path, method: :delete %></li>
           <% else %>
             <li><%= link_to 'Sign In', new_user_session_path %></li>

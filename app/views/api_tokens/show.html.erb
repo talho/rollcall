@@ -1,0 +1,59 @@
+<h1>API Access</h1>
+
+<section title="Access Token">
+  <% if @bearer %>
+    <p>To make an authorized request, include in your request header:<br>
+       Authentication: Bearer <%= @bearer %>
+    </p>
+  <% end %>
+
+  <% if @has_token %>
+    <p>You already have a token set. Creating a new token will replace the old and you will need to
+       update any scripts. Tokens cannot be recovered, so if you have lost yours, you must recreate.
+    </p>
+    <%= button_to 'Recreate Token', api_token_path, method: :post, data: {confirm: "Are you sure? Your exiting token will become invalid."}, class: 'btn btn-warning' %>
+  <% else %>
+    <%= button_to 'Create Token', api_token_path, method: :post, class: 'btn btn-primary' %>
+  <% end %>
+</section>
+
+<section title="API Endpoints">
+  <h4>/school_daily_infos.json</h4>
+  <label>Params</label>
+  <ul>
+    <li>school_daily_infos - Array - required
+      <ul>
+        <li>state_id</li>
+        <li>date</li>
+        <li>enrollment</li>
+        <li>absent</li>
+      </ul>
+    </li>
+    <li>info_date - Object - optional <span class="text-muted">convenience object</span>
+      <ul>
+        <li>year</li>
+        <li>month</li>
+        <li>day</li>
+      </ul>
+    </li>
+  </ul>
+  </p>
+  <h4>/student_daily_infos/batch.json</h4>
+  <label>Params</label>
+  <ul>
+    <li>student_daily_infos - Array - required
+      <ul>
+        <li>student_attributes - Object - required
+          <ul>
+            <li>student_number <span class="text-muted">do not use identifiable ID</span></li>
+            <li>school_state_id - required</li>
+          </ul>
+        </li>
+        <li>symptoms - Array - required <span class="text-muted">array of string symptoms</span></li>
+        <li>report_date - Date - required</li>
+        <li>grade</li>
+        <li>confirmed_illness</li>
+      </ul>
+    </li>
+  </ul>
+</section>

@@ -34,6 +34,36 @@ class StudentDailyInfosController < ApplicationController
     respond_with @student_daily_info, location: loc
   end
 
+  # Create student daily infos by array. Look up matches for symptoms.
+  def batch
+    @student_daily_infos = params[:student_daily_infos].map do |sdi|
+      sdi = ActionController::Parameters.new(sdi)
+      if sdi[:student_attributes][:school_id].blank?
+        school = School.where(school_id: sdi[:student_attributes][:school_state_id]).first
+        next if school.blank?
+        sdi[:student_attributes][:school_id] = school.id
+      end
+
+      student_daily_info = StudentDailyInfo.new
+      student_daily_info.student = Student.where(student_attributes_attrs(sdi)).first_or_initialize
+
+      next if cannot? :manage, student_daily_info
+
+      student_daily_info.attributes = student_daily_info_attrs(sdi)
+
+      symptoms = sdi[:symptoms].map do |s|
+        symptom = Symptom.joins(:symptom_tags).where("? LIKE '%'||match||'%'", s).first
+        symptom.blank? ? nil : {symptom_id: symptom.id}
+      end.compact.uniq
+      student_daily_info.attributes = {student_reported_symptoms_attributes: symptoms}
+
+      student_daily_info.save
+      student_daily_info
+    end
+
+    render json: @student_daily_infos
+  end
+
   def edit
     @student_daily_info = StudentDailyInfo.includes(:symptoms, :student => {:school => [:school_district]}).find(params[:id])
     authorize! :manage, @student_daily_info
@@ -70,11 +100,19 @@ class StudentDailyInfosController < ApplicationController
 
   protected
   def student_daily_info_params
-    params.require(:student_daily_info).permit(:report_date, :grade, :confirmed_illness)
+    student_daily_info_attrs params.require(:student_daily_info)
+  end
+
+  def student_daily_info_attrs(p)
+    p.permit(:report_date, :grade, :confirmed_illness)
   end
 
   def student_attributes_params
-    params.require(:student_daily_info).permit(:student_attributes => [:student_number, :school_id])
+    student_attributes_attrs params.require(:student_daily_info)
+  end
+
+  def student_attributes_attrs(p)
+    p.permit(:student_attributes => [:student_number, :school_id])
   end
 
   def student_reported_symptoms_attributes_params

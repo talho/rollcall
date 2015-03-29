@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-
   root 'main#index'
 
   resources :school_districts do
@@ -10,7 +9,9 @@ Rails.application.routes.draw do
   end
 
   resources :school_daily_infos, only: [:index, :create]
-  resources :student_daily_infos, except: [:show]
+  resources :student_daily_infos, except: [:show] do
+    post :batch, on: :collection
+  end
   resources :graphing, :only => [:index] do
     member do
       get :school
@@ -19,6 +20,7 @@ Rails.application.routes.draw do
   end
 
   resource :alarm, only: [:show, :update]
+  resource :api_token, only: [:show, :create]
 
   devise_for :users
 end
